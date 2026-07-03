@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
-"""Bake the shared 5x7 pixel font into a BMFont bitmap font Godot can load:
-assets/font/pixel_font.png + pixel_font.fnt. Lowercase ids alias the uppercase
-glyphs so mixed-case strings still render. Re-run: python3 assets/font/_gen_font.py
+"""Bake the native 10x16 pixel font (assets/font/_glyphs14.py — Scale2x caps +
+hand-drawn lowercase) into a BMFont bitmap font Godot can load:
+assets/font/pixel_font.png + pixel_font.fnt.
+
+BMFont size=16 so Labels with font_size=16 render 1:1; metrics footprint is
+identical to the old doubled 5x7 (advance 12, lineHeight 18) so layouts hold.
+Re-run: python3 assets/font/_gen_font.py
 """
 import struct, zlib, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(HERE))
-from _pixfont import GLYPHS, CHAR_W, CHAR_H, ADVANCE
+sys.path.insert(0, HERE)
+from _glyphs14 import GLYPHS16, CHAR_W, CHAR_H, ADVANCE, BASE
 
 CELL_W, CELL_H = CHAR_W + 1, CHAR_H + 1
 PER_ROW = 16
-chars = sorted(GLYPHS.keys())
+chars = sorted(GLYPHS16.keys())
 rows = (len(chars) + PER_ROW - 1) // PER_ROW
 W, H = PER_ROW * CELL_W, rows * CELL_H
 
@@ -20,16 +24,12 @@ entries = []
 WHITE = (255, 255, 255, 255)
 for i, ch in enumerate(chars):
     gx, gy = (i % PER_ROW) * CELL_W, (i // PER_ROW) * CELL_H
-    for ry, row in enumerate(GLYPHS[ch]):
+    for ry, row in enumerate(GLYPHS16[ch]):
         for rx, bit in enumerate(row):
             if bit == "X":
                 o = ((gy + ry) * W + gx + rx) * 4
                 buf[o:o + 4] = bytes(WHITE)
-    ids = [ord(ch)]
-    if ch.isalpha():
-        ids.append(ord(ch.lower()))
-    for cid in ids:
-        entries.append((cid, gx, gy))
+    entries.append((ord(ch), gx, gy))
 
 raw = bytearray()
 for y in range(H):
@@ -47,8 +47,8 @@ open(os.path.join(HERE, "pixel_font.png"), "wb").write(
     + chunk(b"IEND", b""))
 
 lines = [
-    'info face="PoopyPixel" size=8 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=0 aa=1 padding=0,0,0,0 spacing=0,0 outline=0',
-    f'common lineHeight={CHAR_H + 2} base={CHAR_H} scaleW={W} scaleH={H} pages=1 packed=0 alphaChnl=1 redChnl=0 greenChnl=0 blueChnl=0',
+    'info face="PoopyPixel" size=16 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=0 aa=1 padding=0,0,0,0 spacing=0,0 outline=0',
+    f'common lineHeight=18 base={BASE} scaleW={W} scaleH={H} pages=1 packed=0 alphaChnl=1 redChnl=0 greenChnl=0 blueChnl=0',
     'page id=0 file="pixel_font.png"',
     f"chars count={len(entries)}",
 ]
