@@ -1,6 +1,6 @@
-[gd_resource type="SpriteFrames" load_steps=34 format=3]
+[gd_resource type="SpriteFrames" load_steps=38 format=3]
 
-[ext_resource type="Texture2D" path="res://assets/player.png" id="1_tex"]
+[ext_resource type="Texture2D" path="res://assets/basil_gen.png" id="1_tex"]
 
 [sub_resource type="AtlasTexture" id="atlas_0"]
 atlas = ExtResource("1_tex")
@@ -130,6 +130,22 @@ region = Rect2(0, 288, 48, 48)
 atlas = ExtResource("1_tex")
 region = Rect2(48, 288, 48, 48)
 
+[sub_resource type="AtlasTexture" id="atlas_32"]
+atlas = ExtResource("1_tex")
+region = Rect2(96, 288, 48, 48)
+
+[sub_resource type="AtlasTexture" id="atlas_33"]
+atlas = ExtResource("1_tex")
+region = Rect2(144, 288, 48, 48)
+
+[sub_resource type="AtlasTexture" id="atlas_34"]
+atlas = ExtResource("1_tex")
+region = Rect2(192, 288, 48, 48)
+
+[sub_resource type="AtlasTexture" id="atlas_35"]
+atlas = ExtResource("1_tex")
+region = Rect2(240, 288, 48, 48)
+
 [resource]
 animations = [
 {
@@ -150,37 +166,47 @@ animations = [
 }, {
 "frames": [{"duration": 1.0, "texture": SubResource("atlas_18")}, {"duration": 1.0, "texture": SubResource("atlas_19")}, {"duration": 1.0, "texture": SubResource("atlas_20")}, {"duration": 1.0, "texture": SubResource("atlas_21")}],
 "loop": false,
-"name": &"attack_down",
-"speed": 14.0
+"name": &"shoot_down",
+"speed": 12.0
 }, {
 "frames": [{"duration": 1.0, "texture": SubResource("atlas_22")}, {"duration": 1.0, "texture": SubResource("atlas_23")}, {"duration": 1.0, "texture": SubResource("atlas_24")}, {"duration": 1.0, "texture": SubResource("atlas_25")}],
 "loop": false,
-"name": &"attack_up",
-"speed": 14.0
+"name": &"shoot_up",
+"speed": 12.0
 }, {
 "frames": [{"duration": 1.0, "texture": SubResource("atlas_26")}, {"duration": 1.0, "texture": SubResource("atlas_27")}, {"duration": 1.0, "texture": SubResource("atlas_28")}, {"duration": 1.0, "texture": SubResource("atlas_29")}],
 "loop": false,
-"name": &"attack_side",
-"speed": 14.0
+"name": &"shoot_side",
+"speed": 12.0
 }, {
 "frames": [{"duration": 1.0, "texture": SubResource("atlas_30")}, {"duration": 1.0, "texture": SubResource("atlas_31")}],
 "loop": false,
 "name": &"hurt",
 "speed": 6.0
 }, {
-"frames": [{"duration": 1.0, "texture": SubResource("atlas_0")}],
+"frames": [{"duration": 6.0, "texture": SubResource("atlas_0")}, {"duration": 0.4, "texture": SubResource("atlas_32")}],
 "loop": true,
 "name": &"idle_down",
-"speed": 1.0
+"speed": 2.0
 }, {
 "frames": [{"duration": 1.0, "texture": SubResource("atlas_6")}],
 "loop": true,
 "name": &"idle_up",
 "speed": 1.0
 }, {
-"frames": [{"duration": 1.0, "texture": SubResource("atlas_12")}],
+"frames": [{"duration": 6.0, "texture": SubResource("atlas_12")}, {"duration": 1.2, "texture": SubResource("atlas_33")}],
 "loop": true,
 "name": &"idle_side",
+"speed": 2.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("atlas_34")}],
+"loop": true,
+"name": &"happy",
+"speed": 1.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("atlas_35")}],
+"loop": true,
+"name": &"sad",
 "speed": 1.0
 }
 ]

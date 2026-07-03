@@ -1,0 +1,143 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scene/intro_hall.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/props/hall_floor.png" id="2_floor"]
+[ext_resource type="Texture2D" path="res://assets/props/hall_wall.png" id="3_wall"]
+[ext_resource type="Texture2D" path="res://assets/props/chalkboard.png" id="4_board"]
+[ext_resource type="SpriteFrames" path="res://entities/player/player_frames.tres" id="5_basil"]
+[ext_resource type="Texture2D" path="res://assets/props/podium.png" id="6_podium"]
+[ext_resource type="Texture2D" path="res://assets/props/audience_cats.png" id="7_cats"]
+[ext_resource type="SpriteFrames" path="res://entities/npcs/schweinler_frames.tres" id="8_pig"]
+[ext_resource type="Texture2D" path="res://assets/props/paw_print.png" id="9_print"]
+[ext_resource type="PackedScene" path="res://scene/dialog_box.tscn" id="10_dialog"]
+[ext_resource type="FontFile" path="res://assets/font/pixel_font.fnt" id="11_font"]
+
+[node name="IntroHall" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="Floor" type="Sprite2D" parent="."]
+texture_repeat = 2
+position = Vector2(320, 180)
+texture = ExtResource("2_floor")
+region_enabled = true
+region_rect = Rect2(0, 0, 640, 360)
+
+[node name="Wall" type="Sprite2D" parent="."]
+texture_repeat = 2
+position = Vector2(320, 48)
+texture = ExtResource("3_wall")
+region_enabled = true
+region_rect = Rect2(0, 0, 640, 96)
+
+[node name="Chalkboard" type="Sprite2D" parent="."]
+position = Vector2(320, 52)
+texture = ExtResource("4_board")
+
+[node name="Print1" type="Sprite2D" parent="."]
+position = Vector2(324, 296)
+texture = ExtResource("9_print")
+
+[node name="Print2" type="Sprite2D" parent="."]
+position = Vector2(312, 256)
+texture = ExtResource("9_print")
+
+[node name="Print3" type="Sprite2D" parent="."]
+position = Vector2(326, 216)
+texture = ExtResource("9_print")
+
+[node name="Print4" type="Sprite2D" parent="."]
+position = Vector2(314, 176)
+texture = ExtResource("9_print")
+
+[node name="Print5" type="Sprite2D" parent="."]
+position = Vector2(322, 148)
+texture = ExtResource("9_print")
+
+[node name="Basil" type="AnimatedSprite2D" parent="."]
+position = Vector2(320, 110)
+sprite_frames = ExtResource("5_basil")
+animation = &"idle_down"
+autoplay = "idle_down"
+
+[node name="Podium" type="Sprite2D" parent="."]
+position = Vector2(320, 148)
+texture = ExtResource("6_podium")
+
+[node name="Audience" type="Node2D" parent="."]
+
+[node name="Cat1" type="Sprite2D" parent="Audience"]
+position = Vector2(140, 244)
+texture = ExtResource("7_cats")
+hframes = 4
+frame = 0
+
+[node name="Cat2" type="Sprite2D" parent="Audience"]
+position = Vector2(224, 252)
+texture = ExtResource("7_cats")
+hframes = 4
+frame = 2
+
+[node name="Cat3" type="Sprite2D" parent="Audience"]
+position = Vector2(412, 248)
+texture = ExtResource("7_cats")
+hframes = 4
+frame = 1
+
+[node name="Cat4" type="Sprite2D" parent="Audience"]
+position = Vector2(500, 242)
+texture = ExtResource("7_cats")
+hframes = 4
+frame = 3
+
+[node name="Cat5" type="Sprite2D" parent="Audience"]
+position = Vector2(112, 308)
+texture = ExtResource("7_cats")
+hframes = 4
+frame = 1
+
+[node name="Cat6" type="Sprite2D" parent="Audience"]
+position = Vector2(260, 316)
+texture = ExtResource("7_cats")
+hframes = 4
+frame = 3
+
+[node name="Cat7" type="Sprite2D" parent="Audience"]
+position = Vector2(448, 312)
+texture = ExtResource("7_cats")
+hframes = 4
+frame = 0
+
+[node name="Cat8" type="Sprite2D" parent="Audience"]
+position = Vector2(544, 304)
+texture = ExtResource("7_cats")
+hframes = 4
+frame = 2
+
+[node name="Schweinler" type="AnimatedSprite2D" parent="."]
+position = Vector2(336, 264)
+sprite_frames = ExtResource("8_pig")
+animation = &"idle_up"
+autoplay = "idle_up"
+
+[node name="DialogBox" parent="." instance=ExtResource("10_dialog")]
+
+[node name="FadeLayer" type="CanvasLayer" parent="."]
+layer = 20
+
+[node name="Fade" type="ColorRect" parent="FadeLayer"]
+offset_right = 640.0
+offset_bottom = 360.0
+color = Color(0, 0, 0, 1)
+
+[node name="Card" type="Label" parent="FadeLayer"]
+visible = false
+offset_left = 20.0
+offset_top = 158.0
+offset_right = 620.0
+offset_bottom = 202.0
+theme_override_fonts/font = ExtResource("11_font")
+theme_override_font_sizes/font_size = 8
+theme_override_constants/line_spacing = 3
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3

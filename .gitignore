@@ -1,3 +1,14 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# Python tooling (art generators)
+__pycache__/
+*.pyc
+
+# OS cruft
+.DS_Store
+
+# Godot export artifacts
+export_presets.cfg
+*.tmp
