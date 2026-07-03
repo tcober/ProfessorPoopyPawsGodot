@@ -3,7 +3,9 @@ extends Cutscene
 ## Opening scene, part 2 — morning in Basil's bedroom. A songbird lands on the
 ## windowsill and chirps him awake... at 8:57. The alarm never went off. Panic.
 
-const SILL := Vector2(476, 126)              # bird's perch on the windowsill
+const SILL := Vector2(366, 148)              # bird's perch on the windowsill
+                                             # (window is top-center in the
+                                             # recomposed bedroom_bg.png)
 
 @onready var bed: Sprite2D = $Bed           # frames: asleep A / asleep B / upright / empty
 @onready var bird: Sprite2D = $Bird         # frames: perched / chirp / flap
