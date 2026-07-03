@@ -215,15 +215,18 @@ def save(path, w, h, body):
 
 save(os.path.join(HERE, "title_bg.png"), W, H, raw)
 
-# ---- tiny leaf particle texture ---------------------------------------------------------
-LW = LH = 5
+# ---- tiny leaf particle texture (10x10 — matches the 2x world scale) --------------------
+LW = LH = 10
 lb = bytearray(LW * LH * 4)
 for yy, row in enumerate(("..X..", ".XXX.", "XXXXX", ".XXX.", "..X..")):
     for xx, bit in enumerate(row):
-        if bit == "X":
-            o = (yy * LW + xx) * 4
-            col = (238, 148, 88, 255) if (xx + yy) % 2 else (255, 196, 110, 255)
-            lb[o:o + 4] = bytes(col)
+        if bit != "X":
+            continue
+        col = (238, 148, 88, 255) if (xx + yy) % 2 else (255, 196, 110, 255)
+        for dy in range(2):
+            for dx in range(2):
+                o = ((yy * 2 + dy) * LW + xx * 2 + dx) * 4
+                lb[o:o + 4] = bytes(col)
 lraw = bytearray()
 for y in range(LH):
     lraw.append(0)

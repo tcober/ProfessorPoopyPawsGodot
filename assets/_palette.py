@@ -157,22 +157,26 @@ BASIL = {
     "OUTS": _BASIL_OUTS, "OUT_FALLBACK": _OUT_FUR,
 }
 
-# Schweinler — smug pig: rosy hide, red neckerchief, violet-leaning shadows
-_PIG   = [(248, 186, 178, 255), (226, 148, 150, 255), (192, 110, 130, 255), (150, 78, 110, 255)]
-_PIG_D = [(226, 148, 150, 255), (192, 110, 130, 255), (150, 78, 110, 255), (112, 56, 92, 255)]
-_KERCH = [(238, 92, 92, 255), (206, 64, 78, 255), (166, 44, 70, 255), (122, 30, 60, 255)]
-_HOOF  = [(120, 88, 120, 255), (94, 66, 100, 255), (70, 48, 80, 255), (48, 32, 60, 255)]
+# Schweinler — smug pig: rosy hide, pale belly, red neckerchief, cloven trotters.
+# Hand-tuned like Basil's; dark ends nudged violet per the shadow law.
+_PIG   = [(238, 190, 176, 255), (214, 152, 140, 255), (186, 114, 112, 255), (148, 80, 96, 255)]
+_BELLY = [(246, 214, 200, 255), (230, 182, 168, 255), (206, 144, 138, 255), (176, 108, 114, 255)]
+_KERCH = [(212, 100, 86, 255), (184, 68, 60, 255), (152, 44, 50, 255), (114, 30, 52, 255)]
+_HOOF  = [(132, 80, 78, 255), (108, 60, 62, 255), (84, 44, 54, 255), (60, 32, 48, 255)]
 
 _SCHW_OUTS = {}
-for _r, _o in ((_PIG, (74, 34, 62, 255)), (_PIG_D, (74, 34, 62, 255)),
-               (_KERCH, (86, 18, 44, 255)), (_HOOF, (30, 18, 40, 255))):
+for _r, _o in ((_PIG, (76, 34, 48, 255)), (_BELLY, (76, 34, 48, 255)),
+               (_KERCH, (70, 16, 32, 255)), (_HOOF, (36, 18, 30, 255))):
     for _c in _r:
         _SCHW_OUTS[_c] = _o
 
 SCHWEINLER = {
-    "PIG": _PIG, "PIG_D": _PIG_D, "KERCH": _KERCH, "HOOF": _HOOF,
-    "EYE": (34, 22, 36, 255), "SNOUT": (255, 214, 206, 255),
-    "OUTS": _SCHW_OUTS, "OUT_FALLBACK": (74, 34, 62, 255),
+    "PIG": _PIG, "BELLY": _BELLY, "KERCH": _KERCH, "HOOF": _HOOF,
+    "EYE_D": (30, 22, 26, 255), "GLINT": (255, 252, 248, 255),
+    "BROW": (128, 56, 62, 255), "NOSTR": (150, 74, 84, 255),
+    "MOUTH": (150, 74, 84, 255), "TONGUE": (222, 110, 116, 255),
+    "MAW": (96, 40, 48, 255),
+    "OUTS": _SCHW_OUTS, "OUT_FALLBACK": (76, 34, 48, 255),
 }
 
 # Slime — meadow gel, teal-shadowed greens

@@ -17,7 +17,7 @@ func _play() -> void:
 	await wait(0.4)
 	await say("BASIL: AHEM. TH-THANK YOU. AS I WAS SAYING-- MAGIC IS NOT GONE. IT IS MERELY SLEEPING, AND--")
 	# Schweinler rises
-	await hop(schweinler, 6.0, 0.25)
+	await hop(schweinler, 12.0, 0.25)
 	schweinler.play("point_up")
 	await say("SCHWEINLER: HOLD ON!! WHAT'S THAT SMELL?!")
 	await say("BASIL: S-SCHWEINLER?!")
@@ -43,5 +43,5 @@ func _play() -> void:
 func _crowd_laugh() -> void:
 	for cat in audience.get_children():
 		var tw := create_tween().set_loops(6)
-		tw.tween_property(cat, "position:y", cat.position.y - 2, 0.09)
+		tw.tween_property(cat, "position:y", cat.position.y - 4, 0.09)
 		tw.tween_property(cat, "position:y", cat.position.y, 0.09)

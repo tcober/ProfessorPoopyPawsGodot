@@ -19,12 +19,12 @@ position = Vector2(320, 180)
 texture = ExtResource("2_bg")
 
 [node name="Bed" type="Sprite2D" parent="."]
-position = Vector2(220, 160)
+position = Vector2(208, 232)
 texture = ExtResource("3_bed")
 hframes = 4
 
 [node name="Nightstand" type="Sprite2D" parent="."]
-position = Vector2(258, 136)
+position = Vector2(296, 196)
 texture = ExtResource("4_stand")
 
 [node name="Bird" type="Sprite2D" parent="."]
@@ -35,7 +35,7 @@ hframes = 3
 
 [node name="Basil" type="AnimatedSprite2D" parent="."]
 visible = false
-position = Vector2(266, 190)
+position = Vector2(310, 262)
 sprite_frames = ExtResource("6_basil")
 animation = &"idle_down"
 autoplay = "idle_down"

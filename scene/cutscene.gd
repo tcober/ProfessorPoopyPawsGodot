@@ -82,7 +82,7 @@ func card(text: String, hold: float = 1.6) -> void:
 
 
 ## Walk an AnimatedSprite2D actor to `to`, playing walk_* by direction, idling after.
-func walk(actor: AnimatedSprite2D, to: Vector2, speed: float = 55.0) -> void:
+func walk(actor: AnimatedSprite2D, to: Vector2, speed: float = 110.0) -> void:
 	var delta := to - actor.position
 	var suffix := "side"
 	if absf(delta.x) <= absf(delta.y):
@@ -96,7 +96,7 @@ func walk(actor: AnimatedSprite2D, to: Vector2, speed: float = 55.0) -> void:
 
 
 ## Quick vertical hop (surprise, laughter bounce...).
-func hop(actor: Node2D, height: float = 5.0, dur: float = 0.22) -> void:
+func hop(actor: Node2D, height: float = 10.0, dur: float = 0.22) -> void:
 	var tw := create_tween()
 	tw.tween_property(actor, "position:y", actor.position.y - height, dur * 0.5)
 	tw.tween_property(actor, "position:y", actor.position.y, dur * 0.5)

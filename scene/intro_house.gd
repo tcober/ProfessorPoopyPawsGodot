@@ -36,13 +36,13 @@ func _ready() -> void:
 
 func _paint_yard() -> void:
 	var flowers: Array[Vector2i] = [
-		Vector2i(8, 14), Vector2i(30, 12), Vector2i(33, 20), Vector2i(6, 20),
-		Vector2i(14, 17), Vector2i(26, 18), Vector2i(11, 11), Vector2i(35, 15),
+		Vector2i(4, 8), Vector2i(15, 8), Vector2i(16, 10), Vector2i(3, 10),
+		Vector2i(7, 9), Vector2i(13, 10), Vector2i(5, 11), Vector2i(17, 9),
 	]
-	for y in 23:
-		for x in 40:
+	for y in 12:
+		for x in 20:
 			var coords := Vector2i(0, 0)                     # grass
-			if (x == 19 or x == 20) and y >= 8:
+			if (x == 9 or x == 10) and y >= 7:
 				coords = Vector2i(3, 0)                      # path from the door
 			elif flowers.has(Vector2i(x, y)):
 				coords = Vector2i(2, 0)                      # flowers
@@ -62,8 +62,8 @@ func _play() -> void:
 func _play_night() -> void:
 	await fade_in(0.9)
 	await wait(0.4)
-	await walk(schweinler, Vector2(352, 300), 110)
-	await walk(schweinler, Vector2(340, 168), 85)
+	await walk(schweinler, Vector2(352, 312), 220)
+	await walk(schweinler, Vector2(338, 272), 170)
 	schweinler.play("idle_up")
 	await wait(0.4)
 	bag.visible = true
@@ -71,26 +71,26 @@ func _play_night() -> void:
 	await say("???: HEHEHE. A LITTLE 'CONGRATULATIONS' FOR MR. YOUNGEST-PROFESSOR-EVER.")
 	schweinler.play("laugh_down")
 	await say("???: ENJOY YOUR BIG LECTURE TOMORROW, BASIL! OINK-HAHAHA!!")
-	await walk(schweinler, Vector2(352, 300), 120)
-	await walk(schweinler, Vector2(704, 330), 140)
+	await walk(schweinler, Vector2(352, 312), 240)
+	await walk(schweinler, Vector2(720, 344), 280)
 	await fade_out(0.9)
 
 
 func _play_morning() -> void:
 	await fade_in(0.5)
 	basil.visible = true                        # bursts into the doorway
-	await hop(basil, 3.0, 0.16)
+	await hop(basil, 6.0, 0.16)
 	await say("BASIL: THE LECTURE!!! I OVERSLEPT!!")
 	await say("BASIL: FIRST LECTURE AS A PROFESSOR AND I OVERSLEPT!!")
-	await walk(basil, Vector2(320, 162), 100)   # one step out -- right onto the bag
+	await walk(basil, Vector2(320, 214), 200)   # one step out -- right onto the bag
 	bag.frame = 2
-	await hop(basil, 4.0, 0.16)
+	await hop(basil, 8.0, 0.16)
 	await say("SQUELCH.")
 	await say("BASIL: ...I DON'T HAVE TIME TO THINK ABOUT WHAT THAT WAS.")
 	await say("BASIL: GOTTA GO GOTTA GO GOTTA GO!!")
 	_printing = true
 	_drop_prints()
-	await walk(basil, Vector2(320, 420), 170)
+	await walk(basil, Vector2(320, 480), 340)
 	_printing = false
 	await fade_out(0.8)
 
@@ -101,7 +101,7 @@ func _drop_prints() -> void:
 	while _printing and is_instance_valid(basil):
 		var p := Sprite2D.new()
 		p.texture = PRINT_TEX
-		p.position = basil.position + Vector2(4 * side, 18)
+		p.position = basil.position + Vector2(8 * side, 36)
 		side = -side
 		prints.add_child(p)
 		await wait(0.09)

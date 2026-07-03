@@ -24,97 +24,97 @@ region_rect = Rect2(0, 0, 640, 360)
 
 [node name="Wall" type="Sprite2D" parent="."]
 texture_repeat = 2
-position = Vector2(320, 48)
+position = Vector2(320, 80)
 texture = ExtResource("3_wall")
 region_enabled = true
-region_rect = Rect2(0, 0, 640, 96)
+region_rect = Rect2(0, 0, 640, 160)
 
 [node name="Chalkboard" type="Sprite2D" parent="."]
-position = Vector2(320, 52)
+position = Vector2(320, 80)
 texture = ExtResource("4_board")
 
 [node name="Print1" type="Sprite2D" parent="."]
-position = Vector2(324, 296)
+position = Vector2(328, 320)
 texture = ExtResource("9_print")
 
 [node name="Print2" type="Sprite2D" parent="."]
-position = Vector2(312, 256)
+position = Vector2(308, 282)
 texture = ExtResource("9_print")
 
 [node name="Print3" type="Sprite2D" parent="."]
-position = Vector2(326, 216)
+position = Vector2(330, 246)
 texture = ExtResource("9_print")
 
 [node name="Print4" type="Sprite2D" parent="."]
-position = Vector2(314, 176)
+position = Vector2(310, 214)
 texture = ExtResource("9_print")
 
 [node name="Print5" type="Sprite2D" parent="."]
-position = Vector2(322, 148)
+position = Vector2(324, 186)
 texture = ExtResource("9_print")
 
 [node name="Basil" type="AnimatedSprite2D" parent="."]
-position = Vector2(320, 110)
+position = Vector2(320, 158)
 sprite_frames = ExtResource("5_basil")
 animation = &"idle_down"
 autoplay = "idle_down"
 
 [node name="Podium" type="Sprite2D" parent="."]
-position = Vector2(320, 148)
+position = Vector2(320, 214)
 texture = ExtResource("6_podium")
 
 [node name="Audience" type="Node2D" parent="."]
 
 [node name="Cat1" type="Sprite2D" parent="Audience"]
-position = Vector2(140, 244)
+position = Vector2(120, 272)
 texture = ExtResource("7_cats")
 hframes = 4
 frame = 0
 
 [node name="Cat2" type="Sprite2D" parent="Audience"]
-position = Vector2(224, 252)
+position = Vector2(230, 282)
 texture = ExtResource("7_cats")
 hframes = 4
 frame = 2
 
 [node name="Cat3" type="Sprite2D" parent="Audience"]
-position = Vector2(412, 248)
+position = Vector2(410, 276)
 texture = ExtResource("7_cats")
 hframes = 4
 frame = 1
 
 [node name="Cat4" type="Sprite2D" parent="Audience"]
-position = Vector2(500, 242)
+position = Vector2(516, 268)
 texture = ExtResource("7_cats")
 hframes = 4
 frame = 3
 
 [node name="Cat5" type="Sprite2D" parent="Audience"]
-position = Vector2(112, 308)
+position = Vector2(88, 338)
 texture = ExtResource("7_cats")
 hframes = 4
 frame = 1
 
 [node name="Cat6" type="Sprite2D" parent="Audience"]
-position = Vector2(260, 316)
+position = Vector2(256, 348)
 texture = ExtResource("7_cats")
 hframes = 4
 frame = 3
 
 [node name="Cat7" type="Sprite2D" parent="Audience"]
-position = Vector2(448, 312)
+position = Vector2(444, 342)
 texture = ExtResource("7_cats")
 hframes = 4
 frame = 0
 
 [node name="Cat8" type="Sprite2D" parent="Audience"]
-position = Vector2(544, 304)
+position = Vector2(556, 332)
 texture = ExtResource("7_cats")
 hframes = 4
 frame = 2
 
 [node name="Schweinler" type="AnimatedSprite2D" parent="."]
-position = Vector2(336, 264)
+position = Vector2(348, 290)
 sprite_frames = ExtResource("8_pig")
 animation = &"idle_up"
 autoplay = "idle_up"

@@ -20,23 +20,23 @@ tile_set = ExtResource("2_tiles")
 
 [node name="PoopBag" type="Sprite2D" parent="."]
 visible = false
-position = Vector2(320, 150)
+position = Vector2(320, 244)
 texture = ExtResource("3_bag")
 hframes = 3
 
 [node name="House" type="Sprite2D" parent="."]
-position = Vector2(320, 64)
+position = Vector2(320, 96)
 texture = ExtResource("5_house")
 
 [node name="Basil" type="AnimatedSprite2D" parent="."]
 visible = false
-position = Vector2(320, 122)
+position = Vector2(320, 192)
 sprite_frames = ExtResource("4_basil")
 animation = &"idle_down"
 autoplay = "idle_down"
 
 [node name="Schweinler" type="AnimatedSprite2D" parent="."]
-position = Vector2(704, 330)
+position = Vector2(720, 344)
 sprite_frames = ExtResource("6_pig")
 animation = &"idle_up"
 autoplay = "idle_up"
