@@ -60,6 +60,7 @@ def png_alpha_ratio(rel):
 # ---- painted scenes -----------------------------------------------------------------
 MAPS = {
     "maps/meadow.txt": ("scenes/meadow_ground.png", "scenes/meadow_overlay.png"),
+    "maps/overworld.txt": ("scenes/overworld_ground.png", "scenes/overworld_overlay.png"),
 }
 
 print("maps + painted scenes:")

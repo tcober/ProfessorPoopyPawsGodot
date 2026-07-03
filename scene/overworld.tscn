@@ -1,11 +1,13 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scene/overworld.gd" id="1_ow"]
-[ext_resource type="TileSet" path="res://assets/overworld_tileset.tres" id="2_tiles"]
+[ext_resource type="Texture2D" path="res://assets/scenes/overworld_ground.png" id="2_ground"]
 [ext_resource type="Script" path="res://scene/overworld_location.gd" id="3_loc"]
 [ext_resource type="Texture2D" path="res://assets/overworld_icons.png" id="4_icons"]
 [ext_resource type="PackedScene" path="res://entities/player/overworld_player.tscn" id="5_player"]
 [ext_resource type="FontFile" path="res://assets/font/pixel_font.fnt" id="6_font"]
+[ext_resource type="TileSet" path="res://assets/collision_tileset.tres" id="7_collision"]
+[ext_resource type="Texture2D" path="res://assets/scenes/overworld_overlay.png" id="8_overlay"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_marker"]
 size = Vector2(40, 28)
@@ -13,8 +15,13 @@ size = Vector2(40, 28)
 [node name="Overworld" type="Node2D"]
 script = ExtResource("1_ow")
 
-[node name="Ground" type="TileMapLayer" parent="."]
-tile_set = ExtResource("2_tiles")
+[node name="Ground" type="Sprite2D" parent="."]
+texture = ExtResource("2_ground")
+centered = false
+texture_filter = 1
+
+[node name="Collision" type="TileMapLayer" parent="."]
+tile_set = ExtResource("7_collision")
 
 [node name="Locations" type="Node2D" parent="."]
 
@@ -99,7 +106,12 @@ region_rect = Rect2(256, 0, 64, 64)
 shape = SubResource("RectangleShape2D_marker")
 
 [node name="OverworldPlayer" parent="." instance=ExtResource("5_player")]
-position = Vector2(336, 932)
+position = Vector2(368, 912)
+
+[node name="Overlay" type="Sprite2D" parent="."]
+texture = ExtResource("8_overlay")
+centered = false
+texture_filter = 1
 
 [node name="UI" type="CanvasLayer" parent="."]
 layer = 10

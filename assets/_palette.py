@@ -120,16 +120,24 @@ SCENES = {
             "board": (36, 72, 74, 255),
         },
     },
-    "overworld": {      # teal sea + sage-teal continent, hot violet wastes
+    "overworld": {      # hot teal sea + minty continent, hot violet wastes
         "shadow": "teal",
         "accent": (196, 120, 255, 255),         # wastes crystal violet
+        # Warm sand can't be derived (see meadow) — same cream->mauve hand walk.
+        "ramps": {
+            "sand": [(248, 224, 178, 255), (240, 200, 148, 255), (226, 176, 128, 255),
+                     (198, 138, 108, 255), (156, 92, 96, 255), (110, 58, 78, 255)],
+        },
         "mats": {
-            "sea": (52, 122, 156, 255),
-            "grass": (116, 178, 122, 255),
-            "forest": (44, 122, 104, 255),
-            "rock": (150, 138, 182, 255),
+            "sea": (48, 138, 172, 255),
+            "grass": (96, 188, 132, 255),
+            "forest": (36, 128, 104, 255),
+            "rock": (150, 142, 192, 255),
             "sand": (238, 198, 148, 255),
-            "waste": (172, 122, 162, 255),
+            "waste": (188, 112, 178, 255),
+            "snow": (234, 242, 252, 255),
+            "bridge": (150, 88, 112, 255),      # rosewood planks
+            "trunk": (52, 62, 118, 255),        # forest understory indigo
         },
     },
     "meadow": {         # minty teal greens, candy hot-pink flowers
