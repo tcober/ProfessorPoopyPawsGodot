@@ -61,6 +61,8 @@ def png_alpha_ratio(rel):
 MAPS = {
     "maps/meadow.txt": ("scenes/meadow_ground.png", "scenes/meadow_overlay.png"),
     "maps/overworld.txt": ("scenes/overworld_ground.png", "scenes/overworld_overlay.png"),
+    "maps/road.txt": ("scenes/road_ground.png", "scenes/road_overlay.png"),
+    "maps/yard.txt": ("scenes/yard_ground.png", "scenes/yard_overlay.png"),
 }
 
 print("maps + painted scenes:")
@@ -96,6 +98,7 @@ check("collision_tile.png", png_size("assets/collision_tile.png") == (ZONE_TILE,
 # ---- entity placement in painted scenes ----------------------------------------------
 PLACEMENTS = {
     "scene/test_room.tscn": "maps/meadow.txt",
+    "scene/intro_road.tscn": "maps/road.txt",
 }
 
 print("placements:")

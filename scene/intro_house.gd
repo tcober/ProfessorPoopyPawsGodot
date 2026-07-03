@@ -8,13 +8,13 @@ extends Cutscene
 const PRINT_TEX := preload("res://assets/props/paw_print.png")
 
 ## Paper Girls night: violet-magenta dusk instead of plain blue — still bright
-## enough that the bully reads.
+## enough that the bully reads. Applied over the ONE painted morning ground
+## (assets/_gen_scene_yard.py) — a single tint mechanism, no night repaint.
 const NIGHT := Color(0.55, 0.46, 0.98)
 
 ## false = night (Schweinler plants the bag), true = morning (Basil steps in it).
 @export var morning: bool = false
 
-@onready var ground: TileMapLayer = $Ground
 @onready var basil: AnimatedSprite2D = $Basil
 @onready var schweinler: AnimatedSprite2D = $Schweinler
 @onready var bag: Sprite2D = $PoopBag
@@ -25,30 +25,14 @@ var _printing: bool = false
 
 
 func _ready() -> void:
-	_paint_yard()
+	# Cutscene stage: actors tween (no physics), so the painted ground needs no
+	# collision layer — assets/maps/yard.txt exists for the painter and blocking.
 	if morning:
 		schweinler.visible = false
 		bag.visible = true
 	else:
 		tint.color = NIGHT
 	super._ready()
-
-
-func _paint_yard() -> void:
-	var flowers: Array[Vector2i] = [
-		Vector2i(4, 8), Vector2i(15, 8), Vector2i(16, 10), Vector2i(3, 10),
-		Vector2i(7, 9), Vector2i(13, 10), Vector2i(5, 11), Vector2i(17, 9),
-	]
-	for y in 12:
-		for x in 20:
-			var coords := Vector2i(0, 0)                     # grass
-			if (x == 9 or x == 10) and y >= 7:
-				coords = Vector2i(3, 0)                      # path from the door
-			elif flowers.has(Vector2i(x, y)):
-				coords = Vector2i(2, 0)                      # flowers
-			elif absi((x * 73856093) ^ (y * 19349663)) % 11 == 0:
-				coords = Vector2i(1, 0)                      # tufts
-			ground.set_cell(Vector2i(x, y), 0, coords)
 
 
 func _play() -> void:

@@ -3,50 +3,19 @@ extends Node2D
 ## Opening scene, part 2 — PLAYABLE. Basil sprints the road to the Academy with poop
 ## on his paws (he leaves a fading trail of prints). A couple of slimes block the way:
 ## the player learns to fire and hop. Reaching the Academy doors starts the lecture.
+##
+## Painted scene: Ground/Overlay are single generated paintings
+## (assets/_gen_scene_road.py); collision comes from assets/maps/road.txt.
 
 const PRINT_TEX := preload("res://assets/props/paw_print.png")
 
-const TILE := 32
-## Legend: '#' hedge (solid) · '.' grass · '-' dirt path · 'f' flowers · 'r' rock
-const MAP: Array[String] = [
-	"################################################################################",
-	"#..............................................................................#",
-	"#..f..........f...............r......f................f........................#",
-	"#....r.................f..........................r............f...............#",
-	"#..........f..................................f.......................f........#",
-	"#.....................r................f.......................................#",
-	"#..f...........f...............................................r...............#",
-	"#.........r.....................f.....................f........................#",
-	"#...............................................f..............................#",
-	"#......f..............r........................................................#",
-	"#...............................................................f..............#",
-	"#------------------------------------------------------------------------------#",
-	"#------------------------------------------------------------------------------#",
-	"#.....f........r...............................f...............................#",
-	"#..........................f.......................................r...........#",
-	"#...r..............f..............r..................f.........................#",
-	"#.f..........................f.................................................#",
-	"#.....................f..................r.....................f...............#",
-	"#..........r...................................................................#",
-	"#..f...................................f.............r..........f..............#",
-	"#..............f...............................................................#",
-	"#.......................................................f......................#",
-	"################################################################################",
-]
-
-const T_GRASS := Vector2i(0, 0)
-const T_TUFT := Vector2i(1, 0)
-const T_FLOWERS := Vector2i(2, 0)
-const T_PATH := Vector2i(3, 0)
-const T_HEDGE_A := Vector2i(0, 1)
-const T_HEDGE_B := Vector2i(1, 1)
-const T_ROCK := Vector2i(2, 1)
-
+const MAP_PATH := "res://assets/maps/road.txt"
 const MAX_PRINTS := 26
 
-@onready var player: Player = $Player
+var map: Dictionary
+
+@onready var player: Player = $World/Player
 @onready var hud: HUD = $HUD
-@onready var ground: TileMapLayer = $Ground
 @onready var prints: Node2D = $Prints
 @onready var hint: Label = $UI/Hint
 
@@ -55,12 +24,16 @@ var _last_print_pos: Vector2
 
 
 func _ready() -> void:
-	_paint_map()
+	map = MapData.load_map(MAP_PATH)
+	PaintedMap.build_collision(map, $Collision)
+	player.position = MapData.anchor_px(map, "player_spawn")
+	$SchoolDoor.position = MapData.anchor_px(map, "school_door")
 	var cam: Camera2D = player.get_node("Camera2D")
+	var size := MapData.size_px(map)
 	cam.limit_left = 0
 	cam.limit_top = 0
-	cam.limit_right = MAP[0].length() * TILE
-	cam.limit_bottom = MAP.size() * TILE
+	cam.limit_right = int(size.x)
+	cam.limit_bottom = int(size.y)
 	hud.bind_health(player.health)
 	hud.bind_ammo(player)
 	_last_print_pos = player.global_position
@@ -81,31 +54,6 @@ func _physics_process(_delta: float) -> void:
 		prints.add_child(p)
 		_last_print_pos = player.global_position
 		_prints_left -= 1
-
-
-func _paint_map() -> void:
-	for y in MAP.size():
-		var row := MAP[y]
-		for x in row.length():
-			ground.set_cell(Vector2i(x, y), 0, _tile_for(row[x], x, y))
-
-
-func _tile_for(ch: String, x: int, y: int) -> Vector2i:
-	match ch:
-		"#":
-			return T_HEDGE_B if _cell_hash(x, y) % 4 == 0 else T_HEDGE_A
-		"-":
-			return T_PATH
-		"f":
-			return T_FLOWERS
-		"r":
-			return T_ROCK
-		_:
-			return T_TUFT if _cell_hash(x, y) % 10 < 3 else T_GRASS
-
-
-static func _cell_hash(x: int, y: int) -> int:
-	return absi((x * 73856093) ^ (y * 19349663))
 
 
 func _on_school_door(body: Node) -> void:
