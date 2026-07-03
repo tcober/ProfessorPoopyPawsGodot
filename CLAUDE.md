@@ -13,8 +13,10 @@ again. (Full story in docs/DESIGN.md.)
 ## Tech conventions (read before writing code)
 
 - **Godot 4.6**, GDScript, GL Compatibility renderer.
-- Base resolution **640×360**, integer-scaled; **16×16** tiles; 48×48 character cells
-  (small-on-screen = high-res pixel-art scale); nearest filtering.
+- Base resolution **640×360**; **32×32** tiles; **96×96** character cells (figure
+  ~60–70 px, feet y=88); nearest filtering, no camera zoom. **SNES composition at 2x
+  pixel density**: ~20×11 tiles visible, characters ~2 tiles tall. Canonical numbers
+  live in the DESIGN.md Scale Table + `assets/_artlib.py` constants.
 - **Component-based architecture:** reusable behavior as nodes/resources in
   `components/` (HealthComponent, HitboxComponent, HurtboxComponent). Entities in
   `entities/` compose them. Shared data as `Resource`s in `resources/`. Rooms/levels in
@@ -23,14 +25,16 @@ again. (Full story in docs/DESIGN.md.)
   facing direction (limited charges, beaker pickups refill).
 - Combat: `Area2D` Hitbox vs `Area2D` Hurtbox → HealthComponent. `LaserBolt` projectile.
 - **Overworld layer:** CT/SoS-style travel map (`scene/overworld.tscn`) between zones —
-  24×24 chibi travel scale, terrain-gated walking, no map combat. Zones are the
-  full-scale (48×48) shooter gameplay.
+  48×48 chibi travel scale (~32 px figure), terrain-gated walking, no map combat.
+  Zones are the full-scale (96×96) shooter gameplay.
 - **Magic is deferred by design** (world starts drained); ranged/spell systems unlock
   later as story-driven progression.
 - **Art direction:** influenced by **Final Fantasy VI, Chrono Trigger, Secret of
   Mana, Sea of Stars, Adventure Time, and the Paper Girls comic** — FF6/CT sprite
   proportions, SoM's lush action-RPG feel, Paper Girls' surreal duotone color
-  scripting; movement/perspective stays SNES-Zelda.
+  scripting (palette registry in `assets/_palette.py` — every scene = hue field +
+  hot accent, violet/teal shadows, no beige/brown fields); movement/perspective
+  stays SNES-Zelda.
 
 ## Current state
 
@@ -42,6 +46,7 @@ returns to its marker via the `Game` autoload). Cutscene kit: `scene/cutscene.gd
 (awaitable say/walk/fade/card helpers, ESC skips) + `scene/dialog_box.tscn`
 (typewriter box, bitmap pixel font in `assets/font/`). Player: walk/hop (straight up
 when standing, air-steerable) / laser with recoil; slimes die in 3 shots. All art is
-generated frame-consistent pixel art with a 16-bit shading pass — regenerate via
-`assets/_gen_*.py` (see "Art pipeline" in docs/DESIGN.md). Main scene:
-`scene/title.tscn`.
+generated frame-consistent pixel art on the shared `assets/_artlib.py` (render kit +
+scale constants) and `assets/_palette.py` (color script) — regenerate via
+`assets/_gen_*.py`, then check contracts with `python3 assets/_check_art.py` (see
+"Art pipeline" in docs/DESIGN.md). Main scene: `scene/title.tscn`.

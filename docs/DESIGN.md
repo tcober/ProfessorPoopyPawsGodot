@@ -37,7 +37,7 @@ Magic as a metaphor for hope/connection returning to the protagonist and the wor
 - **Zelda: ALttP:** zone gameplay — top-down 4-directional action combat, dungeons,
   items as gating tools.
 - **Chrono Trigger / Sea of Stars:** the **overworld** — a miniature painted continent
-  walked by a tiny chibi travel sprite (~16 px tall on 16×16 terrain tiles) between
+  walked by a tiny chibi travel sprite (~32 px tall on 32×32 terrain tiles) between
   full-scale places. Their turn-based combat is **not** adopted; zones stay an
   ALttP-style top-down shooter.
 - **Secret of Mana:** the closest gameplay cousin — real-time top-down action combat
@@ -46,26 +46,30 @@ Magic as a metaphor for hope/connection returning to the protagonist and the wor
   enemies with personality, and the seamless flow between exploring and fighting.
 - **Art direction** (canonical influence list): **Final Fantasy VI, Chrono Trigger,
   Secret of Mana, Sea of Stars, Adventure Time, and the Paper Girls comic.** Gameplay
-  feels like Zelda, but the _look_ is richer 16-bit JRPG — FF6/CT field-sprite
-  proportions, SoM's lush saturated environments, shading ramps and rim light over
-  flat fills, textured tiles, bitmap-font dialog boxes — with Adventure Time's whimsy
-  in character/creature design and Paper Girls' bold graphic color scripting (dusk
-  gradients, surreal duotone fields, violet-shifted shadows) for posters, title art,
-  and mood lighting.
+  feels like Zelda, but the _look_ is richer 16-bit JRPG: **SNES composition at 2x
+  pixel density** — "Sea of Stars grain in an FF6 frame." The screen shows ~20x11
+  tiles and characters stand ~2 tiles tall like CT/SoM, but every sprite carries
+  double the pixel detail of its SNES ancestor. FF6/CT field-sprite proportions
+  (head/torso/legs roughly thirds), shading ramps and per-material outlines over flat
+  fills, textured tiles, bitmap-font dialog boxes — with Adventure Time's whimsy in
+  character/creature design and **Paper Girls' color law everywhere** (see "Palette
+  Registry"): every scene is one dominant hue field plus one hot accent, shadows
+  hue-shift violet or teal, and neutral beige/brown/gray fields are forbidden.
 
 ## World Structure — Overworld + Zones
 
 Two layers:
 
 - **Overworld** (`scene/overworld.tscn`) — the travel layer: a Chrono Trigger /
-  Sea of Stars–style miniature painted continent (64×36 tiles, 1024×576 px,
-  camera-clamped). Basil walks it as a 24×24-cell chibi sprite (~16 px tall) over
-  16×16 terrain tiles. **No combat on the map.** Terrain gates travel — water,
+  Sea of Stars–style miniature painted continent (64×36 tiles, 2048×1152 px,
+  camera-clamped). Basil walks it as a 48×48-cell chibi sprite (~32 px tall) over
+  32×32 terrain tiles. **No combat on the map.** Terrain gates travel — water,
   forest, mountains, rivers, cliffs and dead trees are solid; sand, grass, paths,
   bridges, forest edges, hills and the wastes are walkable; bridges and paths open
-  the routes.
+  the routes. The eastern drained wastes render **hot violet-magenta** — the
+  magic-drained premise carried by color.
 - **Zones** — the full-scale scenes entered from the map, where the existing
-  gameplay happens: 48×48-cell field sprites, SNES-Zelda ALttP-style movement, and
+  gameplay happens: 96×96-cell field sprites, SNES-Zelda ALttP-style movement, and
   the top-down laser-gun shooter combat.
 
 **Location markers** (`Area2D`, `scene/overworld_location.gd`) carry
@@ -95,12 +99,26 @@ gating tools are terrain plus story keys.
 ## Tech / Engine Conventions
 
 - Engine: **Godot 4.6**, GDScript, GL Compatibility renderer.
-- Base resolution: **640×360**, integer-scaled. Tile size: **16×16**. Nearest filtering.
-  Characters stay 48×48-cell sprites — at 640×360 they occupy ~1/8 of screen height,
-  which is what gives the game its "high-resolution pixel art" scale (big world,
-  small detailed characters) instead of a chunky retro look.
-- **Two sprite scales:** zones use **48×48** field cells (above); the overworld uses
-  **24×24** chibi travel cells (~16 px Basil). Tiles are **16×16** everywhere.
+- Base resolution: **640×360** (canvas_items stretch). Nearest filtering. No camera
+  zoom anywhere — on-screen scale is purely sprite pixels vs. the viewport.
+- **Scale Table** (canonical; mirrored by `assets/_artlib.py` constants — change them
+  together):
+
+  | Thing | Size |
+  |---|---|
+  | Viewport | 640×360 |
+  | Terrain tile (zones + overworld) | **32×32** (`ZONE_TILE`/`OW_TILE`) |
+  | Zone character cell (Basil, Schweinler) | **96×96** (`ZONE_CELL`), figure ~60–70 px, feet y=88 (`ZONE_FEET`) |
+  | Slime cell | 48×48 |
+  | Overworld chibi cell | **48×48** (`OW_CELL`), ~32 px figure, feet y=42 (`OW_FEET`) |
+  | Overworld landmark icon | 64×64 (`ICON`) |
+  | Full-screen backdrops (title, bedroom) | 640×360 |
+  | HUD heart / ammo pip / font_size | 32 / 16 / 16 |
+  | Gun muzzle offset (art contract) | 32 px from origin (`player.gd muzzle_offset`) |
+
+  This puts ~20×11 tiles on screen with characters ~2 tiles tall — SNES composition —
+  while the art carries 2x the pixel detail. All world speeds/offsets/collision
+  shapes are 2x their pre-restart values (screen-relative feel is unchanged).
 - Architecture: **component-based**. Reusable behavior lives in `components/` as nodes/
   resources (HealthComponent, HitboxComponent, HurtboxComponent, …). Entities in
   `entities/` compose these. Shared data (stats, items) as custom `Resource`s in
@@ -180,101 +198,156 @@ actually cycle; hand-drawn sheets can still drop in later against "Asset Specs" 
   `scene/overworld_location.gd` (markers: id/display_name/target_scene/locked_text) ·
   `scene/game.gd` (autoload **Game** — remembers `overworld_spawn`)
 - `entities/player/overworld_player.gd/.tscn` (+ `overworld_basil_frames.tres`) —
-  travel-only `CharacterBody2D`: 8-way move, 4-way facing, ~90 px/s, no gun/hop/health
+  travel-only `CharacterBody2D`: 8-way move, 4-way facing, ~180 px/s, no gun/hop/health
 - `assets/overworld_tileset.tres` — water/forest/mountain/river/cliff/dead-tree tiles
   are solid (physics layer); sand/grass/path/bridge/forest-edge/hills/wastes walkable
 - `assets/font/pixel_font.fnt/.png` — 5×7 bitmap font (`assets/font/_gen_font.py`,
   glyphs shared via `assets/_pixfont.py`)
 
-### Art pipeline (generated placeholders that animate)
+### Art pipeline (generated, frame-consistent, palette-locked)
 
 The AI-generated sheets (`assets/basil.png`, `assets/basil_sheet.png`) draw a slightly
 different cat in every frame, so animations strobe; they are kept only as concept
-reference (along with the old `_repack_basil.py` slicer and its `basil_packed.png`).
-The live art is drawn procedurally — every frame from one parametric model — by three
-stdlib-only scripts:
+reference. The live art is drawn procedurally — every frame from one parametric
+model — by stdlib-only Python scripts built on **two shared modules**:
 
-- `assets/_gen_basil_sprites.py` → `basil_gen.png` (288×336, 48×48 cells): Basil,
+- **`assets/_artlib.py`** — the rendering kit every generator imports: PNG writer,
+  `h2()` deterministic value noise, `pick()` 4-tone ramp with ordered dither
+  (`grain=2` dithers in 2×2 blocks so banding reads SNES-chunky at 2x density),
+  `Cell` sprite canvas (superellipse `oval`, garment `cloth`, `tri`, per-material
+  `outline()` pass) and dense `Img` canvas — plus the **canonical scale constants**
+  (`ZONE_TILE=32`, `ZONE_CELL=96`, `ZONE_FEET=88`, `OW_CELL=48`, `ICON=64`) that the
+  Scale Table above mirrors.
+- **`assets/_palette.py`** — the color script as data. `ramp4(seed, shadow, spread)`
+  derives every 4-tone material ramp from a scene seed, hue-shifting the dark end
+  toward the scene's shadow bias (violet or teal) — sheets are palette-locked by
+  construction. `SCENES` is the palette registry (below); `ACTORS` holds the
+  hand-tuned identity ramps for Basil / Schweinler / slime, which travel across
+  scenes (this ended Basil's old triplicated fur ramps).
+
+Generators (re-run any with `python3 <script>`; then let Godot reimport, or
+`godot --headless --path . --import`; **always run `python3 assets/_check_art.py`
+after regenerating** — it asserts sheet dims, `.tres` regions, tile sizes and
+physics polygons against `_artlib`'s constants):
+
+- `assets/_gen_basil_sprites.py` → `basil_gen.png` (576×672, 96×96 cells): Basil,
   modeled on the real cat — jet-black tuxedo, close-set yellow eyes with round
   pupils (stern by default, sweet ^ ^ on the idle blink), narrow white blaze into a
   plump muzzle, black nose smudge, whiskers breaking the silhouette, aviator goggles,
   straight-cut lab coat, white paws. **FF6/CT field-sprite proportions**: head /
-  torso / legs each roughly a third of the figure, slim coat, small feet; walk
-  cycles, shoot poses, hurt, and a full row 6
-  of expressions: hurt ×2, blink, tail-flick, **happy** (open grin + blush) and
-  **sad** (droopy ears, teary eyes, wobble frown) — exposed as `happy` / `sad`
-  animations in `player_frames.tres` for cutscenes.
-- `assets/_gen_slime_sprites.py` → `slime_gen.png` (144×96, 24×24 cells): bounce cycle
+  torso / legs each roughly a third of the ~66 px figure; walk cycles, shoot poses,
+  hurt, and a full row 6 of expressions: hurt ×2, blink, tail-flick, **happy** (open
+  grin + blush) and **sad** (droopy ears, teary eyes, wobble frown) — exposed as
+  `happy` / `sad` animations in `player_frames.tres` for cutscenes.
+- `assets/_gen_slime_sprites.py` → `slime_gen.png` (288×192, 48×48 cells): bounce cycle
   (airborne on frames 2–4; `slime.gd` syncs movement speed to those frames so slimes
   hop instead of glide) + 4-frame splat death. Used by
   `entities/enemies/slime_frames.tres`.
-- `assets/_gen_tileset.py` → `tileset_gen.png` (64×32, 16×16 tiles): grass/tufts/
-  flowers/path/hedge/rock. Used by `assets/tileset.tres` (hedges collide).
+- `assets/_gen_tileset.py` → `tileset_gen.png` (128×64, 32×32 tiles): grass/tufts/
+  flowers/path/hedge/rock, ramps derived from `SCENES["meadow"]`. Used by
+  `assets/tileset.tres` (hedges collide).
 - `assets/_gen_overworld.py` → the CT/SoS overworld look — broccoli forest canopies,
-  sparkle water, snow-capped ridges, cracked wastes — same procedural style (muted
-  SNES palette, 4-tone ramps, hash-dithering, upper-left light). Three sheets:
-  `overworld_tiles.png` (128×48, 8×3 of 16×16 seamless terrain — water, water
+  sparkle water, snow-capped ridges, **hot-violet cracked wastes** — 4-tone ramps
+  from `SCENES["overworld"]`, hash-dithering, upper-left light. Three sheets:
+  `overworld_tiles.png` (256×96, 8×3 of 32×32 seamless terrain — water, water
   sparkle, sand, grass, grass detail, scrub, path, bridge / forest A/B, forest edge,
   hills, mountain, mountain snow, river, cliff / cracked A/B, dead tree, crystal,
   +4 reserved grass variants; the cracked/dead/crystal tiles are the drained-wastes
-  biome), `overworld_basil.png` (96×72, 4×3 of 24×24: chibi Basil — big head, tuxedo,
-  goggles, lab coat — walk down/up/side ×4, side right-facing, flipped in code), and
-  `overworld_icons.png` (160×32, five 32×32 landmark icons: HOME cottage, TOWN,
-  MEADOW grove, CAVE mouth, OBELISK).
-- `assets/_gen_schweinler_sprites.py` → `schweinler_gen.png`: Schweinler the pig
-  (big snout, beady angry eyes, red neckerchief, curly tail, cloven trotters);
-  walks + point_up + laugh_down. Compact upright FF6/CT figure, same
-  scale/baseline as Basil.
-- `assets/_gen_title.py` → `title_bg.png` + `leaf.png`: the autumn-poster title art.
-- `assets/_gen_intro_art.py` → `assets/props/*`: house front, Academy front,
-  poop bag (3 frames), paw print, hall floor/wall, chalkboard, podium, audience cats.
-- `assets/font/_gen_font.py` → the BMFont bitmap font all Labels use.
+  biome), `overworld_basil.png` (192×144, 4×3 of 48×48: chibi Basil — big head,
+  tuxedo, goggles, lab coat — walk down/up/side ×4, side right-facing, flipped in
+  code), and `overworld_icons.png` (320×64, five 64×64 landmark icons: HOME cottage,
+  TOWN, MEADOW grove, CAVE mouth, OBELISK).
+- `assets/_gen_schweinler_sprites.py` → `schweinler_gen.png` (384×384, 96×96 cells):
+  Schweinler the pig (big snout, beady angry eyes, red neckerchief, curly tail,
+  cloven trotters); walks + point_up + laugh_down. Deliberately stout and round —
+  the comedy foil to Basil's lanky thirds — same scale/baseline (feet y=88) so he
+  can walk into gameplay later.
+- `assets/_gen_title.py` → `title_bg.png` (640×360) + `leaf.png` (10×10): the
+  autumn-poster title art.
+- `assets/_gen_intro_art.py` → `assets/props/*` at 2x: house front 768×256
+  (door-centered; overflows the 640 stage for cinematic framing), Academy front
+  896×320, poop bag 192×64, paw print 24×24, hall floor/wall 64×64, chalkboard
+  448×144, podium 104×120, audience cats 320×80.
+- `assets/_gen_bedroom_art.py` → bedroom stage: `bedroom_bg.png` 640×360 (CT room
+  on black, interior (96,24)–(543,335), floor split y=168, bird perch (476,126)),
+  `bed_basil.png` 448×160 (4× 112×160), `bird.png` 144×48, `nightstand.png` 52×68,
+  `clock_face.png` 192×208.
+- `assets/placeholder/_gen_placeholders.py` → combat/HUD support sprites,
+  palette-locked to Basil's gun accents (bolt/flash/beaker fluid all laser-green):
+  hearts 96×32, ammo pips 32×16, laser bolt 52×16, muzzle flash 40×40, beaker
+  24×28, jump shadow 48×20.
+- `assets/font/_gen_font.py` → the BMFont bitmap font all Labels use (5×7 glyphs;
+  rendered at `font_size = 16` everywhere — a clean 2x integer scale; hand-author a
+  10×14 font later only if the doubled glyphs wear thin).
 
-Style: **FF6 / Chrono Trigger render, Paper Girls palette** — restrained
-dithering, dark unified outlines, small expressive eyes, and taller field-sprite
-proportions (movement/perspective stays SNES-Zelda; only the look is Square-style).
-The **color script is surreal duotone**: every scene picks a dominant hue field plus
-a hot accent (periwinkle + magenta, teal + peach), shadows hue-shift violet/teal,
-glass and skies carry sunset gradients — never neutral beige/brown/gray fields.
-Night scenes tint through a violet-magenta `CanvasModulate` (see `intro_house.gd`).
-The Basil
-and slime generators render every form as a shaded volume: 4-tone material ramps
-(shadows hue-shift cool), light from the upper-left, ordered dithering between tone
-bands (`_pick`), superellipse silhouettes (`oval`/`cloth` primitives), per-material
-outline colors, and details that break the silhouette (whiskers, drawn after the
-outline). Older generators (props) still use the simpler rim-light `shade()`
-pass — upgrade them to the primitive-based renderer as they get screen time.
+Render style: every form is a shaded volume — 4-tone material ramps (shadows
+hue-shift cool), light from the upper-left, ordered dithering between tone bands,
+superellipse silhouettes, per-material outline colors, and details that break the
+silhouette (whiskers, drawn after the outline). Night scenes tint through a
+violet-magenta `CanvasModulate` (see `intro_house.gd`).
 
-Re-run any script with `python3 <script>`; Godot reimports the PNG on editor focus.
+### Palette Registry (the color script — `assets/_palette.py` SCENES)
+
+Every scene keys into this table; new materials derive via
+`ramp4(seed, SCENES[key]["shadow"])`. Never introduce a neutral beige/brown/gray
+field — if a surface wants to be brown, it's rosewood/plum; if gray, lavender.
+
+| Scene key | Dominant field | Hot accent | Shadow bias |
+|---|---|---|---|
+| `title` | indigo→magenta→gold posterized sunset | leaf gold | violet |
+| `night_yard` | periwinkle-violet night | amber lantern glow | violet |
+| `bedroom` | periwinkle plaster / rosewood floor | hot-magenta quilt, peach dawn | violet |
+| `morning_yard` | peach plaster | magenta shingles, pink blooms | violet |
+| `road` | minty teal + peach path | hot pink flowers | teal |
+| `hall` | plum panelling / rose floor | chalk-mint board writing | violet |
+| `overworld` | teal sea + sage-teal land | violet wastes + crystal | teal |
+| `meadow` | minty teal greens | candy hot-pink flowers | teal |
 
 ## Asset Specs (sprite sheets to provide)
 
 All PNG, transparent background, **0 padding/margin between cells**, nearest-neighbor
-(no anti-aliased edges). Grid is **16×16**.
+(no anti-aliased edges). Grid is **32×32**.
 
-1. **Player — Professor Poopy Paws** _(highest priority)_ — **48×48 px** cells, **6
+1. **Player — Professor Poopy Paws** _(highest priority)_ — **96×96 px** cells, **6
    columns**, one direction/action per row to match `player_frames.tres`:
    Walk Down (6) · Walk Up (6) · Walk Side (6, mirrored in code) · Shoot Down (4) ·
-   Shoot Up (4) · Shoot Side (4) · Hurt (2) + idle-down blink + idle-side tail-flick.
-   Full sheet **288×336**. The cat holds a **laser gun** in the shoot rows. See
-   **`docs/SPRITE_PROMPT.md`** for the exact image-generation prompt, or use
+   Shoot Up (4) · Shoot Side (4) · Hurt (2) + idle-down blink + idle-side tail-flick
+   + happy + sad. Full sheet **576×672**. Figure ~60–70 px tall, feet baseline y=88,
+   gun muzzle 32 px from cell center. The cat holds a **laser gun** in the shoot
+   rows (weapon-agnostic rows welcome — see "Future Direction"). Use
    `assets/_gen_basil_sprites.py` (current art) as the layout reference.
-2. **Slime / first enemy** — **24×24 px** cells. Walk Down/Up/Side (6 each, side
-   mirrored) + 4-frame death. Sheet **144×96** (matches `slime_frames.tres`).
-3. **Tileset** — **16×16** tiles in one sheet (~**128×128**, 8×8). Grass/floor, wall/cliff
-   edges with a few corners, a path, one decorative tile. Wall tiles get collision.
-4. **HUD hearts** — **16×16** heart, 3 frames in a horizontal strip:
-   full | half | empty → **48×16**.
-5. **Overworld terrain** — **16×16** seamless tiles, 8×3 sheet **128×48**: water,
+2. **Slime / first enemy** — **48×48 px** cells. Walk Down/Up/Side (6 each, side
+   mirrored) + 4-frame death. Sheet **288×192** (matches `slime_frames.tres`).
+3. **Tileset** — **32×32** tiles, 4×2 sheet **128×64**: grass, grass+tufts,
+   grass+flowers, dirt path / hedge A, hedge B, rock, reserved. Hedges get collision.
+4. **HUD hearts** — **32×32** heart, 3 frames in a horizontal strip:
+   full | half | empty → **96×32**. Ammo pips: **16×16** ×2 → **32×16**.
+5. **Overworld terrain** — **32×32** seamless tiles, 8×3 sheet **256×96**: water,
    water sparkle, sand, grass, grass detail, scrub, path, bridge / forest A, forest
    B, forest edge, hills, mountain, mountain snow, river, cliff / cracked A, cracked
    B, dead tree, crystal (+4 reserved grass variants).
-6. **Overworld Basil (travel chibi)** — **24×24** cells, 4×3 sheet **96×72**:
+6. **Overworld Basil (travel chibi)** — **48×48** cells, 4×3 sheet **192×144**:
    walk down / up / side ×4 (side right-facing, flipped in code). Big head, tuxedo
-   cat, goggles, lab coat — matches `overworld_basil_frames.tres`.
-7. **Overworld landmark icons** — five **32×32** icons in a strip → **160×32**:
+   cat, goggles, lab coat, feet y=42 — matches `overworld_basil_frames.tres`.
+7. **Overworld landmark icons** — five **64×64** icons in a strip → **320×64**:
    HOME cottage, TOWN, MEADOW grove, CAVE mouth, OBELISK.
 
 > Prefer a different layout (e.g. Aseprite export with tags)? Send it plus the frame
 > tags and the slice will be re-sliced to match. The dimensions above are the defaults
-> the code assumes.
+> the code assumes (and what `assets/_check_art.py` asserts).
+
+## Future Direction — Combat & Party (recorded 2026-07, not yet in scope)
+
+The target feel is **Secret of Mana, but snappier**: real-time top-down action that
+stays friendly, with crisp fire/recover cadence, hit-pause, and readable knockback.
+
+- **Weapon variety** — the laser gun is the first of several blaster-type weapons;
+  each should differ in arc/range/rate/knockback the way SoM's weapon families did.
+  The 96×96 cells and 4-frame shoot rows are sized so alternate weapons swap into
+  the same animation contract (`shoot_down/up/side` + `muzzle_offset`).
+- **3-person party** — the sympathizers (starting with **Fuji**, the librarian cat
+  who pulls Basil back into the world) eventually join as party members, SoM-style:
+  same 96 px sprite spec, composing the same Health/Hurtbox components, AI-followed
+  with leader switching. Party UI stacks additional heart rows.
+- **Magic returns late** — spell systems unlock as the story restores magic; the
+  drained world is why early combat is all blasters.
