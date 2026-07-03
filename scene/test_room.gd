@@ -1,101 +1,42 @@
 extends Node2D
 
-## Vertical-slice meadow: an ASCII map painted onto a TileMapLayer (hedge border is
-## solid via the tileset's physics layer), a camera clamped to the room, slimes, and a
-## HUD bound to the player's HealthComponent. Keeps exactly one beaker refill alive at
-## a time — collecting it spawns a fresh one elsewhere in the room.
+## Whisker Meadow, a painted scene: Ground and Overlay are single generated
+## paintings (assets/_gen_scene_meadow.py); collision is an invisible
+## TileMapLayer built at runtime from the same map file, so paint and physics
+## agree by construction. Entities y-sort under World. Keeps exactly one beaker
+## refill alive at a time — collecting it spawns a fresh one elsewhere.
 
 const BeakerScene := preload("res://entities/pickups/beaker.tscn")
 
+const MAP_PATH := "res://assets/maps/meadow.txt"
 const TILE := 32
 
-## Legend: '#' hedge (solid) · '.' grass · '-' dirt path · 'f' flowers · 'r' rock
-const MAP: Array[String] = [
-	"################################################",
-	"#..............................................#",
-	"#..f....................f...........f..........#",
-	"#.....................r................r.......#",
-	"#....--------------------------................#",
-	"#...-..........................----............#",
-	"#...-..............................--..........#",
-	"#..f-....r...........f...............-....f....#",
-	"#...-.................................-........#",
-	"#...-.........f.......................-...f....#",
-	"#....--............r..................-........#",
-	"#......-...............f.............-.....r...#",
-	"#.r.....-............................-.........#",
-	"#........-...........r..............--....f....#",
-	"#..f......-........................-...........#",
-	"#..........--......f..............-............#",
-	"#....f........-..................--......r.....#",
-	"#..............------------------..............#",
-	"#..f..........f..........f..............f......#",
-	"#.......r........................r.............#",
-	"#...........f.........f..................f.....#",
-	"#......................................r.......#",
-	"#..............f...............................#",
-	"######################....######################",
-]
+var map: Dictionary
 
-## Tileset atlas coords (see assets/_gen_tileset.py).
-const T_GRASS := Vector2i(0, 0)
-const T_TUFT := Vector2i(1, 0)
-const T_FLOWERS := Vector2i(2, 0)
-const T_PATH := Vector2i(3, 0)
-const T_HEDGE_A := Vector2i(0, 1)
-const T_HEDGE_B := Vector2i(1, 1)
-const T_ROCK := Vector2i(2, 1)
-
-## Beaker spawn bounds, kept inside the hedge border.
-const SPAWN_MIN := Vector2(56, 56)
-const SPAWN_MAX := Vector2(1480, 712)
-
-@onready var player: Player = $Player
+@onready var player: Player = $World/Player
 @onready var hud: HUD = $HUD
-@onready var ground: TileMapLayer = $Ground
+@onready var world: Node2D = $World
 
 
 func _ready() -> void:
-	_paint_map()
+	map = MapData.load_map(MAP_PATH)
+	PaintedMap.build_collision(map, $Collision)
+	player.position = MapData.anchor_px(map, "player_spawn")
+	$ExitSouth.position = MapData.anchor_px(map, "exit_south")
 	_clamp_camera()
 	hud.bind_health(player.health)
 	hud.bind_ammo(player)
-	_track_beaker($Beaker)
+	_track_beaker($World/Beaker)
 	$ExitSouth.body_entered.connect(_on_exit_south)
-
-
-func _paint_map() -> void:
-	for y in MAP.size():
-		var row := MAP[y]
-		assert(row.length() == MAP[0].length(), "MAP rows must all be the same width")
-		for x in row.length():
-			ground.set_cell(Vector2i(x, y), 0, _tile_for(row[x], x, y))
-
-
-func _tile_for(ch: String, x: int, y: int) -> Vector2i:
-	match ch:
-		"#":
-			return T_HEDGE_B if _cell_hash(x, y) % 4 == 0 else T_HEDGE_A
-		"-":
-			return T_PATH
-		"f":
-			return T_FLOWERS
-		"r":
-			return T_ROCK
-		_:
-			return T_TUFT if _cell_hash(x, y) % 10 < 3 else T_GRASS
-
-
-static func _cell_hash(x: int, y: int) -> int:
-	return absi((x * 73856093) ^ (y * 19349663))
 
 
 func _clamp_camera() -> void:
 	var cam: Camera2D = player.get_node("Camera2D")
+	var size := MapData.size_px(map)
 	cam.limit_left = 0
 	cam.limit_top = 0
-	cam.limit_right = MAP[0].length() * TILE
-	cam.limit_bottom = MAP.size() * TILE
+	cam.limit_right = int(size.x)
+	cam.limit_bottom = int(size.y)
 
 
 func _track_beaker(beaker: Beaker) -> void:
@@ -105,21 +46,21 @@ func _track_beaker(beaker: Beaker) -> void:
 func _on_beaker_collected() -> void:
 	var beaker := BeakerScene.instantiate()
 	beaker.position = _random_spawn()
-	add_child(beaker)
+	world.add_child(beaker)
 	_track_beaker(beaker)
 
 
 func _random_spawn() -> Vector2:
-	# Try a few spots so the new beaker doesn't drop right on the player or in a hedge.
+	# Try a few spots so the new beaker doesn't drop on the player or in a solid.
+	var size := MapData.size_px(map)
 	var point := Vector2.ZERO
 	for i in 20:
 		point = Vector2(
-			randf_range(SPAWN_MIN.x, SPAWN_MAX.x),
-			randf_range(SPAWN_MIN.y, SPAWN_MAX.y)
+			randf_range(TILE * 1.5, size.x - TILE * 1.5),
+			randf_range(TILE * 1.5, size.y - TILE * 1.5)
 		)
-		var cell := ground.local_to_map(point)
-		var solid := ground.get_cell_atlas_coords(cell) in [T_HEDGE_A, T_HEDGE_B]
-		if not solid and point.distance_to(player.global_position) > 96.0:
+		var cell := Vector2i(point / TILE)
+		if not MapData.is_solid(map, cell) and point.distance_to(player.global_position) > 96.0:
 			return point
 	return point
 

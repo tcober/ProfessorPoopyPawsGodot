@@ -20,11 +20,30 @@ def _clamp(v):
     return max(0.0, min(1.0, v))
 
 
-def ramp4(base, shadow="violet", spread=1.0, alpha=255):
-    """4-tone light->dark ramp [lit, base, shade, core] from one seed RGB(A).
+# Ramp curve control points at u = 0, 1/3, 2/3, 1: (lightness delta, hue pull
+# toward the shadow bias, saturation delta). ramp() interpolates these for any
+# tone count; ramp4() hits them exactly.
+_RAMP_STOPS = ((+0.14, -0.05, -0.08),   # lit
+               (0.00, 0.00, 0.00),      # base
+               (-0.13, 0.30, 0.10),     # shade
+               (-0.24, 0.55, 0.18))     # core shadow
+
+
+def _ramp_curve(u):
+    """Piecewise-linear (dl, pull, ds) at u in 0..1 through _RAMP_STOPS."""
+    f = u * (len(_RAMP_STOPS) - 1)
+    i = min(len(_RAMP_STOPS) - 2, int(f))
+    w = f - i
+    a, b = _RAMP_STOPS[i], _RAMP_STOPS[i + 1]
+    return tuple(a[k] + (b[k] - a[k]) * w for k in range(3))
+
+
+def ramp(base, shadow="violet", tones=6, spread=1.0, alpha=255):
+    """N-tone light->dark ramp from one seed RGB(A).
 
     The dark tones pull their hue toward the scene's shadow bias and gain
     saturation; the lit tone drifts slightly sunward. spread scales contrast.
+    6 tones give painted terrain real midtone form; sprites stay at 4.
     """
     r, g, b = (v / 255 for v in base[:3])
     h, l, s = colorsys.rgb_to_hls(r, g, b)
@@ -33,15 +52,18 @@ def ramp4(base, shadow="violet", spread=1.0, alpha=255):
         d -= 1.0
     elif d < -0.5:
         d += 1.0
-    tones = []
-    for dl, pull, ds in ((+0.14, -0.05, -0.08),   # lit
-                         (0.00, 0.00, 0.00),      # base
-                         (-0.13, 0.30, 0.10),     # shade
-                         (-0.24, 0.55, 0.18)):    # core shadow
+    out = []
+    for i in range(tones):
+        dl, pull, ds = _ramp_curve(i / (tones - 1))
         hh = (h + d * pull * spread) % 1.0
         rr, gg, bb = colorsys.hls_to_rgb(hh, _clamp(l + dl * spread), _clamp(s + ds * spread))
-        tones.append((round(rr * 255), round(gg * 255), round(bb * 255), alpha))
-    return tones
+        out.append((round(rr * 255), round(gg * 255), round(bb * 255), alpha))
+    return out
+
+
+def ramp4(base, shadow="violet", spread=1.0, alpha=255):
+    """4-tone [lit, base, shade, core] ramp — legacy wrapper over ramp()."""
+    return ramp(base, shadow, 4, spread, alpha)
 
 
 # ---- scene palettes (field / accent / shadow bias + material seeds) ---------------
@@ -113,11 +135,23 @@ SCENES = {
     "meadow": {         # minty teal greens, candy hot-pink flowers
         "shadow": "teal",
         "accent": (255, 116, 176, 255),         # hot pink
+        # Hand-tuned identity ramps (same precedent as ACTORS): warm dirt cannot
+        # be derived — teal shadows turn it yellow-green, violet ones salmon.
+        # This one walks cream -> peach -> dusty rust -> mauve, desaturating.
+        "ramps": {
+            "path": [(248, 224, 178, 255), (240, 200, 148, 255), (226, 176, 128, 255),
+                     (198, 138, 108, 255), (156, 92, 96, 255), (110, 58, 78, 255)],
+        },
         "mats": {
             "grass": (94, 178, 118, 255),
+            "grass2": (108, 182, 108, 255),     # warmer drift patches
             "path": (230, 176, 130, 255),
             "hedge": (34, 106, 94, 255),
-            "rock": (158, 148, 176, 255),
+            "rock": (144, 150, 172, 255),
+            "treeline": (38, 118, 92, 255),     # border canopy mass
+            "trunk": (66, 84, 104, 255),        # understory / bark
+            "water": (70, 152, 172, 255),       # pond
+            "shore": (222, 172, 134, 255),      # wet-sand ring
         },
     },
 }

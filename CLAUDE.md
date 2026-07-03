@@ -16,7 +16,7 @@ again. (Full story in docs/DESIGN.md.)
 - Base resolution **640×360**; **32×32** tiles; **96×96** character cells (figure
   ~60–70 px, feet y=88); nearest filtering, no camera zoom. **SNES composition at 2x
   pixel density**: ~20×11 tiles visible, characters ~2 tiles tall. Canonical numbers
-  live in the DESIGN.md Scale Table + `assets/_artlib.py` constants.
+  live in the DESIGN.md Scale Table + `assets/_core.py` constants.
 - **Component-based architecture:** reusable behavior as nodes/resources in
   `components/` (HealthComponent, HitboxComponent, HurtboxComponent). Entities in
   `entities/` compose them. Shared data as `Resource`s in `resources/`. Rooms/levels in
@@ -45,8 +45,12 @@ Meadow zone (the other four markers are locked with flavor text; leaving the mea
 returns to its marker via the `Game` autoload). Cutscene kit: `scene/cutscene.gd`
 (awaitable say/walk/fade/card helpers, ESC skips) + `scene/dialog_box.tscn`
 (typewriter box, bitmap pixel font in `assets/font/`). Player: walk/hop (straight up
-when standing, air-steerable) / laser with recoil; slimes die in 3 shots. All art is
-generated frame-consistent pixel art on the shared `assets/_artlib.py` (render kit +
-scale constants) and `assets/_palette.py` (color script) — regenerate via
-`assets/_gen_*.py`, then check contracts with `python3 assets/_check_art.py` (see
-"Art pipeline" in docs/DESIGN.md). Main scene: `scene/title.tscn`.
+when standing, air-steerable) / laser with recoil; slimes die in 3 shots. **Art
+overhaul in progress (painted scenes):** maps are single composed paintings
+(ground + overlay Sprite2Ds) generated from shared `assets/maps/*.txt` files on
+`assets/_core.py` + `assets/_paint.py` + `assets/_palette.py`; collision is an
+invisible TileMapLayer built at runtime by `scene/painted_map.gd` from the same
+map file (`scene/test_room.tscn` = reference implementation). Legacy tile/sprite
+art still runs on the `assets/_artlib.py` shim until its phases land. Regenerate
+via `assets/_gen_*.py`, then `python3 assets/_check_art.py` (see "Art pipeline"
+in docs/DESIGN.md). Main scene: `scene/title.tscn`.

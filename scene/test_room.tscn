@@ -1,11 +1,13 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scene/test_room.gd" id="1_room"]
-[ext_resource type="PackedScene" path="res://entities/player/player.tscn" id="2_player"]
-[ext_resource type="PackedScene" path="res://entities/enemies/slime.tscn" id="3_slime"]
-[ext_resource type="PackedScene" path="res://scene/hud.tscn" id="4_hud"]
-[ext_resource type="PackedScene" path="res://entities/pickups/beaker.tscn" id="5_beaker"]
-[ext_resource type="TileSet" path="res://assets/tileset.tres" id="6_tiles"]
+[ext_resource type="Texture2D" path="res://assets/scenes/meadow_ground.png" id="2_ground"]
+[ext_resource type="TileSet" path="res://assets/collision_tileset.tres" id="3_collision"]
+[ext_resource type="PackedScene" path="res://entities/player/player.tscn" id="4_player"]
+[ext_resource type="PackedScene" path="res://entities/enemies/slime.tscn" id="5_slime"]
+[ext_resource type="PackedScene" path="res://entities/pickups/beaker.tscn" id="6_beaker"]
+[ext_resource type="Texture2D" path="res://assets/scenes/meadow_overlay.png" id="7_overlay"]
+[ext_resource type="PackedScene" path="res://scene/hud.tscn" id="8_hud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
 size = Vector2(128, 24)
@@ -13,33 +15,46 @@ size = Vector2(128, 24)
 [node name="TestRoom" type="Node2D"]
 script = ExtResource("1_room")
 
-[node name="Ground" type="TileMapLayer" parent="."]
-tile_set = ExtResource("6_tiles")
+[node name="Ground" type="Sprite2D" parent="."]
+texture = ExtResource("2_ground")
+centered = false
+texture_filter = 1
 
-[node name="Player" parent="." instance=ExtResource("2_player")]
-position = Vector2(256, 320)
+[node name="Collision" type="TileMapLayer" parent="."]
+tile_set = ExtResource("3_collision")
 
-[node name="Slime" parent="." instance=ExtResource("3_slime")]
+[node name="World" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Player" parent="World" instance=ExtResource("4_player")]
+position = Vector2(272, 336)
+
+[node name="Slime" parent="World" instance=ExtResource("5_slime")]
 position = Vector2(860, 240)
 
-[node name="Slime2" parent="." instance=ExtResource("3_slime")]
+[node name="Slime2" parent="World" instance=ExtResource("5_slime")]
 position = Vector2(1120, 540)
 
-[node name="Slime3" parent="." instance=ExtResource("3_slime")]
+[node name="Slime3" parent="World" instance=ExtResource("5_slime")]
 position = Vector2(480, 600)
 
-[node name="Slime4" parent="." instance=ExtResource("3_slime")]
-position = Vector2(1320, 340)
+[node name="Slime4" parent="World" instance=ExtResource("5_slime")]
+position = Vector2(1360, 480)
 
-[node name="Beaker" parent="." instance=ExtResource("5_beaker")]
+[node name="Beaker" parent="World" instance=ExtResource("6_beaker")]
 position = Vector2(600, 280)
 
+[node name="Overlay" type="Sprite2D" parent="."]
+texture = ExtResource("7_overlay")
+centered = false
+texture_filter = 1
+
 [node name="ExitSouth" type="Area2D" parent="."]
-position = Vector2(768, 756)
+position = Vector2(784, 752)
 collision_layer = 0
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ExitSouth"]
 shape = SubResource("RectangleShape2D_exit")
 
-[node name="HUD" parent="." instance=ExtResource("4_hud")]
+[node name="HUD" parent="." instance=ExtResource("8_hud")]

@@ -208,27 +208,67 @@ actually cycle; hand-drawn sheets can still drop in later against "Asset Specs" 
 
 The AI-generated sheets (`assets/basil.png`, `assets/basil_sheet.png`) draw a slightly
 different cat in every frame, so animations strobe; they are kept only as concept
-reference. The live art is drawn procedurally — every frame from one parametric
-model — by stdlib-only Python scripts built on **two shared modules**:
+reference. The live art is drawn procedurally by stdlib-only Python scripts.
 
-- **`assets/_artlib.py`** — the rendering kit every generator imports: PNG writer,
-  `h2()` deterministic value noise, `pick()` 4-tone ramp with ordered dither
-  (`grain=2` dithers in 2×2 blocks so banding reads SNES-chunky at 2x density),
-  `Cell` sprite canvas (superellipse `oval`, garment `cloth`, `tri`, per-material
-  `outline()` pass) and dense `Img` canvas — plus the **canonical scale constants**
-  (`ZONE_TILE=32`, `ZONE_CELL=96`, `ZONE_FEET=88`, `OW_CELL=48`, `ICON=64`) that the
-  Scale Table above mirrors.
-- **`assets/_palette.py`** — the color script as data. `ramp4(seed, shadow, spread)`
-  derives every 4-tone material ramp from a scene seed, hue-shifting the dark end
-  toward the scene's shadow bias (violet or teal) — sheets are palette-locked by
-  construction. `SCENES` is the palette registry (below); `ACTORS` holds the
-  hand-tuned identity ramps for Basil / Schweinler / slime, which travel across
-  scenes (this ended Basil's old triplicated fur ramps).
+**Painted scenes (the post-overhaul architecture).** Playable maps are not tiled:
+each is ONE composed ground painting plus ONE overlay painting, generated from a
+shared map file. The 32px grid survives only as collision/logic data.
+
+- **`assets/maps/*.txt`** — the shared source of truth per map: a `legend`
+  (char → terrain + walk/solid), named `anchor`s (spawns, exits), and the ASCII
+  tile grid. Python paints from it; `scene/map_data.gd` builds collision and
+  logic queries from the same file, so paint and physics cannot drift. Keep
+  `assets/_maps.py` and `scene/map_data.gd` parsers in sync.
+- **`assets/_core.py`** — canonical scale constants (`ZONE_TILE=32`,
+  `ZONE_CELL=96`, `ZONE_FEET=88`, `OW_CELL=48`, `ICON=64` — the Scale Table above
+  mirrors these), `h2()` deterministic hash noise, `pick()` ramp dither, `Img`
+  canvas, PNG writer.
+- **`assets/_paint.py`** — the scene-painting kit: `fbm()` scene-scale noise
+  fields (texture never repeats on any tile rhythm), `sdf_from_mask()` blurred
+  signed-distance fields whose warped zero-contours turn blocky tile regions into
+  organic boundaries, `curve_field()` spline distance for genuinely curved trails
+  (walkable-on-walkable paint is free of the grid entirely), `tone()`
+  cluster-jittered ramp quantization (organic clumps, never checkerboard),
+  `Painter` (per-map canvases, palette, memoized SDFs, scatter), `paint_canopy()`
+  tree-mass walls, and stamps (flowers, tufts, pebbles, boulders, sparkles).
+  **Tolerance rules baked in:** boundary warp ≤ 12px and solid paint may only
+  overfill outward, so collision (full-square tiles on solid cells) never lets a
+  body stand on water/canopy; canopy pixels deeper than `OVERLAY_DEPTH` (52px)
+  into a solid region go to the overlay image (drawn above entities), the fringe
+  stays on ground — sprites can't reach deeper than that, so occlusion can't go
+  wrong.
+- **`assets/_palette.py`** — the color script as data. `ramp(seed, shadow, tones)`
+  derives N-tone material ramps (6 for painted terrain, 4 for sprites) from scene
+  seeds, hue-shifting the dark end toward the scene's shadow bias (violet or
+  teal). `SCENES` is the palette registry (below) — per-scene `"ramps"` entries
+  hold hand-tuned identity ramps for materials that can't be derived (warm dirt:
+  teal shadows turn it yellow-green, violet ones salmon); `ACTORS` holds the
+  hand-tuned identity ramps for Basil / Schweinler / slime.
+- **Godot side:** a painted map scene is `Ground` (Sprite2D, the painting) →
+  `Collision` (invisible TileMapLayer, `assets/collision_tileset.tres` — one
+  transparent full-square physics tile stamped on every solid cell by
+  `scene/painted_map.gd`) → `World` (y-sorted entities) → `Overlay` (Sprite2D,
+  above entities). Entity/exit positions come from map anchors where practical.
+  `scene/test_room.tscn` is the reference implementation.
+- **`assets/_artlib.py`** — LEGACY shim (re-exports `_core` + the old `Cell`
+  sprite canvas) for generators the overhaul hasn't rewritten yet. Do not add
+  imports; it is deleted in the final phase.
 
 Generators (re-run any with `python3 <script>`; then let Godot reimport, or
 `godot --headless --path . --import`; **always run `python3 assets/_check_art.py`
-after regenerating** — it asserts sheet dims, `.tres` regions, tile sizes and
-physics polygons against `_artlib`'s constants):
+after regenerating** — it asserts map enclosure/anchors, painted-scene dims,
+overlay transparency, collision tileset shape, entity placements on walkable
+cells, sheet dims and `.tres` regions):
+
+- `assets/_gen_scene_meadow.py` → `assets/scenes/meadow_ground.png` +
+  `meadow_overlay.png` (1536×768 = 48×24 tiles from `maps/meadow.txt`): Whisker
+  Meadow as one painting — treeline border walls, pond with waterline/foam/
+  wet-sand collar, spline trail ending at a cairn, boulder outcrops, flower
+  drifts. ~10s to regenerate.
+- `assets/_gen_collision.py` → `collision_tile.png` (32×32 transparent) for the
+  collision tileset.
+- Screenshot check: `Godot --path . --script tools/shot.gd --
+  res://scene/test_room.tscn /tmp/shot.png` (windowed; headless renders black).
 
 - `assets/_gen_basil_sprites.py` → `basil_gen.png` (576×672, 96×96 cells): Basil,
   modeled on the real cat — jet-black tuxedo, close-set yellow eyes with round
@@ -243,9 +283,9 @@ physics polygons against `_artlib`'s constants):
   (airborne on frames 2–4; `slime.gd` syncs movement speed to those frames so slimes
   hop instead of glide) + 4-frame splat death. Used by
   `entities/enemies/slime_frames.tres`.
-- `assets/_gen_tileset.py` → `tileset_gen.png` (128×64, 32×32 tiles): grass/tufts/
-  flowers/path/hedge/rock, ramps derived from `SCENES["meadow"]`. Used by
-  `assets/tileset.tres` (hedges collide).
+- `assets/_gen_tileset.py` → `tileset_gen.png` (128×64) — **LEGACY**, still feeds
+  `assets/tileset.tres` for `intro_road`/`intro_house` until their painted-scene
+  phases land; the meadow no longer uses it.
 - `assets/_gen_overworld.py` → the CT/SoS overworld look — broccoli forest canopies,
   sparkle water, snow-capped ridges, **hot-violet cracked wastes** — 4-tone ramps
   from `SCENES["overworld"]`, hash-dithering, upper-left light. Three sheets:
@@ -280,11 +320,14 @@ physics polygons against `_artlib`'s constants):
   rendered at `font_size = 16` everywhere — a clean 2x integer scale; hand-author a
   10×14 font later only if the doubled glyphs wear thin).
 
-Render style: every form is a shaded volume — 4-tone material ramps (shadows
-hue-shift cool), light from the upper-left, ordered dithering between tone bands,
-superellipse silhouettes, per-material outline colors, and details that break the
-silhouette (whiskers, drawn after the outline). Night scenes tint through a
-violet-magenta `CanvasModulate` (see `intro_house.gd`).
+Render style: every form is a shaded volume — material ramps whose shadows
+hue-shift cool, light from the upper-left. Sprites: 4-tone ramps, ordered dither
+between bands, superellipse silhouettes, per-material outline colors, details that
+break the silhouette (whiskers, drawn after the outline). Painted terrain: 6-tone
+ramps, cluster-jittered tone quantization (organic 3px clumps, never checkerboard
+fields), scene-wide light gradient + cloud shade, contact shadows grounding every
+mass, and no texture element repeating on any visible 32px rhythm. Night scenes
+tint through a violet-magenta `CanvasModulate` (see `intro_house.gd`).
 
 ### Palette Registry (the color script — `assets/_palette.py` SCENES)
 

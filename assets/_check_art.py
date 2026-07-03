@@ -1,18 +1,22 @@
 #!/usr/bin/env python3
 """Contract checker for the art pipeline (stdlib only).
 
-Verifies that every generated sheet has the dimensions the game expects, that the
-SpriteFrames .tres regions are cell-sized, grid-aligned and inside their sheet, and
-that the TileSet .tres tile_size/physics polygons match _artlib's scale constants.
+Painted-scene contracts: every assets/maps/*.txt parses and is enclosed except
+at exit anchors; each map's scenes/<name>_ground.png and _overlay.png exist at
+cols*32 x rows*32 with a majority-transparent overlay; the collision TileSet is
+a single full-square physics tile; entities placed in painted .tscn scenes sit
+on walkable cells. Legacy sheet/tileset checks remain until the overhaul's
+remaining phases retire that art.
 
 Run after any `python3 assets/_gen_*.py`: python3 assets/_check_art.py
 """
-import os, re, struct, sys
+import os, re, struct, sys, zlib
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
-from _artlib import ZONE_TILE, ZONE_CELL, OW_TILE, OW_CELL, ICON
+from _core import ZONE_TILE, ZONE_CELL, OW_TILE, OW_CELL, ICON
+from _maps import MapData
 
 FAILS = []
 
@@ -33,7 +37,79 @@ def png_size(rel):
     return struct.unpack(">II", data[16:24])
 
 
-# ---- sheet dimensions --------------------------------------------------------------
+def png_alpha_ratio(rel):
+    """Fraction of fully transparent pixels (our PNGs are filter-0 RGBA)."""
+    path = os.path.join(ROOT, rel)
+    data = open(path, "rb").read()
+    w, h = struct.unpack(">II", data[16:24])
+    idat, pos = b"", 8
+    while pos < len(data):
+        ln = struct.unpack(">I", data[pos:pos + 4])[0]
+        if data[pos + 4:pos + 8] == b"IDAT":
+            idat += data[pos + 8:pos + 8 + ln]
+        pos += 12 + ln
+    raw = zlib.decompress(idat)
+    stride = w * 4
+    clear = 0
+    for y in range(h):
+        row = raw[y * (stride + 1) + 1:(y + 1) * (stride + 1)]
+        clear += sum(1 for i in range(3, stride, 4) if row[i] == 0)
+    return clear / (w * h)
+
+
+# ---- painted scenes -----------------------------------------------------------------
+MAPS = {
+    "maps/meadow.txt": ("scenes/meadow_ground.png", "scenes/meadow_overlay.png"),
+}
+
+print("maps + painted scenes:")
+maps = {}
+for rel, (ground, overlay) in MAPS.items():
+    m = MapData(os.path.join(HERE, rel))   # asserts rows/legend/anchors
+    maps[rel] = m
+    exits = [txy for name, txy in m.anchors.items() if name.startswith("exit_")]
+    leaks = []
+    for y in range(m.rows_n):
+        for x in range(m.cols):
+            if (x in (0, m.cols - 1) or y in (0, m.rows_n - 1)) and not m.legend[m.at(x, y)]["solid"]:
+                if not any(abs(x - ex) <= 3 and abs(y - ey) <= 3 for (ex, ey) in exits):
+                    leaks.append((x, y))
+    check(f"{rel} enclosed (except exits)", not leaks, f"leaks at {leaks[:4]}")
+    want = (m.cols * ZONE_TILE, m.rows_n * ZONE_TILE)
+    for png in (ground, overlay):
+        got = png_size(os.path.join("assets", png))
+        check(f"assets/{png}", got == want, f"want {want}, got {got}")
+    ratio = png_alpha_ratio(os.path.join("assets", overlay))
+    check(f"assets/{overlay} mostly transparent", ratio > 0.5, f"only {ratio:.0%} clear")
+
+# ---- collision tileset ---------------------------------------------------------------
+print("collision tileset:")
+src = open(os.path.join(ROOT, "assets/collision_tileset.tres")).read()
+half = ZONE_TILE // 2
+check("collision_tileset.tres tile_size", f"tile_size = Vector2i({ZONE_TILE}, {ZONE_TILE})" in src)
+polys = re.findall(r"physics_layer_0/polygon_0/points = PackedVector2Array\(([^)]+)\)", src)
+want_poly = f"-{half}, -{half}, {half}, -{half}, {half}, {half}, -{half}, {half}"
+check("collision_tileset.tres one full-square tile", polys == [want_poly], f"got {polys}")
+check("collision_tile.png", png_size("assets/collision_tile.png") == (ZONE_TILE, ZONE_TILE))
+
+# ---- entity placement in painted scenes ----------------------------------------------
+PLACEMENTS = {
+    "scene/test_room.tscn": "maps/meadow.txt",
+}
+
+print("placements:")
+for rel, map_rel in PLACEMENTS.items():
+    m = maps[map_rel]
+    src = open(os.path.join(ROOT, rel)).read()
+    bad = []
+    for name, x, y in re.findall(
+            r'\[node name="(\w+)" parent="World"[^\]]*\]\nposition = Vector2\(([\d.]+), ([\d.]+)\)', src):
+        tx, ty = int(float(x)) // ZONE_TILE, int(float(y)) // ZONE_TILE
+        if m.legend[m.at(tx, ty)]["solid"]:
+            bad.append((name, tx, ty))
+    check(f"{rel} entities on walkable cells", not bad, str(bad))
+
+# ---- sheet dimensions (legacy art still in play keeps its checks) --------------------
 SHEETS = {
     "assets/basil_gen.png": (6 * ZONE_CELL, 7 * ZONE_CELL),
     "assets/schweinler_gen.png": (4 * ZONE_CELL, 4 * ZONE_CELL),
@@ -87,13 +163,13 @@ for rel, (sheet, cell) in FRAMES.items():
             break
     check(f"{rel} ({len(regions)} regions)", ok, detail)
 
-# ---- TileSets -----------------------------------------------------------------------
+# ---- legacy TileSets (retired scene by scene as the overhaul lands) ------------------
 TILESETS = {
     "assets/tileset.tres": (ZONE_TILE, {"0:1", "1:1"}),
     "assets/overworld_tileset.tres": (OW_TILE, {"0:0", "1:0", "0:1", "1:1", "4:1", "5:1", "6:1", "7:1", "2:2"}),
 }
 
-print("tilesets:")
+print("legacy tilesets:")
 for rel, (tile, solid) in TILESETS.items():
     path = os.path.join(ROOT, rel)
     src = open(path).read()
