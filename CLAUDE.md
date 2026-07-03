@@ -45,12 +45,14 @@ Meadow zone (the other four markers are locked with flavor text; leaving the mea
 returns to its marker via the `Game` autoload). Cutscene kit: `scene/cutscene.gd`
 (awaitable say/walk/fade/card helpers, ESC skips) + `scene/dialog_box.tscn`
 (typewriter box, bitmap pixel font in `assets/font/`). Player: walk/hop (straight up
-when standing, air-steerable) / laser with recoil; slimes die in 3 shots. **Art
-overhaul in progress (painted scenes):** maps are single composed paintings
+when standing, air-steerable) / laser with recoil; slimes die in 3 shots.
+**Painted-scene art (no tilemaps):** every map is a single composed painting
 (ground + overlay Sprite2Ds) generated from shared `assets/maps/*.txt` files on
-`assets/_core.py` + `assets/_paint.py` + `assets/_palette.py`; collision is an
-invisible TileMapLayer built at runtime by `scene/painted_map.gd` from the same
-map file (`scene/test_room.tscn` = reference implementation). Legacy tile/sprite
-art still runs on the `assets/_artlib.py` shim until its phases land. Regenerate
-via `assets/_gen_*.py`, then `python3 assets/_check_art.py` (see "Art pipeline"
-in docs/DESIGN.md). Main scene: `scene/title.tscn`.
+`assets/_core.py` + `assets/_paint.py` + `assets/_palette.py`; sprites/fx build
+on `assets/_sprites.py`; collision is an invisible TileMapLayer built at runtime
+by `scene/painted_map.gd` from the same map file (`scene/test_room.tscn` =
+reference implementation). The only legacy remnant is `assets/_gen_intro_art.py`
+(house/school/small props) on the `_artlib.py` shim. Regenerate via
+`assets/_gen_*.py`, then `python3 assets/_check_art.py`; eyeball scenes with
+`tools/shot.gd` (see "Art pipeline" in docs/DESIGN.md). Main scene:
+`scene/title.tscn`.

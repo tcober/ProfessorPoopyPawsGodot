@@ -15,7 +15,7 @@ import os, re, struct, sys, zlib
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
-from _core import ZONE_TILE, ZONE_CELL, OW_TILE, OW_CELL, ICON
+from _core import ZONE_TILE, ZONE_CELL, OW_CELL, ICON
 from _maps import MapData
 
 FAILS = []
@@ -113,15 +113,18 @@ for rel, map_rel in PLACEMENTS.items():
             bad.append((name, tx, ty))
     check(f"{rel} entities on walkable cells", not bad, str(bad))
 
-# ---- sheet dimensions (legacy art still in play keeps its checks) --------------------
+# ---- sheet dimensions -----------------------------------------------------------------
 SHEETS = {
     "assets/basil_gen.png": (6 * ZONE_CELL, 7 * ZONE_CELL),
     "assets/schweinler_gen.png": (4 * ZONE_CELL, 4 * ZONE_CELL),
     "assets/slime_gen.png": (6 * 48, 4 * 48),
-    "assets/tileset_gen.png": (4 * ZONE_TILE, 2 * ZONE_TILE),
-    "assets/overworld_tiles.png": (8 * OW_TILE, 3 * OW_TILE),
     "assets/overworld_basil.png": (4 * OW_CELL, 3 * OW_CELL),
     "assets/overworld_icons.png": (5 * ICON, ICON),
+    "assets/title_bg.png": (640, 360),
+    "assets/props/bedroom_bg.png": (640, 360),
+    "assets/props/hall_bg.png": (640, 360),
+    "assets/props/house_front.png": (768, 256),
+    "assets/props/school_front.png": (896, 320),
     "assets/placeholder/hearts.png": (96, 32),
     "assets/placeholder/ammo_pips.png": (32, 16),
     "assets/placeholder/laser_bolt.png": (52, 16),
@@ -166,25 +169,6 @@ for rel, (sheet, cell) in FRAMES.items():
             ok, detail = False, f"region ({x},{y}) outside sheet {dims}"
             break
     check(f"{rel} ({len(regions)} regions)", ok, detail)
-
-# ---- legacy TileSets (retired scene by scene as the overhaul lands) ------------------
-TILESETS = {
-    "assets/tileset.tres": (ZONE_TILE, {"0:1", "1:1"}),
-    "assets/overworld_tileset.tres": (OW_TILE, {"0:0", "1:0", "0:1", "1:1", "4:1", "5:1", "6:1", "7:1", "2:2"}),
-}
-
-print("legacy tilesets:")
-for rel, (tile, solid) in TILESETS.items():
-    path = os.path.join(ROOT, rel)
-    src = open(path).read()
-    check(f"{rel} tile_size", f"tile_size = Vector2i({tile}, {tile})" in src)
-    half = tile // 2
-    polys = re.findall(r"physics_layer_0/polygon_0/points = PackedVector2Array\(([^)]+)\)", src)
-    want_poly = f"-{half}, -{half}, {half}, -{half}, {half}, {half}, -{half}, {half}"
-    check(f"{rel} polygons ±{half}", polys and all(p == want_poly for p in polys),
-          f"{sum(1 for p in polys if p != want_poly)} of {len(polys)} off-size")
-    have = set(re.findall(r"(\d+:\d+)/0/physics_layer_0", src))
-    check(f"{rel} solid tiles", have == solid, f"want {sorted(solid)}, got {sorted(have)}")
 
 print()
 if FAILS:

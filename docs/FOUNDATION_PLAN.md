@@ -43,12 +43,11 @@
   home bluff SW → path NE past Whisker Meadow → bridge over a N→S river → Alembic
   Town at the NE forest's edge; mountains + cave N; drained wastes + obelisk E/SE;
   ocean frame.
-- Art: `assets/_gen_overworld.py` (stdlib-only, same hi-fi procedural style) →
-  `overworld_tiles.png` (128×48, 8×3 of 16×16 seamless terrain incl. the
-  cracked/dead-tree/crystal wastes biome), `overworld_basil.png` (96×72, 24×24 chibi
-  walk cycles), `overworld_icons.png` (160×32, five 32×32 landmark icons).
-- `assets/overworld_tileset.tres`: water/forest/mountain/river/cliff/dead-tree tiles
-  solid — terrain gates travel; sand/grass/path/bridge/forest-edge/hills/wastes walk.
+- Art (superseded by Milestone 5): originally a 16×16 tileset; now the painted
+  2048×1152 continent from `assets/maps/overworld.txt` + `_gen_scene_overworld.py`,
+  with `overworld_basil.png` (192×144, 48×48 chibi) and `overworld_icons.png`
+  (320×64, five 64×64 icons). Terrain gating unchanged: sea/forest/mountain/river
+  solid via the shared collision tileset; beach/grass/hills/bridge/wastes walk.
 - Travel sprite: `entities/player/overworld_player.gd/.tscn`
   (+ `overworld_basil_frames.tres`) — 8-way move, 4-way facing, ~90 px/s, no
   gun/hop/health.
@@ -61,6 +60,22 @@
   returns Basil to that marker. Flow rewired: hall "...YEARS LATER." → overworld;
   title/intro ESC skips → overworld; meadow gains a south hedge-gap exit back to
   the map.
+
+### Milestone 5 — Painted-scene art overhaul ✅ (2026-07-03)
+
+Total from-scratch art rebuild — the tiled/RPG-maker look is gone. Every map is
+now ONE composed painting (ground + overlay Sprite2Ds) generated from a shared
+`assets/maps/*.txt` file; collision is an invisible TileMapLayer built at
+runtime from the same file (`scene/painted_map.gd`), so paint and physics can't
+drift. New foundation modules: `_core.py` / `_paint.py` (FBM fields, warped
+SDF boundaries, spline trails, canopy masses, stamps) / `_sprites.py` (rigged
+character kit) / `_maps.py`. All character/fx sheets rebuilt (Basil, slime,
+Schweinler, chibi, icons, hearts/bolt/beaker), bedroom/hall/title recomposed,
+native 10×16 font with true lowercase, surreal Paper Girls palette pushed
+(emerald fields, indigo canopies, cyan water, violet cloud washes). Legacy
+tilesets/generators deleted; `_artlib.py` shim remains only under
+`_gen_intro_art.py` (house/school/small props — future prop pass).
+Details: docs/DESIGN.md "Art pipeline".
 
 ## Next milestone — candidates (pick when ready)
 

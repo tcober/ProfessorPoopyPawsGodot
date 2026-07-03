@@ -250,9 +250,13 @@ shared map file. The 32px grid survives only as collision/logic data.
   `scene/painted_map.gd`) → `World` (y-sorted entities) → `Overlay` (Sprite2D,
   above entities). Entity/exit positions come from map anchors where practical.
   `scene/test_room.tscn` is the reference implementation.
+- **`assets/_sprites.py`** — the sprite construction kit: `Sprite` canvas with
+  steer-lit `ball`/`capsule`/`panel` volumes, cluster-jittered tone selection,
+  `cluster_shade`/`despeckle`/`outline`/`crease` finishing passes, and `Rig`
+  (named anchors + per-frame offsets so cycles animate as one body).
 - **`assets/_artlib.py`** — LEGACY shim (re-exports `_core` + the old `Cell`
-  sprite canvas) for generators the overhaul hasn't rewritten yet. Do not add
-  imports; it is deleted in the final phase.
+  canvas), kept only for `assets/_gen_intro_art.py` (house/school/small props).
+  Do not add imports; it dies with that generator's future prop pass.
 
 Generators (re-run any with `python3 <script>`; then let Godot reimport, or
 `godot --headless --path . --import`; **always run `python3 assets/_check_art.py`
@@ -260,65 +264,67 @@ after regenerating** — it asserts map enclosure/anchors, painted-scene dims,
 overlay transparency, collision tileset shape, entity placements on walkable
 cells, sheet dims and `.tres` regions):
 
-- `assets/_gen_scene_meadow.py` → `assets/scenes/meadow_ground.png` +
-  `meadow_overlay.png` (1536×768 = 48×24 tiles from `maps/meadow.txt`): Whisker
-  Meadow as one painting — treeline border walls, pond with waterline/foam/
-  wet-sand collar, spline trail ending at a cairn, boulder outcrops, flower
-  drifts. ~10s to regenerate.
+Painted scenes (ground + overlay from `assets/maps/*.txt`):
+
+- `assets/_gen_scene_meadow.py` → `scenes/meadow_ground/overlay.png` (1536×768,
+  48×24 tiles): treeline border walls, cyan pond with waterline/foam/wet-sand
+  collar, spline trail ending at a cairn, lavender boulders, hot-pink flower
+  drifts, violet cloud washes. ~11s.
+- `assets/_gen_scene_overworld.py` → `scenes/overworld_ground/overlay.png`
+  (2048×1152, 64×36): the CT/FF6 continent — deepwater→shallow sea with ripple
+  bands + double foam arcs, smooth-contour beach, canopy forest masses, painted
+  mountain ridge with snow caps, river + rosewood bridge, crack-web violet
+  wastes with dead trees and glowing crystals, worn site pads under the five
+  landmark anchors. ~17s.
+- `assets/_gen_scene_road.py` → `scenes/road_ground/overlay.png` (2560×736,
+  80×23): S-curve avenue to the Academy, **dawn light from the east**, flower
+  verges, forecourt. ~17s.
+- `assets/_gen_scene_yard.py` → `scenes/yard_ground/overlay.png` (640×384,
+  20×12): the cottage lawn (morning palette; night is a CanvasModulate tint),
+  door path, flower beds, hedge border, cottage cast shadow. ~2s.
 - `assets/_gen_collision.py` → `collision_tile.png` (32×32 transparent) for the
-  collision tileset.
+  shared collision tileset.
+
+Sprites and fx (on `_sprites.py`; sheet layouts frozen against the `.tres` files):
+
+- `assets/_gen_basil_sprites.py` → `basil_gen.png` (576×672, 96×96, 6×7): Basil —
+  jet-black tuxedo, stern yellow eyes (sweet ^ ^ blink), white blaze/muzzle/paws,
+  aviator goggles, lab coat, laser gun. CT thirds (~66px figure); walk/shoot ×3
+  facings (up-shot holds the gun skyward past his head, muzzle on the 32px
+  contract), hurt ×2, blink, tail-flick, happy, sad.
+- `assets/_gen_slime_sprites.py` → `slime_gen.png` (288×192, 48×48, 6×4):
+  squash-stretch bounce with conserved volume and a lagging gel nucleus
+  (airborne frames 2–4 — `slime.gd` syncs speed to them) + 4-frame splat death.
+- `assets/_gen_schweinler_sprites.py` → `schweinler_gen.png` (384×384, 96×96,
+  4×4): the stout smug pig — capsule limbs, cloven trotters, pale popping snout,
+  red neckerchief; walks + point_up + laugh_down. Feet y=88.
+- `assets/_gen_overworld_actors.py` → `overworld_basil.png` (192×144, 48×48,
+  4×3 chibi) + `overworld_icons.png` (320×64, five 64×64 landmark vignettes).
+- `assets/_gen_fx.py` → `placeholder/`: glossy ruby hearts 96×32, energy pips
+  32×16, laser bolt 52×16, muzzle flash 40×40, glass beaker 24×28, violet hop
+  shadow 48×20.
+
+Backdrops and props:
+
+- `assets/_gen_bedroom_art.py` → the recomposed attic bedroom: `bedroom_bg.png`
+  640×360 (dawn window + light pool, corkboard, desk, south door; bird sill at
+  (366,148) — `intro_bedroom.gd` SILL), `bed_basil.png` 480×176 (4×120),
+  `bird.png` 144×48, `nightstand.png` 56×76, `clock_face.png` 192×208.
+- `assets/_gen_scene_hall.py` → `props/hall_bg.png` 640×360: composed hall
+  (plum panels, wainscot, sconce pools, perspective floorboards, teal runner) —
+  replaced the last region-repeat tiling.
+- `assets/_gen_title.py` → `title_bg.png` 640×360 (the poster: posterized
+  sunset, Academy + Obelisk silhouettes, meadow glints, stacked gold logo in the
+  native font) + `leaf.png` 10×10.
+- `assets/_gen_intro_art.py` → remaining props on the legacy `_artlib` shim
+  (house front 768×256 door-centered, Academy front 896×320, poop bag, paw
+  print, chalkboard 448×144, podium 104×120, audience cats 320×80) — the last
+  candidates for a future prop pass.
+- `assets/font/_gen_font.py` → the BMFont all Labels use: **native 10×16 glyphs**
+  (`font/_glyphs14.py` — Scale2x caps/digits + hand-drawn true lowercase),
+  size=16 renders 1:1 at the `font_size = 16` every Label already uses.
 - Screenshot check: `Godot --path . --script tools/shot.gd --
   res://scene/test_room.tscn /tmp/shot.png` (windowed; headless renders black).
-
-- `assets/_gen_basil_sprites.py` → `basil_gen.png` (576×672, 96×96 cells): Basil,
-  modeled on the real cat — jet-black tuxedo, close-set yellow eyes with round
-  pupils (stern by default, sweet ^ ^ on the idle blink), narrow white blaze into a
-  plump muzzle, black nose smudge, whiskers breaking the silhouette, aviator goggles,
-  straight-cut lab coat, white paws. **FF6/CT field-sprite proportions**: head /
-  torso / legs each roughly a third of the ~66 px figure; walk cycles, shoot poses,
-  hurt, and a full row 6 of expressions: hurt ×2, blink, tail-flick, **happy** (open
-  grin + blush) and **sad** (droopy ears, teary eyes, wobble frown) — exposed as
-  `happy` / `sad` animations in `player_frames.tres` for cutscenes.
-- `assets/_gen_slime_sprites.py` → `slime_gen.png` (288×192, 48×48 cells): bounce cycle
-  (airborne on frames 2–4; `slime.gd` syncs movement speed to those frames so slimes
-  hop instead of glide) + 4-frame splat death. Used by
-  `entities/enemies/slime_frames.tres`.
-- `assets/_gen_tileset.py` → `tileset_gen.png` (128×64) — **LEGACY**, still feeds
-  `assets/tileset.tres` for `intro_road`/`intro_house` until their painted-scene
-  phases land; the meadow no longer uses it.
-- `assets/_gen_overworld.py` → the CT/SoS overworld look — broccoli forest canopies,
-  sparkle water, snow-capped ridges, **hot-violet cracked wastes** — 4-tone ramps
-  from `SCENES["overworld"]`, hash-dithering, upper-left light. Three sheets:
-  `overworld_tiles.png` (256×96, 8×3 of 32×32 seamless terrain — water, water
-  sparkle, sand, grass, grass detail, scrub, path, bridge / forest A/B, forest edge,
-  hills, mountain, mountain snow, river, cliff / cracked A/B, dead tree, crystal,
-  +4 reserved grass variants; the cracked/dead/crystal tiles are the drained-wastes
-  biome), `overworld_basil.png` (192×144, 4×3 of 48×48: chibi Basil — big head,
-  tuxedo, goggles, lab coat — walk down/up/side ×4, side right-facing, flipped in
-  code), and `overworld_icons.png` (320×64, five 64×64 landmark icons: HOME cottage,
-  TOWN, MEADOW grove, CAVE mouth, OBELISK).
-- `assets/_gen_schweinler_sprites.py` → `schweinler_gen.png` (384×384, 96×96 cells):
-  Schweinler the pig (big snout, beady angry eyes, red neckerchief, curly tail,
-  cloven trotters); walks + point_up + laugh_down. Deliberately stout and round —
-  the comedy foil to Basil's lanky thirds — same scale/baseline (feet y=88) so he
-  can walk into gameplay later.
-- `assets/_gen_title.py` → `title_bg.png` (640×360) + `leaf.png` (10×10): the
-  autumn-poster title art.
-- `assets/_gen_intro_art.py` → `assets/props/*` at 2x: house front 768×256
-  (door-centered; overflows the 640 stage for cinematic framing), Academy front
-  896×320, poop bag 192×64, paw print 24×24, hall floor/wall 64×64, chalkboard
-  448×144, podium 104×120, audience cats 320×80.
-- `assets/_gen_bedroom_art.py` → bedroom stage: `bedroom_bg.png` 640×360 (CT room
-  on black, interior (96,24)–(543,335), floor split y=168, bird perch (476,126)),
-  `bed_basil.png` 448×160 (4× 112×160), `bird.png` 144×48, `nightstand.png` 52×68,
-  `clock_face.png` 192×208.
-- `assets/placeholder/_gen_placeholders.py` → combat/HUD support sprites,
-  palette-locked to Basil's gun accents (bolt/flash/beaker fluid all laser-green):
-  hearts 96×32, ammo pips 32×16, laser bolt 52×16, muzzle flash 40×40, beaker
-  24×28, jump shadow 48×20.
-- `assets/font/_gen_font.py` → the BMFont bitmap font all Labels use (5×7 glyphs;
-  rendered at `font_size = 16` everywhere — a clean 2x integer scale; hand-author a
-  10×14 font later only if the doubled glyphs wear thin).
 
 Render style: every form is a shaded volume — material ramps whose shadows
 hue-shift cool, light from the upper-left. Sprites: 4-tone ramps, ordered dither
