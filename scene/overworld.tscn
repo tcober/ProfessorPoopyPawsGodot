@@ -8,7 +8,7 @@
 [ext_resource type="FontFile" path="res://assets/font/pixel_font.fnt" id="6_font"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_marker"]
-size = Vector2(20, 14)
+size = Vector2(40, 28)
 
 [node name="Overworld" type="Node2D"]
 script = ExtResource("1_ow")
@@ -19,87 +19,87 @@ tile_set = ExtResource("2_tiles")
 [node name="Locations" type="Node2D" parent="."]
 
 [node name="Home" type="Area2D" parent="Locations"]
-position = Vector2(168, 440)
+position = Vector2(336, 880)
 script = ExtResource("3_loc")
 id = "home"
 display_name = "BASIL'S BLUFF"
 locked_text = "HOME. IT CAN WAIT."
 
 [node name="Sprite2D" type="Sprite2D" parent="Locations/Home"]
-position = Vector2(0, -12)
+position = Vector2(0, -24)
 texture = ExtResource("4_icons")
 region_enabled = true
-region_rect = Rect2(0, 0, 32, 32)
+region_rect = Rect2(0, 0, 64, 64)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Home"]
 shape = SubResource("RectangleShape2D_marker")
 
 [node name="Meadow" type="Area2D" parent="Locations"]
-position = Vector2(344, 216)
+position = Vector2(688, 432)
 script = ExtResource("3_loc")
 id = "meadow"
 display_name = "WHISKER MEADOW"
 target_scene = "res://scene/test_room.tscn"
 
 [node name="Sprite2D" type="Sprite2D" parent="Locations/Meadow"]
-position = Vector2(0, -12)
+position = Vector2(0, -24)
 texture = ExtResource("4_icons")
 region_enabled = true
-region_rect = Rect2(64, 0, 32, 32)
+region_rect = Rect2(128, 0, 64, 64)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Meadow"]
 shape = SubResource("RectangleShape2D_marker")
 
 [node name="Town" type="Area2D" parent="Locations"]
-position = Vector2(808, 184)
+position = Vector2(1616, 368)
 script = ExtResource("3_loc")
 id = "town"
 display_name = "ALEMBIC TOWN"
 locked_text = "THE ACADEMY GATES ARE SHUT. (COMING SOON)"
 
 [node name="Sprite2D" type="Sprite2D" parent="Locations/Town"]
-position = Vector2(0, -12)
+position = Vector2(0, -24)
 texture = ExtResource("4_icons")
 region_enabled = true
-region_rect = Rect2(32, 0, 32, 32)
+region_rect = Rect2(64, 0, 64, 64)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Town"]
 shape = SubResource("RectangleShape2D_marker")
 
 [node name="Cave" type="Area2D" parent="Locations"]
-position = Vector2(488, 168)
+position = Vector2(976, 336)
 script = ExtResource("3_loc")
 id = "cave"
 display_name = "THE BURROWS"
 locked_text = "TOO DARK WITHOUT A LIGHT. (COMING SOON)"
 
 [node name="Sprite2D" type="Sprite2D" parent="Locations/Cave"]
-position = Vector2(0, -12)
+position = Vector2(0, -24)
 texture = ExtResource("4_icons")
 region_enabled = true
-region_rect = Rect2(96, 0, 32, 32)
+region_rect = Rect2(192, 0, 64, 64)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Cave"]
 shape = SubResource("RectangleShape2D_marker")
 
 [node name="Obelisk" type="Area2D" parent="Locations"]
-position = Vector2(840, 400)
+position = Vector2(1680, 800)
 script = ExtResource("3_loc")
 id = "obelisk"
 display_name = "THE DRAIN"
 locked_text = "THE MAGIC WENT SOMEWHERE EAST OF EAST. (COMING SOON)"
 
 [node name="Sprite2D" type="Sprite2D" parent="Locations/Obelisk"]
-position = Vector2(0, -12)
+position = Vector2(0, -24)
 texture = ExtResource("4_icons")
 region_enabled = true
-region_rect = Rect2(128, 0, 32, 32)
+region_rect = Rect2(256, 0, 64, 64)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Obelisk"]
 shape = SubResource("RectangleShape2D_marker")
 
 [node name="OverworldPlayer" parent="." instance=ExtResource("5_player")]
-position = Vector2(168, 466)
+position = Vector2(336, 932)
 
 [node name="UI" type="CanvasLayer" parent="."]
 layer = 10

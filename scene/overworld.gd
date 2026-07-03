@@ -5,7 +5,7 @@ extends Node2D
 ## Basil's chibi self walks between OverworldLocation markers — unlocked ones fade out
 ## into their zone scene, locked ones announce themselves in the bottom banner.
 
-const TILE := 16
+const TILE := 32
 
 ## Legend: '~' water · 's' sand · '.' grass · '-' path · '=' bridge · 'f' forest
 ## 'e' forest edge · 'h' hills · 'M' mountain · 'S' snow peak · 'r' river · 'c' cliff
@@ -49,7 +49,7 @@ const MAP: Array[String] = [
 	"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",
 ]
 
-## Atlas coords in assets/overworld_tiles.png (8x3 grid of 16x16 tiles).
+## Atlas coords in assets/overworld_tiles.png (8x3 grid of 32x32 tiles).
 const T_WATER := Vector2i(0, 0)
 const T_WATER_SPARKLE := Vector2i(1, 0)
 const T_SAND := Vector2i(2, 0)
@@ -91,7 +91,7 @@ func _ready() -> void:
 		loc.body_entered.connect(_on_location_entered.bind(loc))
 		loc.body_exited.connect(_on_location_exited.bind(loc))
 		if loc.id == Game.overworld_spawn:
-			player.global_position = loc.global_position + Vector2(0, 26)
+			player.global_position = loc.global_position + Vector2(0, 52)
 	var tw := create_tween()
 	tw.tween_property(fade, "modulate:a", 0.0, 0.7)
 	await get_tree().create_timer(0.8).timeout

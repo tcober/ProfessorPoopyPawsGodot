@@ -4,7 +4,7 @@
 [ext_resource type="SpriteFrames" path="res://entities/player/overworld_basil_frames.tres" id="2_frames"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
-size = Vector2(10, 6)
+size = Vector2(20, 12)
 
 [node name="OverworldPlayer" type="CharacterBody2D"]
 collision_layer = 2
@@ -12,7 +12,7 @@ collision_mask = 1
 script = ExtResource("1_player")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(0, -9)
+position = Vector2(0, -18)
 sprite_frames = ExtResource("2_frames")
 animation = &"idle_down"
 autoplay = "idle_down"

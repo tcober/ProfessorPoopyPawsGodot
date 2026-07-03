@@ -4,7 +4,7 @@ extends CharacterBody2D
 ## Basil's chibi travel-map self: 8-way movement and 4-way facing only — no gun, hop,
 ## or health. Location triggers and scene changes are handled by the overworld scene.
 
-@export var speed: float = 90.0
+@export var speed: float = 180.0
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
