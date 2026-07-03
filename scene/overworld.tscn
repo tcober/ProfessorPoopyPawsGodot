@@ -107,14 +107,14 @@ layer = 10
 [node name="Banner" type="Label" parent="UI"]
 modulate = Color(1, 1, 1, 0)
 offset_left = 20.0
-offset_top = 318.0
+offset_top = 306.0
 offset_right = 620.0
-offset_bottom = 340.0
+offset_bottom = 344.0
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_offset_x = 1
-theme_override_constants/shadow_offset_y = 1
+theme_override_constants/shadow_offset_x = 2
+theme_override_constants/shadow_offset_y = 2
 theme_override_fonts/font = ExtResource("6_font")
-theme_override_font_sizes/font_size = 8
+theme_override_font_sizes/font_size = 16
 horizontal_alignment = 1
 
 [node name="Fade" type="ColorRect" parent="UI"]

@@ -317,10 +317,10 @@ pp.rect(10, 0, 13, 3, PRINT)
 save(pp, "paw_print.png")
 
 # ---- hall floor / wall tiles (64x64) ----------------------------------------------------
-# rosewood planks + plum panelling — warm field, violet-leaning shadows
-WOODF  = (188, 130, 104, 255)
-WOODD = (156, 100, 88, 255)
-WOODL = (214, 158, 122, 255)
+# rosewood planks + plum panelling — rose field, violet-leaning shadows (never tan)
+WOODF  = (196, 118, 112, 255)
+WOODD = (158, 86, 98, 255)
+WOODL = (224, 148, 126, 255)
 f = Img(64, 64)
 f.rect(0, 0, 63, 63, WOODF)
 for y in range(64):
