@@ -30,6 +30,8 @@ W, H = p.W, p.H
 
 GRASS = p.mat("grass")
 GRASS2 = p.mat("grass2")                       # warmer drift patches
+GRASS_V = p.mat("grass", shadow="violet")      # violet wash under cloud shade
+GRASS2_V = p.mat("grass2", shadow="violet")
 PATH = p.mat("path")                           # hand-tuned identity ramp
 WATER = p.mat("water")
 CANOPY = p.mat("treeline")
@@ -74,6 +76,8 @@ def s_path_at(x, y):
 # layered noise + upper-left light + edge vignettes. Bytes are written directly.
 gb = [bytes(c) for c in GRASS]
 g2 = [bytes(c) for c in GRASS2]
+gbv = [bytes(c) for c in GRASS_V]
+g2v = [bytes(c) for c in GRASS2_V]
 pb = [bytes(c) for c in PATH]
 wb = [bytes(c) for c in WATER]
 buf = p.ground.buf
@@ -140,11 +144,15 @@ for y in range(H):
                     t += (44.0 - s_tree) * 0.0045   # treeline ambient occlusion
                 if 0.0 < s_path <= 6.0:
                     t += 0.10                       # trodden fringe
-                cl = clo_(x, y)
-                if cl > 0.60:
-                    t += (cl - 0.60) * 0.9          # drifting cloud shade
                 # warm drift patches, noise-dithered edge, kept off the treeline AO
-                ramp_b = g2 if s_tree > 30.0 and hue_(x, y) + (f - 0.5) * 0.2 > 0.62 else gb
+                warm = s_tree > 30.0 and hue_(x, y) + (f - 0.5) * 0.2 > 0.62
+                cl = clo_(x, y)
+                if cl > 0.58:
+                    # drifting cloud shade as a VIOLET wash (the color-script move)
+                    t += (cl - 0.58) * 0.9
+                    ramp_b = g2v if warm else gbv
+                else:
+                    ramp_b = g2 if warm else gb
                 c = ramp_b[tone_i(5, t, x, y, 24)]
         buf[o:o + 4] = c
         o += 4

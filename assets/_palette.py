@@ -143,14 +143,14 @@ SCENES = {
                      (198, 138, 108, 255), (156, 92, 96, 255), (110, 58, 78, 255)],
         },
         "mats": {
-            "grass": (94, 178, 118, 255),
-            "grass2": (108, 182, 108, 255),     # warmer drift patches
+            "grass": (62, 192, 142, 255),       # minty emerald, surreal-cool
+            "grass2": (96, 196, 116, 255),      # warmer drift patches
             "path": (230, 176, 130, 255),
             "hedge": (34, 106, 94, 255),
-            "rock": (144, 150, 172, 255),
-            "treeline": (38, 118, 92, 255),     # border canopy mass
-            "trunk": (66, 84, 104, 255),        # understory / bark
-            "water": (70, 152, 172, 255),       # pond
+            "rock": (154, 146, 190, 255),       # lavender outcrops
+            "treeline": (30, 112, 110, 255),    # teal-indigo canopy mass
+            "trunk": (54, 66, 126, 255),        # indigo understory
+            "water": (54, 170, 192, 255),       # hot cyan pond
             "shore": (222, 172, 134, 255),      # wet-sand ring
         },
     },
