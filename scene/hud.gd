@@ -6,12 +6,12 @@ extends CanvasLayer
 ## HP is in half-hearts (2 per heart). hearts.png frames: full | half | empty.
 ## ammo_pips.png frames: full | empty.
 
-const CELL := 16
+const CELL := 32
 const FRAME_FULL := 0
 const FRAME_HALF := 1
 const FRAME_EMPTY := 2
 
-const AMMO_CELL := 8
+const AMMO_CELL := 16
 const AMMO_FULL := 0
 const AMMO_EMPTY := 1
 

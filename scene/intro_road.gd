@@ -6,7 +6,7 @@ extends Node2D
 
 const PRINT_TEX := preload("res://assets/props/paw_print.png")
 
-const TILE := 16
+const TILE := 32
 ## Legend: '#' hedge (solid) · '.' grass · '-' dirt path · 'f' flowers · 'r' rock
 const MAP: Array[String] = [
 	"################################################################################",
@@ -73,10 +73,10 @@ func _ready() -> void:
 
 func _physics_process(_delta: float) -> void:
 	# Poopy paw prints trail behind him until they (mostly) wear off.
-	if _prints_left > 0 and player.global_position.distance_to(_last_print_pos) > 11.0:
+	if _prints_left > 0 and player.global_position.distance_to(_last_print_pos) > 22.0:
 		var p := Sprite2D.new()
 		p.texture = PRINT_TEX
-		p.position = player.global_position + Vector2(4 if _prints_left % 2 == 0 else -4, 18)
+		p.position = player.global_position + Vector2(8 if _prints_left % 2 == 0 else -8, 36)
 		p.modulate.a = 0.5 + 0.5 * float(_prints_left) / MAX_PRINTS
 		prints.add_child(p)
 		_last_print_pos = player.global_position

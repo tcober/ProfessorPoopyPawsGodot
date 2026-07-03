@@ -5,7 +5,7 @@ extends Area2D
 ## hits, and frees itself on impact, on hitting a wall, or after `lifetime`.
 ## Collision mask = walls (1) + enemy hurtboxes (16); never hits the player.
 
-@export var speed: float = 460.0
+@export var speed: float = 920.0
 @export var damage: int = 2      # slimes have 6 HP -> three shots
 @export var lifetime: float = 1.2
 

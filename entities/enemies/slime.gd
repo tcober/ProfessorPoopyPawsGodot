@@ -8,10 +8,10 @@ extends CharacterBody2D
 ## Movement is synced to the bounce animation: the slime only really travels while
 ## airborne (frames 2-4 of the walk cycle), so it hops instead of gliding.
 
-@export var speed: float = 28.0
-@export var detect_range: float = 90.0
-@export var knockback_speed: float = 150.0
-@export var knockback_friction: float = 600.0
+@export var speed: float = 56.0
+@export var detect_range: float = 180.0
+@export var knockback_speed: float = 300.0
+@export var knockback_friction: float = 1200.0
 
 ## Walk-cycle frames where the slime is off the ground (see assets/_gen_slime_sprites.py).
 const AIR_FIRST := 2

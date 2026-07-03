@@ -10,23 +10,23 @@ signal ammo_changed(current: int, max_ammo: int)
 
 enum State { MOVE, SHOOT, HURT }
 
-@export var speed: float = 150.0
-@export var knockback_speed: float = 130.0
+@export var speed: float = 300.0
+@export var knockback_speed: float = 260.0
 @export var hurt_time: float = 0.3
 
 ## Laser gun.
 @export var max_ammo: int = 6
 @export var fire_windup: float = 0.12    # gun-raise time before the bolt actually fires
 @export var fire_recover: float = 0.20   # planted "settle" time after the shot
-@export var muzzle_offset: float = 16.0  # how far in front the bolt spawns (gun tip in the art)
-@export var recoil_push: float = 165.0   # backward shove when the bolt leaves — it KICKS
+@export var muzzle_offset: float = 32.0  # how far in front the bolt spawns (gun tip in the art)
+@export var recoil_push: float = 330.0   # backward shove when the bolt leaves — it KICKS
 
 ## Hop: jumps straight up when standing, leaps in the held direction when moving, and
 ## can be steered a little mid-air (SNES-Zelda style). Dodges hits while airborne.
-@export var jump_height: float = 26.0
+@export var jump_height: float = 52.0
 @export var jump_time: float = 0.40
-@export var jump_speed: float = 200.0    # forward leap speed while airborne
-@export var air_steer: float = 110.0     # mid-air steering drift
+@export var jump_speed: float = 400.0    # forward leap speed while airborne
+@export var air_steer: float = 220.0     # mid-air steering drift
 
 const LaserBoltScene := preload("res://entities/projectiles/laser_bolt.tscn")
 const MuzzleFlashScene := preload("res://entities/projectiles/muzzle_flash.tscn")

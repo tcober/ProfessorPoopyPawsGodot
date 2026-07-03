@@ -7,7 +7,7 @@ extends Node2D
 
 const BeakerScene := preload("res://entities/pickups/beaker.tscn")
 
-const TILE := 16
+const TILE := 32
 
 ## Legend: '#' hedge (solid) · '.' grass · '-' dirt path · 'f' flowers · 'r' rock
 const MAP: Array[String] = [
@@ -47,8 +47,8 @@ const T_HEDGE_B := Vector2i(1, 1)
 const T_ROCK := Vector2i(2, 1)
 
 ## Beaker spawn bounds, kept inside the hedge border.
-const SPAWN_MIN := Vector2(28, 28)
-const SPAWN_MAX := Vector2(740, 356)
+const SPAWN_MIN := Vector2(56, 56)
+const SPAWN_MAX := Vector2(1480, 712)
 
 @onready var player: Player = $Player
 @onready var hud: HUD = $HUD
@@ -119,7 +119,7 @@ func _random_spawn() -> Vector2:
 		)
 		var cell := ground.local_to_map(point)
 		var solid := ground.get_cell_atlas_coords(cell) in [T_HEDGE_A, T_HEDGE_B]
-		if not solid and point.distance_to(player.global_position) > 48.0:
+		if not solid and point.distance_to(player.global_position) > 96.0:
 			return point
 	return point
 
