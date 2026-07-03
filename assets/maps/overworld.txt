@@ -1,0 +1,57 @@
+; Overworld travel map - 64x36 tiles (2048x1152 px). Shared source of truth:
+; painted by assets/_gen_scene_overworld.py, collision/markers by scene/overworld.gd.
+; Geography: home bluff SW peninsula -> meadow center-west -> bridge over the
+; N->S river -> Alembic Town at the NE forest edge; mountain range N with one
+; pass (the Burrows); hot-violet drained wastes SE around the obelisk.
+legend ~ sea solid
+legend s beach walk
+legend . grass walk
+legend h hills walk
+legend f forest solid
+legend M mountain solid
+legend r river solid
+legend = bridge walk
+legend x waste walk
+anchor player_start 11 28
+anchor home 11 26
+anchor meadow 20 16
+anchor town 48 12
+anchor cave 33 8
+anchor obelisk 52 25
+map
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~sssssssss~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~ssss.......ssss~~~~~~~~~~~~~~~~ffffff~~~~~~~~~~~
+~~~~~~~~~~~~~~sss.............sss~~~~~~~~~~~~fffffffffff~~~~~~~~
+~~~~~~~~~~~~~ss.................sss~~~~~~~~ffffffffffffff~~~fff~
+~~~~~~~~~~~~ss.........MMMMMMMM...ss~~~~~~ffffffffffffffff~~~~~~
+~~~~~~~~~~~~s....MMMMMMMMMMMMMM....ss~MMMMMMffffffffffffff~~~~~~
+~~~~~~~~~~~~ss...MMMMMMMMMMMMMM.....ssMMMMMMMMMffffffffffff~~~~~
+~~~~~~~~~~~~~sss..MMMhhh.h.............MMMMMMMMMfffffffffff~~~~~
+~~~~~~~~~~~~~~~s..hhhhhhhhhhhh.......hhhhrhMMM.....fffffff~~~~~~
+~~~~~~~~~~~~~fss..hhhhhhhhhhhh.......hhhhrhhh......fffffff~~~~~~
+~~~~~~~~~~~~ffff.....hhhhhh.............rr.........ffffff~~~~~~~
+~~~~~~~~~~~~fffff.......................rr.........fff~~~~~~~~~~
+~~~~~~~~~~~~ffffff.......................r.........f~~~~~~~~~~~~
+~~~~~~~~~~~fffffff.......................r.........ff~~~~~~~~~~~
+~~~~~~~~~~fffffff........................r..........s~~~~~~~~~~~
+~~~~~~~~sss.............................rr..........sss~~~~~~~~~
+~~~~~ssss...............................=..........xxxs~~~~~~~~~
+~~~~~ss.................................=.......xxxxxxxx~~~~~~~~
+~~~~~~s.................................r.....xxxxxxxxxxx~~~~~~~
+~~~~~~s.................................r...xxxxxxxxxxxxxxx~~s~~
+~~~~~~s.................................r..xxxxxxxxxxxxxxxxsss~~
+~~~~~sshhhhhhh......fffff...............rr.xxxxxxxxxxxxxxxxx.s~~
+~~~~sshhhhhhhhh....ffffffff..............r.xxxxxxxxxxxxxxxxx.s~~
+~~~ss.hhhhhhhhh...fffffffff..............r.xxxxxxxxxxxxxxxxxxs~~
+~~~s..hhhhhhhhh....ffffffff..............rr.xxxxxxxxxxxxxxxxxs~~
+~~~s..hhhhhhhh......ffffff................rrxxxxxxxxxxxxxxxx.s~~
+~~~s....hhh...................ssss.........r.xxxxxxxxxxxxxxx.s~~
+~~~ss..............sssss..sssss~~ssss..sssrrsxxxxxxxxxxxxxx.ss~~
+~~~~ssf...........ss~~~ssss~~~~~~~~~ssss~~~~~ssxxxxxxxxxx..ss~~~
+~~~~~fff.........ss~~~~~~~~~~~~~~~~~~s~~~~~~~~~sss......ssss~~~~
+~~~~~~fsssss.sssss~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ss...sss~f~~~~~
+~~~~~~~~~~~sss~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~sssss~~fff~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~f~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

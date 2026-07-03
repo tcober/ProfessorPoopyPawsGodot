@@ -1,220 +1,196 @@
 #!/usr/bin/env python3
-"""Sprite sheet for SCHWEINLER — the bully. A stout, smug pig: big snout, beady angry
-eyes, red neckerchief, curly tail, cloven trotters. Rendered FF6 / Chrono
-Trigger-style like Basil at 2x density: compact round figure (his stoutness is the
-comedy foil to Basil's lanky thirds), 4-tone ramps from _palette.SCHWEINLER,
-restrained 2x2 dithering, dark outlines. Writes assets/schweinler_gen.png
-(384x384, 96x96 cells, 4x4) matching entities/npcs/schweinler_frames.tres:
+"""SCHWEINLER — the bully. A stout, smug pig: big snout, beady angry eyes, red
+neckerchief, curly tail, cloven trotters. Rebuilt from scratch on the
+_sprites.py kit: capsule limbs, steer-lit ball volumes, cluster-jittered tones,
+per-material outlines. His stoutness is the comedy foil to Basil's lanky thirds.
 
-  row0 walk_down(4)  row1 walk_up(4)  row2 walk_side(4, faces RIGHT; flip for left)
+FROZEN layout (entities/npcs/schweinler_frames.tres): assets/schweinler_gen.png
+384x384, 96x96 cells, 4x4 —
+  row0 walk_down(4)  row1 walk_up(4)  row2 walk_side(4, faces RIGHT; code flips)
   row3 point_up(2) + laugh_down(2)
-
-Cutscene actor for now (plants the poop bag, brands the nickname), drawn at Basil's
-scale/baseline (feet y=88) so he can walk into gameplay later.
+Feet baseline y=88 (Basil's scale, so he can walk into gameplay later).
 Re-run: python3 assets/_gen_schweinler_sprites.py
 """
 import os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from _artlib import Cell, write_cells, ZONE_CELL, ZONE_FEET
+from _core import write_cells, ZONE_CELL, ZONE_FEET
+from _sprites import Sprite
 from _palette import SCHWEINLER
 
 CELL, COLS, ROWS = ZONE_CELL, 4, 4
 FEET = ZONE_FEET
+CX = 48
 
-PIG    = SCHWEINLER["PIG"]
-BELLY  = SCHWEINLER["BELLY"]
-RED    = SCHWEINLER["KERCH"]
-HOOF   = SCHWEINLER["HOOF"]
-EYE_D  = SCHWEINLER["EYE_D"]
-GLINT  = SCHWEINLER["GLINT"]
-BROW   = SCHWEINLER["BROW"]
-NOSTR  = SCHWEINLER["NOSTR"]
-MOUTH  = SCHWEINLER["MOUTH"]
+PIG = SCHWEINLER["PIG"]
+BELLY = SCHWEINLER["BELLY"]
+RED = SCHWEINLER["KERCH"]
+HOOF = SCHWEINLER["HOOF"]
+EYE_D = SCHWEINLER["EYE_D"]
+GLINT = SCHWEINLER["GLINT"]
+BROW = SCHWEINLER["BROW"]
+NOSTR = SCHWEINLER["NOSTR"]
+MOUTH = SCHWEINLER["MOUTH"]
 TONGUE = SCHWEINLER["TONGUE"]
-MAW    = SCHWEINLER["MAW"]
+MAW = SCHWEINLER["MAW"]
 OUTS, OUT_FB = SCHWEINLER["OUTS"], SCHWEINLER["OUT_FALLBACK"]
 OUT_HOOF = (36, 18, 30, 255)
 
 
-def new_cell():
-    return Cell(CELL, grain=2)
+def new():
+    return Sprite(CELL, grain=2)
 
 
-def band(c, x0, y0, x1, y1, ramp, sh=0.0):
-    for y in range(y0, y1 + 1):
-        for x in range(x0, x1 + 1):
-            t = 0.30 + 0.30 * (x - x0) / max(1, x1 - x0) + sh
-            c.set(x, y, c._pick(ramp, t, x, y))
+# ---- parts ---------------------------------------------------------------------------
+
+def leg(s, hx, fx, lift=0, sh=0.0):
+    """Sturdy tapered leg + cloven hoof."""
+    fy = FEET - lift
+    s.capsule(hx, 70, fx, fy - 5, 4.6, 3.8, PIG, sh=0.10 + sh)
+    s.capsule(fx, fy - 4, fx, fy - 1.6, 3.9, 3.7, HOOF, sh=sh * 0.5)
+    s.rect(fx, fy - 2, fx + 1, fy, OUT_HOOF)                   # cloven notch
 
 
-def tri_r(c, apex, base_y, x0, x1, ramp, sh=0.0):
-    ax, ay = apex
-    span = max(1, base_y - ay)
-    for y in range(ay, base_y + 1):
-        f = (y - ay) / span
-        xl = round(ax + (x0 - ax) * f)
-        xr = round(ax + (x1 - ax) * f)
-        for x in range(min(xl, xr), max(xl, xr) + 1):
-            t = 0.30 + 0.45 * f + sh
-            c.set(x, y, c._pick(ramp, t, x, y))
+def curly_tail(s, cx, cy, sh=0.12):
+    for (px_, py_) in ((cx, cy), (cx + 3, cy - 3), (cx + 5, cy), (cx + 2, cy + 2)):
+        s.ball(px_, py_, 2.3, 2.3, PIG, sh=sh)
 
 
-# ---- parts ------------------------------------------------------------------------
-
-def legs(c, lift_l=0, lift_r=0):
-    """Sturdy pig legs with cloven hooves."""
-    for (x0, x1, lift) in ((36, 43, lift_l), (52, 59, lift_r)):
-        band(c, x0, 72 - lift, x1, FEET - 6 - lift, PIG, sh=0.12)
-        band(c, x0, FEET - 5 - lift, x1, FEET - lift, HOOF)
-        c.rect((x0 + x1) // 2, FEET - 2 - lift, (x0 + x1) // 2 + 1, FEET - lift, OUT_HOOF)  # cloven notch
-
-
-def curly_tail_down(c, dx=0):
-    pts = [(64, 56), (67, 53), (69 + dx * 0.8, 56), (66 + dx * 0.8, 58)]
-    for (px_, py_) in pts:
-        c.oval(px_, py_, 2.4, 2.4, PIG, sh=0.1)
+def body_down(s, dy=0, back=False):
+    s.ball(CX, 58 + dy, 16.8, 15.0, PIG, power=2.2, wrap=0.30, curve=0.26)
+    if not back:
+        s.ball(CX, 62 + dy, 10.0, 9.0, BELLY, power=2.0, wrap=0.18, curve=0.14)
+    # neckerchief: wrapped band + knot with fluttering tails
+    for y in range(42 + dy, 47 + dy):
+        for x in range(33, 64):
+            t = 0.30 + 0.34 * (x - 33) / 31 + (0.08 if y == 46 + dy else 0)
+            s.set(x, y, s.tone(RED, t, x, y))
+    if not back:
+        s.tri((CX, 46 + dy), 54 + dy, 44, 52, RED, sh=0.12)
+        s.rect(45, 45 + dy, 49, 47 + dy, RED[0])
 
 
-def body_down(c, dy=0):
-    """Stout barrel body, pale belly, red neckerchief with a knot."""
-    c.oval(48, 58 + dy, 16.8, 15.2, PIG, power=2.2)
-    c.oval(48, 62 + dy, 10.0, 9.2, BELLY, power=2.0, sh=-0.05)
-    band(c, 34, 42 + dy, 60, 46 + dy, RED)
-    tri_r(c, (48, 46 + dy), 52 + dy, 45, 51, RED, sh=0.1)     # knot tails
-    c.rect(46, 45 + dy, 49, 46 + dy, RED[0])                  # the knot itself
+def arm_down(s, sx, dy, d, sh=0.0):
+    s.capsule(sx, 48 + dy + d * 0.3, sx + (-3 if sx < CX else 3), 62 + dy + d, 4.2, 3.4, PIG, sh=0.08 + sh)
+    ex = sx + (-3 if sx < CX else 3)
+    s.capsule(ex, 62 + dy + d, ex, 66 + dy + d, 3.4, 3.2, HOOF, sh=sh * 0.5)
 
 
-def arms_down(c, dy=0, dl=0, dr=0):
-    band(c, 26, 48 + dy + dl, 32, 60 + dy + dl, PIG, sh=0.08)
-    band(c, 26, 61 + dy + dl, 32, 66 + dy + dl, HOOF)
-    band(c, 64, 48 + dy + dr, 70, 60 + dy + dr, PIG, sh=0.18)
-    band(c, 64, 61 + dy + dr, 70, 66 + dy + dr, HOOF)
-
-
-def head_down(c, dy=0, mood="smug"):
-    """Compact pig head: droopy triangle ears, beady angry eyes, THE SNOUT."""
-    tri_r(c, (30, 4 + dy), 20 + dy, 26, 42, PIG)              # ears
-    tri_r(c, (66, 4 + dy), 20 + dy, 54, 70, PIG, sh=0.18)
-    tri_r(c, (32, 8 + dy), 18 + dy, 30, 38, PIG, sh=0.35)     # inner shadow
-    tri_r(c, (64, 8 + dy), 18 + dy, 60, 66, PIG, sh=0.45)
-    c.oval(48, 26 + dy, 18.4, 15.2, PIG, power=2.2)           # head
-    # beady eyes + angry brows
+def head_down(s, dy=0, mood="smug"):
+    s.tri((30, 4 + dy), 20 + dy, 26, 42, PIG)                  # droopy ears
+    s.tri((66, 4 + dy), 20 + dy, 54, 70, PIG, sh=0.18)
+    s.tri((32, 8 + dy), 18 + dy, 30, 38, PIG, sh=0.35)
+    s.tri((64, 8 + dy), 18 + dy, 60, 66, PIG, sh=0.45)
+    s.ball(CX, 26 + dy, 18.2, 15.0, PIG, power=2.2, wrap=0.32, curve=0.26)
     if mood == "laugh":
-        for ex in (38, 54):
-            c.line([(ex, 19 + dy), (ex + 1, 18 + dy), (ex + 2, 17 + dy),
+        for ex in (38, 54):                                    # squeezed-shut mirth
+            s.line([(ex, 19 + dy), (ex + 1, 18 + dy), (ex + 2, 17 + dy),
                     (ex + 3, 18 + dy), (ex + 4, 19 + dy)], MAW)
     else:
         for ex in (38, 54):
-            c.rect(ex, 18 + dy, ex + 3, 21 + dy, EYE_D)
-            c.rect(ex, 18 + dy, ex + 1, 19 + dy, GLINT)
-        c.line([(43, 14 + dy), (42, 15 + dy), (41, 16 + dy)], BROW)   # knit brows
-        c.line([(42, 15 + dy), (41, 15 + dy)], BROW)
-        c.line([(52, 14 + dy), (53, 15 + dy), (54, 16 + dy)], BROW)
-        c.line([(53, 15 + dy), (54, 15 + dy)], BROW)
-    # snout: big lighter disc with tall nostrils
-    c.oval(48, 31 + dy, 8.8, 5.8, PIG, power=2.0, sh=-0.18)
-    c.rect(44, 28 + dy, 45, 33 + dy, NOSTR)
-    c.rect(52, 28 + dy, 53, 33 + dy, NOSTR)
-    c.set(44, 28 + dy, (222, 168, 158, 255))                  # nostril top light
-    c.set(52, 28 + dy, (222, 168, 158, 255))
-    # mouth
+            s.rect(ex, 18 + dy, ex + 3, 21 + dy, EYE_D)
+            s.rect(ex, 18 + dy, ex + 1, 19 + dy, GLINT)
+        s.line([(43, 14 + dy), (42, 15 + dy), (41, 16 + dy), (42, 15 + dy)], BROW)
+        s.line([(52, 14 + dy), (53, 15 + dy), (54, 16 + dy), (53, 15 + dy)], BROW)
+    s.ball(CX, 31 + dy, 8.8, 5.6, BELLY, power=2.0, sh=-0.06, wrap=0.16)  # THE SNOUT
+    s.rect(44, 28 + dy, 45, 33 + dy, NOSTR)
+    s.rect(52, 28 + dy, 53, 33 + dy, NOSTR)
+    s.set(44, 28 + dy, (222, 168, 158, 255))
+    s.set(52, 28 + dy, (222, 168, 158, 255))
     if mood == "laugh":
-        c.rect(42, 36 + dy, 54, 41 + dy, MAW)                 # roaring laugh
-        c.rect(46, 40 + dy, 50, 41 + dy, TONGUE)
-        c.rect(43, 36 + dy, 53, 36 + dy, MAW)
+        s.rect(42, 36 + dy, 54, 41 + dy, MAW)
+        s.rect(46, 40 + dy, 50, 41 + dy, TONGUE)
     else:
-        c.line([(42, 38 + dy), (43, 38 + dy), (44, 38 + dy), (45, 38 + dy),
-                (46, 37 + dy), (47, 37 + dy), (48, 36 + dy)], MOUTH)  # smug curl
+        s.line([(42, 38 + dy), (43, 38 + dy), (44, 38 + dy), (45, 38 + dy),
+                (46, 37 + dy), (47, 37 + dy), (48, 36 + dy)], MOUTH)     # smug curl
 
 
-def head_up(c, dy=0):
-    tri_r(c, (30, 4 + dy), 20 + dy, 26, 42, PIG)
-    tri_r(c, (66, 4 + dy), 20 + dy, 54, 70, PIG, sh=0.18)
-    tri_r(c, (32, 8 + dy), 18 + dy, 30, 38, PIG, sh=0.5)
-    tri_r(c, (64, 8 + dy), 18 + dy, 60, 66, PIG, sh=0.55)
-    c.oval(48, 26 + dy, 18.4, 15.2, PIG, power=2.2)
-    c.line([(42, 36 + dy), (44, 38 + dy), (46, 39 + dy), (50, 39 + dy),
-            (52, 38 + dy), (54, 36 + dy)], PIG[3])            # neck crease
+def head_up(s, dy=0):
+    s.tri((30, 4 + dy), 20 + dy, 26, 42, PIG)
+    s.tri((66, 4 + dy), 20 + dy, 54, 70, PIG, sh=0.18)
+    s.tri((32, 8 + dy), 18 + dy, 30, 38, PIG, sh=0.50)
+    s.tri((64, 8 + dy), 18 + dy, 60, 66, PIG, sh=0.55)
+    s.ball(CX, 26 + dy, 18.2, 15.0, PIG, power=2.2, wrap=0.32, curve=0.26)
+    s.line([(42, 36 + dy), (44, 38 + dy), (46, 39 + dy), (50, 39 + dy),
+            (52, 38 + dy), (54, 36 + dy)], PIG[3])             # neck crease
 
 
-def head_side(c, dy=0, mood="smug"):
-    """Profile: the snout juts out front."""
-    tri_r(c, (36, 2 + dy), 16 + dy, 28, 44, PIG)              # near ear
-    tri_r(c, (36, 6 + dy), 14 + dy, 32, 40, PIG, sh=0.4)
-    tri_r(c, (52, 4 + dy), 16 + dy, 46, 58, PIG, sh=0.25)     # far ear
-    c.oval(46, 25 + dy, 17.2, 14.4, PIG, power=2.2)
-    c.oval(63, 29 + dy, 7.6, 5.4, PIG, power=2.0, sh=-0.14)   # snout mass
-    c.rect(68, 26 + dy, 69, 32 + dy, NOSTR)                   # forward nostril
-    c.set(68, 26 + dy, (222, 168, 158, 255))
-    if mood == "smug":
-        c.rect(52, 18 + dy, 55, 21 + dy, EYE_D)
-        c.rect(52, 18 + dy, 53, 19 + dy, GLINT)
-        c.line([(50, 14 + dy), (52, 14 + dy), (54, 14 + dy), (56, 15 + dy), (57, 16 + dy)], BROW)
-    c.line([(56, 34 + dy), (58, 35 + dy), (60, 34 + dy), (62, 33 + dy)], MOUTH)
+def head_side(s, dy=0):
+    s.tri((36, 2 + dy), 16 + dy, 28, 44, PIG)                  # near ear
+    s.tri((36, 6 + dy), 14 + dy, 32, 40, PIG, sh=0.40)
+    s.tri((52, 4 + dy), 16 + dy, 46, 58, PIG, sh=0.25)         # far ear
+    s.ball(46, 25 + dy, 17.0, 14.2, PIG, power=2.2, wrap=0.32, curve=0.26)
+    s.ball(63, 29 + dy, 7.6, 5.2, BELLY, power=2.0, sh=-0.04, wrap=0.16)  # snout juts
+    s.rect(68, 26 + dy, 69, 32 + dy, NOSTR)
+    s.set(68, 26 + dy, (222, 168, 158, 255))
+    s.rect(52, 18 + dy, 55, 21 + dy, EYE_D)
+    s.rect(52, 18 + dy, 53, 19 + dy, GLINT)
+    s.line([(50, 14 + dy), (52, 14 + dy), (54, 14 + dy), (56, 15 + dy), (57, 16 + dy)], BROW)
+    s.line([(56, 34 + dy), (58, 35 + dy), (60, 34 + dy), (62, 33 + dy)], MOUTH)
 
 
-# ---- full poses --------------------------------------------------------------------
-
-def pig_down(c, bob=0, lift_l=0, lift_r=0, swing=0, tail_dx=0, mood="smug"):
-    curly_tail_down(c, tail_dx)
-    legs(c, lift_l, lift_r)
-    body_down(c, bob)
-    arms_down(c, bob, swing, -swing)
-    head_down(c, bob, mood)
-    c.outline(OUTS, OUT_FB)
+def finish(s):
+    s.despeckle(passes=1)
+    s.outline(OUTS, OUT_FB)
 
 
-def pig_up(c, bob=0, lift_l=0, lift_r=0, swing=0, point=False):
-    legs(c, lift_l, lift_r)
-    c.oval(48, 58 + bob, 16.8, 15.2, PIG, power=2.2)
-    band(c, 34, 42 + bob, 60, 44 + bob, RED)                  # kerchief from behind
-    # curly tail at his rear, center-low
-    for (px_, py_) in ((48, 71), (51, 68), (54, 71), (51, 73)):
-        c.oval(px_, py_ + bob, 2.4, 2.4, PIG, sh=0.22)
-    if point:
-        arms_down(c, bob, 0, 0)
+# ---- full poses ------------------------------------------------------------------------
+
+def pig_down(s, bob=0, lift_l=0, lift_r=0, swing=0, tail_dx=0, mood="smug"):
+    curly_tail(s, 64 + tail_dx, 55)
+    leg(s, 40, 39, lift_l)
+    leg(s, 56, 57, lift_r, sh=0.10)
+    body_down(s, bob)
+    arm_down(s, 30, bob, swing)
+    arm_down(s, 66, bob, -swing, sh=0.12)
+    head_down(s, bob, mood)
+    finish(s)
+
+
+def pig_up(s, bob=0, lift_l=0, lift_r=0, swing=0, point=False):
+    leg(s, 40, 39, lift_l)
+    leg(s, 56, 57, lift_r, sh=0.10)
+    body_down(s, bob, back=True)
+    curly_tail(s, 46, 69 + bob, sh=0.22)
+    arm_down(s, 30, bob, swing if not point else 0)
+    if point:                                                  # trotter thrust skyward
+        s.capsule(64, 46 + bob, 66, 12 + bob, 4.4, 3.6, PIG, sh=0.10)
+        s.capsule(66, 11 + bob, 66, 5 + bob, 3.7, 3.5, HOOF)
     else:
-        arms_down(c, bob, swing, -swing)
-    head_up(c, bob)
-    if point:                                                 # trotter thrust skyward
-        band(c, 62, 10 + bob, 68, 44 + bob, PIG, sh=0.12)
-        for y in range(10 + bob, 46 + bob, 3):
-            c.set(62, y, PIG[3])                              # arm/body separation
-        band(c, 62, 2 + bob, 68, 8 + bob, HOOF)
-    c.outline(OUTS, OUT_FB)
+        arm_down(s, 66, bob, -swing, sh=0.12)
+    head_up(s, bob)
+    finish(s)
 
 
-def pig_side(c, bob=0, front_dx=0, back_dx=0, lift_f=0, lift_b=0):
-    # curly tail behind
-    for (px_, py_) in ((28, 50), (25, 47), (22, 50), (25, 53)):
-        c.oval(px_, py_ + bob, 2.4, 2.4, PIG, sh=0.15)
-    for (x0, x1, dx_, lift) in ((34, 41, back_dx, lift_b), (50, 57, front_dx, lift_f)):
-        band(c, x0 + dx_, 72 - lift, x1 + dx_, FEET - 6 - lift, PIG, sh=0.12)
-        band(c, x0 + dx_, FEET - 5 - lift, x1 + dx_, FEET - lift, HOOF)
-    c.oval(46, 58 + bob, 17.6, 14.8, PIG, power=2.2)          # barrel
-    band(c, 32, 42 + bob, 58, 46 + bob, RED)
-    band(c, 40 + front_dx // 2, 48 + bob, 46 + front_dx // 2, 60 + bob, PIG, sh=0.16)  # near arm
-    band(c, 40 + front_dx // 2, 61 + bob, 46 + front_dx // 2, 64 + bob, HOOF)
-    head_side(c, bob)
-    c.outline(OUTS, OUT_FB)
+def pig_side(s, bob=0, front_dx=0, back_dx=0, lift_f=0, lift_b=0):
+    curly_tail(s, 25, 49 + bob, sh=0.15)
+    leg(s, 38 + back_dx, 37 + back_dx, lift_b, sh=0.10)
+    leg(s, 53 + front_dx, 54 + front_dx, lift_f)
+    s.ball(46, 58 + bob, 17.4, 14.6, PIG, power=2.2, wrap=0.30, curve=0.26)  # barrel
+    for y in range(42 + bob, 47 + bob):
+        for x in range(31, 60):
+            s.set(x, y, s.tone(RED, 0.30 + 0.34 * (x - 31) / 29, x, y))
+    s.capsule(43 + front_dx // 2, 48 + bob, 43 + front_dx // 2, 61 + bob, 4.2, 3.4, PIG, sh=0.16)
+    s.capsule(43 + front_dx // 2, 61 + bob, 43 + front_dx // 2, 64 + bob, 3.4, 3.2, HOOF)
+    head_side(s, bob)
+    finish(s)
 
 
-# ---- build ---------------------------------------------------------------------------
-cells = [[new_cell() for _ in range(COLS)] for _ in range(ROWS)]
+# ---- build ----------------------------------------------------------------------------
+cells = [[new() for _ in range(COLS)] for _ in range(ROWS)]
 
-walk_bob   = [0, -2, 0, -2]
+walk_bob = [0, -2, 0, -2]
 walk_liftl = [4, 0, 0, 0]
 walk_liftr = [0, 0, 4, 0]
 walk_swing = [2, 0, -2, 0]
-walk_tail  = [0, 2, 4, 2]
+walk_tail = [0, 2, 4, 2]
 for i in range(4):
     pig_down(cells[0][i], walk_bob[i], walk_liftl[i], walk_liftr[i],
              walk_swing[i], walk_tail[i])
     pig_up(cells[1][i], walk_bob[i], walk_liftl[i], walk_liftr[i], walk_swing[i])
 side_front = [6, 0, -6, 0]
-side_back  = [-6, 0, 6, 0]
+side_back = [-6, 0, 6, 0]
 for i in range(4):
     pig_side(cells[2][i], walk_bob[i], side_front[i], side_back[i],
              2 if i == 0 else 0, 2 if i == 2 else 0)
