@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """The Paper Girls color script as data — the game's single palette authority.
 
-The law (docs/DESIGN.md "Art Direction"): every scene is a dominant hue FIELD plus
-one hot ACCENT; shadows hue-shift toward the scene's bias (violet or teal), never
-toward neutral gray; beige/brown/gray fields are forbidden. Material ramps derive
-from scene seeds via ramp4() so a sheet cannot drift off its scene's palette.
+The law (docs/DESIGN.md "Art Direction"): every scene is MINIMAL and surreal —
+a duo/tri-tone cast: one dominant hue FIELD plus one hot ACCENT; shadows
+hue-shift toward the scene's bias (violet or teal), never toward neutral gray.
+Wood may be an honest warm brown (it is a material, not the field) — the ban is
+on naturalistic beige/gray mud as a scene's whole field, and on muddy
+un-hue-shifted darks. Material ramps derive from scene seeds via ramp4() so a
+sheet cannot drift off its scene's palette.
 
 ACTOR ramps (Basil, Schweinler, slime) are hand-tuned identity colors that already
 obey the shadow law; they travel across scenes, so they live here as explicit data
@@ -84,13 +87,22 @@ SCENES = {
             "grass": (74, 120, 158, 255),
         },
     },
-    "bedroom": {        # dusty lavender-blue pre-dawn, hot peach sunbeam
+    "bedroom": {        # warm brown plank loft / cool teal floor, hot peach dawn
         "shadow": "violet",
         "accent": (255, 178, 128, 255),
         "mats": {
-            "wall": (168, 162, 216, 255),
-            "floor": (128, 108, 176, 255),
+            "wall": (168, 118, 82, 255),     # warm brown planks (violet darks)
+            "floor": (62, 130, 136, 255),    # deep teal weave
             "linen": (226, 222, 240, 255),
+        },
+    },
+    "downstairs": {     # kitchen+lab great room: same timber, slate flags, hearth amber
+        "shadow": "violet",
+        "accent": (255, 176, 88, 255),
+        "mats": {
+            "wall": (168, 118, 82, 255),     # shared house timber
+            "floor": (98, 106, 132, 255),    # cool slate flagstones
+            "stone": (144, 138, 170, 255),   # hearth masonry, lavender-gray
         },
     },
     "morning_yard": {   # sun-warmed peach/coral plaster, hot magenta shingles

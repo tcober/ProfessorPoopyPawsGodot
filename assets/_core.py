@@ -10,14 +10,18 @@ Stdlib-only (no PIL/numpy) is a pipeline invariant; determinism comes from h2().
 import struct, zlib, os
 
 # ---- canonical scale constants (keep in sync with docs/DESIGN.md) ---------------
-ZONE_TILE = 32        # zone terrain tile (collision/logic grid; paint is gridless)
-ZONE_CELL = 96        # zone character cell (Basil, Schweinler)
-ZONE_FEET = 88        # feet baseline inside a zone cell
-OW_TILE   = 32        # overworld terrain tile
-OW_CELL   = 48        # overworld chibi travel cell
-OW_FEET   = 42        # chibi feet baseline
-ICON      = 64        # overworld landmark icon
-VIEW      = (640, 360)
+# TRUE SNES DENSITY (the 2026-07 CT-chunk restart): 384x216 viewport (16:9 —
+# fills a widescreen TV, integer-scales 5x to 1920x1080), 16px tiles, 48px
+# character cells with a ~32px figure — Chrono Trigger proportions, every pixel
+# deliberate. ~24x13.5 tiles visible; the dev window runs 3x at 1152x648.
+ZONE_TILE = 16        # zone terrain tile (collision/logic grid; paint is gridless)
+ZONE_CELL = 48        # zone character cell (Basil)
+ZONE_FEET = 44        # feet baseline inside a zone cell
+OW_TILE   = 16        # overworld terrain tile
+OW_CELL   = 24        # overworld chibi travel cell
+OW_FEET   = 21        # chibi feet baseline
+ICON      = 32        # overworld landmark icon
+VIEW      = (384, 216)
 
 # ---- deterministic value noise ---------------------------------------------------
 

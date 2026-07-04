@@ -7,10 +7,10 @@
 [ext_resource type="Script" path="res://components/hitbox_component.gd" id="5_hitbox"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
-size = Vector2(32, 24)
+size = Vector2(16, 12)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_box"]
-size = Vector2(36, 32)
+size = Vector2(18, 16)
 
 [node name="Slime" type="CharacterBody2D"]
 collision_layer = 4
@@ -22,12 +22,12 @@ sprite_frames = ExtResource("2_frames")
 animation = &"walk_down"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, 8)
+position = Vector2(0, 4)
 shape = SubResource("RectangleShape2D_body")
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("3_health")
-max_health = 6
+max_health = 4
 
 [node name="HurtboxComponent" type="Area2D" parent="."]
 collision_layer = 16

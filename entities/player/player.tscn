@@ -7,10 +7,10 @@
 [ext_resource type="Texture2D" path="res://assets/placeholder/shadow.png" id="5_shadow"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
-size = Vector2(24, 16)
+size = Vector2(12, 8)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hurt"]
-size = Vector2(28, 36)
+size = Vector2(14, 18)
 
 [node name="Player" type="CharacterBody2D"]
 collision_layer = 2
@@ -19,7 +19,7 @@ script = ExtResource("1_player")
 
 [node name="Shadow" type="Sprite2D" parent="."]
 visible = false
-position = Vector2(0, 42)
+position = Vector2(0, 21)
 texture = ExtResource("5_shadow")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
@@ -27,7 +27,7 @@ sprite_frames = ExtResource("2_frames")
 animation = &"idle_down"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, 12)
+position = Vector2(0, 6)
 shape = SubResource("RectangleShape2D_body")
 
 [node name="HealthComponent" type="Node" parent="."]

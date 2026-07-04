@@ -34,7 +34,7 @@ func _ready() -> void:
 		loc.body_entered.connect(_on_location_entered.bind(loc))
 		loc.body_exited.connect(_on_location_exited.bind(loc))
 		if loc.id == Game.overworld_spawn:
-			player.global_position = loc.global_position + Vector2(0, 52)
+			player.global_position = loc.global_position + Vector2(0, 26)
 	var tw := create_tween()
 	tw.tween_property(fade, "modulate:a", 0.0, 0.7)
 	await get_tree().create_timer(0.8).timeout

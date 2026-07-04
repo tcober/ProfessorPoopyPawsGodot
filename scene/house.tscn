@@ -1,0 +1,67 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scene/house.gd" id="1_house"]
+[ext_resource type="TileSet" path="res://assets/tilesets/house_tiles.tres" id="2_tiles"]
+[ext_resource type="TileSet" path="res://assets/collision_tileset.tres" id="3_collision"]
+[ext_resource type="PackedScene" path="res://entities/player/player.tscn" id="4_player"]
+[ext_resource type="Texture2D" path="res://assets/tilesets/house_curtains.png" id="5_curtains"]
+[ext_resource type="Texture2D" path="res://assets/tilesets/house_glow.png" id="6_glow"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
+size = Vector2(32, 16)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_window"]
+size = Vector2(64, 28)
+
+[sub_resource type="CanvasItemMaterial" id="mat_add"]
+blend_mode = 1
+
+[node name="House" type="Node2D"]
+script = ExtResource("1_house")
+
+[node name="Dim" type="CanvasModulate" parent="."]
+color = Color(0.62, 0.6, 0.8, 1)
+
+[node name="Tiles" type="TileMapLayer" parent="."]
+texture_filter = 1
+tile_set = ExtResource("2_tiles")
+
+[node name="Curtains" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("5_curtains")
+centered = false
+hframes = 2
+
+[node name="Glow" type="Sprite2D" parent="."]
+texture_filter = 1
+material = SubResource("mat_add")
+texture = ExtResource("6_glow")
+centered = false
+
+[node name="Collision" type="TileMapLayer" parent="."]
+tile_set = ExtResource("3_collision")
+
+[node name="World" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="Player" parent="World" instance=ExtResource("4_player")]
+position = Vector2(136, 136)
+
+[node name="TilesUpper" type="TileMapLayer" parent="."]
+texture_filter = 1
+tile_set = ExtResource("2_tiles")
+
+[node name="ExitDoor" type="Area2D" parent="."]
+position = Vector2(168, 184)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitDoor"]
+shape = SubResource("RectangleShape2D_exit")
+
+[node name="WindowZone" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WindowZone"]
+shape = SubResource("RectangleShape2D_window")

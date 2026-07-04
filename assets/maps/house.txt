@@ -1,0 +1,44 @@
+; Basil's loft (the attic bedroom) — 24x14 tiles (384x224 px; the view clamps
+; to 384x216). A SMALL dense room floating in a huge black void (~7-tile side
+; margins; the room is only 10 tiles wide — the CT-bedroom diorama read),
+; dormer window bay jutting above the cornice, warm brown plank walls over a
+; teal weave floor, ONE hot light source (the peach dawn window). Every wall
+; stretch is occupied (cork | window | shelf). The room's south-west corner
+; is a CT staircase: a stair head past the rail gap, then VISIBLE steps
+; descending south out of the room silhouette between dark jambs, sinking
+; into the void (cosmetic for now: the stairs exit straight to the overworld
+; until the downstairs kitchen/lab room exists — see DESIGN.md Future
+; Direction). This file is BOTH the collision grid and the room layout:
+; assets/_gen_tileset_house.py places its multi-tile furniture chips from the
+; feature chars, so moving a feature here moves it in the game.
+legend V void solid
+legend # wall solid
+legend W window solid
+legend S shelf solid
+legend C cork solid
+legend b bed solid
+legend d desk solid
+legend h chair solid
+legend w basket solid
+legend R rail solid
+legend . floor walk
+legend s stair walk
+legend - door walk
+anchor player_spawn 12 7
+anchor stair_top 8 9
+anchor exit_door 8 12
+map
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVVWWWWVVVVVVVVVV
+VVVVVVV#CCWWWWSS#VVVVVVV
+VVVVVVV#CCWWWWSS#VVVVVVV
+VVVVVVV###WWWWSS#VVVVVVV
+VVVVVVV#ddd...bb#VVVVVVV
+VVVVVVV#ddd...bb#VVVVVVV
+VVVVVVV#.h....bb#VVVVVVV
+VVVVVVV#.....wbb#VVVVVVV
+VVVVVVV#........#VVVVVVV
+VVVVVVV#ssRRRRRR#VVVVVVV
+VVVVVVV#--#VVVVVVVVVVVVV
+VVVVVVV#--#VVVVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV

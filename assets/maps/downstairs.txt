@@ -1,0 +1,41 @@
+; Basil's ground floor — the kitchen + lab great room (24x14 tiles, 384x224 px;
+; the view clamps to 384x216). Twice the loft's width: a 20-tile room floating
+; in void (2-tile side margins), KITCHEN west (hearth = the room's one hot
+; light source, counter, icebox) and STEAMPUNK LAB east (flask shelf, riveted
+; copper boiler, workbench), with the loft staircase descending through a
+; top-center alcove BETWEEN them (jutting above the cornice like the bedroom's
+; dormer) and the FRONT DOOR to the overworld in the south wall — an open
+; doorway spilling daylight, with a stone stoop poking into the void. This
+; file is BOTH the collision grid and the room layout:
+; assets/_gen_tileset_downstairs.py places its multi-tile furniture chips from
+; the feature chars, so moving a feature here moves it in the game.
+legend V void solid
+legend # wall solid
+legend H hearth solid
+legend C counter solid
+legend I icebox solid
+legend F flasks solid
+legend A boiler solid
+legend B bench solid
+legend . floor walk
+legend s stair walk
+legend - door walk
+anchor stair_arrival 11 5
+anchor front_door 11 9
+anchor exit_door 11 11
+anchor exit_up 11 1
+map
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVV#ss#VVVVVVVVVV
+VV##HHH####ss####AAA##VV
+VV##HHHCCC#ss#FFFAAA##VV
+VV##HHHCCC#ss#FFFAAA##VV
+VV#..................#VV
+VV#II................#VV
+VV#II...........BBBB.#VV
+VV#.............BBBB.#VV
+VV#..................#VV
+VV#########--#########VV
+VVVVVVVVVVV--VVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV

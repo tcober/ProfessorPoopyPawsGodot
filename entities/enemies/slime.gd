@@ -8,10 +8,13 @@ extends CharacterBody2D
 ## Movement is synced to the bounce animation: the slime only really travels while
 ## airborne (frames 2-4 of the walk cycle), so it hops instead of gliding.
 
-@export var speed: float = 56.0
-@export var detect_range: float = 180.0
-@export var knockback_speed: float = 300.0
-@export var knockback_friction: float = 1200.0
+## Emitted when the slime dies (as the explosion starts, before it frees itself).
+signal died
+
+@export var speed: float = 28.0
+@export var detect_range: float = 90.0
+@export var knockback_speed: float = 150.0
+@export var knockback_friction: float = 600.0
 
 ## Walk-cycle frames where the slime is off the ground (see assets/_gen_slime_sprites.py).
 const AIR_FIRST := 2
@@ -83,6 +86,7 @@ func _on_hit(_damage: int, source: Node) -> void:
 
 func _on_died() -> void:
 	_dying = true
+	died.emit()
 	# Stop dealing/receiving damage while the splat plays out.
 	hitbox.set_deferred("monitoring", false)
 	hurtbox.set_deferred("monitorable", false)

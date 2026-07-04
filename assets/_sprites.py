@@ -31,10 +31,11 @@ class Sprite:
     """None-tracked sparse square canvas. Same px[y][x] interface as the old
     Cell so _core.write_cells / Img.blit_cell compose it unchanged."""
 
-    def __init__(self, n, grain=2, salt=0):
+    def __init__(self, n, grain=2, salt=0, jitter=0.85):
         self.n = n
         self.grain = max(1, grain)
         self.salt = salt
+        self.jitter = jitter    # 0.0 = hard CT band edges (flat, deliberate pixels)
         self.px = [[None] * n for _ in range(n)]
 
     # -- pixels ---------------------------------------------------------------------
@@ -47,12 +48,15 @@ class Sprite:
             return self.px[int(y)][int(x)]
         return None
 
-    def tone(self, ramp, t, x, y, jitter=0.85):
+    def tone(self, ramp, t, x, y, jitter=None):
         """Ramp tone for t in 0..1 (0 = lit) with cluster-jittered band edges.
 
-        The jitter is hashed on grain-sized clusters (2x2 at grain=2), so a band
-        edge dissolves into 2-3px clumps — the CT texture — never a checkerboard.
+        The jitter is hashed on grain-sized clusters, so a band edge dissolves
+        into small clumps. At jitter=0 (the CT-chunk sprite default, set on the
+        Sprite) bands are hard clean curves — flat regions, deliberate pixels.
         """
+        if jitter is None:
+            jitter = self.jitter
         n = len(ramp) - 1
         g = self.grain
         q = t * n + (h2(x // g, y // g, self.salt) - 127.5) * (jitter / 255.0)

@@ -1,12 +1,11 @@
 class_name Beaker
 extends Area2D
 
-## A refill pickup for the laser gun. When the player walks over it, it tops up their
-## ammo by `ammo_amount` and disappears. Collision mask = player body (2).
+## A spare magazine for the laser gun. Walking over it pockets it (up to the
+## player's max_beakers — when his paws are full it stays on the grass).
+## Reloading pours it in. Collision mask = player body (2).
 
 signal collected
-
-@export var ammo_amount: int = 3
 
 
 func _ready() -> void:
@@ -14,7 +13,6 @@ func _ready() -> void:
 
 
 func _on_body_entered(body: Node) -> void:
-	if body is Player:
-		(body as Player).refill_ammo(ammo_amount)
+	if body is Player and (body as Player).collect_beaker():
 		collected.emit()
 		queue_free()

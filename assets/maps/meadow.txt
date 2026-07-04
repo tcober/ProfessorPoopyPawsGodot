@@ -1,5 +1,5 @@
 ; Whisker Meadow — 48x24 tiles (1536x768 px). Shared source of truth:
-; painted by assets/_gen_scene_meadow.py, collision/logic by scene/test_room.gd.
+; painted by assets/_gen_scene_meadow.py, collision/logic by scene/meadow.gd.
 ; Composition: wavy treeline border (1-3 tiles deep), pond east-center with
 ; shoreline, S-curve trail from the south gap to a NW trailhead clearing,
 ; boulder outcrops SW/N/S-of-pond, flower drifts along the trail and pond.

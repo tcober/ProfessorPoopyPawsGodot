@@ -10,7 +10,7 @@
 [ext_resource type="Texture2D" path="res://assets/scenes/overworld_overlay.png" id="8_overlay"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_marker"]
-size = Vector2(40, 28)
+size = Vector2(20, 14)
 
 [node name="Overworld" type="Node2D"]
 script = ExtResource("1_ow")
@@ -26,87 +26,39 @@ tile_set = ExtResource("7_collision")
 [node name="Locations" type="Node2D" parent="."]
 
 [node name="Home" type="Area2D" parent="Locations"]
-position = Vector2(336, 880)
+position = Vector2(168, 440)
 script = ExtResource("3_loc")
 id = "home"
 display_name = "BASIL'S BLUFF"
-locked_text = "HOME. IT CAN WAIT."
+target_scene = "res://scene/downstairs.tscn"
 
 [node name="Sprite2D" type="Sprite2D" parent="Locations/Home"]
-position = Vector2(0, -24)
+position = Vector2(0, -12)
 texture = ExtResource("4_icons")
 region_enabled = true
-region_rect = Rect2(0, 0, 64, 64)
+region_rect = Rect2(0, 0, 32, 32)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Home"]
 shape = SubResource("RectangleShape2D_marker")
 
 [node name="Meadow" type="Area2D" parent="Locations"]
-position = Vector2(688, 432)
+position = Vector2(344, 216)
 script = ExtResource("3_loc")
 id = "meadow"
 display_name = "WHISKER MEADOW"
-target_scene = "res://scene/test_room.tscn"
+target_scene = "res://scene/meadow.tscn"
 
 [node name="Sprite2D" type="Sprite2D" parent="Locations/Meadow"]
-position = Vector2(0, -24)
+position = Vector2(0, -12)
 texture = ExtResource("4_icons")
 region_enabled = true
-region_rect = Rect2(128, 0, 64, 64)
+region_rect = Rect2(64, 0, 32, 32)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Meadow"]
 shape = SubResource("RectangleShape2D_marker")
 
-[node name="Town" type="Area2D" parent="Locations"]
-position = Vector2(1616, 368)
-script = ExtResource("3_loc")
-id = "town"
-display_name = "ALEMBIC TOWN"
-locked_text = "THE ACADEMY GATES ARE SHUT. (COMING SOON)"
-
-[node name="Sprite2D" type="Sprite2D" parent="Locations/Town"]
-position = Vector2(0, -24)
-texture = ExtResource("4_icons")
-region_enabled = true
-region_rect = Rect2(64, 0, 64, 64)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Town"]
-shape = SubResource("RectangleShape2D_marker")
-
-[node name="Cave" type="Area2D" parent="Locations"]
-position = Vector2(976, 336)
-script = ExtResource("3_loc")
-id = "cave"
-display_name = "THE BURROWS"
-locked_text = "TOO DARK WITHOUT A LIGHT. (COMING SOON)"
-
-[node name="Sprite2D" type="Sprite2D" parent="Locations/Cave"]
-position = Vector2(0, -24)
-texture = ExtResource("4_icons")
-region_enabled = true
-region_rect = Rect2(192, 0, 64, 64)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Cave"]
-shape = SubResource("RectangleShape2D_marker")
-
-[node name="Obelisk" type="Area2D" parent="Locations"]
-position = Vector2(1680, 800)
-script = ExtResource("3_loc")
-id = "obelisk"
-display_name = "THE DRAIN"
-locked_text = "THE MAGIC WENT SOMEWHERE EAST OF EAST. (COMING SOON)"
-
-[node name="Sprite2D" type="Sprite2D" parent="Locations/Obelisk"]
-position = Vector2(0, -24)
-texture = ExtResource("4_icons")
-region_enabled = true
-region_rect = Rect2(256, 0, 64, 64)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Obelisk"]
-shape = SubResource("RectangleShape2D_marker")
-
 [node name="OverworldPlayer" parent="." instance=ExtResource("5_player")]
-position = Vector2(368, 912)
+position = Vector2(184, 456)
 
 [node name="Overlay" type="Sprite2D" parent="."]
 texture = ExtResource("8_overlay")
@@ -118,19 +70,23 @@ layer = 10
 
 [node name="Banner" type="Label" parent="UI"]
 modulate = Color(1, 1, 1, 0)
-offset_left = 20.0
-offset_top = 306.0
-offset_right = 620.0
-offset_bottom = 344.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -27.0
+offset_right = -10.0
+offset_bottom = -8.0
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_offset_x = 2
-theme_override_constants/shadow_offset_y = 2
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
 theme_override_fonts/font = ExtResource("6_font")
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 8
 horizontal_alignment = 1
 
 [node name="Fade" type="ColorRect" parent="UI"]
-offset_right = 640.0
-offset_bottom = 360.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 mouse_filter = 2
 color = Color(0, 0, 0, 1)

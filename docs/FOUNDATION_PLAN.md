@@ -14,7 +14,7 @@
 - Player: 8-way move / 4-way facing, laser gun (ammo + beaker refills, recoil
   shove on fire), hop (straight up standing, directional when moving, steerable
   mid-air), hearts + ammo-pip HUD.
-- Slimes: anim-synced hopping chase, splat death, 3 shots to kill (6 HP vs 2 dmg).
+- Slimes: anim-synced hopping chase, splat death, 2 shots to kill (4 HP vs 2 dmg); each kill respawns one elsewhere in the meadow.
 - Tile-mapped rooms painted from ASCII maps (`TileMapLayer` + tileset physics).
 
 ### Milestone 2 — Opening sequence ✅

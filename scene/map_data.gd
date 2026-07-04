@@ -50,10 +50,10 @@ static func is_solid(map: Dictionary, cell: Vector2i) -> bool:
 
 
 static func size_px(map: Dictionary) -> Vector2:
-	return Vector2(map.cols, map.rows) * 32.0
+	return Vector2(map.cols, map.rows) * 16.0
 
 
 ## Pixel center of a named anchor tile.
 static func anchor_px(map: Dictionary, name: String) -> Vector2:
 	assert(map.anchors.has(name), "unknown anchor: " + name)
-	return Vector2(map.anchors[name] as Vector2i) * 32.0 + Vector2(16.0, 16.0)
+	return Vector2(map.anchors[name] as Vector2i) * 16.0 + Vector2(8.0, 8.0)

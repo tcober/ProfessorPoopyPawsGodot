@@ -8,7 +8,7 @@ detail (flower clumps, tufts, pebbles, boulders, tree blobs) is stamped at
 arbitrary pixel positions. The 32px grid survives only as collision data.
 
 Paint-vs-collision tolerance rule (docs/DESIGN.md): boundary warp is clamped to
-WARP_AMP <= 12px and solid paint may only overfill OUTWARD into walkable tiles
+WARP_AMP <= 6px and solid paint may only overfill OUTWARD into walkable tiles
 (never leave walkable-looking paint deep inside a solid cell); entity collision
 shapes keep bodies far enough from solid tile edges that the overfill can never
 read as standing on water/canopy.
@@ -26,8 +26,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from _core import h2, Img, ZONE_TILE
 from _palette import SCENES, ramp
 
-WARP_AMP = 10.0       # px, boundary meander amplitude (must stay <= 12)
-OVERLAY_DEPTH = 52.0  # px into a solid region where paint moves above entities
+WARP_AMP = 5.0        # px, boundary meander amplitude (must stay <= 6)
+OVERLAY_DEPTH = 26.0  # px into a solid region where paint moves above entities
 
 # ---- sampled float fields ----------------------------------------------------------
 
@@ -258,13 +258,13 @@ def curve_field(w, h, waypoints, step=4, blur=1):
     return Field(gw, gh, step, _blur_grid(d, gw, gh, blur))
 
 # ---- cluster-jittered tone quantization ---------------------------------------------
-# Terrain shading: t is quantized to the ramp with 3px-cluster hash jitter, so
+# Terrain shading: t is quantized to the ramp with 2px-cluster hash jitter, so
 # band edges break into organic clumps — never the checkerboard of pick().
 
 
 def tone_i(n, t, x, y, salt=7, jitter=0.55):
-    """Ramp index (0..n) for t in 0..1, band edges jittered in 3px clusters."""
-    q = t * n + (h2(x // 3, y // 3, salt) - 127.5) * (jitter / 255.0) * n * 0.5
+    """Ramp index (0..n) for t in 0..1, band edges jittered in 2px clusters."""
+    q = t * n + (h2(x // 2, y // 2, salt) - 127.5) * (jitter / 255.0) * n * 0.5
     if q < 0.0:
         return 0
     if q > n:
@@ -281,7 +281,7 @@ def tone(ramp_, t, x, y, salt=7, jitter=0.55):
 class Painter:
     """Owns the ground/overlay canvases, palette, warp and memoized SDFs for one map."""
 
-    def __init__(self, mapdata, scene, warp_scale=90.0, warp_amp=WARP_AMP, salt=0):
+    def __init__(self, mapdata, scene, warp_scale=45.0, warp_amp=WARP_AMP, salt=0):
         self.map = mapdata
         self.W = mapdata.cols * ZONE_TILE
         self.H = mapdata.rows_n * ZONE_TILE
@@ -290,7 +290,7 @@ class Painter:
         self.scene = SCENES[scene]
         self.shadow = self.scene["shadow"]
         self.salt = salt
-        assert warp_amp <= 12.0, "warp beyond 12px can contradict collision"
+        assert warp_amp <= 6.0, "warp beyond 6px can contradict collision"
         self.warp_amp = warp_amp
         self.wx = fbm(self.W, self.H, warp_scale, 3, salt * 7 + 11, step=4)
         self.wy = fbm(self.W, self.H, warp_scale, 3, salt * 7 + 23, step=4)
@@ -337,7 +337,7 @@ class Painter:
                                     out.add((nx, ny))
         return sorted(out)
 
-    def scatter(self, chars, cell=24, keep=0.5, salt=0, inset=6):
+    def scatter(self, chars, cell=12, keep=0.5, salt=0, inset=3):
         """Deterministic jittered-grid points at least `inset` px inside region."""
         pts = []
         sdf = self.sdf(chars)
@@ -378,7 +378,7 @@ def paint_canopy(p, chars, canopy_ramp, trunk_ramp, salt=0, shadow_color=None,
     A contact shadow band grounds the wall onto the walkable side.
     """
     sdf = p.sdf(chars, blur=sdf_blur, step=sdf_step)
-    leaf = fbm(p.W, p.H, 13.0, 2, salt * 13 + 5, step=1)
+    leaf = fbm(p.W, p.H, 6.5, 2, salt * 13 + 5, step=1)
     nC = len(canopy_ramp) - 1
     nT = len(trunk_ramp) - 1
     ground, overlay = p.ground, p.overlay
@@ -400,25 +400,34 @@ def paint_canopy(p, chars, canopy_ramp, trunk_ramp, salt=0, shadow_color=None,
                         overlay.put(x, y, c)
                     else:
                         ground.put(x, y, c)
-                elif s <= 16.0:
-                    ground.mix(x, y, shadow_color, 0.38 * (1.0 - s / 16.0))
+                elif s <= 8.0:
+                    ground.mix(x, y, shadow_color, 0.38 * (1.0 - s / 8.0))
 
     # tree crowns: dense jittered grid drawn north->south so each southern crown
     # overlaps the dark base of the one behind — a continuous scalloped mass with
     # lit tops and crevice shadows, not separate spheres.
     crowns = []
-    grid = 20
+    grid = 10
     for gy in range(p.H // grid + 1):
         for gx in range(p.W // grid + 1):
             if h2(gx, gy, salt + 40) > 235:
                 continue
             cx = gx * grid + (h2(gx, gy, salt + 41) * grid) // 255
             cy = gy * grid + (h2(gx, gy, salt + 42) * grid) // 255
-            if sample(cx, cy) <= -4.0:
+            if sample(cx, cy) <= -0.25:
                 crowns.append((cy, cx, h2(gx, gy, salt + 43)))
+    # small clumps blur to a shallow SDF and would stay bare understory: every
+    # region tile also seeds one crown at its center, so lone thickets read as
+    # trees instead of dark holes.
+    mask = p.map.mask(chars)
+    for ty in range(p.map.rows_n):
+        for tx in range(p.map.cols):
+            if mask[ty][tx]:
+                crowns.append((ty * ZONE_TILE + ZONE_TILE // 2,
+                               tx * ZONE_TILE + ZONE_TILE // 2, h2(tx, ty, salt + 44)))
     crowns.sort()
     for (cy, cx, seed) in crowns:
-        r = 13 + (seed % 8)
+        r = 7 + (seed % 4)
         lobes = ((0, 0, r),
                  (-(r * 5) // 8, 2 + (seed % 3), (r * 5) // 8),
                  ((r * 5) // 8, 3 - (seed % 3), (r * 5) // 8))
@@ -452,8 +461,8 @@ def stamp_tuft(p, x, y, grass_ramp, salt=0):
     lit = h2(x, y, salt) & 1
     a = grass_ramp[1 if lit else n - 1]
     b = grass_ramp[0 if lit else n]
-    for k in range(3 + h2(x, y, salt + 1) % 3):
-        bx = x + (h2(x + k, y, salt + 2) % 7) - 3
+    for k in range(2 + h2(x, y, salt + 1) % 2):
+        bx = x + (h2(x + k, y, salt + 2) % 5) - 2
         by = y + (h2(x, y + k, salt + 3) % 3) - 1
         g.put(bx, by, a)
         g.put(bx, by - 1, a)
@@ -470,13 +479,13 @@ def stamp_flowers(p, x, y, accent, grass_ramp, salt=0):
              (255, 208, 110, 255))
     dark = grass_ramp[len(grass_ramp) - 2]
     stem = grass_ramp[len(grass_ramp) - 1]
-    for yy in range(y - 3, y + 4):
-        for xx in range(x - 4, x + 5):
-            if (xx - x) ** 2 + (yy - y) ** 2 <= 13 and h2(xx, yy, salt) < 150:
+    for yy in range(y - 2, y + 3):
+        for xx in range(x - 3, x + 4):
+            if (xx - x) ** 2 + (yy - y) ** 2 <= 7 and h2(xx, yy, salt) < 150:
                 g.mix(xx, yy, dark, 0.30)
-    for k in range(2 + h2(x, y, salt + 9) % 3):
-        hx = x + (h2(x + k * 3, y, salt + 10) % 7) - 3
-        hy = y + (h2(x, y + k * 3, salt + 11) % 6) - 3
+    for k in range(2 + h2(x, y, salt + 9) % 2):
+        hx = x + (h2(x + k * 3, y, salt + 10) % 5) - 2
+        hy = y + (h2(x, y + k * 3, salt + 11) % 4) - 2
         c = heads[0 if h2(hx, hy, salt + 12) < 150 else 1 + (h2(hx, hy, salt + 13) & 1)]
         deep = (max(0, c[0] - 70), max(0, c[1] - 80), max(0, c[2] - 50), 255)
         g.put(hx, hy + 2, stem)
@@ -488,9 +497,9 @@ def stamp_flowers(p, x, y, accent, grass_ramp, salt=0):
 def stamp_pebbles(p, x, y, rock_ramp, salt=0):
     g = p.ground
     n = len(rock_ramp) - 1
-    for k in range(1 + h2(x, y, salt) % 3):
-        bx = x + (h2(x + k, y, salt + 1) % 9) - 4
-        by = y + (h2(x, y + k, salt + 2) % 5) - 2
+    for k in range(1 + h2(x, y, salt) % 2):
+        bx = x + (h2(x + k, y, salt + 1) % 5) - 2
+        by = y + (h2(x, y + k, salt + 2) % 3) - 1
         g.rect(bx, by, bx + 1, by + 1, rock_ramp[n - 2])
         g.put(bx, by, rock_ramp[1])
         g.put(bx + 1, by + 1, rock_ramp[n])

@@ -2,11 +2,12 @@
 """Contract checker for the art pipeline (stdlib only).
 
 Painted-scene contracts: every assets/maps/*.txt parses and is enclosed except
-at exit anchors; each map's scenes/<name>_ground.png and _overlay.png exist at
-cols*32 x rows*32 with a majority-transparent overlay; the collision TileSet is
-a single full-square physics tile; entities placed in painted .tscn scenes sit
-on walkable cells. Legacy sheet/tileset checks remain until the overhaul's
-remaining phases retire that art.
+at exit anchors; each painted map's scenes/<name>_ground.png and _overlay.png
+exist at cols*16 x rows*16 with a majority-transparent overlay; tiled maps
+(house.txt) have a generated layout matching the map's dims whose every atlas
+ref exists in the atlas PNG and is declared in the TileSet .tres; the collision
+TileSet is a single full-square physics tile; entities placed in .tscn scenes
+sit on walkable cells; sheet dims and .tres regions match.
 
 Run after any `python3 assets/_gen_*.py`: python3 assets/_check_art.py
 """
@@ -61,13 +62,13 @@ def png_alpha_ratio(rel):
 MAPS = {
     "maps/meadow.txt": ("scenes/meadow_ground.png", "scenes/meadow_overlay.png"),
     "maps/overworld.txt": ("scenes/overworld_ground.png", "scenes/overworld_overlay.png"),
-    "maps/road.txt": ("scenes/road_ground.png", "scenes/road_overlay.png"),
-    "maps/yard.txt": ("scenes/yard_ground.png", "scenes/yard_overlay.png"),
+    "maps/house.txt": None,        # tiled scenes — checked in the tiled section below
+    "maps/downstairs.txt": None,
 }
 
 print("maps + painted scenes:")
 maps = {}
-for rel, (ground, overlay) in MAPS.items():
+for rel, pair in MAPS.items():
     m = MapData(os.path.join(HERE, rel))   # asserts rows/legend/anchors
     maps[rel] = m
     exits = [txy for name, txy in m.anchors.items() if name.startswith("exit_")]
@@ -78,12 +79,61 @@ for rel, (ground, overlay) in MAPS.items():
                 if not any(abs(x - ex) <= 3 and abs(y - ey) <= 3 for (ex, ey) in exits):
                     leaks.append((x, y))
     check(f"{rel} enclosed (except exits)", not leaks, f"leaks at {leaks[:4]}")
+    if pair is None:
+        continue
+    ground, overlay = pair
     want = (m.cols * ZONE_TILE, m.rows_n * ZONE_TILE)
     for png in (ground, overlay):
         got = png_size(os.path.join("assets", png))
         check(f"assets/{png}", got == want, f"want {want}, got {got}")
     ratio = png_alpha_ratio(os.path.join("assets", overlay))
     check(f"assets/{overlay} mostly transparent", ratio > 0.5, f"only {ratio:.0%} clear")
+
+# ---- tiled scenes (atlas + layout generated from the same map file) -------------------
+TILED = {
+    "maps/house.txt": ("tilesets/house_layout.txt", "tilesets/house_tiles.png",
+                       "tilesets/house_tiles.tres"),
+    "maps/downstairs.txt": ("tilesets/downstairs_layout.txt",
+                            "tilesets/downstairs_tiles.png",
+                            "tilesets/downstairs_tiles.tres"),
+}
+
+print("tiled scenes:")
+for map_rel, (layout, atlas, tres) in TILED.items():
+    mm = maps[map_rel]
+    layers = {}
+    cur = None
+    for ln in open(os.path.join(HERE, layout)):
+        ln = ln.strip()
+        if not ln or ln.startswith(";"):
+            continue
+        if ln.startswith("layer "):
+            cur = ln.split()[1]
+            layers[cur] = []
+        else:
+            layers[cur].append(ln)
+    check(f"assets/{layout} has lower+upper layers",
+          set(layers) == {"lower", "upper"}, f"got {sorted(layers)}")
+    for name, rows in layers.items():
+        check(f"assets/{layout} [{name}] dims match map",
+              len(rows) == mm.rows_n and all(len(r.split()) == mm.cols for r in rows),
+              f"{len(rows)} rows, map wants {mm.rows_n}x{mm.cols}")
+    dims = png_size(os.path.join("assets", atlas))
+    check(f"assets/{atlas} tile-aligned", dims is not None
+          and dims[0] % ZONE_TILE == 0 and dims[1] % ZONE_TILE == 0, f"got {dims}")
+    acols, arows = dims[0] // ZONE_TILE, dims[1] // ZONE_TILE
+    refs = {tuple(int(v) for v in tok.split(",")) for rows in layers.values()
+            for r in rows for tok in r.split() if tok != "-"}
+    check(f"assets/{layout} refs inside atlas",
+          all(0 <= cx < acols and 0 <= cy < arows for (cx, cy) in refs),
+          f"atlas is {acols}x{arows} tiles")
+    tsrc = open(os.path.join(HERE, tres)).read()
+    check(f"assets/{tres} tile_size",
+          f"tile_size = Vector2i({ZONE_TILE}, {ZONE_TILE})" in tsrc
+          and f"texture_region_size = Vector2i({ZONE_TILE}, {ZONE_TILE})" in tsrc)
+    undeclared = [rc for rc in refs if f"{rc[0]}:{rc[1]}/0 = 0" not in tsrc]
+    check(f"assets/{tres} declares every referenced tile", not undeclared,
+          f"missing {sorted(undeclared)[:4]}")
 
 # ---- collision tileset ---------------------------------------------------------------
 print("collision tileset:")
@@ -97,8 +147,9 @@ check("collision_tile.png", png_size("assets/collision_tile.png") == (ZONE_TILE,
 
 # ---- entity placement in painted scenes ----------------------------------------------
 PLACEMENTS = {
-    "scene/test_room.tscn": "maps/meadow.txt",
-    "scene/intro_road.tscn": "maps/road.txt",
+    "scene/meadow.tscn": "maps/meadow.txt",
+    "scene/house.tscn": "maps/house.txt",
+    "scene/downstairs.tscn": "maps/downstairs.txt",
 }
 
 print("placements:")
@@ -115,22 +166,16 @@ for rel, map_rel in PLACEMENTS.items():
 
 # ---- sheet dimensions -----------------------------------------------------------------
 SHEETS = {
-    "assets/basil_gen.png": (6 * ZONE_CELL, 7 * ZONE_CELL),
-    "assets/schweinler_gen.png": (4 * ZONE_CELL, 4 * ZONE_CELL),
-    "assets/slime_gen.png": (6 * 48, 4 * 48),
+    "assets/basil_gen.png": (6 * ZONE_CELL, 8 * ZONE_CELL),
+    "assets/slime_gen.png": (6 * 24, 4 * 24),
     "assets/overworld_basil.png": (4 * OW_CELL, 3 * OW_CELL),
     "assets/overworld_icons.png": (5 * ICON, ICON),
-    "assets/title_bg.png": (640, 360),
-    "assets/props/bedroom_bg.png": (640, 360),
-    "assets/props/hall_bg.png": (640, 360),
-    "assets/props/house_front.png": (768, 256),
-    "assets/props/school_front.png": (896, 320),
-    "assets/placeholder/hearts.png": (96, 32),
-    "assets/placeholder/ammo_pips.png": (32, 16),
-    "assets/placeholder/laser_bolt.png": (52, 16),
-    "assets/placeholder/muzzle_flash.png": (40, 40),
-    "assets/placeholder/beaker.png": (24, 28),
-    "assets/placeholder/shadow.png": (48, 20),
+    "assets/placeholder/hearts.png": (48, 16),
+    "assets/placeholder/ammo_pips.png": (16, 8),
+    "assets/placeholder/laser_bolt.png": (26, 8),
+    "assets/placeholder/muzzle_flash.png": (20, 20),
+    "assets/placeholder/beaker.png": (12, 14),
+    "assets/placeholder/shadow.png": (24, 10),
 }
 
 print("sheets:")
@@ -141,8 +186,7 @@ for rel, want in SHEETS.items():
 # ---- SpriteFrames regions -----------------------------------------------------------
 FRAMES = {
     "entities/player/player_frames.tres": ("assets/basil_gen.png", ZONE_CELL),
-    "entities/enemies/slime_frames.tres": ("assets/slime_gen.png", 48),
-    "entities/npcs/schweinler_frames.tres": ("assets/schweinler_gen.png", ZONE_CELL),
+    "entities/enemies/slime_frames.tres": ("assets/slime_gen.png", 24),
     "entities/player/overworld_basil_frames.tres": ("assets/overworld_basil.png", OW_CELL),
 }
 
