@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scene/house.gd" id="1_house"]
 [ext_resource type="TileSet" path="res://assets/tilesets/house_tiles.tres" id="2_tiles"]
@@ -6,6 +6,8 @@
 [ext_resource type="PackedScene" path="res://entities/player/player.tscn" id="4_player"]
 [ext_resource type="Texture2D" path="res://assets/tilesets/house_curtains.png" id="5_curtains"]
 [ext_resource type="Texture2D" path="res://assets/tilesets/house_glow.png" id="6_glow"]
+[ext_resource type="Texture2D" path="res://assets/tilesets/house_desk.png" id="7_desk"]
+[ext_resource type="Texture2D" path="res://assets/tilesets/house_bed_cover.png" id="8_cover"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
 size = Vector2(32, 16)
@@ -46,6 +48,14 @@ y_sort_enabled = true
 
 [node name="Player" parent="World" instance=ExtResource("4_player")]
 position = Vector2(136, 136)
+
+[node name="Desk" type="Sprite2D" parent="World"]
+texture_filter = 1
+texture = ExtResource("7_desk")
+
+[node name="BedCover" type="Sprite2D" parent="World"]
+texture_filter = 1
+texture = ExtResource("8_cover")
 
 [node name="TilesUpper" type="TileMapLayer" parent="."]
 texture_filter = 1

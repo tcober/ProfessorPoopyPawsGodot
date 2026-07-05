@@ -1,27 +1,34 @@
 ; Basil's loft (the attic bedroom) — 24x14 tiles (384x224 px; the view clamps
 ; to 384x216). A SMALL dense room floating in a huge black void (~7-tile side
 ; margins; the room is only 10 tiles wide — the CT-bedroom diorama read),
-; dormer window bay jutting above the cornice, warm brown plank walls over a
-; teal weave floor, ONE hot light source (the peach dawn window). Every wall
-; stretch is occupied (cork | window | shelf). The room's south-west corner
-; is a CT staircase: a stair head past the rail gap, then VISIBLE steps
-; descending south out of the room silhouette between dark jambs, sinking
-; into the void (cosmetic for now: the stairs exit straight to the overworld
-; until the downstairs kitchen/lab room exists — see DESIGN.md Future
-; Direction). This file is BOTH the collision grid and the room layout:
-; assets/_gen_tileset_house.py places its multi-tile furniture chips from the
-; feature chars, so moving a feature here moves it in the game.
+; dormer window bay (3x3, jutting above the cornice), warm brown plank walls
+; with wainscot over a teal weave floor, a CT rug beside the bed, ONE hot
+; light source (the peach dawn window). Every wall stretch is occupied
+; (cork | window | picture | shelf). The room's south-west corner is a CT
+; staircase: a stair head past the rail gap, then VISIBLE steps descending
+; south out of the room silhouette between dark jambs, down to the
+; downstairs great room. Two CT furniture behaviors, both as y-sorted scene
+; entities (house.gd stamps house_desk.png / house_bed_cover.png at these
+; bboxes): the desk sits on a one-row footprint — walk the row behind it and
+; it hides your legs, stand in front and you cover it; and the bed's middle
+; row 'b' is walkable — climb under the covers from the rug and only your
+; head shows on the pillow ('B' frame rows are solid). This file is BOTH the
+; collision grid and the room layout: assets/_gen_tileset_house.py places
+; its props from the feature chars, so moving a feature here moves it in
+; the game.
 legend V void solid
 legend # wall solid
 legend W window solid
 legend S shelf solid
 legend C cork solid
-legend b bed solid
+legend p picture solid
+legend B bedframe solid
+legend b bed walk
 legend d desk solid
 legend h chair solid
-legend w basket solid
 legend R rail solid
 legend . floor walk
+legend g rug walk
 legend s stair walk
 legend - door walk
 anchor player_spawn 12 7
@@ -29,14 +36,14 @@ anchor stair_top 8 9
 anchor exit_door 8 12
 map
 VVVVVVVVVVVVVVVVVVVVVVVV
-VVVVVVVVVVWWWWVVVVVVVVVV
-VVVVVVV#CCWWWWSS#VVVVVVV
-VVVVVVV#CCWWWWSS#VVVVVVV
-VVVVVVV###WWWWSS#VVVVVVV
-VVVVVVV#ddd...bb#VVVVVVV
-VVVVVVV#ddd...bb#VVVVVVV
-VVVVVVV#.h....bb#VVVVVVV
-VVVVVVV#.....wbb#VVVVVVV
+VVVVVVVVVVWWWVVVVVVVVVVV
+VVVVVVV#CCWWWpSS#VVVVVVV
+VVVVVVV#CCWWW#SS#VVVVVVV
+VVVVVVV#######SS#VVVVVVV
+VVVVVVV#......BB#VVVVVVV
+VVVVVVV#....ggBB#VVVVVVV
+VVVVVVV#ddd.ggbb#VVVVVVV
+VVVVVVV#.h..ggBB#VVVVVVV
 VVVVVVV#........#VVVVVVV
 VVVVVVV#ssRRRRRR#VVVVVVV
 VVVVVVV#--#VVVVVVVVVVVVV

@@ -16,7 +16,16 @@ const LAYOUT_PATH := "res://assets/tilesets/downstairs_layout.txt"
 ## and the doorway daylight carry the brightness.
 const DIM := Color(0.74, 0.7, 0.84)
 
+## Basil's feet sit at node.y + 20 (48px cell, feet baseline 44); y-sorted
+## props must place their node at the same feet convention to sort true.
+const PLAYER_FEET := 20.0
+
+## Where the fire overlay sits inside the hearth bbox (the firebox opening
+## in _interior_props.hearth: fx0=10, tongues from ~y20).
+const FIRE_OFFSET := Vector2(10.0, 20.0)
+
 var map: Dictionary
+var _anim_t := 0.0
 
 @onready var player: Player = $World/Player
 
@@ -36,6 +45,44 @@ func _ready() -> void:
 	_fix_camera()
 	$ExitDoor.body_entered.connect(_on_exit_door)
 	$UpStair.body_entered.connect(_on_up_stair)
+	_place_dressing()
+
+
+## Animated dressing, positioned from the map so moving the feature chars
+## moves it: the hearth fire overlay (under entities) and the free-standing
+## boiler (a y-sorted World entity whose collision is the map's 'A' cells).
+func _place_dressing() -> void:
+	$Fire.position = _bbox_rect("H").position + FIRE_OFFSET
+	var a := _bbox_rect("A")
+	var base_y := a.position.y + a.size.y
+	var boiler: Sprite2D = $World/Boiler
+	boiler.position = Vector2(a.position.x + a.size.x / 2.0, base_y - PLAYER_FEET)
+	# sprite bottom sits exactly on the footprint's south edge
+	boiler.offset = Vector2(0.0, base_y - boiler.texture.get_height() / 2.0 - boiler.position.y)
+
+
+## The little life of the room: fire flicker, boiler shiver + steam leak.
+func _process(delta: float) -> void:
+	_anim_t += delta
+	$Fire.frame = int(_anim_t / 0.16) % 3
+	$World/Boiler.frame = int(_anim_t / 0.28) % 4
+
+
+## Pixel rect of a feature char's bbox in the map.
+func _bbox_rect(ch: String) -> Rect2:
+	var x0 := 1 << 20
+	var y0 := 1 << 20
+	var x1 := -1
+	var y1 := -1
+	for y in int(map.rows):
+		var row: String = map.lines[y]
+		for x in row.length():
+			if row[x] == ch:
+				x0 = mini(x0, x)
+				y0 = mini(y0, y)
+				x1 = maxi(x1, x)
+				y1 = maxi(y1, y)
+	return Rect2(x0 * 16.0, y0 * 16.0, (x1 - x0 + 1) * 16.0, (y1 - y0 + 1) * 16.0)
 
 
 ## The room is exactly one screen: clamp to the view (384x216), not the map

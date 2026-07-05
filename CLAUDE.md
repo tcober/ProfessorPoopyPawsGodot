@@ -71,16 +71,20 @@ painted — a single composed painting (ground + overlay Sprite2Ds) generated
 from shared `assets/maps/*.txt` files on `assets/_core.py` + `assets/_paint.py`
 
 - `assets/_palette.py` (`scene/meadow.tscn` = reference). Interiors are TILED
-  (the 2026-07 CT-bedroom pivot): `assets/_gen_tileset_house.py` AUTHORS a tile
-  library from `assets/maps/house.txt`'s feature chars — 16-periodic fabric
-  painters (repeats are byte-identical, so they dedupe to single tiles),
-  whole-tile light variants (lit / dither-fringe / shadow — never per-pixel
-  gradients), furniture as footprint-bounded multi-tile objects — and
-  `assets/_tiles.py` slices it into a real TileSet (atlas PNG + `.tres` +
-  layout txt in `assets/tilesets/`, ~67 tiles from 336 cells) that
-  `scene/tiled_map.gd` stamps onto TWO TileMapLayers — under and over
-  entities, so bodies walk behind railings/furniture tops (`scene/house.tscn`
-  = reference) — move a feature in the map txt and it moves in-game.
+  (the 2026-07 CT-bedroom pivot) and built on the **interior kit**:
+  `assets/_interior.py` (shared 16-periodic terrain fabrics — plank walls
+  with wainscot, weave/flag floors — whole-tile light dispatch, stair/rail/
+  jamb cells, the `Room` driver) + `assets/_interior_props.py` (furniture
+  library authored on `_sprites.py`: hard-banded volumes, outlines,
+  speculars; size-parameterized windows/rugs shared across rooms). A room
+  generator (`assets/_gen_tileset_house.py`, `_gen_tileset_downstairs.py`)
+  is a thin ~100-line config: palette + light pools + `place()` props at map
+  feature chars; `assets/_tiles.py` slices the composed canvases into a real
+  TileSet (atlas + `.tres` + layout in `assets/tilesets/`, ~67-95 tiles from
+  336 cells) that `scene/tiled_map.gd` stamps onto TWO TileMapLayers — under
+  and over entities, so bodies walk behind railings/lintels
+  (`scene/house.tscn` = reference) — move a feature char in the map txt and
+  it moves in-game. A NEW interior = map txt + thin config.
   Sprites/fx build on `assets/_sprites.py`; collision is always an
   invisible TileMapLayer built at runtime by `scene/painted_map.gd` from the same
   map file. Regenerate via `assets/_gen_*.py`, then

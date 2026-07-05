@@ -15,6 +15,16 @@ const LAYOUT_PATH := "res://assets/tilesets/house_layout.txt"
 const DIM_OPEN := Color(0.72, 0.7, 0.86)
 const DIM_CLOSED := Color(0.62, 0.6, 0.8)
 
+## Basil's feet sit at node.y + 20 (48px cell, feet baseline 44); y-sorted
+## furniture entities must use the same feet convention to sort true.
+const PLAYER_FEET := 20.0
+
+## Prop-local geometry shared with the generator: the bed cover crop starts
+## at this y inside the bed bbox (_interior_props.bed_parts cover_span), and
+## the baked contact shadow occupies the bbox's bottom rows.
+const COVER_TOP := 24.0
+const BED_SHADOW := 5.0
+
 var map: Dictionary
 var curtains_open := false
 var _near_window := false
@@ -40,14 +50,32 @@ func _ready() -> void:
 	# Curtain mechanic: the room wakes with the curtains drawn; standing at
 	# the window (WindowZone) and pressing interact toggles them. Positions
 	# derive from the map's W cells, so moving the window moves it all.
-	var win := _window_px()
-	$Curtains.position = win
+	var win := _window_rect()
+	$Curtains.position = win.position
 	$Curtains.frame = 0
 	$Glow.modulate.a = 0.0
 	$Dim.color = DIM_CLOSED
-	$WindowZone.position = win + Vector2(32.0, 78.0)
+	$WindowZone.position = win.position + Vector2(win.size.x / 2.0, win.size.y + 14.0)
 	$WindowZone.body_entered.connect(_on_window_zone.bind(true))
 	$WindowZone.body_exited.connect(_on_window_zone.bind(false))
+	_place_furniture()
+
+
+## The y-sorted furniture entities, positioned from the map bboxes at the
+## player's feet convention: the desk (walk behind it / stand in front of
+## it) and the bed cover (in bed = under the quilt, head on the pillow).
+func _place_furniture() -> void:
+	var d := _bbox_rect("d")
+	var dsk: Sprite2D = $World/Desk
+	var dbase := d.position.y + d.size.y
+	dsk.position = Vector2(d.position.x + d.size.x / 2.0, dbase - PLAYER_FEET)
+	dsk.offset = Vector2(0.0, dbase - dsk.texture.get_height() / 2.0 - dsk.position.y)
+	var b := _bbox_rect("bB")
+	var cover: Sprite2D = $World/BedCover
+	var cbase := b.position.y + b.size.y - BED_SHADOW
+	cover.position = Vector2(b.position.x + b.size.x / 2.0, cbase - PLAYER_FEET)
+	cover.offset = Vector2(0.0, b.position.y + COVER_TOP
+			+ cover.texture.get_height() / 2.0 - cover.position.y)
 
 
 func _process(_delta: float) -> void:
@@ -89,17 +117,27 @@ func _toggle_curtains() -> void:
 	_curtain_busy = false
 
 
-## Top-left pixel of the window bay (min x/y over the map's W cells).
-func _window_px() -> Vector2:
-	var tx := 1 << 20
-	var ty := 1 << 20
+## Pixel rect of the window bay, so the curtain sprite and interact zone
+## follow the window wherever the map puts it — whatever its size.
+func _window_rect() -> Rect2:
+	return _bbox_rect("W")
+
+
+## Pixel rect of a feature's bbox (all cells whose char is in `chars`).
+func _bbox_rect(chars: String) -> Rect2:
+	var x0 := 1 << 20
+	var y0 := 1 << 20
+	var x1 := -1
+	var y1 := -1
 	for y in int(map.rows):
 		var row: String = map.lines[y]
 		for x in row.length():
-			if row[x] == "W":
-				tx = mini(tx, x)
-				ty = mini(ty, y)
-	return Vector2(tx, ty) * 16.0
+			if chars.contains(row[x]):
+				x0 = mini(x0, x)
+				y0 = mini(y0, y)
+				x1 = maxi(x1, x)
+				y1 = maxi(y1, y)
+	return Rect2(x0 * 16.0, y0 * 16.0, (x1 - x0 + 1) * 16.0, (y1 - y0 + 1) * 16.0)
 
 
 ## The room is exactly one screen: clamp to the view (384x216), not the map

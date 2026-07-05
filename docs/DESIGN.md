@@ -184,7 +184,7 @@ map lands back at that front door).
   floor.
   `assets/_gen_tileset_house.py` reads the feature chars in
   `assets/maps/house.txt` (window, bookshelf, corkboard, bed, desk, chair,
-  bucket, railing) and AUTHORS a real tile library: 16-periodic fabric
+  rug, railing) and AUTHORS a real tile library: 16-periodic fabric
   painters (weave/planks) whose repeated cells are byte-identical and so
   collapse to single atlas tiles, whole-tile light variants for the dawn
   window's hard-edged pool (lit core / ordered-dither fringe / shadow band —
@@ -215,10 +215,17 @@ map lands back at that front door).
   pipeline (`assets/_gen_tileset_downstairs.py`, slate flagstone floor +
   shared house planks). KITCHEN west: stone hearth with a live hard-banded
   fire (the room's hot light source — whole lit-flag tiles + additive
-  `downstairs_glow.png` drawn under entities), counter with bread/bowl/
-  bottle, brass-latched icebox. STEAMPUNK LAB east: flask shelf, riveted
-  copper boiler (gauge, pipe to the cornice, glowing grate), workbench with
-  a half-built gizmo. The loft staircase descends through a top-center
+  `downstairs_glow.png` drawn under entities; the fire itself is an ANIMATED
+  overlay, `downstairs_fire.png`, 3 frames stepped by `downstairs.gd` over
+  the cold baked firebox), and the sink counter under the kitchen window
+  with the dish shelf above. STEAMPUNK LAB east: flask shelf, a copper pipe
+  manifold on the
+  wall feeding the **free-standing boiler** — an animated y-sorted World
+  entity (`downstairs_boiler.png`, 4 frames from
+  `_interior_props.boiler_frames`: gauge-needle wiggle, firebox flicker, a
+  lazy steam leak), its collision still the map's solid `A` cells, its node
+  placed at the player's feet convention (feet = node.y + 20) so y-sort
+  agrees — and a workbench with a half-built gizmo. The loft staircase descends through a top-center
   alcove jutting above the cornice (treads brighten as they come down out of
   the dark); the south wall holds the **front door** — an open doorway
   spilling daylight, lintel on the upper layer (Basil ducks under it), stone
@@ -330,6 +337,21 @@ Both pipelines are driven by the same `assets/maps/*.txt` file per scene.
   shade must be quantized PER TILE (whole lit tiles + ordered-dither fringe
   tiles, per-tile vignette/halo bands) — per-pixel gradients make every tile
   unique and dissolve the tile rhythm into a painting.
+- **`assets/_interior.py` + `assets/_interior_props.py`** — the interior kit,
+  THE standard for every future interior room. `_interior.py` owns the shared
+  skeleton (int-casting `Canvas`, the 16-periodic terrain fabrics: `plank_px`
+  walls with wainscot base row, `weave_px` / `flag_px` floors, per-cell
+  painters with whole-tile light dispatch, stair/jamb/rail/drop/south cells,
+  the shared material ramps, and the `Room` driver: `paint_terrain(rules)`,
+  `place(char, prop, shadow_h)`, `write_glow`, `finish`). `_interior_props.py`
+  is the furniture library — every prop a function returning a `_sprites.py`
+  Sprite (jitter=0 hard CT bands; `ball`/`capsule`/`tri` volumes on round
+  forms; outline/crease/specular finishing), blitted at its map footprint
+  with a baked contact-shadow band. Windows and rugs are size-parameterized
+  and shared across rooms. A NEW ROOM = a map txt + a ~100-line config
+  (`assets/_gen_tileset_house.py` / `_gen_tileset_downstairs.py` are the two
+  references) — pick the scene palette, declare light pools + odd cells,
+  place props, `finish()`.
 - **Godot side:** a painted map scene is `Ground` (Sprite2D, the painting) →
   `Collision` (invisible TileMapLayer, `assets/collision_tileset.tres` — one
   transparent full-square physics tile stamped on every solid cell by
@@ -398,7 +420,18 @@ Tiled interiors (atlas + TileSet + layout from `assets/maps/*.txt`):
   (dormer gable + brass vent over the blazing quantized-dawn window with sun
   disc, skyline and flask-lined sill; corkboard obsession wall with red
   string; bookshelf with scroll + glow jar; bed with hot-magenta quilt; desk
-  with oil lamp, microscope + book stack; chair; wash bucket; railed
+  with oil lamp, microscope + book stack — a WALK-BEHIND piece: the desk is a
+  **y-sorted World entity** (`house_desk.png`) on a one-row solid footprint
+  with a 2-row walkway behind it — behind it your legs hide under the desktop
+  plane, in front you draw over it. (The static upper-TILE-layer trick is
+  reserved for room-edge art like the rail/lintel: a 2-tile-tall body
+  standing directly south clips its head behind static-over furniture —
+  y-sort is unconditionally correct.) Chair; rug beside the bed; the BED is
+  split for the FF/CT under-the-covers read (`_interior_props.bed_parts`):
+  headboard/pillow bake under entities, the quilt+footboard cover is a
+  y-sorted entity (`house_bed_cover.png`) — walk onto the bed's middle row
+  and Basil slides under the quilt with only his head showing on the pillow;
+  stand south of the bed and he draws over the covers. Railed
   stairwell south whose balustrade rides the upper layer over steps sinking
   into dark). Every prop carries dark contact edges, 3-tone banding and
   single-pixel speculars; contact shadows are baked inside each footprint.
@@ -409,9 +442,10 @@ Tiled interiors (atlas + TileSet + layout from `assets/maps/*.txt`):
   great room on the same disciplines — slate flagstone fabric (16x8 running
   bond), shared house planks, whole-tile hearth light (lit flags + dither
   fringe + the additive glow overlay), and the furniture objects (stone
-  hearth with hard-banded fire, counter, brass-latched icebox, flask shelf,
-  riveted copper boiler with gauge + cornice pipe, workbench with half-built
-  gizmo, alcove stair treads, open front doorway whose lintel rides the
+  hearth with hard-banded fire, sink counter + dish shelf, flask shelf,
+  wall pipe manifold + the free-standing animated boiler, workbench with
+  half-built gizmo, alcove stair treads, open front doorway whose lintel
+  rides the
   upper layer).
 - `assets/font/_gen_font.py` → the BMFont all Labels use: the **native 5×7
   glyphs** from `assets/_pixfont.py` (caps/digits/punctuation) at size=8 —
