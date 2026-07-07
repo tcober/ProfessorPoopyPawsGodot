@@ -5,6 +5,9 @@
       row0 walk_down(4)  row1 walk_up(4)  row2 walk_side(4, faces RIGHT; code
       flips) — big head, tuxedo blaze, goggles, little lab coat, feet y=21
       (overworld_basil_frames.tres contract).
+  assets/overworld_fuji.png   96x72, 24x24 cells, 4x3 — chibi Fuji, same row
+      contract (overworld_fuji_frames.tres) — split tortie ears, rust brow
+      patch, cream muzzle, spectacle glints, little plum robe, rust tail tip.
   assets/overworld_icons.png  160x32 — five 32x32 landmark vignettes in a strip:
       HOME cottage · TOWN rooftops · MEADOW grove · CAVE mouth · OBELISK.
       Chunky minis: flat tone bands, teal shadows, one hot accent each.
@@ -17,7 +20,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from _core import Img, write_cells, OW_CELL, OW_FEET, ICON, h2
 from _sprites import Sprite
-from _palette import BASIL, SCENES, ramp
+from _palette import BASIL, FUJI, SCENES, ramp
 
 FUR = BASIL["FUR"]
 WHITE = BASIL["WHITE"]
@@ -109,6 +112,97 @@ strides = ((2, -2), (0, 0), (-2, 2), (0, 0))
 for i in range(4):
     chibi_side(cells[2][i], strides[i][0], strides[i][1], bobs[i])
 write_cells(os.path.join(HERE, "overworld_basil.png"), cells, OW_CELL)
+
+
+# ---- chibi Fuji -------------------------------------------------------------------------
+F_FUR = FUJI["FUR"]
+F_GING = FUJI["GINGER"]
+F_CREAM = FUJI["CREAM"]
+F_ROBE = FUJI["ROBE"]
+F_TRIM = FUJI["TRIM"]
+F_RIM = FUJI["RIM"]
+F_LENS = FUJI["LENS"]
+F_EYE = FUJI["EYE_G"]
+F_OUTS, F_OUT_FB = FUJI["OUTS"], FUJI["OUT_FALLBACK"]
+
+
+def fuji_down(s, view, lift_l=0, lift_r=0, bobY=0):
+    """Big-head travel Fuji; view in (down, up)."""
+    hy = 10 + bobY
+    # legs — dark fur stubs, cream paws
+    s.capsule(9.5, 17, 9.5, FEET - 1.5 - lift_l, 1.4, 1.3, F_FUR)
+    s.capsule(14, 17, 14, FEET - 1.5 - lift_r, 1.4, 1.3, F_FUR, sh=0.1)
+    s.ball(9.5, FEET - 0.7 - lift_l, 1.5, 1.0, F_CREAM, wrap=0.10)
+    s.ball(14, FEET - 0.7 - lift_r, 1.5, 1.0, F_CREAM, wrap=0.10)
+    # tiny plum robe with the trim hem
+    s.panel(CX, 15 + bobY, 18 + bobY, 4.0, 4.8, F_ROBE, hem_curve=1, folds=(int(CX),))
+    s.rect(8, 17 + bobY, 15, 17 + bobY, F_TRIM[2])
+    # tail flick (right side) — rust tip
+    s.capsule(16, 17 + bobY, 18, 15 + bobY, 1.0, 0.8, F_FUR, sh=0.1)
+    s.set(18, 14 + bobY, F_GING[1])
+    # split tortie ears: left black, right ginger
+    s.tri((8, hy - 7), hy - 2, 6, 10, F_FUR)
+    s.tri((15, hy - 7), hy - 2, 13, 17, F_GING, sh=0.15)
+    if view == "down":
+        s.set(8, hy - 5, FUJI["EARIN"])
+        s.set(15, hy - 5, FUJI["EARIN_D"])
+    # head + rust brow patch
+    s.ball(CX, hy, 5.7, 4.8, F_FUR, power=2.3, wrap=0.32, curve=0.28)
+    if view == "down":
+        s.rect(13, hy - 3, 15, hy - 2, F_GING[1])              # brow patch
+        s.ball(CX, hy + 3, 2.8, 1.7, F_CREAM, power=2.2, wrap=0.10, curve=0.1)
+        for ex in (9, 13):
+            s.set(ex, hy - 1, F_EYE)
+            s.set(ex, hy, FUJI["PUPIL"])
+            s.set(ex + 1, hy - 1, F_RIM[1])                    # spectacle rims
+            s.set(ex - 1, hy - 1, F_RIM[1])
+        s.set(int(CX), hy - 1, F_RIM[2])                       # bridge
+        s.set(int(CX), hy + 2, FUJI["NOSE"])
+    else:
+        s.rect(13, hy - 2, 15, hy, F_GING[1])                  # crown patch
+        s.set(6, hy - 1, F_RIM[2])                             # temple hooks
+        s.set(17, hy - 1, F_RIM[2])
+    s.despeckle(passes=1)
+    s.outline(F_OUTS, F_OUT_FB)
+
+
+def fuji_side(s, fA=0, fB=0, bobY=0):
+    """Side view, faces RIGHT."""
+    hy = 10 + bobY
+    s.capsule(16, 16 + bobY, 19, 14 + bobY, 1.0, 0.8, F_FUR, sh=0.1)   # tail
+    s.set(19, 13 + bobY, F_GING[1])                                    # rust tip
+    s.capsule(10 + fB, 17, 10 + fB, FEET - 1.5, 1.4, 1.3, F_FUR, sh=0.12)
+    s.capsule(13 + fA, 17, 13 + fA, FEET - 1.5, 1.4, 1.3, F_FUR)
+    s.ball(10 + fB, FEET - 0.7, 1.5, 1.0, F_CREAM, wrap=0.10)
+    s.ball(13 + fA, FEET - 0.7, 1.5, 1.0, F_CREAM, wrap=0.10)
+    s.panel(11, 15 + bobY, 18 + bobY, 3.8, 4.5, F_ROBE, hem_curve=1)
+    s.rect(8, 17 + bobY, 14, 17 + bobY, F_TRIM[2])             # trim hem
+    s.tri((9, hy - 7), hy - 3, 7, 11, F_FUR)                   # near ear
+    s.set(9, hy - 5, FUJI["EARIN"])
+    s.tri((14, hy - 7), hy - 3, 12, 16, F_GING, sh=0.3)        # far ear, ginger
+    s.ball(11, hy, 5.4, 4.6, F_FUR, power=2.3, wrap=0.32, curve=0.28)
+    s.rect(8, hy - 3, 10, hy - 2, F_GING[1])                   # nape patch
+    s.ball(15.5, hy + 2, 2.3, 1.7, F_FUR, power=2.0, wrap=0.28)  # snout mass
+    s.ball(16, hy + 2.5, 1.9, 1.4, F_CREAM, power=2.0, wrap=0.10)
+    s.set(17, hy + 1, FUJI["NOSE"])
+    s.set(13, hy - 1, F_EYE)
+    s.set(13, hy, FUJI["PUPIL"])
+    s.set(14, hy - 1, F_RIM[1])                                # spectacle rim
+    s.set(12, hy - 1, F_RIM[1])
+    s.set(14, hy - 2, F_LENS[0])                               # lens glint
+    s.rect(7, hy - 2, 11, hy - 2, F_RIM[2])                    # temple arm
+    s.despeckle(passes=1)
+    s.outline(F_OUTS, F_OUT_FB)
+
+
+fcells = [[Sprite(OW_CELL, grain=1, salt=r * 5 + c, jitter=0.0) for c in range(4)]
+          for r in range(3)]
+for i in range(4):
+    fuji_down(fcells[0][i], "down", lifts[i][0], lifts[i][1], bobs[i])
+    fuji_down(fcells[1][i], "up", lifts[i][0], lifts[i][1], bobs[i])
+for i in range(4):
+    fuji_side(fcells[2][i], strides[i][0], strides[i][1], bobs[i])
+write_cells(os.path.join(HERE, "overworld_fuji.png"), fcells, OW_CELL)
 
 # ---- landmark icons -------------------------------------------------------------------
 OW = SCENES["overworld"]

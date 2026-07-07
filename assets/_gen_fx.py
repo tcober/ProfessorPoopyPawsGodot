@@ -8,17 +8,19 @@ the projectile/pickup scenes reference these files:
   placeholder/muzzle_flash.png 20x20 (starburst)
   placeholder/beaker.png      12x14  (conical flask of glowing laser fluid)
   placeholder/shadow.png      24x10  (soft violet hop shadow)
+  placeholder/blow_dart.png   12x4   (Fuji's dart: mustard fletch, steel needle)
 
 Style: chunky CT-item read — flat tone bands, one hot accent, violet shadows
 (no gray). Laser green = BASIL["GUNE"] so bolt/flash/beaker fluid all match the
-gun. Re-run: python3 assets/_gen_fx.py
+gun; dart fletch = FUJI["DARTF"] so it matches her pipe's brass bands.
+Re-run: python3 assets/_gen_fx.py
 """
 import math, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from _core import Img, h2
-from _palette import BASIL
+from _palette import BASIL, FUJI
 
 OUT = os.path.join(HERE, "placeholder")
 GREEN = BASIL["GUNE"][:3]           # (132, 246, 152)
@@ -163,6 +165,23 @@ beaker.put(3, 9, (240, 255, 246, 200))
 for (bx, by) in ((5, 9), (6, 11)):                            # bubbles
     beaker.put(bx, by, (214, 255, 224, 255))
 beaker.save(os.path.join(OUT, "beaker.png"))
+
+# ---- blow dart: Fuji's needle — flies point-first (right), like the bolt --------------
+dart = Img(12, 4)
+DARTF = FUJI["DARTF"][:3]
+REED = FUJI["PIPE"]
+STEEL = (208, 216, 228)
+dart.rect(0, 1, 2, 2, DARTF + (255,))                         # fletch block
+dart.put(0, 0, DARTF + (255,))                                # fletch flare
+dart.put(0, 3, DARTF + (255,))
+for x in range(3, 9):                                         # reed shaft
+    dart.put(x, 1, REED[1][:3] + (255,))
+    dart.put(x, 2, REED[2][:3] + (255,))
+for x in range(9, 11):                                        # steel needle
+    dart.put(x, 1, STEEL + (255,))
+    dart.put(x, 2, (168, 178, 196, 255))
+dart.put(11, 1, (240, 246, 252, 255))                         # point
+dart.save(os.path.join(OUT, "blow_dart.png"))
 
 # ---- hop shadow: soft violet ellipse ---------------------------------------------------
 shadow = Img(24, 10)

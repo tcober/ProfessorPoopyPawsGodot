@@ -1,14 +1,18 @@
-; Whisker Meadow — 48x24 tiles (1536x768 px). Shared source of truth:
-; painted by assets/_gen_scene_meadow.py, collision/logic by scene/meadow.gd.
+; Whisker Meadow — 48x24 tiles (768x384 px). Shared source of truth:
+; tiled by assets/_gen_tileset_meadow.py (the shared OverWorld driver),
+; collision/logic by scene/meadow.gd.
 ; Composition: wavy treeline border (1-3 tiles deep), pond east-center with
-; shoreline, S-curve trail from the south gap to a NW trailhead clearing,
+; a wet-sand beach arc on its trail-facing W/S shore, a 1-wide stair-step
+; trail from the south gap to the north trailhead cairn (c, flower-ringed),
 ; boulder outcrops SW/N/S-of-pond, flower drifts along the trail and pond.
 legend . grass walk
 legend f flowers walk
-legend - path walk
-legend # treeline solid
-legend o water solid
-legend r rock solid
+legend - road walk
+legend s beach walk
+legend # forest solid
+legend o sea solid
+legend r boulder solid
+legend c boulder solid
 anchor player_spawn 8 10
 anchor exit_south 24 23
 map
@@ -16,23 +20,23 @@ map
 #########......#####.......#####################
 ####.............................#####....######
 ##....................fffff...rr.............###
-##....................fffff...................##
-#....................-------.......oooo.......##
-#.................-------........oooooooo.....##
-#...............----............oooooooooo....##
-#.............----........fffff.ooooooooooo...##
-#............---...........fffff.ooooooooo.....#
-###.........---...........fffff...ooooooo......#
-###..........--............ffff.....ooo........#
-###..........---...........fff.................#
-###...........---.............................##
-##.............---...................rr.......##
-##..............---...........................##
-##....rrr........---..........................##
-##.....rr.........---........................###
-#.........fffff....---.......................###
-#..........fff......---......................###
-#...........f........---.....................###
-#.....................---.....................##
-######.......######....--.........##############
-######################.--..#####################
+##....................ffffff..................##
+#..................-------c.f......oooooo.....##
+#...............----.....f.f......oooooooo....##
+#.............---...............soooooooooo...##
+#............--...........fffffsoooooooooooo..##
+#............-.............fffffsoooooooooo....#
+###..........--...........fffff..soooooooo.....#
+###...........-............ffff...soooooo......#
+###...........--...........fff.....soooos......#
+###............--...................ssss......##
+##..............--...................rr.......##
+##...............--...........................##
+##....rrr.........--..........................##
+##.....rr..........--........................###
+#.........fffff.....--.......................###
+#..........fff.......--......................###
+#...........f.........--.....................###
+#......................--.....................##
+######.......######.....-.........##############
+######################..-..#####################

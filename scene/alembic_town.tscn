@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scene/alembic_town.gd" id="1_town"]
 [ext_resource type="Script" path="res://scene/overworld_location.gd" id="2_loc"]
-[ext_resource type="PackedScene" path="res://entities/player/player.tscn" id="3_player"]
+[ext_resource type="PackedScene" path="res://entities/fuji/fuji.tscn" id="3_player"]
 [ext_resource type="FontFile" path="res://assets/font/pixel_font.fnt" id="4_font"]
 [ext_resource type="TileSet" path="res://assets/collision_tileset.tres" id="5_collision"]
 [ext_resource type="TileSet" path="res://assets/tilesets/town_tiles.tres" id="6_tiles"]

@@ -28,7 +28,7 @@ const FIRE_OFFSET := Vector2(10.0, 20.0)
 var map: Dictionary
 var _anim_t := 0.0
 
-@onready var player: Player = $World/Player
+@onready var player: DirectionalBody2D = $World/Player
 
 
 func _ready() -> void:
@@ -71,7 +71,7 @@ func _process(delta: float) -> void:
 
 ## Out the front door to the overworld, at the town icon's gate mouth.
 func _on_exit_door(body: Node) -> void:
-	if body is Player:
+	if body.is_in_group("player"):
 		Game.overworld_spawn = "town"
 		# Deferred: freeing the scene inside the Area2D callback is a physics error.
 		get_tree().change_scene_to_file.call_deferred("res://scene/overworld.tscn")
@@ -79,7 +79,7 @@ func _on_exit_door(body: Node) -> void:
 
 ## Up the alcove stairs to the loft bedroom, arriving at the stair head.
 func _on_up_stair(body: Node) -> void:
-	if body is Player:
+	if body.is_in_group("player"):
 		Game.interior_spawn = "stair_top"
 		# Deferred: freeing the scene inside the Area2D callback is a physics error.
 		get_tree().change_scene_to_file.call_deferred("res://scene/house.tscn")

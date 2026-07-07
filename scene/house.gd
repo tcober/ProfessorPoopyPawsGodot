@@ -30,7 +30,7 @@ var curtains_open := false
 var _near_window := false
 var _curtain_busy := false
 
-@onready var player: Player = $World/Player
+@onready var player: DirectionalBody2D = $World/Player
 
 
 func _ready() -> void:
@@ -84,7 +84,7 @@ func _process(_delta: float) -> void:
 
 
 func _on_window_zone(body: Node, entered: bool) -> void:
-	if body is Player:
+	if body.is_in_group("player"):
 		_near_window = entered
 
 
@@ -119,7 +119,7 @@ func _toggle_curtains() -> void:
 
 ## Descending the loft stairs lands at their foot in the downstairs great room.
 func _on_exit_door(body: Node) -> void:
-	if body is Player:
+	if body.is_in_group("player"):
 		Game.interior_spawn = "stair_arrival"
 		# Deferred: freeing the scene inside the Area2D callback is a physics error.
 		get_tree().change_scene_to_file.call_deferred("res://scene/downstairs.tscn")

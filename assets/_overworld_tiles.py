@@ -164,7 +164,7 @@ TERRAIN_CLS = {
     "forest": "forest", "mountain": "mountain", "waste": "waste",
     "road": "road", "door": "road",
     "well": "grass", "lamp": "grass", "stall": "grass",
-    "town": "grass", "tree": "grass",
+    "town": "grass", "tree": "grass", "boulder": "grass",
     # landmark props render their region's fabric as underlay: the castle
     # and peak ride the massif, the obelisk + crystal outcrops ride the
     # wastes, the elder tree rides the plain
@@ -181,7 +181,7 @@ TERRAIN_CLS = {
     "academybody": "grass", "academyroof": "grass",
 }
 # solid built things that drop a contact shadow on the ground cell south of them
-STRUCT_TERRAIN = {"well", "lamp", "stall", "fence", "town", "tree",
+STRUCT_TERRAIN = {"well", "lamp", "stall", "fence", "town", "tree", "boulder",
                   "obelisk", "crystal", "castle", "peak", "giant_tree",
                   "homebody", "cotWbody", "cotEbody", "academybody"}
 
@@ -685,24 +685,46 @@ class OverWorld(TileScene):
                         c = self._px_sea(u, v, depth, phase)
                 self.bg.put(X + u, Y + v, c)
 
-    def _river_cell(self, X, Y, masks):
-        segs = self._shore_prep(masks, LANDC, multi=True)  # no meander: 8px channel
+    def _px_river(self, u, v, phase=0):
+        """Channel water: the sea's swell language at brook scale — a
+        two-tone dithered body (never a flat asphalt field) under tight
+        staggered ripple dashes with their trough shadows, plus rare
+        single-px glints. 32-space like every other fabric."""
+        s = self.SEA
+        w, z = u + 16 * (phase & 1), v + 16 * (phase >> 1)
+        off = (w + 5 * ((z // 8) % 4)) % 12
+        if z % 8 == 2 and off < 5:
+            return s[1]                                    # ripple crest
+        if z % 8 == 3 and 1 <= off < 5:
+            return s[3]                                    # its trough shadow
+        if h2(w, z, 96) % 89 == 0:
+            return s[0]                                    # stray glint
+        return _grain_dither((s[2], s[3]), 0.3, w, z, 95,
+                             grain=3, jitter=0.7)          # calm mid-tone body:
+                                                           # no s[1], so crests
+                                                           # never camouflage
+
+    def _river_cell(self, X, Y, masks, tx, ty):
+        # banks meander like the coasts, but at 2/3 amplitude so opposing
+        # bulges never pinch the 1-wide channel below a readable body
+        segs = [(cn, bit, c2, k0 * 2 // 3, k1 * 2 // 3) for cn, bit, c2, k0, k1
+                in self._shore_prep(masks, LANDC, tx, ty, multi=True)]
         deck = masks.get("bridge", 0)
+        phase = (tx & 1) | ((ty & 1) << 1)
         for v in range(T):
             for u in range(T):
-                s2, D, _ = self._shore_s(segs, u, v)
+                s2, D, (kA, kB) = self._shore_s(segs, u, v)
                 if s2 <= -3:
                     c = self._fab(D, u, v)                 # inner-bend wedge
                 elif s2 <= 1:
                     c = self._lip_band(D, s2, u, v)
                 elif s2 <= 3:
                     c = self.SEA[5]                        # bank line
-                elif s2 <= 5:
-                    c = self.SEA[4]
-                elif u in (7, 8) and v % 6 < 4:
-                    c = self.SEA[1]                        # center thread
+                elif s2 <= 5:                              # broken foam lapping
+                    c = self.SEA[0] if h2(u + 3 * kA, v + 5 * kB, 73) % 5 < 2 \
+                        else self.SEA[2]                   # the bank
                 else:
-                    c = self.SEA[2]
+                    c = self._px_river(u, v, phase)
                 if deck and edge_dist(deck, u, v) <= 1:
                     c = self.SEA[4]                        # bridge deck shadow
                 self.bg.put(X + u, Y + v, c)
@@ -1085,7 +1107,7 @@ class OverWorld(TileScene):
                 if cls == "sea":
                     self._sea_cell(X, Y, masks, tx, ty, phase)
                 elif cls == "river":
-                    self._river_cell(X, Y, masks)
+                    self._river_cell(X, Y, masks, tx, ty)
                 elif cls == "bridge":
                     water = masks.get("river", 0) | masks.get("sea", 0)
                     land = 0

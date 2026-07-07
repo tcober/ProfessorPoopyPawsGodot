@@ -296,7 +296,9 @@ Town scene is PARKED — built, unreferenced by the flow for now.
   village at zone scale (see "World Structure") is built and passes checks
   but is unreferenced by the flow; rewire the town marker + downstairs door
   through it (via `Game.town_spawn`) when the town earns its place.
-- **Meadow — Whisker Meadow** (`scene/meadow.tscn`): 48×24-tile painted zone,
+- **Meadow — Whisker Meadow** (`scene/meadow.tscn`): 48×24-tile TILED zone on
+  the shared overworld driver (forest treeline, sea pond + beach collar,
+  road trail, boulder-prop outcrops + the trailhead cairn),
   4 slimes, beaker respawns, HUD; a south hedge-gap exit returns to the overworld
   at the meadow marker.
 
@@ -322,8 +324,8 @@ actually cycle; hand-drawn sheets can still drop in later against "Asset Specs" 
 - `scene/house.gd/.tscn` — the playable bedroom: tiled-interior reference
   implementation (Tiles → Collision → y-sorted World), visible tiles from the
   generated layout + collision from `assets/maps/house.txt`, south-door exit
-- `scene/meadow.gd/.tscn` — the combat zone; the painted-scene reference
-  implementation (Ground → Collision → y-sorted World → Overlay)
+- `scene/meadow.gd/.tscn` — the combat zone; the tiled combat-zone reference
+  implementation (Tiles → Collision → y-sorted World → TilesUpper)
 - `scene/map_data.gd` (map-file loader — keep in sync with `assets/_maps.py`) ·
   `scene/painted_map.gd` (stamps the invisible collision tiles at runtime) ·
   `scene/tiled_map.gd` (stamps visible tiles from a generated layout file)
@@ -347,11 +349,11 @@ The AI-generated sheets (`assets/basil.png`, `assets/basil_sheet.png`) draw a sl
 different cat in every frame, so animations strobe; they are kept only as concept
 reference. The live art is drawn procedurally by stdlib-only Python scripts.
 
-**Two scene pipelines, one map format.** Painted zones (the meadow): one
-composed ground painting plus one overlay painting, no per-tile texture
-anywhere, the 16px grid surviving only as collision/logic data. TILED scenes
-(the interiors — the 2026-07 CT-bedroom pivot — and, since the 2026-07 town
-carve, the OVERWORLD and walkable ALEMBIC TOWN): the generator composes the
+**One scene pipeline, one map format.** Every scene is TILED (the interiors —
+the 2026-07 CT-bedroom pivot — then, with the 2026-07 town carve, the
+OVERWORLD and walkable ALEMBIC TOWN, and since the 2026-07 meadow conversion,
+WHISKER MEADOW too — the painted pipeline is retired, git history keeps it):
+the generator composes the
 scene from 16-periodic fabric functions (grass/forest carry a 32-periodic
 phase on interior cells) + whole-tile variants + footprint-bounded prop
 painters — and, on the overworld driver, neighbor-keyed autotile transitions
@@ -363,8 +365,8 @@ mountain), so 1-cell stair-steps in the map txt chain into continuous
 diagonal coasts, rims and ridge edges — so repeated cells are byte-identical
 BY CONSTRUCTION and the slicer collapses them to a small atlas, exactly how
 an SNES scene lives in VRAM (house: 60 tiles from 336 cells; overworld: ~260
-from 2304; town: ~240 from 1120). Both pipelines are driven by the same
-`assets/maps/*.txt` file per scene.
+from 2304; town: ~240 from 1120; meadow: ~145 from 1152). Every scene is
+driven by its `assets/maps/*.txt` file.
 
 - **`assets/maps/*.txt`** — the shared source of truth per map: a `legend`
   (char → terrain + walk/solid), named `anchor`s (spawns, exits), and the ASCII
@@ -375,22 +377,8 @@ from 2304; town: ~240 from 1120). Both pipelines are driven by the same
   `ZONE_CELL=48`, `ZONE_FEET=44`, `OW_CELL=24`, `ICON=32` — the Scale Table above
   mirrors these), `h2()` deterministic hash noise, `pick()` ramp dither, `Img`
   canvas, PNG writer.
-- **`assets/_paint.py`** — the scene-painting kit: `fbm()` scene-scale noise
-  fields (texture never repeats on any tile rhythm), `sdf_from_mask()` blurred
-  signed-distance fields whose warped zero-contours turn blocky tile regions into
-  organic boundaries, `curve_field()` spline distance for genuinely curved trails
-  (walkable-on-walkable paint is free of the grid entirely), `tone()`
-  cluster-jittered ramp quantization (organic clumps, never checkerboard),
-  `Painter` (per-map canvases, palette, memoized SDFs, scatter), `paint_canopy()`
-  tree-mass walls, and stamps (flowers, tufts, pebbles, boulders, sparkles).
-  **Tolerance rules baked in:** boundary warp ≤ 6px and solid paint may only
-  overfill outward, so collision (full-square tiles on solid cells) never lets a
-  body stand on water/canopy; canopy pixels deeper than `OVERLAY_DEPTH` (26px)
-  into a solid region go to the overlay image (drawn above entities), the fringe
-  stays on ground — sprites can't reach deeper than that, so occlusion can't go
-  wrong.
 - **`assets/_palette.py`** — the color script as data. `ramp(seed, shadow, tones)`
-  derives N-tone material ramps (6 for painted terrain, 4 for sprites) from scene
+  derives N-tone material ramps (6 for terrain, 4 for sprites) from scene
   seeds, hue-shifting the dark end toward the scene's shadow bias (violet or
   teal). `SCENES` is the palette registry (below) — per-scene `"ramps"` entries
   hold hand-tuned identity ramps for materials that can't be derived (warm dirt:
@@ -482,38 +470,33 @@ from 2304; town: ~240 from 1120). Both pipelines are driven by the same
   and `crystal_outcrop` (32×32 shard cluster, one per 2×2
   `K` block). Walkable-town facades live at zone scale in
   `assets/_town_props.py` (`town_home`, `town_cottage`, `town_academy`,
-  `town_well`, `town_lamp`, `town_stall`); the shared drawing primitives
-  (`S`, `ln`, `edge`) live in `assets/_propkit.py`.
+  `town_well`, `town_lamp`, `town_stall`); the meadow's per-cell boulder
+  domes + trailhead cairn in `assets/_meadow_props.py`; the shared drawing
+  primitives (`S`, `ln`, `edge`) live in `assets/_propkit.py`.
   A new overworld = the map txt + `assets/_gen_tileset_overworld.py`'s
   ~90-line config.
-- **Godot side:** a painted map scene is `Ground` (Sprite2D, the painting) →
+- **Godot side:** a scene is `Tiles` (TileMapLayer, under entities) →
   `Collision` (invisible TileMapLayer, `assets/collision_tileset.tres` — one
   transparent full-square physics tile stamped on every solid cell by
-  `scene/painted_map.gd`) → `World` (y-sorted entities) → `Overlay` (Sprite2D,
-  above entities). A tiled scene is `Tiles` (TileMapLayer, under entities)
-  → `Collision` → entities → `TilesUpper` (TileMapLayer, OVER entities — the
-  walk-behind layer), both stamped by `scene/tiled_map.gd` from the generated
-  layout's `layer lower` / `layer upper` sections (interiors put a y-sorted
-  `World` between; the overworld's lone chibi needs none).
+  `scene/painted_map.gd`) → entities → `TilesUpper` (TileMapLayer, OVER
+  entities — the walk-behind layer), the visible layers stamped by
+  `scene/tiled_map.gd` from the generated
+  layout's `layer lower` / `layer upper` sections (interiors and combat zones
+  put a y-sorted `World` between; the overworld's lone chibi needs none).
   Entity/exit positions come from map anchors where practical.
-  `scene/meadow.tscn` is the painted reference; `scene/house.tscn` the tiled
-  interior reference; `scene/overworld.tscn` the tiled exterior reference.
+  `scene/house.tscn` is the tiled
+  interior reference; `scene/overworld.tscn` the tiled exterior reference;
+  `scene/meadow.tscn` the tiled combat-zone reference.
 - **`assets/_sprites.py`** — the sprite construction kit: `Sprite` canvas with
   steer-lit `ball`/`capsule`/`panel` volumes, cluster-jittered tone selection,
   `cluster_shade`/`despeckle`/`outline`/`crease` finishing passes, and `Rig`
   (named anchors + per-frame offsets so cycles animate as one body).
   Generators (re-run any with `python3 <script>`; then let Godot reimport, or
   `godot --headless --path . --import`; **always run `python3 assets/_check_art.py`
-  after regenerating** — it asserts map enclosure/anchors, painted-scene dims,
-  overlay transparency, collision tileset shape, entity placements on walkable
+  after regenerating** — it asserts map enclosure/anchors, layout/atlas/.tres
+  agreement, collision tileset shape, entity placements on walkable
   cells, sheet dims and `.tres` regions):
 
-Painted scenes (ground + overlay from `assets/maps/*.txt`):
-
-- `assets/_gen_scene_meadow.py` → `scenes/meadow_ground/overlay.png` (768×384,
-  48×24 tiles): treeline border walls, cyan pond with waterline/foam/wet-sand
-  collar, spline trail ending at a cairn, lavender boulders, hot-pink flower
-  drifts, violet cloud washes. ~3s.
 - `assets/_gen_collision.py` → `collision_tile.png` (16×16 transparent) for the
   shared collision tileset.
 
@@ -538,6 +521,15 @@ Tiled scenes (atlas + `.tres` + layout from `assets/maps/*.txt`):
   obelisk + outcrop + shard crystals). (If a darkening overlay ever comes
   back: Godot's canvas MUL blend darkens through transparent texels on
   Compatibility — use plain MIX alpha blending.) ~2s.
+- `assets/_gen_tileset_meadow.py` → `tilesets/meadow_tiles.png/.tres` +
+  `meadow_layout.txt` (48×24 map → ~145 unique tiles): Whisker Meadow as real
+  tiles on the same driver — teal-indigo treeline border (crown-arc rims),
+  the cyan pond with foam coasts + a wet-sand beach collar on its
+  trail-facing shore, the wobbly dirt trail from the south gap to the
+  flower-ringed trailhead cairn, per-cell squat boulder domes
+  (`assets/_meadow_props.py`, three salted variants on the solid `r` cells —
+  the `boulder` terrain renders grass underlay + a south contact band),
+  hot-pink flower drifts; no glow overlay (daylight scene). ~2s.
 - `assets/_gen_tileset_house.py`, `assets/_gen_tileset_downstairs.py` — the
   interiors (see the interior kit above).
 
@@ -638,7 +630,7 @@ rows are the standing color script for scenes to come.)
 | `road`         | minty teal + peach path                 | hot pink flowers              | teal        |
 | `hall`         | plum panelling / rose floor             | chalk-mint board writing      | violet      |
 | `overworld`    | deep ocean teal + mossy emerald land    | violet wastes + crystal       | teal        |
-| `meadow`       | minty teal greens                       | candy hot-pink flowers        | teal        |
+| `meadow`       | minty teal greens (mossy 2026-07 register) | candy hot-pink flowers     | teal        |
 
 ## Asset Specs (sprite sheets to provide)
 
@@ -656,18 +648,30 @@ deliberate.
 	 **laser gun** in the shoot rows (weapon-agnostic rows welcome — see "Future
 	 Direction"). Use `assets/_gen_basil_sprites.py` (current art) as the layout
 	 reference.
-2. **Slime / first enemy** — **24×24 px** cells. Walk Down/Up/Side (6 each, side
+2. **Fuji — the librarian cat** _(current playable)_ — **48×48 px** cells, **6
+   columns × 10 rows**, sheet **288×480**, matching `entities/fuji/fuji_frames.tres`:
+   Walk Down/Up/Side (6 each) · Book Down/Up/Side (6 each: windup, peak, strike,
+   IMPACT held, follow, recover-redraws-walk-f0) · Dart Down/Up/Side (4 each:
+   raise, aim, PUFF, settle; cols 4-5 empty) · Hurt (2) + blink + tail-flick +
+   happy + sad. Same figure/feet/16px-tip contracts as Basil. Tortoiseshell —
+   split ears (left black / right ginger), placed rust patches (never dithered),
+   cream muzzle/chest/paws, green-gold eyes in round brass reading glasses, plum
+   scholar's robe (mustard trim placket + hem stripe, hood on the back view),
+   tome hugged to her chest in the walk. `assets/_gen_fuji_sprites.py`.
+3. **Slime / first enemy** — **24×24 px** cells. Walk Down/Up/Side (6 each, side
    mirrored) + 4-frame death. Sheet **144×96** (matches `slime_frames.tres`).
-3. **HUD hearts** — **16×16** heart, 3 frames in a horizontal strip:
+4. **HUD hearts** — **16×16** heart, 3 frames in a horizontal strip:
    full | half | empty → **48×16**. Ammo pips: **8×8** ×2 → **16×8**.
-4. **Overworld Basil (travel chibi)** — **24×24** cells, 4×3 sheet **96×72**:
-   walk down / up / side ×4 (side right-facing, flipped in code). Big head, tuxedo
-   cat, goggles, lab coat, feet y=21 — matches `overworld_basil_frames.tres`.
-5. **Overworld landmark icons** — five **32×32** icons in a strip → **160×32**:
+5. **Overworld travel chibis** — **24×24** cells, 4×3 sheet **96×72** each:
+   walk down / up / side ×4 (side right-facing, flipped in code), feet y=21.
+   Basil (tuxedo, goggles, lab coat — `overworld_basil_frames.tres`) and Fuji
+   (split tortie ears, spectacle glints, plum robe — `overworld_fuji_frames.tres`),
+   both from `assets/_gen_overworld_actors.py`.
+6. **Overworld landmark icons** — five **32×32** icons in a strip → **160×32**:
    HOME cottage, TOWN, MEADOW grove, CAVE mouth, OBELISK.
 
-(The meadow's terrain is painted whole-scene; the interiors and the overworld
-are generated tilesets — see "Art pipeline". Hand-drawn tiles would replace a
+(Every scene's terrain is a generated tileset — see "Art pipeline".
+Hand-drawn tiles would replace a
 generated `tilesets/<name>_tiles.png` atlas in place. The landmark-icon strip
 is now only used for the meadow marker — drawn buildings replaced the rest.)
 
@@ -688,6 +692,20 @@ stays friendly, with crisp fire/recover cadence, hit-pause, and readable knockba
   who pulls Basil back into the world) eventually join as party members, SoM-style:
   same 48 px sprite spec, composing the same Health/Hurtbox components, AI-followed
   with leader switching. Party UI stacks additional heart rows.
+  **Fuji is BUILT and currently swapped in as the playable character (2026-07-07)**
+  to dial her look and feel — tortoiseshell (real-Fuji faithful: warm-black fur,
+  placed rust patches, cream chin/chest/paws, green-gold eyes), round brass
+  reading glasses, deep plum scholar's robe with mustard trim, hugging her
+  clasped tome as she walks. Kit: **tome swing** (attack — two-paw overhead slam,
+  BookHitbox opens through the strike/impact window, forward lunge) + **blow-pipe
+  darts** (`dart` action, L — unlimited, the planted pose is the cost; dart leaves
+  on the puff frame at the pipe-tip 16px contract) + Basil's hop-dodge.
+  `entities/fuji/` (fuji.gd/.tscn/frames), `entities/projectiles/blow_dart.*`,
+  `assets/_gen_fuji_sprites.py` → `fuji_gen.png` (288×480, 6×10), chibi
+  `overworld_fuji.png` in `_gen_overworld_actors.py`, `FUJI` palette dict.
+  Scene scripts are now player-agnostic (`DirectionalBody2D` + the `player`
+  group) — the groundwork for the Basil⇄Fuji switch; Basil's `player.tscn` is
+  parked, fully working, one ext_resource repoint away.
 - **Magic returns late** — spell systems unlock as the story restores magic; the
   drained world is why early combat is all blasters.
 - ~~**The downstairs**~~ — **BUILT (2026-07-04).** The kitchen + lab great

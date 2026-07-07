@@ -232,6 +232,6 @@ func _on_hurt(_damage: int, source: Node) -> void:
 
 
 func _on_died() -> void:
-	set_physics_process(false)
-	sprite.play("hurt")
-	# Death/respawn flow comes later; for the slice we just stop the cat.
+	# He can't die (for now): the killing blow reads as a normal hit — the
+	# hurt stagger plays and his hearts refill. Real death/respawn comes later.
+	health.refill()

@@ -90,7 +90,7 @@ class TileScene:
 
     def mat(self, name, tones=6, spread=1.0, shadow=None):
         """Material ramp: the scene's hand ramp if it has one, else derived
-        from the seed color (same contract as _paint.Painter.mat)."""
+        from the seed color."""
         hand = self.scene.get("ramps", {}).get(name)
         if hand:
             return list(hand)      # copy: callers must not mutate the registry

@@ -1,34 +1,42 @@
 extends Node2D
 
-## Whisker Meadow, a painted scene: Ground and Overlay are single generated
-## paintings (assets/_gen_scene_meadow.py); collision is an invisible
-## TileMapLayer built at runtime from the same map file, so paint and physics
-## agree by construction. Entities y-sort under World. Keeps exactly one beaker
-## refill alive at a time — collecting it spawns a fresh one elsewhere — and
-## keeps the slime population topped up: each kill respawns one elsewhere.
+## Whisker Meadow, a tiled combat zone on the shared overworld tile kit
+## (assets/_gen_tileset_meadow.py): Tiles/TilesUpper are stamped from the
+## generated layout; collision is an invisible TileMapLayer built at runtime
+## from the same map file, so tiles and physics agree by construction.
+## Entities y-sort under World. Keeps exactly one beaker refill alive at a
+## time — collecting it spawns a fresh one elsewhere — and keeps the slime
+## population topped up: each kill respawns one elsewhere.
 
 const BeakerScene := preload("res://entities/pickups/beaker.tscn")
 const SlimeScene := preload("res://entities/enemies/slime.tscn")
 
 const MAP_PATH := "res://assets/maps/meadow.txt"
+const LAYOUT_PATH := "res://assets/tilesets/meadow_layout.txt"
 const TILE := 16
 
 var map: Dictionary
 
-@onready var player: Player = $World/Player
+@onready var player: DirectionalBody2D = $World/Player
 @onready var hud: HUD = $HUD
 @onready var world: Node2D = $World
 
 
 func _ready() -> void:
 	map = MapData.load_map(MAP_PATH)
+	TiledMap.build(LAYOUT_PATH, {"lower": $Tiles, "upper": $TilesUpper})
 	PaintedMap.build_collision(map, $Collision)
 	player.position = MapData.anchor_px(map, "player_spawn")
 	$ExitSouth.position = MapData.anchor_px(map, "exit_south")
 	MapData.clamp_camera(player.get_node("Camera2D"), MapData.size_px(map))
-	hud.bind_health(player.health)
-	hud.bind_ammo(player)
-	_track_beaker($World/Beaker)
+	hud.bind_health(player.get_node("HealthComponent") as HealthComponent)
+	if player is Player:
+		# Gun-cat plumbing: ammo pips, spare mags, and the beaker refill.
+		hud.bind_ammo(player as Player)
+		_track_beaker($World/Beaker)
+	else:
+		# Fuji fights with tome + darts — the beaker refill has no meaning.
+		$World/Beaker.queue_free()
 	for child in world.get_children():
 		if child is Slime:
 			_track_slime(child)
@@ -78,7 +86,7 @@ func _random_spawn() -> Vector2:
 
 
 func _on_exit_south(body: Node) -> void:
-	if body is Player:
+	if body.is_in_group("player"):
 		# Return to the meadow's own icon on the overworld (explicit, not relying
 		# on the value the overworld wrote on the way in).
 		Game.overworld_spawn = "meadow"

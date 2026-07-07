@@ -2,17 +2,15 @@
 """Contract checker for the art pipeline (stdlib only).
 
 Contracts: every assets/maps/*.txt parses, is enclosed except at exit anchors,
-and keeps its anchors on walkable cells; each painted map's
-scenes/<name>_ground.png and _overlay.png exist at cols*16 x rows*16 with a
-majority-transparent overlay; tiled maps (house, downstairs, overworld) have a
-generated layout matching the map's dims whose every atlas ref exists in the
-atlas PNG and is declared in the TileSet .tres; the collision TileSet is a
-single full-square physics tile; entities placed in .tscn scenes sit on
-walkable cells; sheet dims and .tres regions match.
+and keeps its anchors on walkable cells; every map has a generated layout
+matching the map's dims whose every atlas ref exists in the atlas PNG and is
+declared in the TileSet .tres; the collision TileSet is a single full-square
+physics tile; entities placed in .tscn scenes sit on walkable cells; sheet
+dims and .tres regions match.
 
 Run after any `python3 assets/_gen_*.py`: python3 assets/_check_art.py
 """
-import os, re, struct, sys, zlib
+import os, re, struct, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -39,38 +37,18 @@ def png_size(rel):
     return struct.unpack(">II", data[16:24])
 
 
-def png_alpha_ratio(rel):
-    """Fraction of fully transparent pixels (our PNGs are filter-0 RGBA)."""
-    path = os.path.join(ROOT, rel)
-    data = open(path, "rb").read()
-    w, h = struct.unpack(">II", data[16:24])
-    idat, pos = b"", 8
-    while pos < len(data):
-        ln = struct.unpack(">I", data[pos:pos + 4])[0]
-        if data[pos + 4:pos + 8] == b"IDAT":
-            idat += data[pos + 8:pos + 8 + ln]
-        pos += 12 + ln
-    raw = zlib.decompress(idat)
-    stride = w * 4
-    clear = 0
-    for y in range(h):
-        row = raw[y * (stride + 1) + 1:(y + 1) * (stride + 1)]
-        clear += sum(1 for i in range(3, stride, 4) if row[i] == 0)
-    return clear / (w * h)
+# ---- maps ------------------------------------------------------------------------
+MAPS = [
+    "maps/meadow.txt",
+    "maps/overworld.txt",
+    "maps/town.txt",
+    "maps/house.txt",
+    "maps/downstairs.txt",
+]
 
-
-# ---- painted scenes -----------------------------------------------------------------
-MAPS = {
-    "maps/meadow.txt": ("scenes/meadow_ground.png", "scenes/meadow_overlay.png"),
-    "maps/overworld.txt": None,    # tiled scenes — checked in the tiled section below
-    "maps/town.txt": None,
-    "maps/house.txt": None,
-    "maps/downstairs.txt": None,
-}
-
-print("maps + painted scenes:")
+print("maps:")
 maps = {}
-for rel, pair in MAPS.items():
+for rel in MAPS:
     m = MapData(os.path.join(HERE, rel))   # asserts rows/legend/anchors
     maps[rel] = m
     exits = [txy for name, txy in m.anchors.items() if name.startswith("exit_")]
@@ -84,18 +62,11 @@ for rel, pair in MAPS.items():
     bad_anchors = [(n, txy) for n, txy in m.anchors.items()
                    if m.legend[m.at(txy[0], txy[1])]["solid"]]
     check(f"{rel} anchors on walkable cells", not bad_anchors, str(bad_anchors))
-    if pair is None:
-        continue
-    ground, overlay = pair
-    want = (m.cols * ZONE_TILE, m.rows_n * ZONE_TILE)
-    for png in (ground, overlay):
-        got = png_size(os.path.join("assets", png))
-        check(f"assets/{png}", got == want, f"want {want}, got {got}")
-    ratio = png_alpha_ratio(os.path.join("assets", overlay))
-    check(f"assets/{overlay} mostly transparent", ratio > 0.5, f"only {ratio:.0%} clear")
 
 # ---- tiled scenes (atlas + layout generated from the same map file) -------------------
 TILED = {
+    "maps/meadow.txt": ("tilesets/meadow_layout.txt", "tilesets/meadow_tiles.png",
+                        "tilesets/meadow_tiles.tres"),
     "maps/house.txt": ("tilesets/house_layout.txt", "tilesets/house_tiles.png",
                        "tilesets/house_tiles.tres"),
     "maps/downstairs.txt": ("tilesets/downstairs_layout.txt",
@@ -156,7 +127,7 @@ want_poly = f"-{half}, -{half}, {half}, -{half}, {half}, {half}, -{half}, {half}
 check("collision_tileset.tres one full-square tile", polys == [want_poly], f"got {polys}")
 check("collision_tile.png", png_size("assets/collision_tile.png") == (ZONE_TILE, ZONE_TILE))
 
-# ---- entity placement in painted scenes ----------------------------------------------
+# ---- entity placement -----------------------------------------------------------------
 PLACEMENTS = {
     "scene/meadow.tscn": "maps/meadow.txt",
     "scene/house.tscn": "maps/house.txt",
@@ -179,8 +150,10 @@ for rel, map_rel in PLACEMENTS.items():
 # ---- sheet dimensions -----------------------------------------------------------------
 SHEETS = {
     "assets/basil_gen.png": (6 * ZONE_CELL, 8 * ZONE_CELL),
+    "assets/fuji_gen.png": (6 * ZONE_CELL, 10 * ZONE_CELL),
     "assets/slime_gen.png": (6 * 24, 4 * 24),
     "assets/overworld_basil.png": (4 * OW_CELL, 3 * OW_CELL),
+    "assets/overworld_fuji.png": (4 * OW_CELL, 3 * OW_CELL),
     "assets/overworld_icons.png": (5 * ICON, ICON),
     "assets/placeholder/hearts.png": (48, 16),
     "assets/placeholder/ammo_pips.png": (16, 8),
@@ -188,6 +161,7 @@ SHEETS = {
     "assets/placeholder/muzzle_flash.png": (20, 20),
     "assets/placeholder/beaker.png": (12, 14),
     "assets/placeholder/shadow.png": (24, 10),
+    "assets/placeholder/blow_dart.png": (12, 4),
 }
 
 print("sheets:")
@@ -198,8 +172,10 @@ for rel, want in SHEETS.items():
 # ---- SpriteFrames regions -----------------------------------------------------------
 FRAMES = {
     "entities/player/player_frames.tres": ("assets/basil_gen.png", ZONE_CELL),
+    "entities/fuji/fuji_frames.tres": ("assets/fuji_gen.png", ZONE_CELL),
     "entities/enemies/slime_frames.tres": ("assets/slime_gen.png", 24),
     "entities/player/overworld_basil_frames.tres": ("assets/overworld_basil.png", OW_CELL),
+    "entities/player/overworld_fuji_frames.tres": ("assets/overworld_fuji.png", OW_CELL),
 }
 
 print("frames:")

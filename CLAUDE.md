@@ -81,25 +81,34 @@ returns to its marker via the
 `Game` autoload. (A walkable zone-scale **Alembic
 Town** — `scene/alembic_town.tscn`, 40×28 on the shared overworld driver,
 walk-behind rooflines, `Game.town_spawn` routing — is built but PARKED:
-unreferenced by the flow until the town earns its place.) Player: walk/hop
-(straight up
-when standing, air-steerable) / instant-fire laser whose recoil shoves him into
-a barely-held skid / mag reloads (beakers = spare mags, R or dry trigger plays
-the planted pour, RELOAD state + `reload` anim); slimes explode in 2 shots and
-a replacement respawns elsewhere in the meadow.
-**Two scene pipelines, one map format:** the meadow is painted — a single
-composed painting (ground + overlay Sprite2Ds) generated from its
-`assets/maps/*.txt` on `assets/_core.py` + `assets/_paint.py` +
-`assets/_palette.py` (`scene/meadow.tscn` = reference). Interiors, the
-overworld AND the town are TILED on the shared **tile kit** `assets/_tilekit.py`
+unreferenced by the flow until the town earns its place.) **Current playable:
+FUJI, the librarian cat** (`entities/fuji/` — swapped in for Basil 2026-07-07
+to dial her look/feel; Basil's `entities/player/player.tscn` is parked, fully
+working, one ext_resource repoint away; scene scripts are player-agnostic —
+`DirectionalBody2D` + the `player` group — the Basil⇄Fuji switch groundwork).
+Fuji: tortoiseshell (warm-black fur, PLACED rust patches, cream chin/chest/
+paws, green-gold eyes), round brass reading glasses, plum scholar's robe,
+tome hugged to her chest in the walk; walk/hop (Basil's air-steerable dodge) /
+**tome swing** (attack — overhead slam, BookHitbox shape-toggled through the
+strike/impact window, damage 2, forward lunge) / **blow-pipe darts** (`dart`
+action, L — unlimited `blow_dart` projectiles, damage 1, leaves on the puff
+frame at the 16px pipe-tip contract). Basil's kit (instant-fire laser, recoil
+skid, beaker mags) lives on in player.gd/tscn; slimes explode in 2 book
+swings or 2 laser shots and a replacement respawns elsewhere in the meadow.
+GOTCHA fixed 2026-07-07: hand-authored .tscn node exports NEED
+`node_paths=PackedStringArray("health_component")` on the node header or the
+reference silently loads null (HurtboxComponent now also falls back to the
+sibling HealthComponent in `_ready`).
+**One scene pipeline, one map format:** every scene is TILED on the shared
+**tile kit** `assets/_tilekit.py`
 (`TileScene`: canvases, material ramps, footprint `place()`/`place_split`/
 `place_each`, glow, the slice/dedupe `finish()`):
   the **interior kit** `assets/_interior.py` (16-periodic fabrics — plank
   walls with wainscot, weave/flag floors — whole-tile light dispatch,
   stair/rail/jamb cells, the `Room` driver) + `assets/_interior_props.py`
   (furniture authored on `_sprites.py`), and the **overworld kit**
-  `assets/_overworld_tiles.py` (`OverWorld` driver, used by BOTH the
-  overworld map and walkable Alembic Town: terrain fabrics — grass/forest
+  `assets/_overworld_tiles.py` (`OverWorld` driver, used by the overworld
+  map, walkable Alembic Town AND Whisker Meadow: terrain fabrics — grass/forest
   carry a 32-periodic phase on interior cells — + neighbor-keyed CT autotile
   transitions with **45° corner cuts** — every boundary painted one-sidedly
   by its owner class, every cell a pure function of terrain + per-class
@@ -118,17 +127,21 @@ overworld AND the town are TILED on the shared **tile kit** `assets/_tilekit.py`
   `_hatch_px` linework, cluster_shade finishing: town cluster ICON, the
   castle, the Horn peak, the Elder Tree, the obelisk + crystal outcrops,
   lone trees) + `assets/_town_props.py` (zone-scale facades: Basil's
-  cottage, cottages, the Academy, well/lamp/stall).
+  cottage, cottages, the Academy, well/lamp/stall) + `assets/_meadow_props.py`
+  (the meadow's per-cell boulder domes + the trailhead cairn).
   A generator (`assets/_gen_tileset_house.py`, `_gen_tileset_downstairs.py`,
-  `_gen_tileset_overworld.py`, `_gen_tileset_town.py`) is a thin config:
+  `_gen_tileset_overworld.py`, `_gen_tileset_town.py`,
+  `_gen_tileset_meadow.py`) is a thin config:
   palette + pools/terrain + `place()` props at map feature chars;
   `assets/_tiles.py` slices the composed canvases into a real TileSet (atlas
   + `.tres` + layout in `assets/tilesets/`; 60-88 tiles from 336 interior
-  cells, ~580 from the overworld's 2304, ~255 from the town's 1120) that
+  cells, ~580 from the overworld's 2304, ~255 from the town's 1120, ~145
+  from the meadow's 1152) that
   `scene/tiled_map.gd` stamps onto TWO TileMapLayers — under and over
   entities, so bodies walk behind railings/lintels/ROOFLINES
   (`scene/house.tscn` = interior reference, `scene/overworld.tscn` +
-  `scene/alembic_town.tscn` = exterior references) — move a feature char in
+  `scene/alembic_town.tscn` = exterior references, `scene/meadow.tscn` =
+  combat-zone reference) — move a feature char in
   the map txt and it moves in-game. A NEW scene = map txt + thin config.
   Sprites/fx build on `assets/_sprites.py`; collision is always an
   invisible TileMapLayer built at runtime by `scene/painted_map.gd` from the same

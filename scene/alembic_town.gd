@@ -49,7 +49,7 @@ func _on_travel(loc: OverworldLocation) -> void:
 
 ## Out the south lane, back to the overworld at the town icon.
 func _on_exit_south(body: Node) -> void:
-	if body is Player and not _busy:
+	if body.is_in_group("player") and not _busy:
 		_busy = true
 		Game.overworld_spawn = "town"
 		await fade_out()

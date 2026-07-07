@@ -200,26 +200,34 @@ SCENES = {
             "plaster": (168, 158, 196, 255),
         },
     },
-    "meadow": {         # minty teal greens, candy hot-pink flowers
-        "shadow": "teal",
-        "accent": (255, 116, 176, 255),         # hot pink
+    "meadow": {         # minty teal greens, candy hot-pink flowers — the
+        "shadow": "teal",                       # overworld's mossy register
+        "accent": (255, 116, 176, 255),         # walked into, cooler; hot pink
         # Hand-tuned identity ramps (same precedent as the actor ramps): warm dirt cannot
         # be derived — teal shadows turn it yellow-green, violet ones salmon.
-        # This one walks cream -> peach -> dusty rust -> mauve, desaturating.
+        # This walk (cream -> peach -> dusty rust -> mauve) serves the trail
+        # AND the pond's wet-sand collar. Rides the shared OverWorld driver,
+        # so every ramp it constructs gets a seed (waste/snow/bridge unused).
         "ramps": {
-            "path": [(248, 224, 178, 255), (240, 200, 148, 255), (226, 176, 128, 255),
+            "road": [(248, 224, 178, 255), (240, 200, 148, 255), (226, 176, 128, 255),
+                     (198, 138, 108, 255), (156, 92, 96, 255), (110, 58, 78, 255)],
+            "sand": [(248, 224, 178, 255), (240, 200, 148, 255), (226, 176, 128, 255),
                      (198, 138, 108, 255), (156, 92, 96, 255), (110, 58, 78, 255)],
         },
+        # 2026-07 darker pass: same mint-cyan leans as the old painted seeds,
+        # L pulled toward the overworld's mossy field — cooler than its
+        # (60,140,98) but no longer candy.
         "mats": {
-            "grass": (62, 192, 142, 255),       # minty emerald, surreal-cool
-            "grass2": (96, 196, 116, 255),      # warmer drift patches
-            "path": (230, 176, 130, 255),
-            "hedge": (34, 106, 94, 255),
-            "rock": (154, 146, 190, 255),       # lavender outcrops
-            "treeline": (30, 112, 110, 255),    # teal-indigo canopy mass
+            "grass": (48, 156, 112, 255),       # minty emerald, surreal-cool
+            "grass2": (76, 158, 94, 255),       # warmer drift patches
+            "forest": (26, 98, 96, 255),        # teal-indigo canopy mass
             "trunk": (54, 66, 126, 255),        # indigo understory
-            "water": (54, 170, 192, 255),       # hot cyan pond
-            "shore": (222, 172, 134, 255),      # wet-sand ring
+            "rock": (122, 114, 162, 255),       # lavender outcrops (paler than
+                                                # the overworld's violet-slate)
+            "sea": (40, 136, 158, 255),         # cyan-forward pond (b > g)
+            "waste": (188, 112, 178, 255),      # ride-along, unused
+            "snow": (234, 242, 252, 255),
+            "bridge": (150, 88, 112, 255),
         },
     },
 }
@@ -257,6 +265,48 @@ BASIL = {
     "GUNE": (132, 246, 152, 255),   # laser emitter green (bolt + muzzle flash too)
     "GUNP": (188, 132, 232, 255),   # gun purple (and the coat pen)
     "OUTS": _BASIL_OUTS, "OUT_FALLBACK": _OUT_FUR,
+}
+
+# Fuji — tortoiseshell librarian cat: warm-black fur brindled with deliberate
+# rust patches (placed, never dithered), cream chin/chest/paws, green-gold eyes
+# behind round brass reading glasses, a deep plum scholar's robe with mustard
+# trim, a clasped leather tome and a reed blow-pipe. Violet-shifted darks.
+_F_FUR   = [(88, 72, 84, 255), (60, 48, 62, 255), (40, 30, 44, 255), (24, 16, 30, 255)]
+_F_GING  = [(226, 140, 70, 255), (186, 104, 54, 255), (142, 72, 50, 255), (98, 46, 48, 255)]
+_F_CREAM = [(250, 240, 214, 255), (226, 210, 180, 255), (192, 172, 154, 255), (152, 132, 128, 255)]
+_F_ROBE  = [(146, 98, 160, 255), (112, 72, 128, 255), (82, 48, 98, 255), (56, 30, 72, 255)]
+_F_TRIM  = [(232, 188, 96, 255), (198, 150, 70, 255), (158, 112, 54, 255), (116, 76, 46, 255)]
+_F_RIM   = [(196, 148, 84, 255), (158, 112, 62, 255), (120, 80, 48, 255), (84, 54, 38, 255)]
+_F_LENS  = [(228, 238, 244, 255), (192, 206, 220, 255), (152, 166, 188, 255), (114, 124, 152, 255)]
+_F_BOOK  = [(164, 92, 74, 255), (130, 68, 58, 255), (98, 48, 48, 255), (68, 32, 40, 255)]
+_F_PIPE  = [(134, 96, 66, 255), (104, 72, 52, 255), (78, 52, 42, 255), (54, 34, 32, 255)]
+
+_OUT_FFUR  = (10, 6, 14, 255)
+_OUT_FLGT  = (66, 54, 62, 255)
+_OUT_FROBE = (36, 18, 50, 255)
+_OUT_FBRAS = (38, 24, 16, 255)
+_OUT_FBOOK = (42, 20, 24, 255)
+
+_FUJI_OUTS = {}
+for _r, _o in ((_F_FUR, _OUT_FFUR), (_F_GING, _OUT_FFUR), (_F_PIPE, _OUT_FFUR),
+               (_F_CREAM, _OUT_FLGT), (_F_LENS, _OUT_FLGT),
+               (_F_ROBE, _OUT_FROBE),
+               (_F_TRIM, _OUT_FBRAS), (_F_RIM, _OUT_FBRAS),
+               (_F_BOOK, _OUT_FBOOK)):
+    for _c in _r:
+        _FUJI_OUTS[_c] = _o
+
+FUJI = {
+    "FUR": _F_FUR, "GINGER": _F_GING, "CREAM": _F_CREAM, "ROBE": _F_ROBE,
+    "TRIM": _F_TRIM, "RIM": _F_RIM, "LENS": _F_LENS, "BOOK": _F_BOOK,
+    "PIPE": _F_PIPE,
+    "EYE_G": (170, 206, 96, 255), "EYE_GL": (208, 232, 140, 255),
+    "PUPIL": (16, 12, 16, 255), "GLINT": (255, 255, 250, 255),
+    "NOSE": (52, 30, 34, 255), "MOUTH": (146, 108, 104, 255),
+    "EARIN": (206, 122, 130, 255), "EARIN_D": (162, 88, 100, 255),
+    "WHISK": (216, 214, 208, 235), "WHISKD": (150, 146, 142, 255),
+    "DARTF": (232, 190, 90, 255),   # dart fletching mustard (projectile + fx)
+    "OUTS": _FUJI_OUTS, "OUT_FALLBACK": _OUT_FFUR,
 }
 
 # Slime — meadow gel, teal-shadowed greens

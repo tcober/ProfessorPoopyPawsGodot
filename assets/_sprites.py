@@ -12,7 +12,7 @@ outlining), and `Rig` — named part anchors with per-frame offsets so a walk
 cycle animates as ONE body instead of six slightly different redraws.
 
 Shading model: 4-tone _palette ramps; tone selection is cluster-jittered (2px
-hash clusters, like _paint.tone) instead of ordered-dithered, so band edges
+hash clusters) instead of ordered-dithered, so band edges
 break into organic clumps and checkerboard fields never appear. Light defaults
 to the upper-left but is a parameter — recoil poses and rim accents can move it.
 

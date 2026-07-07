@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Core of the procedural art pipeline: canvases, PNG writer, hash noise, scale
-constants. Shared by the painted-scene kit (_paint.py), the sprite kit
+constants. Shared by the tile kit (_tilekit.py), the sprite kit
 (_sprites.py) and every assets/_gen_*.py generator.
 
 Single source of truth for the game's scale constants — the generators,
