@@ -62,13 +62,6 @@ class MapData:
         """[rows][cols] bool grid: cell char in `chars` (a string of legend chars)."""
         return [[ch in chars for ch in row] for row in self.rows]
 
-    def terrain_chars(self, *terrains):
-        """All legend chars whose terrain name is in `terrains`, as one string."""
-        return "".join(ch for ch, d in self.legend.items() if d["terrain"] in terrains)
-
-    def solid_chars(self):
-        return "".join(ch for ch, d in self.legend.items() if d["solid"])
-
     def solid_cells(self):
         return {(x, y) for y, row in enumerate(self.rows)
                 for x, ch in enumerate(row) if self.legend[ch]["solid"]}

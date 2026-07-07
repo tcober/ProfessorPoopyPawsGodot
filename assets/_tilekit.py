@@ -46,28 +46,25 @@ PAPERD = (206, 196, 204, 255)
 RED = (226, 62, 92, 255)
 SPEC = (255, 255, 250, 255)
 WATER = (150, 210, 214, 255)
-FROST = (214, 240, 242, 255)
 STEAM = (226, 224, 240, 255)
 VOID = (10, 8, 24, 255)
 DROP1 = (22, 15, 42, 255)                     # darkness bands past a floor edge
 DROP2 = (13, 10, 30, 255)
 OUTLINE = (26, 17, 36, 255)                   # prop silhouette edge
 
+# additive night-glow accents (shared by the overworld + town generators)
+GLOW_WARM = (255, 200, 120)                   # lamp / window / coal light
+GLOW_MINT = (150, 246, 190)                   # gauge / rose-window glow
+
 
 class Canvas(Img):
-    """Scene canvas: int-casting put/rect plus an interpolated line."""
+    """Scene canvas: int-casting put/rect."""
 
     def put(self, x, y, c):
         super().put(int(x), int(y), c)
 
     def rect(self, x0, y0, x1, y1, c):
         super().rect(int(x0), int(y0), int(x1), int(y1), c)
-
-    def line(self, x0, y0, x1, y1, c):
-        steps = max(abs(x1 - x0), abs(y1 - y0), 1)
-        for i in range(int(steps) + 1):
-            t = i / steps
-            self.put(round(x0 + (x1 - x0) * t), round(y0 + (y1 - y0) * t), c)
 
 
 class TileScene:
@@ -174,6 +171,17 @@ class TileScene:
 
     def write_glow(self, draw_fn):
         self.write_overlay("glow", draw_fn)
+
+    @staticmethod
+    def glow_blob(img, cx, cy, r, color, a):
+        """One radial dab on an additive glow overlay: alpha peaks at the
+        center and falls to 0 at radius r."""
+        for dy in range(-r, r + 1):
+            for dx in range(-r, r + 1):
+                q = (dx * dx + dy * dy) / float(r * r)
+                if q <= 1.0:
+                    img.put(int(cx) + dx, int(cy) + dy,
+                            color + (int(a * (1.0 - q)),))
 
     def finish(self):
         os.makedirs(OUTDIR, exist_ok=True)

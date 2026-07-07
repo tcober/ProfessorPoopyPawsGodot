@@ -16,17 +16,17 @@ import os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from _overworld_tiles import OverWorld, T
+from _tilekit import GLOW_WARM as WARM, GLOW_MINT as MINTG
 from _town_props import (town_home, town_cottage, town_academy, town_well,
                          town_lamp, town_stall)
 
 tn = OverWorld("town", "town")
+_blob = OverWorld.glow_blob            # shared radial glow dab (see TileScene)
 
 ROOFB = tn.mat("roof_blue")
 ROOFG = tn.mat("roof_green")
 PLAST = tn.mat("plaster")
 STONE = tn.ROCK                        # town masonry = the scene's violet slate
-WARM = (255, 200, 120)
-MINTG = (150, 246, 190)
 
 tn.paint_terrain()
 
@@ -45,15 +45,6 @@ tn.place("m", town_stall())
 
 
 # ---- additive glow: the sleeping town's little lights ------------------------------
-def _blob(img, cx, cy, r, color, a):
-    for dy in range(-r, r + 1):
-        for dx in range(-r, r + 1):
-            q = (dx * dx + dy * dy) / float(r * r)
-            if q <= 1.0:
-                img.put(int(cx) + dx, int(cy) + dy,
-                        color + (int(a * (1.0 - q)),))
-
-
 def _glow(img):
     hx, hy = tn.bbox("H")[0] * T, tn.bbox("H")[1] * T      # facade rows origin
     _blob(img, hx + 55, hy + 22, 14, WARM, 66)             # the open doorway

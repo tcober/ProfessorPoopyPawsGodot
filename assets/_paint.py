@@ -259,7 +259,7 @@ def curve_field(w, h, waypoints, step=4, blur=1):
 
 # ---- cluster-jittered tone quantization ---------------------------------------------
 # Terrain shading: t is quantized to the ramp with 2px-cluster hash jitter, so
-# band edges break into organic clumps — never the checkerboard of pick().
+# band edges break into organic clumps — never an ordered-dither checkerboard.
 
 
 def tone_i(n, t, x, y, salt=7, jitter=0.55):

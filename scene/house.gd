@@ -45,12 +45,12 @@ func _ready() -> void:
 		spawn = "player_spawn"
 	player.position = MapData.anchor_px(map, spawn)
 	$ExitDoor.position = MapData.anchor_px(map, "exit_door")
-	_fix_camera()
+	MapData.clamp_camera(player.get_node("Camera2D"), MapData.view_size())
 	$ExitDoor.body_entered.connect(_on_exit_door)
 	# Curtain mechanic: the room wakes with the curtains drawn; standing at
 	# the window (WindowZone) and pressing interact toggles them. Positions
 	# derive from the map's W cells, so moving the window moves it all.
-	var win := _window_rect()
+	var win := MapData.bbox_rect(map, "W")
 	$Curtains.position = win.position
 	$Curtains.frame = 0
 	$Glow.modulate.a = 0.0
@@ -65,12 +65,12 @@ func _ready() -> void:
 ## player's feet convention: the desk (walk behind it / stand in front of
 ## it) and the bed cover (in bed = under the quilt, head on the pillow).
 func _place_furniture() -> void:
-	var d := _bbox_rect("d")
+	var d := MapData.bbox_rect(map, "d")
 	var dsk: Sprite2D = $World/Desk
 	var dbase := d.position.y + d.size.y
 	dsk.position = Vector2(d.position.x + d.size.x / 2.0, dbase - PLAYER_FEET)
 	dsk.offset = Vector2(0.0, dbase - dsk.texture.get_height() / 2.0 - dsk.position.y)
-	var b := _bbox_rect("bB")
+	var b := MapData.bbox_rect(map, "bB")
 	var cover: Sprite2D = $World/BedCover
 	var cbase := b.position.y + b.size.y - BED_SHADOW
 	cover.position = Vector2(b.position.x + b.size.x / 2.0, cbase - PLAYER_FEET)
@@ -115,40 +115,6 @@ func _toggle_curtains() -> void:
 			return
 		$Curtains.frame = 0
 	_curtain_busy = false
-
-
-## Pixel rect of the window bay, so the curtain sprite and interact zone
-## follow the window wherever the map puts it — whatever its size.
-func _window_rect() -> Rect2:
-	return _bbox_rect("W")
-
-
-## Pixel rect of a feature's bbox (all cells whose char is in `chars`).
-func _bbox_rect(chars: String) -> Rect2:
-	var x0 := 1 << 20
-	var y0 := 1 << 20
-	var x1 := -1
-	var y1 := -1
-	for y in int(map.rows):
-		var row: String = map.lines[y]
-		for x in row.length():
-			if chars.contains(row[x]):
-				x0 = mini(x0, x)
-				y0 = mini(y0, y)
-				x1 = maxi(x1, x)
-				y1 = maxi(y1, y)
-	return Rect2(x0 * 16.0, y0 * 16.0, (x1 - x0 + 1) * 16.0, (y1 - y0 + 1) * 16.0)
-
-
-## The room is exactly one screen: clamp to the view (384x216), not the map
-## (whose bottom rows hold the stair landing + void margin), so the camera
-## never moves.
-func _fix_camera() -> void:
-	var cam: Camera2D = player.get_node("Camera2D")
-	cam.limit_left = 0
-	cam.limit_top = 0
-	cam.limit_right = 384
-	cam.limit_bottom = 216
 
 
 ## Descending the loft stairs lands at their foot in the downstairs great room.

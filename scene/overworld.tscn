@@ -63,7 +63,6 @@ target_scene = "res://scene/downstairs.tscn"
 shape = SubResource("RectangleShape2D_door")
 
 [node name="OverworldPlayer" parent="." instance=ExtResource("5_player")]
-position = Vector2(216, 392)
 
 [node name="TilesUpper" type="TileMapLayer" parent="."]
 texture_filter = 1

@@ -25,7 +25,7 @@ func _ready() -> void:
 	PaintedMap.build_collision(map, $Collision)
 	player.position = MapData.anchor_px(map, "player_spawn")
 	$ExitSouth.position = MapData.anchor_px(map, "exit_south")
-	_clamp_camera()
+	MapData.clamp_camera(player.get_node("Camera2D"), MapData.size_px(map))
 	hud.bind_health(player.health)
 	hud.bind_ammo(player)
 	_track_beaker($World/Beaker)
@@ -33,15 +33,6 @@ func _ready() -> void:
 		if child is Slime:
 			_track_slime(child)
 	$ExitSouth.body_entered.connect(_on_exit_south)
-
-
-func _clamp_camera() -> void:
-	var cam: Camera2D = player.get_node("Camera2D")
-	var size := MapData.size_px(map)
-	cam.limit_left = 0
-	cam.limit_top = 0
-	cam.limit_right = int(size.x)
-	cam.limit_bottom = int(size.y)
 
 
 func _track_beaker(beaker: Beaker) -> void:
@@ -72,7 +63,7 @@ func _spawn_slime() -> void:
 
 
 func _random_spawn() -> Vector2:
-	# Try a few spots so the new beaker doesn't drop on the player or in a solid.
+	# Try a few spots so the respawn doesn't drop on the player or in a solid.
 	var size := MapData.size_px(map)
 	var point := Vector2.ZERO
 	for i in 20:
@@ -88,5 +79,8 @@ func _random_spawn() -> Vector2:
 
 func _on_exit_south(body: Node) -> void:
 	if body is Player:
+		# Return to the meadow's own icon on the overworld (explicit, not relying
+		# on the value the overworld wrote on the way in).
+		Game.overworld_spawn = "meadow"
 		# Deferred: freeing the scene inside the Area2D callback is a physics error.
 		get_tree().change_scene_to_file.call_deferred("res://scene/overworld.tscn")

@@ -480,8 +480,10 @@ from 2304; town: ~240 from 1120). Both pipelines are driven by the same
   surviving blooms), `obelisk` (48×64 faceted CRYSTAL obelisk — lit/deep
   facets on the CRYS ramp, rune score, crystal burst + floating shard),
   and `crystal_outcrop` (32×32 shard cluster, one per 2×2
-  `K` block); legacy singles (`cottage`, `home_cottage`, `school`, `well`,
-  `lamp_post`, `market_stall`) remain for zone use.
+  `K` block). Walkable-town facades live at zone scale in
+  `assets/_town_props.py` (`town_home`, `town_cottage`, `town_academy`,
+  `town_well`, `town_lamp`, `town_stall`); the shared drawing primitives
+  (`S`, `ln`, `edge`) live in `assets/_propkit.py`.
   A new overworld = the map txt + `assets/_gen_tileset_overworld.py`'s
   ~90-line config.
 - **Godot side:** a painted map scene is `Ground` (Sprite2D, the painting) →

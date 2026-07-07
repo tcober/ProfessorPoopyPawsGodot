@@ -17,10 +17,10 @@ import os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from _overworld_props import (S, ln, edge, _hip_roof, _window, _chimney,
-                              _coursed_wall,
+from _overworld_props import (_hip_roof, _window, _chimney, _coursed_wall,
                               DOORDARK, WARM, WARMD, CRYSTAL)
-from _tilekit import (TIMBER, BRASS, STEEL, COPPER, IRON, STONER, GLASS, MINT,
+from _propkit import S, edge
+from _tilekit import (TIMBER, BRASS, STEEL, IRON, STONER, GLASS, MINT,
                       VIOLETF, PAPER, PAPERD, RED, SPEC, WATER, OUTLINE)
 
 

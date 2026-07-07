@@ -17,17 +17,17 @@ import os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from _overworld_tiles import OverWorld, T
+from _tilekit import GLOW_WARM as WARM, GLOW_MINT as MINTG
 from _overworld_props import (town_cluster, lone_tree, castle, obelisk,
                               crystal_outcrop, giant_tree, mountain_peak)
 
 ow = OverWorld("overworld", "overworld")
+_blob = OverWorld.glow_blob            # shared radial glow dab (see TileScene)
 
 ROOFB = ow.mat("roof_blue")
 ROOFG = ow.mat("roof_green")
 PLAST = ow.mat("plaster")
 STONE = ow.ROCK                        # town masonry = the scene's violet slate
-WARM = (255, 200, 120)
-MINTG = (150, 246, 190)
 CRYST = (196, 120, 255)
 
 ow.paint_terrain()
@@ -44,15 +44,6 @@ ow.place_each("t", lone_tree(ow.FOREST))
 
 
 # ---- additive glow: lit windows, coals, and the drained crystals ---------------------
-def _blob(img, cx, cy, r, color, a):
-    for dy in range(-r, r + 1):
-        for dx in range(-r, r + 1):
-            q = (dx * dx + dy * dy) / float(r * r)
-            if q <= 1.0:
-                img.put(int(cx) + dx, int(cy) + dy,
-                        color + (int(a * (1.0 - q)),))
-
-
 def _glow(img):
     tx, ty = ow.bbox("T")[0] * T, ow.bbox("T")[1] * T
     _blob(img, tx + 61, ty + 34, 4, WARM, 50)              # B-rank lit door

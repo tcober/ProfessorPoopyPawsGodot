@@ -43,7 +43,7 @@ func _ready() -> void:
 	$ExitDoor.position = MapData.anchor_px(map, "exit_door")
 	$UpStair.position = MapData.anchor_px(map, "exit_up")
 	$Dim.color = DIM
-	_fix_camera()
+	MapData.clamp_camera(player.get_node("Camera2D"), MapData.view_size())
 	$ExitDoor.body_entered.connect(_on_exit_door)
 	$UpStair.body_entered.connect(_on_up_stair)
 	_place_dressing()
@@ -53,8 +53,8 @@ func _ready() -> void:
 ## moves it: the hearth fire overlay (under entities) and the free-standing
 ## boiler (a y-sorted World entity whose collision is the map's 'A' cells).
 func _place_dressing() -> void:
-	$Fire.position = _bbox_rect("H").position + FIRE_OFFSET
-	var a := _bbox_rect("A")
+	$Fire.position = MapData.bbox_rect(map, "H").position + FIRE_OFFSET
+	var a := MapData.bbox_rect(map, "A")
 	var base_y := a.position.y + a.size.y
 	var boiler: Sprite2D = $World/Boiler
 	boiler.position = Vector2(a.position.x + a.size.x / 2.0, base_y - PLAYER_FEET)
@@ -67,33 +67,6 @@ func _process(delta: float) -> void:
 	_anim_t += delta
 	$Fire.frame = int(_anim_t / 0.16) % 3
 	$World/Boiler.frame = int(_anim_t / 0.28) % 4
-
-
-## Pixel rect of a feature char's bbox in the map.
-func _bbox_rect(ch: String) -> Rect2:
-	var x0 := 1 << 20
-	var y0 := 1 << 20
-	var x1 := -1
-	var y1 := -1
-	for y in int(map.rows):
-		var row: String = map.lines[y]
-		for x in row.length():
-			if row[x] == ch:
-				x0 = mini(x0, x)
-				y0 = mini(y0, y)
-				x1 = maxi(x1, x)
-				y1 = maxi(y1, y)
-	return Rect2(x0 * 16.0, y0 * 16.0, (x1 - x0 + 1) * 16.0, (y1 - y0 + 1) * 16.0)
-
-
-## The room is exactly one screen: clamp to the view (384x216), not the map
-## (whose bottom rows are the stoop + void margin), so the camera never moves.
-func _fix_camera() -> void:
-	var cam: Camera2D = player.get_node("Camera2D")
-	cam.limit_left = 0
-	cam.limit_top = 0
-	cam.limit_right = 384
-	cam.limit_bottom = 216
 
 
 ## Out the front door to the overworld, at the town icon's gate mouth.

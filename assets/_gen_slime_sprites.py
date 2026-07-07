@@ -10,7 +10,7 @@ FROZEN contracts (entities/enemies/slime_frames.tres + slime.gd):
 The bounce is squash-and-stretch with conserved volume (half_w x height stays
 ~constant), a darker gel nucleus that lags the body, a wet glint, and a
 translucent bottom rim where light passes through the gel. Feet baseline y=21.
-Palette: ACTORS["slime"]. Re-run: python3 assets/_gen_slime_sprites.py
+Palette: _palette.SLIME. Re-run: python3 assets/_gen_slime_sprites.py
 """
 import os, sys
 

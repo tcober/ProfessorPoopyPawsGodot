@@ -31,25 +31,7 @@ def h2(x, y, salt=0):
     n = (n ^ (n >> 13)) * 1274126177 & 0xFFFFFFFF
     return (n ^ (n >> 16)) & 0xFF
 
-# ---- ramp shading ------------------------------------------------------------------
-
-def pick(ramp, t, x, y, lo=0.45, hi=0.58, grain=1):
-    """t in 0..1 (0 = lit, 1 = shadow) -> ramp tone, ordered-dithered at band edges.
-
-    grain=2 dithers in 2x2 blocks — use for 2x-density art so the checker reads
-    as SNES banding instead of fine noise. (Sprite shading; terrain uses
-    _paint.tone(), whose jittered bands avoid checkerboard fields entirely.)
-    """
-    if grain > 1:
-        x, y = x // grain, y // grain
-    n = len(ramp) - 1
-    b = max(0.0, min(n - 0.001, t * n))
-    i = int(b)
-    frac = b - i
-    if frac > hi or (lo < frac <= hi and (x + y) % 2 == 0):
-        i += 1
-    return ramp[min(n, i)]
-
+# ---- color ------------------------------------------------------------------------
 
 def lerp(c0, c1, t):
     return tuple(round(c0[i] + (c1[i] - c0[i]) * t) for i in range(len(c0)))
@@ -85,12 +67,6 @@ class Img:
         for y in range(y0, y1 + 1):
             for x in range(x0, x1 + 1):
                 self.put(x, y, c)
-
-    def oval(self, cx, cy, rx, ry, c):
-        for y in range(int(cy - ry), int(cy + ry) + 2):
-            for x in range(int(cx - rx), int(cx + rx) + 2):
-                if ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1.0:
-                    self.put(x, y, c)
 
     def blit_cell(self, cell, ox, oy):
         for y in range(cell.n):

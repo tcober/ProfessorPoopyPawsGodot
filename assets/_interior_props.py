@@ -20,10 +20,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from _core import h2, lerp
 from _palette import ramp
-from _sprites import Sprite
-from _interior import (TIMBER, BRASS, STEEL, COPPER, IRON, STONER, GLASS, MINT,
-                       VIOLETF, PAPER, PAPERD, RED, SPEC, WATER, FROST, STEAM,
-                       OUTLINE)
+from _interior import (TIMBER, BRASS, STEEL, COPPER, IRON, GLASS, MINT,
+                       VIOLETF, PAPER, PAPERD, RED, SPEC, WATER, STEAM)
+from _propkit import S, ln, edge
 
 LEAF = ramp((92, 168, 118), "violet", 4)      # plant foliage (the green accent)
 EMBER = (216, 84, 52, 255)
@@ -33,24 +32,6 @@ FLAME_CORE = (255, 244, 200, 255)
 SUN = (255, 240, 196, 255)
 SKYLINE = (58, 38, 92, 255)
 FIREBOX = (14, 9, 22, 255)
-
-
-def S(w, h=None, salt=0):
-    """Footprint-sized sparse canvas (square Sprite; draw only in w x h)."""
-    sp = Sprite(max(w, h or w), grain=1, salt=salt, jitter=0.0)
-    return sp
-
-
-def ln(sp, x0, y0, x1, y1, c):
-    steps = max(abs(x1 - x0), abs(y1 - y0), 1)
-    for i in range(int(steps) + 1):
-        t = i / steps
-        sp.set(round(x0 + (x1 - x0) * t), round(y0 + (y1 - y0) * t), c)
-
-
-def edge(sp):
-    """Uniform dark CT silhouette outline."""
-    sp.outline({}, OUTLINE)
 
 
 # ====================================================================================
@@ -494,25 +475,6 @@ def corkboard(w, h, quilt, salt=11):
     return sp
 
 
-def wash_bucket(salt=13):
-    sp = S(16, 16, salt)
-    sp.rect(3, 4, 12, 5, TIMBER[1])                           # rim
-    sp.set(2, 5, TIMBER[2])
-    sp.set(13, 5, TIMBER[2])
-    sp.rect(3, 6, 12, 12, TIMBER[2])                          # staves
-    for sx in (5, 8, 11):
-        sp.rect(sx, 6, sx, 12, TIMBER[4])
-    sp.rect(3, 7, 12, 7, IRON[2])                             # hoops
-    sp.rect(3, 11, 12, 11, IRON[3])
-    sp.set(3, 7, IRON[1])
-    sp.rect(4, 13, 11, 13, TIMBER[4])
-    sp.blob(7.5, 5, 4, 1.5, WATER)                            # water eye
-    sp.set(6, 4, SPEC)
-    sp.set(9, 5, FROST)                                       # soap bubble
-    edge(sp)
-    return sp
-
-
 def chair(salt=17):
     sp = S(16, 16, salt)
     sp.rect(3, 2, 12, 5, TIMBER[1])                           # seat
@@ -615,30 +577,6 @@ def sink_counter(w, h, salt=23):
     sp.rect(tx + 1, 13, tx + 4, 19, MINT)
     sp.rect(tx + 1, 16, tx + 4, 16, (100, 200, 150, 255))
     sp.rect(0, h - 2, w - 1, h - 1, TIMBER[5])                # plinth shadow
-    return sp
-
-
-def icebox(w, h, salt=29):
-    sp = S(w, h, salt)
-    sp.rect(2, 4, w - 3, h - 5, TIMBER[2])                    # body
-    sp.rect(2, 4, w - 3, 8, TIMBER[1])                        # lid
-    sp.rect(3, 5, w - 4, 5, FROST)                            # frost glints
-    sp.set(5, 6, FROST)
-    sp.set(w - 7, 6, FROST)
-    sp.rect(2, 9, w - 3, 9, TIMBER[4])                        # lid seam
-    for sx in (4, w - 6):                                     # straps
-        sp.rect(sx, 4, sx + 1, h - 5, TIMBER[4])
-        sp.set(sx, 10, BRASS[3])
-        sp.set(sx, h - 7, BRASS[3])
-    cx = w // 2
-    sp.rect(cx - 1, 9, cx + 1, 13, BRASS[1])                  # latch
-    sp.set(cx, 12, BRASS[3])
-    for vx in range(5, w - 5, 3):                             # vent slits
-        sp.set(vx, h - 7, TIMBER[4])
-    sp.rect(2, h - 5, w - 3, h - 4, TIMBER[4])                # plinth
-    for px in (3, w - 5):
-        sp.rect(px, h - 4, px + 1, h - 3, TIMBER[5])          # feet
-    edge(sp)
     return sp
 
 

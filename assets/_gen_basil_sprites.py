@@ -35,7 +35,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from _core import write_cells, ZONE_CELL, ZONE_FEET
 from _sprites import Sprite, Rig
-from _palette import BASIL, ramp4
+from _palette import BASIL, ramp
 
 CELL, COLS, ROWS = ZONE_CELL, 6, 8
 FEET = ZONE_FEET          # 44 — bottom row of the paw FILL (outline sits at 45)
@@ -57,8 +57,8 @@ EARIN, EARIN_D = BASIL["EARIN"], BASIL["EARIN_D"]
 WHISK, WHISKD  = BASIL["WHISK"], BASIL["WHISKD"]
 GUNE, GUNP     = BASIL["GUNE"], BASIL["GUNP"]
 
-# purple laser-gun body ramp derived from the GUNP accent
-GUNPR   = ramp4(GUNP, "violet")
+# purple laser-gun body ramp derived from the GUNP accent (4-tone)
+GUNPR   = ramp(GUNP, "violet", 4)
 OUT_GUN = (40, 22, 60, 255)
 # local expression accents (single-use, kept out of the shared palette)
 LID    = (188, 158, 66, 255)      # closed-eye stroke

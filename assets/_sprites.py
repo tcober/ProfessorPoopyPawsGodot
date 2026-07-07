@@ -300,8 +300,3 @@ class Rig:
             else:
                 p[name] = d
         return p
-
-
-def bob(i, amp=2.0, period=6, phase=0.0):
-    """Sinusoidal body bob for frame i of a `period`-frame cycle."""
-    return amp * math.sin(2.0 * math.pi * (i + phase) / period)

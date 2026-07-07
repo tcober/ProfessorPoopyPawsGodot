@@ -1,13 +1,12 @@
 class_name Player
-extends CharacterBody2D
+extends DirectionalBody2D
 
-## The science cat. 8-way movement, 4-way facing. Fires a laser gun in the facing
-## direction — the bolt leaves the INSTANT the trigger is pulled and the recoil
-## shoves him back like he can barely hold on. Beakers are the gun's magazines:
-## pickups go into his coat as spares (max_beakers), and reloading (R, or pulling
-## the trigger dry) plays the pour animation and empties one into the gun.
-## Composes HealthComponent / HurtboxComponent and drives an AnimatedSprite2D by
-## animation name so a real sprite sheet swaps in with no code change.
+## The science cat. 8-way movement, 4-way facing (see DirectionalBody2D). Fires a
+## laser gun in the facing direction — the bolt leaves the INSTANT the trigger is
+## pulled and the recoil shoves him back like he can barely hold on. Beakers are
+## the gun's magazines: pickups go into his coat as spares (max_beakers), and
+## reloading (R, or pulling the trigger dry) plays the pour animation and empties
+## one into the gun. Composes HealthComponent / HurtboxComponent.
 
 signal ammo_changed(current: int, max_ammo: int)
 signal beakers_changed(current: int, max_beakers: int)
@@ -37,13 +36,11 @@ enum State { MOVE, SHOOT, RELOAD, HURT }
 const LaserBoltScene := preload("res://entities/projectiles/laser_bolt.tscn")
 const MuzzleFlashScene := preload("res://entities/projectiles/muzzle_flash.tscn")
 
-@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var shadow: Sprite2D = $Shadow
 @onready var hurtbox: HurtboxComponent = $HurtboxComponent
 @onready var health: HealthComponent = $HealthComponent
 
 var state: State = State.MOVE
-var facing: Vector2 = Vector2.DOWN
 var ammo: int = 0
 var beakers: int = 0
 
@@ -220,26 +217,6 @@ func _update_hop(delta: float) -> void:
 	sprite.position.y = _sprite_base_y - jump_height * arc
 	# Shadow shrinks as he rises, selling the height.
 	shadow.scale = Vector2.ONE * (1.0 - 0.45 * arc)
-
-
-func _update_facing(dir: Vector2) -> void:
-	if absf(dir.x) > absf(dir.y):
-		facing = Vector2.RIGHT if dir.x > 0.0 else Vector2.LEFT
-	else:
-		facing = Vector2.DOWN if dir.y > 0.0 else Vector2.UP
-
-
-func _facing_suffix() -> String:
-	if facing == Vector2.UP:
-		return "up"
-	elif facing == Vector2.DOWN:
-		return "down"
-	return "side"
-
-
-func _play_directional(prefix: String) -> void:
-	sprite.play(prefix + "_" + _facing_suffix())
-	sprite.flip_h = facing == Vector2.LEFT
 
 
 func _on_hurt(_damage: int, source: Node) -> void:

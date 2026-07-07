@@ -20,9 +20,9 @@ import os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from _core import lerp
-from _sprites import Sprite
 from _tilekit import (TIMBER, BRASS, STEEL, COPPER, IRON, STONER, GLASS, MINT,
-                      VIOLETF, PAPER, PAPERD, RED, SPEC, WATER, OUTLINE, STEAM)
+                      VIOLETF, PAPER, PAPERD, RED, SPEC, WATER, STEAM)
+from _propkit import S, ln, edge
 
 DOORDARK = (24, 18, 44, 255)      # an open doorway's inside
 WARM = (255, 208, 120, 255)       # candlelight through glass
@@ -31,29 +31,6 @@ CRYSTAL = (150, 84, 210, 255)
 # the drained-magic crystal ramp: hot facet -> deep violet root
 CRYS = [(246, 232, 255, 255), (208, 148, 255, 255), (158, 92, 222, 255),
         (108, 54, 164, 255), (62, 28, 100, 255)]
-
-
-def S(w, h=None, salt=0):
-    """Footprint-sized sparse canvas (square Sprite; draw only in w x h)."""
-    return Sprite(max(w, h or w), grain=1, salt=salt, jitter=0.0)
-
-
-def ln(sp, x0, y0, x1, y1, c):
-    steps = max(abs(x1 - x0), abs(y1 - y0), 1)
-    for i in range(int(steps) + 1):
-        t = i / steps
-        sp.set(round(x0 + (x1 - x0) * t), round(y0 + (y1 - y0) * t), c)
-
-
-def edge(sp, h=None):
-    """Uniform dark CT silhouette outline. Pass the footprint height `h` when
-    it is shorter than the (square) canvas: outline() dilates 1px in every
-    direction, and the row it writes at y=h would otherwise blit onto the
-    walkable map cell SOUTH of the prop."""
-    sp.outline({}, OUTLINE)
-    if h is not None:
-        for y in range(h, sp.n):
-            sp.px[y] = [None] * sp.n
 
 
 def _hatch_px(x, y, spacing=4, phase=0, diag=1):
@@ -160,162 +137,6 @@ def _chimney(sp, x, y0, y1, cast=None):
     sp.set(x, y0, BRASS[0])                                # lit cap edge
     sp.set(x - 1, y0 + 1, BRASS[3])
     sp.set(x + 4, y0 + 1, BRASS[3])
-
-
-def cottage(w, h, roof, plaster, salt=101):
-    """A townsfolk cottage, squat CT proportions (48x32: the hero stands more
-    than half its height): broad hip roof, plaster-and-timber facade, an ajar
-    doorway on the door-mouth cell, two cold mullioned windows, copper flue."""
-    sp = S(w, h, salt)
-    fy = 18                                                # facade top
-    # facade
-    sp.rect(0, fy, w - 1, h - 1, plaster[1])
-    sp.rect(0, fy, 1, h - 1, TIMBER[3])                    # corner posts
-    sp.rect(w - 2, fy, w - 1, h - 1, TIMBER[3])
-    sp.rect(0, fy, w - 1, fy, TIMBER[1])                   # eave beam
-    sp.rect(0, fy + 1, w - 1, fy + 1, TIMBER[3])
-    sp.rect(2, h - 1, w - 3, h - 1, STONER[4])             # footing
-    # the doorway, ajar: dark mouth, one leaf swung inward
-    dx0, dx1 = w // 2 - 4, w // 2 + 3
-    sp.rect(dx0 - 1, fy + 3, dx1 + 1, h - 1, TIMBER[4])    # casing
-    sp.rect(dx0, fy + 3, dx1, fy + 4, TIMBER[1])           # lintel
-    sp.rect(dx0, fy + 5, dx1, h - 1, DOORDARK)
-    sp.rect(dx0, fy + 5, dx0 + 2, h - 1, TIMBER[2])        # the ajar leaf
-    sp.rect(dx0 + 2, fy + 5, dx0 + 2, h - 1, TIMBER[4])
-    sp.set(dx0 + 1, fy + 10, BRASS[1])
-    # cold windows either side
-    _window(sp, 4, fy + 4, 7, 8, GLASS, MINT)
-    _window(sp, w - 11, fy + 4, 7, 8, GLASS, MINT)
-    # roof over it all
-    _hip_roof(sp, 0, w - 1, 0, fy - 1, w // 5, roof)
-    _chimney(sp, w * 2 // 3 + 3, 2, fy + 1, cast=roof)
-    sp.despeckle(2, 1)
-    sp.cluster_shade([roof, plaster], passes=1)
-    edge(sp, h)
-    return sp
-
-
-def home_cottage(w, h, roof, plaster, salt=103):
-    """Basil's cottage — the hero house at the same squat scale: an OPEN
-    candle-lit doorway (the door mouth walks down to the lab), a round brass
-    porthole in the roof, warm lit windows and a hanging flask sign."""
-    sp = S(w, h, salt)
-    fy = 18
-    sp.rect(0, fy, w - 1, h - 1, plaster[0])               # brighter plaster
-    sp.rect(0, fy, 1, h - 1, TIMBER[3])
-    sp.rect(w - 2, fy, w - 1, h - 1, TIMBER[3])
-    sp.rect(0, fy, w - 1, fy, TIMBER[1])
-    sp.rect(0, fy + 1, w - 1, fy + 1, TIMBER[3])
-    sp.rect(2, h - 1, w - 3, h - 1, STONER[4])
-    # the open doorway, centered on the walkable door cell (middle third)
-    dx0, dx1 = w // 2 - 5, w // 2 + 4
-    sp.rect(dx0 - 2, fy + 2, dx1 + 2, h - 1, TIMBER[3])    # casing
-    sp.rect(dx0 - 1, fy + 2, dx1 + 1, fy + 3, TIMBER[1])   # lintel
-    sp.rect(dx0, fy + 4, dx1, h - 1, DOORDARK)
-    sp.rect(dx0 + 1, fy + 4, dx1 - 1, fy + 7, WARMD)       # lamplit inside
-    sp.rect(dx0 + 2, fy + 5, dx1 - 2, fy + 6, WARM)
-    sp.rect(dx0, h - 1, dx1, h - 1, WARMD)                 # light on the sill
-    # warm windows
-    _window(sp, 3, fy + 4, 7, 8, WARMD, WARM)
-    _window(sp, w - 10, fy + 4, 7, 8, WARMD, WARM)
-    # hanging flask sign by the door
-    px = dx1 + 4
-    sp.rect(px, fy + 2, px, fy + 7, IRON[2])               # bracket
-    sp.rect(px - 1, fy + 2, px + 4, fy + 2, IRON[3])
-    sp.rect(px + 1, fy + 4, px + 4, fy + 9, TIMBER[2])     # board
-    sp.rect(px + 1, fy + 4, px + 4, fy + 4, TIMBER[1])
-    sp.rect(px + 2, fy + 6, px + 3, fy + 8, MINT)          # the flask glyph
-    sp.set(px + 2, fy + 5, PAPERD)
-    # roof + the round brass porthole set into it
-    _hip_roof(sp, 0, w - 1, 0, fy - 1, w // 5, roof)
-    cx = w // 3
-    for r, c in ((3.2, BRASS[3]), (2.2, BRASS[1]), (1.4, WARM)):
-        sp.blob(cx, 9, r, r, c)                            # porthole
-    sp.set(cx - 1, 8, SPEC)
-    _chimney(sp, w * 3 // 4 + 1, 1, 8, cast=roof)
-    sp.despeckle(2, 1)
-    sp.cluster_shade([roof, plaster], passes=1)
-    edge(sp, h)
-    return sp
-
-
-def school(w, h, roof, stone, salt=107):
-    """The Alembic Academy — the wizarding school at the squat landmark scale
-    (80x48): twin conical towers, a keep with the alchemical rose window,
-    hanging violet banners, gear bosses, and a barred double door."""
-    sp = S(w, h, salt)
-    tw = 16                                                # tower width
-    # keep body first
-    kx0, kx1 = tw, w - tw - 1
-    ky = 17
-    _coursed_wall(sp, kx0, ky, kx1, h - 1, stone, salt=3, course=6)
-    sp.rect(kx0, ky, kx1, ky, stone[1])                    # parapet line
-    sp.rect(kx0, ky + 1, kx1, ky + 1, stone[3])
-    sp.rect(kx0, h - 1, kx1, h - 1, stone[4])              # footing
-    # keep roof + central finial
-    _hip_roof(sp, kx0, kx1, 5, ky - 1, 10, roof)
-    sp.rect(w // 2 - 3, 1, w // 2 + 2, 4, stone[2])        # spire drum
-    sp.tri((w // 2 - 1, 0), 1, w // 2 - 4, w // 2 + 3, roof[1])
-    sp.rect(w // 2 - 1, 0, w // 2, 0, BRASS[1])            # finial
-    # the great rose window (the apparatus)
-    cx, cy = w // 2 - 1, 24
-    for r, c in ((6.4, BRASS[3]), (5.4, BRASS[1]), (4.6, GLASS)):
-        sp.blob(cx, cy, r, r, c)
-    sp.blob(cx, cy, 3.4, 3.4, MINT)
-    sp.blob(cx, cy, 1.6, 1.6, VIOLETF)
-    sp.rect(cx, cy - 4, cx, cy + 4, TIMBER[4])             # mullion cross
-    sp.rect(cx - 4, cy, cx + 4, cy, TIMBER[4])
-    sp.set(cx - 2, cy - 2, SPEC)
-    # hanging banners
-    for bx in (kx0 + 5, kx1 - 8):
-        sp.rect(bx, 22, bx + 3, 33, VIOLETF)
-        sp.rect(bx, 22, bx + 3, 22, CRYSTAL)
-        sp.rect(bx + 1, 27, bx + 2, 27, CRYSTAL)           # device stripe
-        sp.set(bx, 33, None)
-        sp.set(bx + 3, 33, None)                           # swallowtail cut
-    # gear bosses on the wall
-    for gx in (kx0 + 10, kx1 - 9):
-        sp.ball(gx, 39, 2.5, 2.5, BRASS, power=2.2)
-        for dx, dy in ((-3, 0), (3, 0), (0, -3), (0, 3)):
-            sp.set(gx + dx, 39 + dy, BRASS[3])
-        sp.set(gx, 39, TIMBER[5])
-    # the barred great door, centered on the door-mouth cell
-    dx0, dx1 = w // 2 - 8, w // 2 + 7
-    sp.rect(dx0 - 1, 32, dx1 + 1, 33, stone[4])            # arch
-    sp.rect(dx0 - 2, 34, dx1 + 2, h - 1, stone[4])         # arch ring
-    sp.rect(dx0, 34, dx1, 35, stone[1])                    # keystone lit course
-    sp.rect(dx0, 36, dx1, h - 1, TIMBER[3])                # the doors
-    sp.rect(w // 2 - 1, 36, w // 2 - 1, h - 1, TIMBER[5])  # meeting stile
-    for by in (39, 44):
-        sp.rect(dx0, by, dx1, by, IRON[3])                 # iron straps
-        for rx in range(dx0 + 1, dx1, 4):
-            sp.set(rx, by, IRON[1])
-    for hx in (w // 2 - 4, w // 2 + 2):
-        sp.set(hx, 41, BRASS[1])                           # ring handles
-        sp.set(hx, 42, BRASS[3])
-    sp.set(w // 2 - 1, 37, MINT)                           # a seam of old magic
-    sp.set(w // 2 - 1, 40, MINT)
-    # towers last (they stand proud of the keep)
-    for tx0 in (0, w - tw):
-        sp.tri((tx0 + 7, 0), 10, tx0, tx0 + tw - 1, roof)  # shaded cone
-        sp.rect(tx0 + 7, 0, tx0 + 8, 0, BRASS[1])
-        sp.rect(tx0, 10, tx0 + tw - 1, 10, roof[4])        # eave line
-        for y in range(11, h):                             # cylindrical shaft
-            for x in range(tx0, tx0 + tw):
-                t = 0.22 + 0.52 * ((x - tx0) / float(tw - 1))
-                if (y - 11) % 6 == 5:
-                    t += 0.22
-                sp.set(x, y, sp.tone(stone, t, x, y, jitter=0.35))
-            sp.set(tx0, y, stone[3])
-            sp.set(tx0 + tw - 1, y, stone[4])
-        for wy in (17, 32):                                # arrow slits, mint-lit
-            sp.rect(tx0 + 7, wy, tx0 + 8, wy + 4, DOORDARK)
-            sp.set(tx0 + 7, wy, MINT)
-        sp.rect(tx0, h - 1, tx0 + tw - 1, h - 1, stone[4])
-    sp.despeckle(2, 1)
-    sp.cluster_shade([roof, stone], passes=1)
-    edge(sp, h)
-    return sp
 
 
 def _steam(sp, x, y, drift=1, big=False):
@@ -837,68 +658,4 @@ def lone_tree(f, salt=157):
     sp.set(6, 15, None)
     sp.set(9, 15, None)
     edge(sp)
-    return sp
-
-
-def well(stone, salt=109):
-    """The commons well: shingle cap, timber posts, stone ring, rope + pail."""
-    sp = S(16, 16, salt)
-    for y in range(9, 16):                                 # stone ring
-        for x in range(2, 14):
-            c = stone[2] if y < 12 else stone[3]
-            if (x + y) % 5 == 0:
-                c = stone[4]
-            sp.set(x, y, c)
-    sp.rect(2, 9, 13, 9, stone[1])                         # lit rim
-    sp.rect(4, 10, 11, 11, DOORDARK)                       # the shaft
-    sp.set(5, 10, WATER)
-    sp.rect(2, 5, 3, 9, TIMBER[3])                         # posts
-    sp.rect(12, 5, 13, 9, TIMBER[3])
-    sp.tri((7, 0), 4, 0, 15, TIMBER[2])                    # little roof
-    sp.rect(6, 0, 9, 0, TIMBER[1])
-    sp.rect(7, 4, 7, 8, PAPERD)                            # rope
-    sp.rect(6, 8, 8, 9, STEEL[2])                          # pail
-    edge(sp)
-    return sp
-
-
-def lamp_post(salt=113):
-    """Brass-caged street lamp; its halo rides the additive glow overlay."""
-    sp = S(16, 16, salt)
-    sp.rect(6, 13, 9, 14, IRON[3])                         # base
-    sp.rect(5, 15, 10, 15, IRON[2])
-    sp.rect(7, 4, 8, 13, IRON[2])
-    sp.rect(7, 4, 7, 13, IRON[1])
-    sp.rect(5, 0, 10, 0, BRASS[1])                         # cap
-    sp.rect(5, 1, 10, 4, BRASS[3])
-    sp.rect(6, 1, 9, 3, MINT)                              # the mantle
-    sp.set(7, 1, SPEC)
-    sp.set(4, 1, BRASS[2])
-    sp.set(11, 1, BRASS[2])                                # cage arms
-    edge(sp)
-    return sp
-
-
-def market_stall(w, h, salt=127):
-    """A flask-seller's stall: striped awning over a timber counter."""
-    sp = S(w, h, salt)
-    sp.rect(1, 3, 2, 12, TIMBER[3])                        # posts
-    sp.rect(w - 3, 3, w - 2, 12, TIMBER[3])
-    for x in range(0, w):                                  # awning
-        c = RED if (x // 4) % 2 == 0 else PAPER
-        sp.rect(x, 0, x, 3, c)
-        if x % 4 == 3:
-            sp.set(x, 3, PAPERD)
-    sp.rect(0, 4, w - 1, 4, TIMBER[4])                     # awning bar
-    sp.rect(2, 8, w - 3, 8, TIMBER[1])                     # counter top
-    sp.rect(2, 9, w - 3, 12, TIMBER[2])
-    sp.rect(2, 12, w - 3, 12, TIMBER[4])
-    gx = w // 2 - 4                                        # wares
-    sp.rect(gx, 6, gx + 1, 7, MINT)
-    sp.rect(gx + 3, 5, gx + 4, 7, VIOLETF)
-    sp.set(gx + 6, 6, BRASS[1])
-    sp.set(gx + 7, 7, BRASS[3])
-    sp.rect(3, 13, 4, 15, TIMBER[4])                       # legs
-    sp.rect(w - 5, 13, w - 4, 15, TIMBER[4])
-    edge(sp, h)
     return sp

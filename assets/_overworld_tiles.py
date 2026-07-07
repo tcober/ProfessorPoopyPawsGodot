@@ -162,9 +162,8 @@ TERRAIN_CLS = {
     "sea": "sea", "river": "river", "bridge": "bridge", "beach": "beach",
     "grass": "grass", "hills": "hills", "flowers": "flowers",
     "forest": "forest", "mountain": "mountain", "waste": "waste",
-    "road": "road", "plaza": "plaza", "door": "road",
-    "home": "grass", "cottageA": "grass", "cottageB": "grass",
-    "school": "grass", "well": "grass", "lamp": "grass", "stall": "grass",
+    "road": "road", "door": "road",
+    "well": "grass", "lamp": "grass", "stall": "grass",
     "town": "grass", "tree": "grass",
     # landmark props render their region's fabric as underlay: the castle
     # and peak ride the massif, the obelisk + crystal outcrops ride the
@@ -182,18 +181,16 @@ TERRAIN_CLS = {
     "academybody": "grass", "academyroof": "grass",
 }
 # solid built things that drop a contact shadow on the ground cell south of them
-STRUCT_TERRAIN = {"home", "cottageA", "cottageB", "school",
-                  "well", "lamp", "stall", "fence", "town", "tree",
+STRUCT_TERRAIN = {"well", "lamp", "stall", "fence", "town", "tree",
                   "obelisk", "crystal", "castle", "peak", "giant_tree",
                   "homebody", "cotWbody", "cotEbody", "academybody"}
 
 WATERC = {"sea", "river", "bridge"}     # no coastline forms inside this family
 GRASSY = {"grass", "hills", "flowers"}
-ROADY = {"road", "plaza"}
-GROUND = {"grass", "hills", "flowers", "beach", "waste", "road", "plaza",
-          "fence"}
+ROADY = {"road"}
+GROUND = {"grass", "hills", "flowers", "beach", "waste", "road", "fence"}
 MOUNT_OWN = GROUND | {"forest"}         # what a massif rim opens onto
-LANDC = {"grass", "hills", "flowers", "beach", "waste", "road", "plaza",
+LANDC = {"grass", "hills", "flowers", "beach", "waste", "road",
          "forest", "mountain"}          # what a water cell shores against
 FAMILY = {c: (GRASSY if c in GRASSY else WATERC if c in WATERC else {c})
           for c in set(TERRAIN_CLS.values())}
@@ -533,17 +530,6 @@ class OverWorld(TileScene):
             return rd[0]
         return rd[1]
 
-    def _px_plaza(self, u, v):
-        """Warm trodden setts (kept for a future cobbled commons — the open
-        cluster's ground is plain grass + dirt lanes today). Quiet on purpose."""
-        rd = self.ROAD
-        u2 = (u + 4 * ((v // 4) % 2)) % 8
-        if v % 4 == 0 or u2 == 0:
-            return rd[3]                                   # sunken joints
-        if ((u + 4 * ((v // 4) % 2)) // 8 + v // 4) % 5 == 2:
-            return rd[1]                                   # the odd pale sett
-        return rd[2]
-
     def _px_bridge(self, u, v):
         b = self.BRIDGE
         if v % 4 == 3:
@@ -567,7 +553,7 @@ class OverWorld(TileScene):
             return self._px_beach(u, v)
         if cls == "waste":
             return self._px_waste(u, v)
-        if cls in ("road", "plaza"):
+        if cls == "road":
             return self._px_grass(u, v)                    # trails sit on grass
         if cls == "forest":
             return self._px_forest(u, v)
@@ -740,7 +726,7 @@ class OverWorld(TileScene):
 
     def _beach_cell(self, X, Y, masks):
         gmask = 0                                          # beach owns vs green+trail
-        for c2 in ("grass", "hills", "flowers", "road", "plaza"):
+        for c2 in ("grass", "hills", "flowers", "road"):
             gmask |= masks.get(c2, 0)
         corner, rest = cut_of(gmask)
         for v in range(T):
@@ -792,11 +778,6 @@ class OverWorld(TileScene):
         Wobble is keyed to the shared EDGE (both cells compute the same
         offset), so ribbons meet exactly at tile lines; corner turns round
         off through the drift point instead of a square L."""
-        if cls == "plaza":
-            for v in range(T):
-                for u in range(T):
-                    self.bg.put(X + u, Y + v, self._px_plaza(u, v))
-            return
         wN = (tx * 5 + ty * 3) % 3 - 1
         wS = (tx * 5 + (ty + 1) * 3) % 3 - 1
         wW = (tx * 3 + ty * 5) % 3 - 1

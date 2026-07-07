@@ -6,10 +6,10 @@ a duo/tri-tone cast: one dominant hue FIELD plus one hot ACCENT; shadows
 hue-shift toward the scene's bias (violet or teal), never toward neutral gray.
 Wood may be an honest warm brown (it is a material, not the field) — the ban is
 on naturalistic beige/gray mud as a scene's whole field, and on muddy
-un-hue-shifted darks. Material ramps derive from scene seeds via ramp4() so a
+un-hue-shifted darks. Material ramps derive from scene seeds via ramp() so a
 sheet cannot drift off its scene's palette.
 
-ACTOR ramps (Basil, Schweinler, slime) are hand-tuned identity colors that already
+ACTOR ramps (Basil, slime) are hand-tuned identity colors that already
 obey the shadow law; they travel across scenes, so they live here as explicit data
 rather than derived ramps.
 """
@@ -25,7 +25,7 @@ def _clamp(v):
 
 # Ramp curve control points at u = 0, 1/3, 2/3, 1: (lightness delta, hue pull
 # toward the shadow bias, saturation delta). ramp() interpolates these for any
-# tone count; ramp4() hits them exactly.
+# tone count.
 _RAMP_STOPS = ((+0.14, -0.05, -0.08),   # lit
                (0.00, 0.00, 0.00),      # base
                (-0.13, 0.30, 0.10),     # shade
@@ -64,13 +64,8 @@ def ramp(base, shadow="violet", tones=6, spread=1.0, alpha=255):
     return out
 
 
-def ramp4(base, shadow="violet", spread=1.0, alpha=255):
-    """4-tone [lit, base, shade, core] ramp — legacy wrapper over ramp()."""
-    return ramp(base, shadow, 4, spread, alpha)
-
-
 # ---- scene palettes (field / accent / shadow bias + material seeds) ---------------
-# Seeds feed ramp4(seed, SCENES[key]["shadow"]). Accents are used raw and hot.
+# Seeds feed ramp(seed, SCENES[key]["shadow"], tones). Accents are used raw and hot.
 
 SCENES = {
     "title": {          # indigo -> magenta -> gold posterized sunset
@@ -208,7 +203,7 @@ SCENES = {
     "meadow": {         # minty teal greens, candy hot-pink flowers
         "shadow": "teal",
         "accent": (255, 116, 176, 255),         # hot pink
-        # Hand-tuned identity ramps (same precedent as ACTORS): warm dirt cannot
+        # Hand-tuned identity ramps (same precedent as the actor ramps): warm dirt cannot
         # be derived — teal shadows turn it yellow-green, violet ones salmon.
         # This one walks cream -> peach -> dusty rust -> mauve, desaturating.
         "ramps": {
@@ -264,28 +259,6 @@ BASIL = {
     "OUTS": _BASIL_OUTS, "OUT_FALLBACK": _OUT_FUR,
 }
 
-# Schweinler — smug pig: rosy hide, pale belly, red neckerchief, cloven trotters.
-# Hand-tuned like Basil's; dark ends nudged violet per the shadow law.
-_PIG   = [(238, 190, 176, 255), (214, 152, 140, 255), (186, 114, 112, 255), (148, 80, 96, 255)]
-_BELLY = [(246, 214, 200, 255), (230, 182, 168, 255), (206, 144, 138, 255), (176, 108, 114, 255)]
-_KERCH = [(212, 100, 86, 255), (184, 68, 60, 255), (152, 44, 50, 255), (114, 30, 52, 255)]
-_HOOF  = [(132, 80, 78, 255), (108, 60, 62, 255), (84, 44, 54, 255), (60, 32, 48, 255)]
-
-_SCHW_OUTS = {}
-for _r, _o in ((_PIG, (76, 34, 48, 255)), (_BELLY, (76, 34, 48, 255)),
-               (_KERCH, (70, 16, 32, 255)), (_HOOF, (36, 18, 30, 255))):
-    for _c in _r:
-        _SCHW_OUTS[_c] = _o
-
-SCHWEINLER = {
-    "PIG": _PIG, "BELLY": _BELLY, "KERCH": _KERCH, "HOOF": _HOOF,
-    "EYE_D": (30, 22, 26, 255), "GLINT": (255, 252, 248, 255),
-    "BROW": (128, 56, 62, 255), "NOSTR": (150, 74, 84, 255),
-    "MOUTH": (150, 74, 84, 255), "TONGUE": (222, 110, 116, 255),
-    "MAW": (96, 40, 48, 255),
-    "OUTS": _SCHW_OUTS, "OUT_FALLBACK": (76, 34, 48, 255),
-}
-
 # Slime — meadow gel, teal-shadowed greens
 SLIME = {
     "GELR": [(172, 240, 180, 255), (116, 210, 132, 255), (76, 170, 100, 255), (50, 130, 78, 255)],
@@ -293,5 +266,3 @@ SLIME = {
     "EYE": (24, 34, 28, 255),
     "GLINT": (235, 250, 238, 255),
 }
-
-ACTORS = {"basil": BASIL, "schweinler": SCHWEINLER, "slime": SLIME}

@@ -32,7 +32,7 @@ from _palette import SCENES, ramp
 # here (one hardware store, one import path).
 from _tilekit import (TileScene, Canvas, T, OUTDIR,
                       TIMBER, BRASS, STEEL, COPPER, IRON, STONER, GLASS, MINT,
-                      VIOLETF, PAPER, PAPERD, RED, SPEC, WATER, FROST, STEAM,
+                      VIOLETF, PAPER, PAPERD, RED, SPEC, WATER, STEAM,
                       VOID, DROP1, DROP2, OUTLINE)
 
 # ---- terrain fabrics: pure 16-periodic pixel functions ------------------------------
