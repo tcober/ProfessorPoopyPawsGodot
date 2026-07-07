@@ -15,7 +15,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from _core import Img
 from _palette import ramp
-from _interior import (Room, flag_px, TIMBER, STONER, DROP1, DROP2, T, OUTDIR)
+from _interior import (Room, flag_px, TIMBER, STONER, T, OUTDIR)
 from _interior_props import (window, window_geom, rug, hearth, sink_counter,
                              dish_shelf, flask_shelf, boiler_frames,
                              fire_frames, pipe_wall, workbench, table,

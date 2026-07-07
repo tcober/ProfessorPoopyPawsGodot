@@ -1,0 +1,63 @@
+; Alembic Town — 40x28 tiles (640x448 px), the walkable CT-Truce village the
+; overworld's town icon opens into. Shared source of truth: tiled by
+; assets/_gen_tileset_town.py on the shared OverWorld driver (hedge border =
+; forest class, lanes = the trail painter), collision/markers by
+; scene/alembic_town.gd. Buildings use TWO chars: solid facade rows + WALKABLE
+; roof rows whose art rides the upper layer, so the player passes behind
+; rooflines. Geography: Basil's cottage NW (open door -> downstairs), two
+; locked cottages mid-town, the commons (well/lamp/stall) astride the south
+; lane, the barred Academy fenced apart SE; the lane runs out the south gap
+; to the overworld.
+legend # forest solid
+legend f forest solid
+legend . grass walk
+legend , flowers walk
+legend - road walk
+legend D door walk
+legend F fence solid
+legend h homeroof walk
+legend H homebody solid
+legend q cotWroof walk
+legend 1 cotWbody solid
+legend w cotEroof walk
+legend 2 cotEbody solid
+legend k academyroof walk
+legend K academybody solid
+legend u well solid
+legend l lamp solid
+legend m stall solid
+anchor player_start 19 24
+anchor home 7 7
+anchor cottage_w 14 7
+anchor cottage_e 22 7
+anchor school 32 21
+anchor exit_south 19 26
+map
+########################################
+########################################
+###..................................###
+##..hhhhhh............................##
+##..hhhhhh..qqqqq...wwwww.............##
+##..hhhhhh..qqqqq...wwwww........f....##
+##..HHHHHH..11111...22222.............##
+##..HHHDHH..11D11...22D22.............##
+##.....-..,,..-.......-...............##
+##...----------------------------.....##
+##...............l.-..................##
+##........uu.....l.-..mmm.FFFFFFFFFFFF##
+##........uu.......-..mmm.F...........##
+##......,,,........-......F.kkkkkkkkkk##
+##.f...............-......F.kkkkkkkkkk##
+##.................-......F.kkkkkkkkkk##
+##.....f...........-......F.kkkkkkkkkk##
+##.................-......F.KKKKKKKKKK##
+##.................-......F.KKKKKKKKKK##
+##.................-......F.KKKKKKKKKK##
+##.................-......F...........##
+##.................-......FFFFFFDFFFFF##
+##.................--------------.....##
+##......f..........-..................##
+##.................-..................##
+##.................-..................##
+###################--###################
+###################--###################

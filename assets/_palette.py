@@ -149,21 +149,60 @@ SCENES = {
     "overworld": {      # hot teal sea + minty continent, hot violet wastes
         "shadow": "teal",
         "accent": (196, 120, 255, 255),         # wastes crystal violet
-        # Warm sand can't be derived (see meadow) — same cream->mauve hand walk.
+        # Warm earth can't be derived (see meadow) — cream->mauve hand walks:
+        # sand for the coasts, a rosier packed-dirt walk for the town roads.
         "ramps": {
             "sand": [(248, 224, 178, 255), (240, 200, 148, 255), (226, 176, 128, 255),
                      (198, 138, 108, 255), (156, 92, 96, 255), (110, 58, 78, 255)],
+            "road": [(240, 206, 160, 255), (228, 184, 136, 255), (212, 158, 116, 255),
+                     (184, 124, 100, 255), (146, 84, 90, 255), (104, 54, 74, 255)],
         },
+        # 2026-07 darker pass: the candy-mint field seeds dropped to mossy,
+        # richer values (lower L, kept/raised S, same teal lean) — the law
+        # holds, the kiddy read goes. Wastes stay HOT (premise color).
         "mats": {
-            "sea": (48, 138, 172, 255),
-            "grass": (96, 188, 132, 255),
+            "sea": (34, 100, 140, 255),         # deep ocean teal
+            "grass": (60, 140, 98, 255),        # mossy emerald, not candy
+            "grass2": (82, 146, 84, 255),       # warmer drift green (CT two-green field)
             "forest": (36, 128, 104, 255),
-            "rock": (150, 142, 192, 255),
+            "rock": (100, 92, 144, 255),        # violet-slate cliffs
             "sand": (238, 198, 148, 255),
             "waste": (188, 112, 178, 255),
             "snow": (234, 242, 252, 255),
             "bridge": (150, 88, 112, 255),      # rosewood planks
             "trunk": (52, 62, 118, 255),        # forest understory indigo
+            # Alembic Town (the CT pitched-roof cluster + the Academy):
+            "roof_blue": (70, 124, 178, 255),   # deep slate-blue shingles
+            "roof_green": (62, 138, 110, 255),  # deep verdigris shingles
+            "plaster": (168, 158, 196, 255),    # dusky lavender walls
+        },
+    },
+    "town": {           # Alembic Town at zone scale — the overworld palette
+        "shadow": "teal",                   # walked into: mossy lanes, dusky
+        "accent": (255, 190, 96, 255),      # plaster, candle amber
+        # Same hand ramps + mats as the overworld so the town IS its icon up
+        # close (waste/snow/bridge seeds ride along unused: the shared
+        # OverWorld driver constructs every ramp it knows).
+        "ramps": {
+            "sand": [(248, 224, 178, 255), (240, 200, 148, 255), (226, 176, 128, 255),
+                     (198, 138, 108, 255), (156, 92, 96, 255), (110, 58, 78, 255)],
+            "road": [(240, 206, 160, 255), (228, 184, 136, 255), (212, 158, 116, 255),
+                     (184, 124, 100, 255), (146, 84, 90, 255), (104, 54, 74, 255)],
+        },
+        "mats": {
+            "sea": (34, 100, 140, 255),
+            "grass": (60, 140, 98, 255),
+            "grass2": (82, 146, 84, 255),
+            "forest": (36, 128, 104, 255),      # hedge borders + garden bushes
+            "rock": (100, 92, 144, 255),
+            "sand": (238, 198, 148, 255),
+            "waste": (188, 112, 178, 255),
+            "snow": (234, 242, 252, 255),
+            "bridge": (150, 88, 112, 255),
+            "trunk": (52, 62, 118, 255),
+            "roof_blue": (70, 124, 178, 255),
+            "roof_green": (62, 138, 110, 255),
+            "plaster": (168, 158, 196, 255),
         },
     },
     "meadow": {         # minty teal greens, candy hot-pink flowers

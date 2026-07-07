@@ -5,9 +5,10 @@ extends Node2D
 ## generated layout (assets/_gen_tileset_downstairs.py) onto two layers, with
 ## collision from the same assets/maps/downstairs.txt grid. Two ways in, two
 ## ways out: the top-center stair alcove climbs to the bedroom; the south
-## front door opens onto the overworld at the home marker. The spawn anchor
-## is routed through Game.interior_spawn (read-and-clear; "" = front_door,
-## the overworld-entry default).
+## front door opens onto the overworld at the town-icon gate mouth (the
+## walkable Alembic Town scene is PARKED for now — see DESIGN.md). The spawn
+## anchor is routed through Game.interior_spawn (read-and-clear; "" =
+## front_door, the overworld-entry default).
 
 const MAP_PATH := "res://assets/maps/downstairs.txt"
 const LAYOUT_PATH := "res://assets/tilesets/downstairs_layout.txt"
@@ -95,10 +96,10 @@ func _fix_camera() -> void:
 	cam.limit_bottom = 216
 
 
-## Out the front door to the overworld, at the home marker.
+## Out the front door to the overworld, at the town icon's gate mouth.
 func _on_exit_door(body: Node) -> void:
 	if body is Player:
-		Game.overworld_spawn = "home"
+		Game.overworld_spawn = "town"
 		# Deferred: freeing the scene inside the Area2D callback is a physics error.
 		get_tree().change_scene_to_file.call_deferred("res://scene/overworld.tscn")
 

@@ -38,24 +38,34 @@
 
 ### Milestone 4 — Overworld travel layer ✅
 
-- **CT/SoS-style painted continent** (`scene/overworld.gd/.tscn`): 64×36 tiles
-  ASCII-painted (1024×576 px, camera-clamped), no combat on the map. Geography:
-  home bluff SW → path NE past Whisker Meadow → bridge over a N→S river → Alembic
-  Town at the NE forest's edge; mountains + cave N; drained wastes + obelisk E/SE;
-  ocean frame.
-- Art (superseded by Milestone 5): originally a 16×16 tileset; now the painted
-  2048×1152 continent from `assets/maps/overworld.txt` + `_gen_scene_overworld.py`,
-  with `overworld_basil.png` (192×144, 48×48 chibi) and `overworld_icons.png`
-  (320×64, five 64×64 icons). Terrain gating unchanged: sea/forest/mountain/river
-  solid via the shared collision tileset; beach/grass/hills/bridge/wastes walk.
+- **CT/SoS-style continent** (`scene/overworld.gd/.tscn`): 64×36 tiles
+  (1024×576 px, camera-clamped), no combat on the map. Geography (reworked by
+  the 2026-07 town carve, then re-proportioned the same month — the rampart
+  came back out): Alembic Town as an OPEN CT-Truce cluster on the SW coast
+  (squat cottages on dirt lanes, Basil's cottage = the `home` door-mouth
+  marker, neighbor-cottage door markers, the Academy set apart, well/lamp/
+  stall) → dirt road NE past Whisker Meadow → bridge over a N→S river →
+  drained wastes + obelisk E/SE; mountains + cave N; ocean frame.
+- Art (superseded twice: the Milestone-5 painting replaced the original
+  tileset; the 2026-07 tiled-overworld conversion then replaced the painting
+  with a real CT-autotile TileSet): now `assets/_gen_tileset_overworld.py` →
+  `assets/tilesets/overworld_tiles.png/.tres` + `overworld_layout.txt` +
+  `overworld_glow.png` (~210 unique tiles from `assets/maps/overworld.txt`;
+  `_gen_scene_overworld.py` and the `overworld_ground/overlay.png` paintings
+  are deleted), with `overworld_basil.png` (96×72, 24×24 chibi) and
+  `overworld_icons.png` (160×32; only the meadow icon is still shown — drawn
+  buildings replaced the rest). Terrain gating unchanged in spirit:
+  sea/forest/mountain/river/buildings solid via the shared collision
+  tileset; beach/grass/flowers/hills/roads/door-mouths/bridge/wastes walk.
 - Travel sprite: `entities/player/overworld_player.gd/.tscn`
   (+ `overworld_basil_frames.tres`) — 8-way move, 4-way facing, ~90 px/s, no
   gun/hop/health.
 - Location markers (`scene/overworld_location.gd`): id/display_name/target_scene/
   locked_text; banner label announces names, locked markers show flavor text,
-  unlocked ones fade out and enter. Live set: BASIL'S BLUFF (locked, "HOME. IT CAN
-  WAIT."), WHISKER MEADOW → `test_room.tscn`, ALEMBIC TOWN (locked, academy shut),
-  THE BURROWS (locked), THE DRAIN (locked, where-the-magic-went hook).
+  unlocked ones fade out and enter. Live set (2026-07 open-cluster town):
+  BASIL'S COTTAGE (`home` door mouth → `downstairs.tscn`), WHISKER MEADOW →
+  `meadow.tscn`, and announce-only A NEIGHBOR'S COTTAGE ×2 (`cottage_w`/
+  `cottage_e`), ALEMBIC TOWN (commons) and THE ALEMBIC ACADEMY (barred).
 - `scene/game.gd` autoload **Game** remembers `overworld_spawn` → leaving a zone
   returns Basil to that marker. Flow rewired: hall "...YEARS LATER." → overworld;
   title/intro ESC skips → overworld; meadow gains a south hedge-gap exit back to
@@ -93,22 +103,19 @@ Details: docs/DESIGN.md "Art pipeline".
 8. **Style upgrades** — port Schweinler-era props (house/school/hall) to the hi-fi
    renderer; ambient effects (CanvasModulate sunset pass, firefly particles).
 
-## Verification (manual — it's a game)
+## Verification (manual — it's a game; rewritten for the combat-first cut)
 
-1. Run main scene: title renders 640×360, integer-scaled, crisp; SPACE starts intro.
-2. House scene: night drop-off plays; morning cards; Basil exits the doorway cleanly,
-   SQUELCH, paw prints trail him off-screen.
-3. Road: WASD/arrows move; J/Space fires (recoil shove); K hops (up in place,
-   directional when moving, steerable); 3 bolts kill a slime; beaker refills; the
-   Academy doors advance the story.
-4. Hall: dialog advances on J/Space; Schweinler points/laughs; Basil's ears droop
-   (sad face) under the crowd laugh; cards land on "...YEARS LATER." → overworld
-   fade-in at Basil's Bluff.
-5. Overworld: walk the path NE — banner names appear on markers; locked markers
-   show flavor text; water/forest/mountains block walking; the bridge crosses the
-   river.
-6. Enter WHISKER MEADOW → meadow with slimes + HUD: camera clamps to the room;
-   slime contact damages + knockback; heart HUD updates; beaker respawns away from
-   hedges. Exit the south hedge gap → back on the map at the meadow marker.
-7. ESC from title or road lands on the overworld.
-8. No errors in the debugger output.
+1. Run the main scene (`scene/house.tscn`, 384×216 integer-scaled): the loft
+   bedroom renders; E at the window toggles the curtains (beam + dim tween).
+2. SW stairs descend to the downstairs great room; hearth fire flickers, boiler
+   shivers; the front door exits to the overworld INSIDE the open town cluster.
+3. Overworld: WASD walks the chibi; each building's door mouth triggers — his
+   own cottage re-enters the lab, the neighbor cottages / commons / Academy
+   announce flavor banners; water/forest/mountains/buildings block walking;
+   the dirt road leads NE, the bridge crosses the river.
+4. Enter WHISKER MEADOW → slimes + HUD: camera clamps; slime contact damages +
+   knockback; 2 bolts kill a slime and one respawns elsewhere; beaker refills
+   (R / dry-trigger reload pours it). Exit the south hedge gap → back on the
+   map at the meadow marker, landing in the flower ring.
+5. `python3 assets/_check_art.py` green after any `assets/_gen_*.py` re-run.
+6. No errors in the debugger output.

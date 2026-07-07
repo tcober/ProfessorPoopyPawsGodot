@@ -28,9 +28,15 @@ again. (Full story in docs/DESIGN.md.)
   facing direction — instant on the trigger, hard recoil. Beakers are the gun's
   magazines: pickups pocket as spares, reload (R, or a dry trigger) pours one in.
 - Combat: `Area2D` Hitbox vs `Area2D` Hurtbox → HealthComponent. `LaserBolt` projectile.
-- **Overworld layer:** CT/SoS-style travel map (`scene/overworld.tscn`) between zones —
-  24×24 chibi travel scale (~16 px figure), terrain-gated walking, no map combat.
-  Zones are the full-scale (48×48) shooter gameplay.
+- **Overworld layer:** CT/SoS-style TILED travel map (`scene/overworld.tscn`)
+  between zones — 24×24 chibi travel scale (~16 px figure), terrain-gated
+  walking, no map combat; towns are CT-faithful cluster ICONS (one drawn
+  composition of overlapping roofs, solid except its gate-mouth `D` cell,
+  which travels INTO the town's walkable zone scene). Region edges are drawn
+  as 1-cell stair-steps in the map txt — the autotile's 45° corner cuts
+  render them as continuous diagonals. Zones are the full-scale (48×48)
+  shooter gameplay; walkable **Alembic Town** (`scene/alembic_town.tscn`) is
+  a zone too, riding the same overworld tile driver.
 - **Magic is deferred by design** (world starts drained); ranged/spell systems unlock
   later as story-driven progression.
 - **Art direction:** influenced by **Final Fantasy VI, Chrono Trigger, Secret of
@@ -48,43 +54,82 @@ again. (Full story in docs/DESIGN.md.)
 ## Current state
 
 **Combat-first cut (2026-07):** the build is pared to its core loop — HOUSE →
-OVERWORLD → Whisker Meadow — to hone the battling and the look. The title screen,
-five-part intro, Schweinler's sprites, and the cutscene/dialog kit were deleted
-(git history keeps them; the story stays in docs/DESIGN.md as the plan). The game
-boots into Basil's loft bedroom (`scene/house.tscn`, main scene) — a small
-dense CT-bedroom diorama floating in void (10-tile-wide room on the 24×14
-map), brown plank walls / teal weave / gold dawn window, E toggles the
-curtains at the window; its SW staircase descends to the **downstairs**
-(`scene/downstairs.tscn`) — the kitchen + steampunk-lab great room (20-tile
-room, hearth fire = light source + glow, copper boiler, workbench, alcove
-stairs back up) whose south front door opens onto
-the overworld, whose two markers are home (re-enters the house at the
-downstairs front door) and
-Whisker Meadow (`scene/meadow.tscn` — slimes, beaker respawns, HUD); leaving a
-zone returns to its marker via the `Game` autoload. Player: walk/hop (straight up
+OVERWORLD → Whisker Meadow — to hone the battling and the look. The
+title screen, five-part intro, Schweinler's sprites, and the cutscene/dialog
+kit were deleted (git history keeps them; the story stays in docs/DESIGN.md as
+the plan). The game boots into Basil's loft bedroom (`scene/house.tscn`, main
+scene) — a small dense CT-bedroom diorama floating in void (10-tile-wide room
+on the 24×14 map), brown plank walls / teal weave / gold dawn window, E
+toggles the curtains at the window; its SW staircase descends to the
+**downstairs** (`scene/downstairs.tscn`) — the kitchen + steampunk-lab great
+room (20-tile room, hearth fire = light source + glow, copper boiler,
+workbench, alcove stairs back up) whose south front door opens onto the
+**tiled overworld**, where Alembic Town is a CT-faithful cluster ICON on the
+SW coast (one DENSE drawn composition — seven small overlapping roofs with
+dab openings, the Academy castle-keep, the steamworks' riveted copper boiler
+venting a steam plume; darker mossy-emerald 2026-07 palette) whose gate-mouth
+`D` marker (`town`) goes straight back into the downstairs, with ONE winding
+trail NE past Whisker Meadow (`scene/meadow.tscn` — slimes, beaker respawns,
+HUD; marker `meadow`) over the river bridge to the wastes; steampunk-medieval
+landmarks anchor the horizon — the Capital's pale-stone CASTLE on the north
+massif (`C` cells) with the snowcapped HORN summit (`V`) at its NW tip, the
+ELDER TREE (`g`, 64×96, ~5× the chibi) leaning over the riverbank, the
+wastes' crystal OBELISK monument (`O`) + scattered 2×2 `K` crystal outcrops,
+lit windows/coals/crystals on the glow overlay (the cloud-shadow shade
+overlay was cut — dark ovals read as smudges at CT zoom); leaving a zone
+returns to its marker via the
+`Game` autoload. (A walkable zone-scale **Alembic
+Town** — `scene/alembic_town.tscn`, 40×28 on the shared overworld driver,
+walk-behind rooflines, `Game.town_spawn` routing — is built but PARKED:
+unreferenced by the flow until the town earns its place.) Player: walk/hop
+(straight up
 when standing, air-steerable) / instant-fire laser whose recoil shoves him into
 a barely-held skid / mag reloads (beakers = spare mags, R or dry trigger plays
 the planted pour, RELOAD state + `reload` anim); slimes explode in 2 shots and
 a replacement respawns elsewhere in the meadow.
-**Two scene pipelines, one map format:** exteriors (meadow, overworld) are
-painted — a single composed painting (ground + overlay Sprite2Ds) generated
-from shared `assets/maps/*.txt` files on `assets/_core.py` + `assets/_paint.py`
-
-- `assets/_palette.py` (`scene/meadow.tscn` = reference). Interiors are TILED
-  (the 2026-07 CT-bedroom pivot) and built on the **interior kit**:
-  `assets/_interior.py` (shared 16-periodic terrain fabrics — plank walls
-  with wainscot, weave/flag floors — whole-tile light dispatch, stair/rail/
-  jamb cells, the `Room` driver) + `assets/_interior_props.py` (furniture
-  library authored on `_sprites.py`: hard-banded volumes, outlines,
-  speculars; size-parameterized windows/rugs shared across rooms). A room
-  generator (`assets/_gen_tileset_house.py`, `_gen_tileset_downstairs.py`)
-  is a thin ~100-line config: palette + light pools + `place()` props at map
-  feature chars; `assets/_tiles.py` slices the composed canvases into a real
-  TileSet (atlas + `.tres` + layout in `assets/tilesets/`, ~67-95 tiles from
-  336 cells) that `scene/tiled_map.gd` stamps onto TWO TileMapLayers — under
-  and over entities, so bodies walk behind railings/lintels
-  (`scene/house.tscn` = reference) — move a feature char in the map txt and
-  it moves in-game. A NEW interior = map txt + thin config.
+**Two scene pipelines, one map format:** the meadow is painted — a single
+composed painting (ground + overlay Sprite2Ds) generated from its
+`assets/maps/*.txt` on `assets/_core.py` + `assets/_paint.py` +
+`assets/_palette.py` (`scene/meadow.tscn` = reference). Interiors, the
+overworld AND the town are TILED on the shared **tile kit** `assets/_tilekit.py`
+(`TileScene`: canvases, material ramps, footprint `place()`/`place_split`/
+`place_each`, glow, the slice/dedupe `finish()`):
+  the **interior kit** `assets/_interior.py` (16-periodic fabrics — plank
+  walls with wainscot, weave/flag floors — whole-tile light dispatch,
+  stair/rail/jamb cells, the `Room` driver) + `assets/_interior_props.py`
+  (furniture authored on `_sprites.py`), and the **overworld kit**
+  `assets/_overworld_tiles.py` (`OverWorld` driver, used by BOTH the
+  overworld map and walkable Alembic Town: terrain fabrics — grass/forest
+  carry a 32-periodic phase on interior cells — + neighbor-keyed CT autotile
+  transitions with **45° corner cuts** — every boundary painted one-sidedly
+  by its owner class, every cell a pure function of terrain + per-class
+  8-neighbor masks, so diagonal coasts/cliffs/canopy rims dedupe; forest
+  canopy AND mountain massifs share one 16-periodic lobe lattice —
+  crown-ball vs stylized-peak shading — whose arcs also FORM each rim
+  (`_arc_cell`: lobes whose disc would cross an open boundary are
+  rejected, bays render the neighbor's fabric, a 1px ring outlines the
+  silhouette, snow caps the massif's north-facing edge lobes); fabric
+  texture = tile-local `_grain_dither`/`_hatch` — turf clumps + warm
+  grass2 drift patches, strata-hatched peak faces, dithered boundary
+  lips — NEVER keyed on absolute position; roads are wobbly segment-union
+  trails keyed to shared edges; variants only on interior cells) + `assets/_overworld_props.py`
+  (the landmark library — one-off, never deduped, so props use full
+  per-pixel Sprite shading: tone() lambert roofs, `_coursed_wall` masonry,
+  `_hatch_px` linework, cluster_shade finishing: town cluster ICON, the
+  castle, the Horn peak, the Elder Tree, the obelisk + crystal outcrops,
+  lone trees) + `assets/_town_props.py` (zone-scale facades: Basil's
+  cottage, cottages, the Academy, well/lamp/stall).
+  A generator (`assets/_gen_tileset_house.py`, `_gen_tileset_downstairs.py`,
+  `_gen_tileset_overworld.py`, `_gen_tileset_town.py`) is a thin config:
+  palette + pools/terrain + `place()` props at map feature chars;
+  `assets/_tiles.py` slices the composed canvases into a real TileSet (atlas
+  + `.tres` + layout in `assets/tilesets/`; 60-88 tiles from 336 interior
+  cells, ~580 from the overworld's 2304, ~255 from the town's 1120) that
+  `scene/tiled_map.gd` stamps onto TWO TileMapLayers — under and over
+  entities, so bodies walk behind railings/lintels/ROOFLINES
+  (`scene/house.tscn` = interior reference, `scene/overworld.tscn` +
+  `scene/alembic_town.tscn` = exterior references) — move a feature char in
+  the map txt and it moves in-game. A NEW scene = map txt + thin config.
   Sprites/fx build on `assets/_sprites.py`; collision is always an
   invisible TileMapLayer built at runtime by `scene/painted_map.gd` from the same
   map file. Regenerate via `assets/_gen_*.py`, then

@@ -1,35 +1,34 @@
 extends Node2D
 
-## Chrono Trigger-style travel layer over a TILED continent: visible tiles are
-## stamped at runtime from the generated layout (assets/_gen_tileset_overworld.py)
-## onto two layers — Tiles under the chibi, TilesUpper over him (he passes
-## behind the forest canopy rim) — with collision from the same
-## assets/maps/overworld.txt grid, so nothing can drift. The location markers
-## take their positions from the map's anchors — one source of truth for
-## geography. Towns are CT-faithful cluster ICONS: stepping on Alembic Town's
-## gate mouth fades straight into Basil's downstairs (the walkable town scene,
-## alembic_town.tscn, is PARKED for now); the meadow marker fades into the
-## meadow zone. Locked spots announce themselves in the bottom banner.
+## Alembic Town, walkable at zone scale — the CT-Truce village the overworld's
+## town icon opens into. Visible tiles are stamped at runtime from the
+## generated layout (assets/_gen_tileset_town.py) onto two layers — Tiles
+## under the player, TilesUpper over him (he passes behind rooflines and the
+## hedge border) — with collision from the same assets/maps/town.txt grid.
+## Marker positions come from the map's anchors: Basil's open door travels
+## down to the lab (downstairs), the neighbor cottages and the barred Academy
+## announce in the banner, the south lane exits to the overworld. The spawn
+## anchor is routed through Game.town_spawn (read-and-clear; "" = the south
+## entrance, where the overworld drops you).
 
-const MAP_PATH := "res://assets/maps/overworld.txt"
-const LAYOUT_PATH := "res://assets/tilesets/overworld_layout.txt"
+const MAP_PATH := "res://assets/maps/town.txt"
+const LAYOUT_PATH := "res://assets/tilesets/town_layout.txt"
 
-## Return-spawn drop below a marker: one tile and a hair, so arriving from a
-## zone lands the chibi on the walkable cell just south of the marker (door
-## mouths sit IN a building's door cell) without re-triggering it.
-const ARRIVE_DROP := 18.0
+## Return-spawn drop below the home door: a tile and a half for the 48px
+## player, so leaving the cottage lands him clear of the door marker.
+const ARRIVE_DROP := 24.0
 
 var map: Dictionary
 
-@onready var player: OverworldPlayer = $OverworldPlayer
+@onready var player: Player = $World/Player
 @onready var locations: Node2D = $Locations
 @onready var banner: Label = $UI/Banner
 @onready var fade: ColorRect = $UI/Fade
 
 var _entry_locked: bool = true
 var _busy: bool = false
-## Location ids the player is currently standing on; cleared on body_exited so a
-## marker can't re-announce until he steps off and back onto it.
+## Location ids the player is currently standing on; cleared on body_exited so
+## a marker can't re-announce until he steps off and back onto it.
 var _standing: Dictionary = {}
 
 
@@ -38,13 +37,18 @@ func _ready() -> void:
 	TiledMap.build(LAYOUT_PATH, {"lower": $Tiles, "upper": $TilesUpper})
 	PaintedMap.build_collision(map, $Collision)
 	_clamp_camera()
-	player.global_position = MapData.anchor_px(map, "player_start")
+	var spawn := Game.town_spawn
+	Game.town_spawn = ""
+	if spawn == "home":
+		player.position = MapData.anchor_px(map, "home") + Vector2(0.0, ARRIVE_DROP)
+	else:
+		player.position = MapData.anchor_px(map, "player_start")
 	for loc: OverworldLocation in locations.get_children():
 		loc.position = MapData.anchor_px(map, loc.id)
 		loc.body_entered.connect(_on_location_entered.bind(loc))
 		loc.body_exited.connect(_on_location_exited.bind(loc))
-		if loc.id == Game.overworld_spawn:
-			player.global_position = loc.global_position + Vector2(0.0, ARRIVE_DROP)
+	$ExitSouth.position = MapData.anchor_px(map, "exit_south")
+	$ExitSouth.body_entered.connect(_on_exit_south)
 	var tw := create_tween()
 	tw.tween_property(fade, "modulate:a", 0.0, 0.7)
 	await get_tree().create_timer(0.8).timeout
@@ -66,7 +70,7 @@ func _clamp_camera() -> void:
 
 
 func _on_location_entered(body: Node2D, loc: OverworldLocation) -> void:
-	if not body is OverworldPlayer or _entry_locked or _busy:
+	if not body is Player or _entry_locked or _busy:
 		return
 	if _standing.get(loc.id, false):
 		return
@@ -78,13 +82,15 @@ func _on_location_entered(body: Node2D, loc: OverworldLocation) -> void:
 
 
 func _on_location_exited(body: Node2D, loc: OverworldLocation) -> void:
-	if body is OverworldPlayer:
+	if body is Player:
 		_standing[loc.id] = false
 
 
+## Through Basil's open door, down to the lab.
 func _travel(loc: OverworldLocation) -> void:
 	_busy = true
-	Game.overworld_spawn = loc.id
+	if loc.id == "home":
+		Game.interior_spawn = "front_door"
 	_show_banner(loc.display_name, 1.6)
 	var tw := create_tween()
 	tw.tween_property(fade, "modulate:a", 1.0, 0.5)
@@ -98,6 +104,17 @@ func _announce(loc: OverworldLocation) -> void:
 	if loc.locked_text != "":
 		await _show_banner(loc.locked_text, 1.6)
 	_busy = false
+
+
+## Out the south lane, back to the overworld at the town icon.
+func _on_exit_south(body: Node) -> void:
+	if body is Player and not _busy:
+		_busy = true
+		Game.overworld_spawn = "town"
+		var tw := create_tween()
+		tw.tween_property(fade, "modulate:a", 1.0, 0.5)
+		await tw.finished
+		get_tree().change_scene_to_file("res://scene/overworld.tscn")
 
 
 func _show_banner(text: String, hold: float) -> void:

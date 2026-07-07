@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cislcc2wndj1"
-path="res://.godot/imported/overworld_overlay.png-c2104f23ee11e0eefe4c8b55c5f83032.ctex"
+uid="uid://vd3jvlv1lfkp"
+path="res://.godot/imported/overworld_glow.png-78ec9a9895378b45a3a6c949cc656224.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/scenes/overworld_overlay.png"
-dest_files=["res://.godot/imported/overworld_overlay.png-c2104f23ee11e0eefe4c8b55c5f83032.ctex"]
+source_file="res://assets/tilesets/overworld_glow.png"
+dest_files=["res://.godot/imported/overworld_glow.png-78ec9a9895378b45a3a6c949cc656224.ctex"]
 
 [params]
 

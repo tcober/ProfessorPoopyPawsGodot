@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Fully transparent 32x32 tile for the invisible physics-only collision
-TileSet (assets/collision_tileset.tres) that painted scenes build at runtime.
+"""Fully transparent 16x16 tile for the invisible physics-only collision
+TileSet (assets/collision_tileset.tres) that every scene builds at runtime.
 
 Run: python3 assets/_gen_collision.py
 """

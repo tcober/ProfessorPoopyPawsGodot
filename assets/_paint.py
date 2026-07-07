@@ -307,7 +307,7 @@ class Painter:
 
     def sdf(self, chars, blur=2, step=4):
         """Memoized region SDF. Use step=8/blur>=8 for organic biome boundaries
-        (melts the 32px tile steps); the tight default only suits logic queries."""
+        (melts the 16px tile steps); the tight default only suits logic queries."""
         key = ("".join(sorted(chars)), blur, step)
         if key not in self._sdf:
             self._sdf[key] = sdf_from_mask(self.map.mask(chars), ZONE_TILE, step, blur)

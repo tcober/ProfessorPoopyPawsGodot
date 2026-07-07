@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Contract checker for the art pipeline (stdlib only).
 
-Painted-scene contracts: every assets/maps/*.txt parses and is enclosed except
-at exit anchors; each painted map's scenes/<name>_ground.png and _overlay.png
-exist at cols*16 x rows*16 with a majority-transparent overlay; tiled maps
-(house.txt) have a generated layout matching the map's dims whose every atlas
-ref exists in the atlas PNG and is declared in the TileSet .tres; the collision
-TileSet is a single full-square physics tile; entities placed in .tscn scenes
-sit on walkable cells; sheet dims and .tres regions match.
+Contracts: every assets/maps/*.txt parses, is enclosed except at exit anchors,
+and keeps its anchors on walkable cells; each painted map's
+scenes/<name>_ground.png and _overlay.png exist at cols*16 x rows*16 with a
+majority-transparent overlay; tiled maps (house, downstairs, overworld) have a
+generated layout matching the map's dims whose every atlas ref exists in the
+atlas PNG and is declared in the TileSet .tres; the collision TileSet is a
+single full-square physics tile; entities placed in .tscn scenes sit on
+walkable cells; sheet dims and .tres regions match.
 
 Run after any `python3 assets/_gen_*.py`: python3 assets/_check_art.py
 """
@@ -61,8 +62,9 @@ def png_alpha_ratio(rel):
 # ---- painted scenes -----------------------------------------------------------------
 MAPS = {
     "maps/meadow.txt": ("scenes/meadow_ground.png", "scenes/meadow_overlay.png"),
-    "maps/overworld.txt": ("scenes/overworld_ground.png", "scenes/overworld_overlay.png"),
-    "maps/house.txt": None,        # tiled scenes — checked in the tiled section below
+    "maps/overworld.txt": None,    # tiled scenes — checked in the tiled section below
+    "maps/town.txt": None,
+    "maps/house.txt": None,
     "maps/downstairs.txt": None,
 }
 
@@ -79,6 +81,9 @@ for rel, pair in MAPS.items():
                 if not any(abs(x - ex) <= 3 and abs(y - ey) <= 3 for (ex, ey) in exits):
                     leaks.append((x, y))
     check(f"{rel} enclosed (except exits)", not leaks, f"leaks at {leaks[:4]}")
+    bad_anchors = [(n, txy) for n, txy in m.anchors.items()
+                   if m.legend[m.at(txy[0], txy[1])]["solid"]]
+    check(f"{rel} anchors on walkable cells", not bad_anchors, str(bad_anchors))
     if pair is None:
         continue
     ground, overlay = pair
@@ -96,6 +101,12 @@ TILED = {
     "maps/downstairs.txt": ("tilesets/downstairs_layout.txt",
                             "tilesets/downstairs_tiles.png",
                             "tilesets/downstairs_tiles.tres"),
+    "maps/overworld.txt": ("tilesets/overworld_layout.txt",
+                           "tilesets/overworld_tiles.png",
+                           "tilesets/overworld_tiles.tres"),
+    "maps/town.txt": ("tilesets/town_layout.txt",
+                      "tilesets/town_tiles.png",
+                      "tilesets/town_tiles.tres"),
 }
 
 print("tiled scenes:")
@@ -150,6 +161,7 @@ PLACEMENTS = {
     "scene/meadow.tscn": "maps/meadow.txt",
     "scene/house.tscn": "maps/house.txt",
     "scene/downstairs.tscn": "maps/downstairs.txt",
+    "scene/alembic_town.tscn": "maps/town.txt",
 }
 
 print("placements:")

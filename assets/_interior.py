@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Interior room kit — the shared skeleton of every tiled interior.
 
-One module owns what `_gen_tileset_house.py` and `_gen_tileset_downstairs.py`
-used to duplicate: the int-casting canvas, map geometry, the 16-periodic
-terrain fabrics (walls with wainscot, weave + flagstone floors), the per-cell
-terrain painters with their whole-tile light dispatch, the stair/rail/jamb
-cell painters, and the slice/dedupe/write + glow + preview plumbing. A room
-generator becomes a thin CONFIG: pick the scene palette, declare terrain
-rules and light pools, `place()` props from `_interior_props.py`, `finish()`.
+The generic tiled-scene plumbing (canvas, materials, bbox/px geometry, prop
+placement, slice/dedupe/write) lives in _tilekit.py's TileScene, shared with
+the overworld driver (_overworld_tiles.py). This module owns what is
+INTERIOR: the 16-periodic terrain fabrics (walls with wainscot, weave +
+flagstone floors), the per-cell terrain painters with their whole-tile light
+dispatch, and the stair/rail/jamb cell painters. A room generator becomes a
+thin CONFIG: pick the scene palette, declare terrain rules and light pools,
+`place()` props from `_interior_props.py`, `finish()`.
 
 The disciplines this kit enforces (see DESIGN.md "Art pipeline"):
   * fabric painters are pure functions of 16-periodic pixel coordinates, so
@@ -25,52 +26,14 @@ import os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from _core import h2, lerp, Img, ZONE_TILE
-from _maps import MapData
+from _core import h2, lerp
 from _palette import SCENES, ramp
-from _tiles import slice_atlas, write_atlas, write_tileset_tres, write_layout
-
-T = ZONE_TILE
-OUTDIR = os.path.join(HERE, "tilesets")
-
-# ---- shared materials: one house, one hardware store -------------------------------
-TIMBER = ramp((146, 94, 62), "violet", 6)     # furniture wood
-BRASS = ramp((240, 188, 98), "violet", 4)
-STEEL = ramp((170, 168, 206), "violet", 4)
-COPPER = ramp((198, 112, 72), "violet", 6)
-IRON = ramp((104, 100, 124), "violet", 4)
-STONER = ramp((144, 138, 170), "violet", 6)   # masonry
-GLASS = (216, 226, 240, 255)
-MINT = (132, 246, 152, 255)
-VIOLETF = (188, 132, 232, 255)
-PAPER = (240, 232, 226, 255)
-PAPERD = (206, 196, 204, 255)
-RED = (226, 62, 92, 255)
-SPEC = (255, 255, 250, 255)
-WATER = (150, 210, 214, 255)
-FROST = (214, 240, 242, 255)
-STEAM = (226, 224, 240, 255)
-VOID = (10, 8, 24, 255)
-DROP1 = (22, 15, 42, 255)                     # darkness bands past a floor edge
-DROP2 = (13, 10, 30, 255)
-OUTLINE = (26, 17, 36, 255)                   # prop silhouette edge
-
-
-class Canvas(Img):
-    """Room canvas: int-casting put/rect plus an interpolated line."""
-
-    def put(self, x, y, c):
-        super().put(int(x), int(y), c)
-
-    def rect(self, x0, y0, x1, y1, c):
-        super().rect(int(x0), int(y0), int(x1), int(y1), c)
-
-    def line(self, x0, y0, x1, y1, c):
-        steps = max(abs(x1 - x0), abs(y1 - y0), 1)
-        for i in range(int(steps) + 1):
-            t = i / steps
-            self.put(round(x0 + (x1 - x0) * t), round(y0 + (y1 - y0) * t), c)
-
+# Shared kit + materials, re-exported so props/generators keep importing from
+# here (one hardware store, one import path).
+from _tilekit import (TileScene, Canvas, T, OUTDIR,
+                      TIMBER, BRASS, STEEL, COPPER, IRON, STONER, GLASS, MINT,
+                      VIOLETF, PAPER, PAPERD, RED, SPEC, WATER, FROST, STEAM,
+                      VOID, DROP1, DROP2, OUTLINE)
 
 # ---- terrain fabrics: pure 16-periodic pixel functions ------------------------------
 
@@ -132,7 +95,7 @@ def flag_px(x, y, ramp6, shade=0):
     return ramp6[min(5, i + shade)]
 
 
-class Room:
+class Room(TileScene):
     """One tiled interior: map + geometry + canvases + palette + plumbing.
 
     The generator config constructs it, declares light pools, paints terrain
@@ -143,18 +106,12 @@ class Room:
 
     def __init__(self, map_name, scene_key, floor_px_fn, lit_target,
                  floor_chars=".g", lit_blend=0.62):
-        self.name = map_name
-        self.m = MapData(os.path.join(HERE, "maps", map_name + ".txt"))
-        self.W, self.H = self.m.cols * T, self.m.rows_n * T
-        self.bg = Canvas(self.W, self.H, VOID)
-        self.ov = Canvas(self.W, self.H)
+        super().__init__(map_name, scene_key, VOID)
         self.floor_px = floor_px_fn
         self.floor_chars = floor_chars
         sc = SCENES[scene_key]
-        self.ACCENT = sc["accent"]
         self.WALLR = ramp(sc["mats"]["wall"], sc["shadow"], 6)
         self.FLOORR = ramp(sc["mats"]["floor"], sc["shadow"], 6)
-        self.mats = dict(sc["mats"])
         # lit fabric: one step lighter, blended hard toward the light source
         self.FLOOR_LIT = [tuple(lerp(self.FLOORR[max(0, i - 1)][:3],
                                      lit_target, lit_blend)) + (255,)
@@ -170,19 +127,6 @@ class Room:
         self.lit_cells = set()
         self.fringe_cells = set()
         self.shadow_rows = (self.FLOOR_ROW,)
-
-    # -- geometry ---------------------------------------------------------------------
-    def bbox(self, chars):
-        cs = [(x, y) for y in range(self.m.rows_n) for x in range(self.m.cols)
-              if self.m.at(x, y) in chars]
-        assert cs, f"no {chars!r} cells in {self.name}.txt"
-        xs, ys = [c[0] for c in cs], [c[1] for c in cs]
-        return (min(xs), min(ys), max(xs), max(ys))
-
-    def px(self, bbox):
-        """(X, Y, W, H) pixel rect of a tile bbox."""
-        return (bbox[0] * T, bbox[1] * T,
-                (bbox[2] - bbox[0] + 1) * T, (bbox[3] - bbox[1] + 1) * T)
 
     # -- terrain cells ----------------------------------------------------------------
     def floor_cell(self, tx, ty, kind=None):
@@ -385,53 +329,14 @@ class Room:
 
     def bake_shadow(self, chars, shadow_h):
         """Contact-shadow band of shaded fabric across a footprint's bottom
-        rows — also used alone under furniture that lives as a y-sorted
-        scene ENTITY rather than baked tiles (desk, boiler: the static
-        upper-tile walk-behind trick fails when a 2-tile-tall body stands
-        directly south — its head clips behind the furniture top; y-sort is
+        rows (overrides TileScene's darken pass: the interiors repaint their
+        own floor fabric two steps darker, so the shadow stays on-weave) —
+        also used alone under furniture that lives as a y-sorted scene
+        ENTITY rather than baked tiles (desk, boiler: the static upper-tile
+        walk-behind trick fails when a 2-tile-tall body stands directly
+        south — its head clips behind the furniture top; y-sort is
         unconditionally correct)."""
         X, Y, XW, YH = self.px(self.bbox(chars))
         for y in range(Y + YH - shadow_h, Y + YH):
             for x in range(X + 1, X + XW - 1):
                 self.bg.put(x, y, self.floor_px(x, y, self.FLOORR, 2))
-
-    def place(self, chars, sprite, shadow_h=0):
-        """Blit a prop Sprite at its feature bbox; bake a contact-shadow band
-        of shaded fabric across the footprint's bottom rows first."""
-        X, Y, XW, YH = self.px(self.bbox(chars))
-        if shadow_h:
-            self.bake_shadow(chars, shadow_h)
-        self.bg.blit_cell(sprite, X, Y)
-
-    def place_upper(self, chars, sprite):
-        X, Y, _, _ = self.px(self.bbox(chars))
-        self.ov.blit_cell(sprite, X, Y)
-
-    # -- output --------------------------------------------------------------------------
-    def write_glow(self, draw_fn):
-        img = Img(self.W, self.H)
-        draw_fn(img)
-        img.save(os.path.join(OUTDIR, f"{self.name}_glow.png"))
-
-    def finish(self):
-        os.makedirs(OUTDIR, exist_ok=True)
-        tiles, seen = [], {}
-        _, lower = slice_atlas(self.bg, tiles, seen)
-        _, upper = slice_atlas(self.ov, tiles, seen, skip_empty=True)
-        write_atlas(os.path.join(OUTDIR, f"{self.name}_tiles.png"), tiles)
-        write_tileset_tres(os.path.join(OUTDIR, f"{self.name}_tiles.tres"),
-                           f"res://assets/tilesets/{self.name}_tiles.png", len(tiles))
-        write_layout(os.path.join(OUTDIR, f"{self.name}_layout.txt"),
-                     {"lower": lower, "upper": upper},
-                     f"from assets/maps/{self.name}.txt")
-        n_upper = sum(1 for row in upper for i in row if i is not None)
-        print(f"{len(tiles)} unique tiles from {self.m.cols * self.m.rows_n} cells "
-              f"({n_upper} upper-layer cells)")
-        if "--preview" in sys.argv:
-            out = sys.argv[sys.argv.index("--preview") + 1]
-            for y in range(self.H):
-                for x in range(self.W):
-                    p = self.ov.get(x, y)
-                    if p[3]:
-                        self.bg.put(x, y, p)
-            self.bg.save(out if os.path.isabs(out) else os.path.join(HERE, out))

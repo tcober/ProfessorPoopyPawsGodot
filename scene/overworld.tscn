@@ -1,22 +1,33 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scene/overworld.gd" id="1_ow"]
-[ext_resource type="Texture2D" path="res://assets/scenes/overworld_ground.png" id="2_ground"]
 [ext_resource type="Script" path="res://scene/overworld_location.gd" id="3_loc"]
 [ext_resource type="Texture2D" path="res://assets/overworld_icons.png" id="4_icons"]
 [ext_resource type="PackedScene" path="res://entities/player/overworld_player.tscn" id="5_player"]
 [ext_resource type="FontFile" path="res://assets/font/pixel_font.fnt" id="6_font"]
 [ext_resource type="TileSet" path="res://assets/collision_tileset.tres" id="7_collision"]
-[ext_resource type="Texture2D" path="res://assets/scenes/overworld_overlay.png" id="8_overlay"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tiles.tres" id="8_tiles"]
+[ext_resource type="Texture2D" path="res://assets/tilesets/overworld_glow.png" id="9_glow"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_marker"]
 size = Vector2(20, 14)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
+size = Vector2(12, 10)
+
+[sub_resource type="CanvasItemMaterial" id="mat_add"]
+blend_mode = 1
+
 [node name="Overworld" type="Node2D"]
 script = ExtResource("1_ow")
 
-[node name="Ground" type="Sprite2D" parent="."]
-texture = ExtResource("2_ground")
+[node name="Tiles" type="TileMapLayer" parent="."]
+texture_filter = 1
+tile_set = ExtResource("8_tiles")
+
+[node name="Glow" type="Sprite2D" parent="."]
+material = SubResource("mat_add")
+texture = ExtResource("9_glow")
 centered = false
 texture_filter = 1
 
@@ -25,24 +36,8 @@ tile_set = ExtResource("7_collision")
 
 [node name="Locations" type="Node2D" parent="."]
 
-[node name="Home" type="Area2D" parent="Locations"]
-position = Vector2(168, 440)
-script = ExtResource("3_loc")
-id = "home"
-display_name = "BASIL'S BLUFF"
-target_scene = "res://scene/downstairs.tscn"
-
-[node name="Sprite2D" type="Sprite2D" parent="Locations/Home"]
-position = Vector2(0, -12)
-texture = ExtResource("4_icons")
-region_enabled = true
-region_rect = Rect2(0, 0, 32, 32)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Home"]
-shape = SubResource("RectangleShape2D_marker")
-
 [node name="Meadow" type="Area2D" parent="Locations"]
-position = Vector2(344, 216)
+position = Vector2(328, 264)
 script = ExtResource("3_loc")
 id = "meadow"
 display_name = "WHISKER MEADOW"
@@ -57,13 +52,22 @@ region_rect = Rect2(64, 0, 32, 32)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Meadow"]
 shape = SubResource("RectangleShape2D_marker")
 
-[node name="OverworldPlayer" parent="." instance=ExtResource("5_player")]
-position = Vector2(184, 456)
+[node name="Town" type="Area2D" parent="Locations"]
+position = Vector2(136, 408)
+script = ExtResource("3_loc")
+id = "town"
+display_name = "BASIL'S COTTAGE"
+target_scene = "res://scene/downstairs.tscn"
 
-[node name="Overlay" type="Sprite2D" parent="."]
-texture = ExtResource("8_overlay")
-centered = false
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Town"]
+shape = SubResource("RectangleShape2D_door")
+
+[node name="OverworldPlayer" parent="." instance=ExtResource("5_player")]
+position = Vector2(216, 392)
+
+[node name="TilesUpper" type="TileMapLayer" parent="."]
 texture_filter = 1
+tile_set = ExtResource("8_tiles")
 
 [node name="UI" type="CanvasLayer" parent="."]
 layer = 10
