@@ -1,25 +1,30 @@
 class_name Player
-extends CharacterBody2D
+extends DirectionalBody2D
 
-## The science cat. 8-way movement, 4-way facing. Fires a laser gun in the facing
-## direction (single shot per press) and refills its charges from beaker pickups.
-## Composes HealthComponent / HurtboxComponent and drives an AnimatedSprite2D by
-## animation name so a real sprite sheet swaps in with no code change.
+## The science cat. 8-way movement, 4-way facing (see DirectionalBody2D). Fires a
+## laser gun in the facing direction — the bolt leaves the INSTANT the trigger is
+## pulled and the recoil shoves him back like he can barely hold on. Beakers are
+## the gun's magazines: pickups go into his coat as spares (max_beakers), and
+## reloading (R, or pulling the trigger dry) plays the pour animation and empties
+## one into the gun. Composes HealthComponent / HurtboxComponent.
 
 signal ammo_changed(current: int, max_ammo: int)
+signal beakers_changed(current: int, max_beakers: int)
 
-enum State { MOVE, SHOOT, HURT }
+enum State { MOVE, SHOOT, RELOAD, HURT }
 
 @export var speed: float = 150.0
 @export var knockback_speed: float = 130.0
 @export var hurt_time: float = 0.3
 
-## Laser gun.
+## Laser gun. Fires the frame the trigger is pulled — no wind-up.
 @export var max_ammo: int = 6
-@export var fire_windup: float = 0.12    # gun-raise time before the bolt actually fires
-@export var fire_recover: float = 0.20   # planted "settle" time after the shot
+@export var fire_recover: float = 0.24   # control lock while the recoil slide plays out
 @export var muzzle_offset: float = 16.0  # how far in front the bolt spawns (gun tip in the art)
-@export var recoil_push: float = 165.0   # backward shove when the bolt leaves — it KICKS
+@export var recoil_push: float = 240.0   # backward shove when the bolt leaves — barely held on
+@export var max_beakers: int = 3         # spare magazines he can carry
+@export var reload_time: float = 0.65    # beaker-pour animation lock (matches "reload" anim)
+@export var reload_pour_at: float = 0.35 # seconds in when the juice lands (anim's stream frame)
 
 ## Hop: jumps straight up when standing, leaps in the held direction when moving, and
 ## can be steered a little mid-air (SNES-Zelda style). Dodges hits while airborne.
@@ -31,18 +36,18 @@ enum State { MOVE, SHOOT, HURT }
 const LaserBoltScene := preload("res://entities/projectiles/laser_bolt.tscn")
 const MuzzleFlashScene := preload("res://entities/projectiles/muzzle_flash.tscn")
 
-@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var shadow: Sprite2D = $Shadow
 @onready var hurtbox: HurtboxComponent = $HurtboxComponent
 @onready var health: HealthComponent = $HealthComponent
 
 var state: State = State.MOVE
-var facing: Vector2 = Vector2.DOWN
 var ammo: int = 0
+var beakers: int = 0
 
 var _knockback: Vector2 = Vector2.ZERO
 var _shoot_timer: float = 0.0
-var _fired: bool = false
+var _reload_timer: float = 0.0
+var _poured: bool = false
 var _recoil: Vector2 = Vector2.ZERO
 var _jump_dir: Vector2 = Vector2.DOWN
 var _airborne: bool = false
@@ -55,7 +60,9 @@ func _ready() -> void:
 	_sprite_base_y = sprite.position.y
 	shadow.visible = false
 	ammo = max_ammo
+	beakers = 1                      # one spare mag in the coat to start
 	ammo_changed.emit(ammo, max_ammo)
+	beakers_changed.emit(beakers, max_beakers)
 	hurtbox.hit.connect(_on_hurt)
 	health.died.connect(_on_died)
 
@@ -65,14 +72,25 @@ func _physics_process(delta: float) -> void:
 		State.MOVE:
 			_process_move()
 		State.SHOOT:
-			# The shot shoves him backward; a slower bleed-off lets the slide read.
+			# The bolt already left on the trigger frame; this is the kick —
+			# he skids backward, barely holding on, while control is locked.
 			velocity = _recoil
 			_recoil = _recoil.move_toward(Vector2.ZERO, recoil_push * 4.5 * delta)
 			_shoot_timer -= delta
-			# Wind-up first; the bolt leaves once the gun is raised.
-			if not _fired and _shoot_timer <= fire_recover:
-				_fire_bolt()
 			if _shoot_timer <= 0.0:
+				state = State.MOVE
+		State.RELOAD:
+			# Planted while he pours a beaker mag into the gun. The juice lands
+			# partway through the anim — that's when the mag is actually spent.
+			velocity = Vector2.ZERO
+			_reload_timer -= delta
+			if not _poured and _reload_timer <= reload_time - reload_pour_at:
+				_poured = true
+				beakers -= 1
+				beakers_changed.emit(beakers, max_beakers)
+				ammo = max_ammo
+				ammo_changed.emit(ammo, max_ammo)
+			if _reload_timer <= 0.0:
 				state = State.MOVE
 		State.HURT:
 			velocity = _knockback
@@ -102,28 +120,26 @@ func _process_move() -> void:
 
 	if Input.is_action_just_pressed("attack"):
 		_try_fire()
+	elif Input.is_action_just_pressed("reload"):
+		_try_reload()
 	elif Input.is_action_just_pressed("jump") and not _airborne:
 		_start_jump()
 
 
 func _try_fire() -> void:
 	if ammo <= 0:
-		# Out of charges — needs a beaker refill. (Empty-click feedback comes later.)
+		# Dry trigger pulls the fresh mag in (no-op if his coat is empty too).
+		_try_reload()
 		return
-	# Start the shoot pose now; the bolt fires after the wind-up (see _physics_process).
-	state = State.SHOOT
-	_fired = false
-	_shoot_timer = fire_windup + fire_recover
-	velocity = Vector2.ZERO
-	_play_directional("shoot")
-
-
-func _fire_bolt() -> void:
-	_fired = true
+	# Everything lands on the trigger frame: bolt, flash, kick, recoil pose.
 	ammo -= 1
 	ammo_changed.emit(ammo, max_ammo)
+	state = State.SHOOT
+	_shoot_timer = fire_recover
 	_recoil = -facing * recoil_push
+	velocity = _recoil
 	_spawn_bolt()
+	_play_directional("shoot")
 
 
 func _spawn_bolt() -> void:
@@ -135,13 +151,38 @@ func _spawn_bolt() -> void:
 	# Blast at the gun root.
 	var flash := MuzzleFlashScene.instantiate()
 	add_child(flash)
+	if facing == Vector2.UP:
+		# The up-view art holds the gun BEHIND his head — draw the flash there
+		# too, before the sprite in child order (z_index would sink it under
+		# the ground painting).
+		move_child(flash, sprite.get_index())
 	flash.position = facing * muzzle_offset
 	flash.rotation = facing.angle()
 
 
-func refill_ammo(amount: int) -> void:
-	ammo = mini(ammo + amount, max_ammo)
-	ammo_changed.emit(ammo, max_ammo)
+func collect_beaker() -> bool:
+	## A beaker is a spare magazine. False = paws full, leave it on the grass.
+	if beakers >= max_beakers:
+		return false
+	beakers += 1
+	beakers_changed.emit(beakers, max_beakers)
+	return true
+
+
+func _try_reload() -> void:
+	# The pour is a planted ritual — no mid-hop reloads, nothing to load if the
+	# mag is topped up or his coat is empty. (Empty-click feedback comes later.)
+	if state != State.MOVE or _airborne:
+		return
+	if beakers <= 0 or ammo >= max_ammo:
+		return
+	state = State.RELOAD
+	velocity = Vector2.ZERO
+	facing = Vector2.DOWN   # he turns to the camera to pour
+	_reload_timer = reload_time
+	_poured = false
+	sprite.play("reload")
+	sprite.flip_h = false
 
 
 func _start_jump() -> void:
@@ -178,26 +219,6 @@ func _update_hop(delta: float) -> void:
 	shadow.scale = Vector2.ONE * (1.0 - 0.45 * arc)
 
 
-func _update_facing(dir: Vector2) -> void:
-	if absf(dir.x) > absf(dir.y):
-		facing = Vector2.RIGHT if dir.x > 0.0 else Vector2.LEFT
-	else:
-		facing = Vector2.DOWN if dir.y > 0.0 else Vector2.UP
-
-
-func _facing_suffix() -> String:
-	if facing == Vector2.UP:
-		return "up"
-	elif facing == Vector2.DOWN:
-		return "down"
-	return "side"
-
-
-func _play_directional(prefix: String) -> void:
-	sprite.play(prefix + "_" + _facing_suffix())
-	sprite.flip_h = facing == Vector2.LEFT
-
-
 func _on_hurt(_damage: int, source: Node) -> void:
 	if source is Node2D:
 		_knockback = (global_position - (source as Node2D).global_position).normalized() * knockback_speed
@@ -211,6 +232,6 @@ func _on_hurt(_damage: int, source: Node) -> void:
 
 
 func _on_died() -> void:
-	set_physics_process(false)
-	sprite.play("hurt")
-	# Death/respawn flow comes later; for the slice we just stop the cat.
+	# He can't die (for now): the killing blow reads as a normal hit — the
+	# hurt stagger plays and his hearts refill. Real death/respawn comes later.
+	health.refill()

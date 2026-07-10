@@ -12,6 +12,15 @@ signal hit(damage: int, source: Node)
 var _invincible: bool = false
 
 
+func _ready() -> void:
+	# Hand-authored .tscn files must mark node exports with
+	# node_paths=PackedStringArray("health_component") on the node header or
+	# the reference silently loads as null. Fall back to the conventional
+	# sibling so a forgotten attribute degrades loudly-visibly, not silently.
+	if health_component == null:
+		health_component = get_node_or_null(^"../HealthComponent") as HealthComponent
+
+
 func take_hit(damage: int, source: Node) -> void:
 	if _invincible:
 		return

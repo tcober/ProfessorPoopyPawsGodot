@@ -1,154 +1,133 @@
 #!/usr/bin/env python3
-"""Frame-consistent slime sprite sheet (assets/slime_gen.png, 144x96, 24x24 cells, 6x4).
+"""Meadow slime sheet (assets/slime_gen.png, 144x96, 24x24 cells, 6x4) on the
+_sprites.py kit, at TRUE SNES density (CT-chunk restart).
 
-Matches entities/enemies/slime_frames.tres:
+FROZEN contracts (entities/enemies/slime_frames.tres + slime.gd):
   row0 walk_down(6)  row1 walk_up(6)  row2 walk_side(6, faces RIGHT; code mirrors)
-  row3 death(4 splat) + 2 empty
+  row3 death(4 splat)   ·   frames 2-4 of each walk row are AIRBORNE — slime.gd
+  scales movement speed to those frames so slimes hop instead of glide.
 
-The walk rows are one bounce cycle: rest, squash, launch, apex, fall, land. The slime
-is airborne on frames 2-4 — slime.gd scales movement speed to match, so it hops.
-Feet baseline y=21. Re-run: python3 assets/_gen_slime_sprites.py
+The bounce is squash-and-stretch with conserved volume (half_w x height stays
+~constant), a darker gel nucleus that lags the body, a wet glint, and a
+translucent bottom rim where light passes through the gel. Feet baseline y=21.
+Palette: _palette.SLIME. Re-run: python3 assets/_gen_slime_sprites.py
 """
-import struct, zlib, os, math
+import os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+from _core import write_cells
+from _sprites import Sprite
+from _palette import SLIME
+
 CELL, COLS, ROWS = 24, 6, 4
 BASE = 21
+CX = 11.5
 
-# 4-tone gel ramp (light -> dark), shaded like a lit dome with dithered bands
-GELR  = [(172, 240, 180, 255), (116, 210, 132, 255), (76, 170, 100, 255), (50, 130, 78, 255)]
-GEL   = GELR[1]
-GEL_D = GELR[3]
-GEL_L = GELR[0]
-OUT   = (24, 62, 40, 255)
-EYE   = (24, 34, 28, 255)
-GLINT = (235, 250, 238, 255)
+GELR = SLIME["GELR"]
+OUT = SLIME["OUT"]
+EYE = SLIME["EYE"]
+GLINT = SLIME["GLINT"]
+NUCR = [(96, 178, 122, 255), (70, 148, 100, 255), (50, 122, 84, 255), (36, 98, 70, 255)]
 
 
-def pick(t, x, y):
-    b = max(0.0, min(2.999, t * 3.0))
-    i = int(b)
-    frac = b - i
-    if frac > 0.58 or (0.45 < frac <= 0.58 and (x + y) % 2 == 0):
-        i += 1
-    return GELR[min(3, i)]
-
-
-class Cell:
-    def __init__(self):
-        self.px = [[None] * CELL for _ in range(CELL)]
-
-    def set(self, x, y, c):
-        if 0 <= x < CELL and 0 <= y < CELL:
-            self.px[y][x] = c
-
-    def rect(self, x0, y0, x1, y1, c):
-        for y in range(y0, y1 + 1):
-            for x in range(x0, x1 + 1):
-                self.set(x, y, c)
-
-    def outline(self):
-        edge = []
-        for y in range(CELL):
-            for x in range(CELL):
-                if self.px[y][x] is None:
-                    for nx, ny in ((x-1, y), (x+1, y), (x, y-1), (x, y+1)):
-                        if 0 <= nx < CELL and 0 <= ny < CELL and self.px[ny][nx] \
-                                and self.px[ny][nx] != OUT:
-                            edge.append((x, y))
-                            break
-        for x, y in edge:
-            self.px[y][x] = OUT
-
-
-def blob(c, half_w, h, dy, face="down", alpha=255):
-    def col(rgba):
-        return (rgba[0], rgba[1], rgba[2], alpha)
+def body(s, half_w, h, dy, alpha=255):
+    """Gel dome with a flat base: sqrt-profile silhouette, wrap-lit, bottom rim
+    light where the ground bounces light through the gel."""
     base = BASE - dy
     top = base - h
-    cx = 11.5
     for y in range(top, base + 1):
         f = (y - top) / max(1, h)
-        w = half_w * math.sqrt(max(0.0, 1.0 - (1.0 - f) ** 2))
-        w = max(1.0, w)
-        x0, x1 = round(cx - w), round(cx + w)
+        w = half_w * max(0.06, (1.0 - (1.0 - f) ** 2)) ** 0.5
+        x0, x1 = round(CX - w), round(CX + w)
         for x in range(x0, x1 + 1):
-            nx = (x - cx) / max(1.0, half_w)
+            nx = (x - CX) / max(1.0, half_w)
             ny = f * 2.0 - 1.0
-            t = 0.42 + 0.28 * (nx * 0.55 + ny * 0.75) + 0.24 * (nx * nx + ny * f)
-            c.set(x, y, col(pick(t, x, y)))
-    # wet top-left sheen
-    sx = round(cx - half_w * 0.45)
+            t = 0.40 + 0.30 * (nx * 0.55 + ny * 0.75) + 0.22 * nx * nx
+            if f > 0.86 and abs(nx) < 0.62:
+                t -= 0.34                     # translucent bottom rim
+            c = s.tone(GELR, t, x, y)
+            s.set(x, y, (c[0], c[1], c[2], alpha))
+
+
+def nucleus(s, half_w, h, dy, lag=0.0, alpha=255):
+    """Darker inner blob that lags a touch behind the bounce."""
+    base = BASE - dy
+    cy = base - h * 0.42 + lag
+    rx, ry = half_w * 0.42, h * 0.26
+    for y in range(int(cy - ry), int(cy + ry) + 1):
+        ny = (y - cy) / ry
+        for x in range(int(CX - rx), int(CX + rx) + 2):
+            nx = (x - CX) / rx
+            if nx * nx + ny * ny <= 1.0:
+                t = 0.45 + 0.3 * (nx * 0.5 + ny * 0.8)
+                c = s.tone(NUCR, t, x, y)
+                s.set(x, y, (c[0], c[1], c[2], alpha))
+
+
+def sheen(s, half_w, h, dy, alpha=255):
+    base = BASE - dy
+    top = base - h
+    sx = round(CX - half_w * 0.45)
     sy = top + max(1, h // 5)
-    c.rect(sx, sy, sx + 1, sy + 1, col(GLINT))
-    c.set(sx + 2, sy + 2, col(GEL_L))
-    if face == "up":
-        c.rect(sx + 1, sy + 1, sx + 3, sy + 2, col(GEL_L))   # bigger back sheen
+    s.rect(sx, sy, sx + 1, sy, (GLINT[0], GLINT[1], GLINT[2], alpha))
+    s.set(sx + 1, sy + 1, (GELR[0][0], GELR[0][1], GELR[0][2], alpha))
+
+
+def face(s, half_w, h, dy, view, alpha=255):
+    if view == "up":
         return
-    ey = top + max(2, round(h * 0.45))
-    shift = 3 if face == "side" else 0
-    for ex in (round(cx) - 4 + shift, round(cx) + 2 + shift):
-        c.rect(ex, ey, ex + 1, ey + 2, col(EYE))
-        c.set(ex, ey, col(GLINT))
+    base = BASE - dy
+    top = base - h
+    ey = top + max(2, round(h * 0.44))
+    shift = 3 if view == "side" else 0
+    for ex in (round(CX) - 4 + shift, round(CX) + 2 + shift):
+        s.rect(ex, ey, ex + 1, ey + 2, (EYE[0], EYE[1], EYE[2], alpha))
+        s.set(ex, ey, (GELR[3][0], GELR[3][1], GELR[3][2], alpha))   # lid corner
+        s.set(ex + 1, ey + 1, (GLINT[0], GLINT[1], GLINT[2], alpha))
     my = ey + 4
     if my < base - 1:
-        c.rect(round(cx) - 1 + shift, my, round(cx) + shift, my, col(EYE))
+        mx = round(CX) + shift
+        s.line([(mx - 1, my), (mx, my + 1), (mx + 1, my)],
+               (EYE[0], EYE[1], EYE[2], alpha))
 
 
-def droplets(c, spread, alpha):
-    pts = [(-spread, -2), (spread, -3), (-spread + 2, -6), (spread - 1, -7), (0, -9)]
-    for i, (dx, dy) in enumerate(pts):
-        x, y = round(11.5 + dx), BASE + dy
-        s = 1 if i % 2 else 0
-        c.rect(x, y, x + s, y + s, (GEL[0], GEL[1], GEL[2], alpha))
+def slime(s, half_w, h, dy, view, lag=0.0, alpha=255, eyes=True):
+    body(s, half_w, h, dy, alpha)
+    nucleus(s, half_w, h, dy, lag, alpha)
+    sheen(s, half_w, h, dy, alpha)
+    if eyes:
+        face(s, half_w, h, dy, view, alpha)
+    s.despeckle(passes=1)
+    s.outline({}, OUT)
 
 
-cells = [[Cell() for _ in range(COLS)] for _ in range(ROWS)]
+def droplets(s, spread, alpha):
+    for i, (dx, dyy) in enumerate(((-1.0, -2), (1.0, -3), (-0.72, -6), (0.85, -7), (0.1, -9))):
+        x, y = round(CX + dx * spread), BASE + dyy
+        k = 1 if i % 2 else 0
+        s.rect(x, y, x + k, y + k, (GELR[1][0], GELR[1][1], GELR[1][2], alpha))
+        s.set(x, y, (GELR[0][0], GELR[0][1], GELR[0][2], alpha))
 
-# bounce cycle: (half_w, height, lift)
-cycle = [(8, 12, 0), (9, 10, 0), (7, 15, 1), (7, 14, 4), (7, 15, 1), (9, 10, 0)]
-for i, (w, h, dy) in enumerate(cycle):
-    blob(cells[0][i], w, h, dy, "down")
-    blob(cells[1][i], w, h, dy, "up")
-    blob(cells[2][i], w, h, dy, "side")
 
-# death: flatten, splat, dissolve
-blob(cells[3][0], 10, 7, 0, "down")
-blob(cells[3][1], 11, 4, 0, "none")
+cells = [[Sprite(CELL, grain=1, salt=r * 7 + c, jitter=0.0) for c in range(COLS)]
+         for r in range(ROWS)]
+
+# bounce cycle: rest, squash, launch, apex, fall, land — volume ~conserved,
+# nucleus lags down on launch and floats up at apex.
+cycle = [(8.0, 12, 0, 0.0), (9.2, 10, 0, 0.8), (6.8, 14, 1, 1.0),
+         (6.5, 15, 4, -1.0), (6.8, 14, 1, -0.5), (9.2, 10, 0, 0.8)]
+for i, (w, h, dy, lag) in enumerate(cycle):
+    slime(cells[0][i], w, h, dy, "down", lag)
+    slime(cells[1][i], w, h, dy, "up", lag)
+    slime(cells[2][i], w, h, dy, "side", lag)
+
+# death: flinch flat, burst, melt, evaporate
+slime(cells[3][0], 10.0, 7, 0, "down", 0.5)
+slime(cells[3][1], 11.0, 4, 0, "down", 0.0, eyes=False)
 droplets(cells[3][1], 8, 255)
-blob(cells[3][2], 11, 2, 0, "none", alpha=190)
+slime(cells[3][2], 11.2, 2, 0, "down", 0.0, alpha=190, eyes=False)
 droplets(cells[3][2], 10, 190)
 droplets(cells[3][3], 11, 110)
 
-for row in cells:
-    for cell in row:
-        cell.outline()
-
-W, H = COLS * CELL, ROWS * CELL
-buf = bytearray(W * H * 4)
-for r in range(ROWS):
-    for ci in range(COLS):
-        cell = cells[r][ci]
-        for y in range(CELL):
-            for x in range(CELL):
-                p = cell.px[y][x]
-                if p:
-                    o = ((r * CELL + y) * W + (ci * CELL + x)) * 4
-                    buf[o:o + 4] = bytes(p)
-
-raw = bytearray()
-for y in range(H):
-    raw.append(0)
-    raw += buf[y * W * 4:(y + 1) * W * 4]
-
-def chunk(tag, data):
-    c = tag + data
-    return struct.pack(">I", len(data)) + c + struct.pack(">I", zlib.crc32(c) & 0xFFFFFFFF)
-
-png = (b"\x89PNG\r\n\x1a\n"
-       + chunk(b"IHDR", struct.pack(">IIBBBBB", W, H, 8, 6, 0, 0, 0))
-       + chunk(b"IDAT", zlib.compress(bytes(raw), 9))
-       + chunk(b"IEND", b""))
-dst = os.path.join(HERE, "slime_gen.png")
-open(dst, "wb").write(png)
-print(f"wrote {os.path.relpath(dst, HERE)} ({W}x{H})")
+write_cells(os.path.join(HERE, "slime_gen.png"), cells, CELL)

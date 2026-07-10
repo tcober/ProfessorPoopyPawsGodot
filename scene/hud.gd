@@ -1,8 +1,9 @@
 class_name HUD
 extends CanvasLayer
 
-## Heart row driven by a HealthComponent's `health_changed` signal, plus a laser-ammo
-## pip row driven by the Player's `ammo_changed` signal.
+## Heart row driven by a HealthComponent's `health_changed` signal, a laser-ammo
+## pip row driven by the Player's `ammo_changed` signal, and a spare-magazine row
+## (one beaker icon per spare mag) driven by `beakers_changed`.
 ## HP is in half-hearts (2 per heart). hearts.png frames: full | half | empty.
 ## ammo_pips.png frames: full | empty.
 
@@ -17,9 +18,11 @@ const AMMO_EMPTY := 1
 
 @export var heart_texture: Texture2D
 @export var ammo_texture: Texture2D
+@export var beaker_texture: Texture2D
 
 @onready var container: HBoxContainer = $MarginContainer/Rows/Hearts
 @onready var ammo_container: HBoxContainer = $MarginContainer/Rows/Ammo
+@onready var mags_container: HBoxContainer = $MarginContainer/Rows/Mags
 
 
 func bind_health(health: HealthComponent) -> void:
@@ -29,7 +32,9 @@ func bind_health(health: HealthComponent) -> void:
 
 func bind_ammo(player: Player) -> void:
 	player.ammo_changed.connect(_on_ammo_changed)
+	player.beakers_changed.connect(_on_beakers_changed)
 	_on_ammo_changed(player.ammo, player.max_ammo)
+	_on_beakers_changed(player.beakers, player.max_beakers)
 
 
 func _on_health_changed(current: int, max_health: int) -> void:
@@ -52,6 +57,17 @@ func _on_ammo_changed(current: int, max_ammo: int) -> void:
 	for i in max_ammo:
 		var frame := AMMO_FULL if i < current else AMMO_EMPTY
 		_set_frame(pips[i] as TextureRect, frame, AMMO_CELL)
+
+
+func _on_beakers_changed(current: int, _max_beakers: int) -> void:
+	# Spares only — the loaded mag is the pip row. Plain icons, one per beaker.
+	while mags_container.get_child_count() < current:
+		var rect := TextureRect.new()
+		rect.texture = beaker_texture
+		rect.stretch_mode = TextureRect.STRETCH_KEEP
+		mags_container.add_child(rect)
+	while mags_container.get_child_count() > current:
+		mags_container.get_child(mags_container.get_child_count() - 1).free()
 
 
 func _ensure_count(box: HBoxContainer, count: int, tex: Texture2D, cell: int) -> void:

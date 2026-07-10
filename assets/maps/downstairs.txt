@@ -1,0 +1,54 @@
+; Basil's ground floor — the kitchen + lab great room (24x14 tiles, 384x224 px;
+; the view clamps to 384x216). Twice the loft's width: a 20-tile room floating
+; in void (2-tile side margins). KITCHEN west: stone hearth (the room's hot
+; light source), a small window over the sink counter with a dish shelf
+; above. Center: a CT rug with a pedestal table, and
+; the loft staircase descending through a top-center alcove (jutting above
+; the cornice). STEAMPUNK LAB east: framed landscape + wall clock over the
+; flask shelf, a copper pipe manifold on the wall feeding the FREE-STANDING
+; boiler below (an animated y-sorted scene entity — its 'A' cells here are
+; only its solid footprint; sprites from _interior_props.boiler_frames),
+; workbench, a reading armchair, potted
+; plants in the corners. The FRONT DOOR to the overworld is in the south
+; wall — an open doorway spilling daylight onto a stone stoop. This file is
+; BOTH the collision grid and the room layout:
+; assets/_gen_tileset_downstairs.py places its props from the feature chars,
+; so moving a feature here moves it in the game.
+legend V void solid
+legend # wall solid
+legend H hearth solid
+legend W window solid
+legend k shelf solid
+legend C counter solid
+legend p picture solid
+legend o clock solid
+legend F flasks solid
+legend y pipes solid
+legend A boiler solid
+legend B bench solid
+legend t table solid
+legend r armchair solid
+legend P plant solid
+legend . floor walk
+legend g rug walk
+legend s stair walk
+legend - door walk
+anchor stair_arrival 11 5
+anchor front_door 11 9
+anchor exit_door 11 11
+anchor exit_up 11 1
+map
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVV#ss#VVVVVVVVVV
+VV#HHHWWkk#ss#ppoyyy##VV
+VV#HHHWWCC#ss#FFFyyy##VV
+VV#HHH##CC#ss#FFFyyyP#VV
+VV#...............AAP#VV
+VV#...gttg.....rr.AA.#VV
+VV#...gttg.....rrBBBB#VV
+VV#...gggg.......BBBB#VV
+VV#..................#VV
+VV#########--#########VV
+VVVVVVVVVVV--VVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV

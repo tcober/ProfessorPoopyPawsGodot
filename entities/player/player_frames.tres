@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=38 format=3]
+[gd_resource type="SpriteFrames" load_steps=42 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/basil_gen.png" id="1_tex"]
 
@@ -146,35 +146,51 @@ region = Rect2(192, 288, 48, 48)
 atlas = ExtResource("1_tex")
 region = Rect2(240, 288, 48, 48)
 
+[sub_resource type="AtlasTexture" id="atlas_36"]
+atlas = ExtResource("1_tex")
+region = Rect2(0, 336, 48, 48)
+
+[sub_resource type="AtlasTexture" id="atlas_37"]
+atlas = ExtResource("1_tex")
+region = Rect2(48, 336, 48, 48)
+
+[sub_resource type="AtlasTexture" id="atlas_38"]
+atlas = ExtResource("1_tex")
+region = Rect2(96, 336, 48, 48)
+
+[sub_resource type="AtlasTexture" id="atlas_39"]
+atlas = ExtResource("1_tex")
+region = Rect2(144, 336, 48, 48)
+
 [resource]
 animations = [
 {
 "frames": [{"duration": 1.0, "texture": SubResource("atlas_0")}, {"duration": 1.0, "texture": SubResource("atlas_1")}, {"duration": 1.0, "texture": SubResource("atlas_2")}, {"duration": 1.0, "texture": SubResource("atlas_3")}, {"duration": 1.0, "texture": SubResource("atlas_4")}, {"duration": 1.0, "texture": SubResource("atlas_5")}],
 "loop": true,
 "name": &"walk_down",
-"speed": 10.0
+"speed": 14.0
 }, {
 "frames": [{"duration": 1.0, "texture": SubResource("atlas_6")}, {"duration": 1.0, "texture": SubResource("atlas_7")}, {"duration": 1.0, "texture": SubResource("atlas_8")}, {"duration": 1.0, "texture": SubResource("atlas_9")}, {"duration": 1.0, "texture": SubResource("atlas_10")}, {"duration": 1.0, "texture": SubResource("atlas_11")}],
 "loop": true,
 "name": &"walk_up",
-"speed": 10.0
+"speed": 14.0
 }, {
 "frames": [{"duration": 1.0, "texture": SubResource("atlas_12")}, {"duration": 1.0, "texture": SubResource("atlas_13")}, {"duration": 1.0, "texture": SubResource("atlas_14")}, {"duration": 1.0, "texture": SubResource("atlas_15")}, {"duration": 1.0, "texture": SubResource("atlas_16")}, {"duration": 1.0, "texture": SubResource("atlas_17")}],
 "loop": true,
 "name": &"walk_side",
-"speed": 10.0
+"speed": 14.0
 }, {
-"frames": [{"duration": 1.0, "texture": SubResource("atlas_18")}, {"duration": 1.0, "texture": SubResource("atlas_19")}, {"duration": 1.0, "texture": SubResource("atlas_20")}, {"duration": 1.0, "texture": SubResource("atlas_21")}],
+"frames": [{"duration": 1.0, "texture": SubResource("atlas_19")}, {"duration": 2.0, "texture": SubResource("atlas_20")}, {"duration": 1.0, "texture": SubResource("atlas_21")}],
 "loop": false,
 "name": &"shoot_down",
 "speed": 12.0
 }, {
-"frames": [{"duration": 1.0, "texture": SubResource("atlas_22")}, {"duration": 1.0, "texture": SubResource("atlas_23")}, {"duration": 1.0, "texture": SubResource("atlas_24")}, {"duration": 1.0, "texture": SubResource("atlas_25")}],
+"frames": [{"duration": 1.0, "texture": SubResource("atlas_23")}, {"duration": 2.0, "texture": SubResource("atlas_24")}, {"duration": 1.0, "texture": SubResource("atlas_25")}],
 "loop": false,
 "name": &"shoot_up",
 "speed": 12.0
 }, {
-"frames": [{"duration": 1.0, "texture": SubResource("atlas_26")}, {"duration": 1.0, "texture": SubResource("atlas_27")}, {"duration": 1.0, "texture": SubResource("atlas_28")}, {"duration": 1.0, "texture": SubResource("atlas_29")}],
+"frames": [{"duration": 1.0, "texture": SubResource("atlas_27")}, {"duration": 2.0, "texture": SubResource("atlas_28")}, {"duration": 1.0, "texture": SubResource("atlas_29")}],
 "loop": false,
 "name": &"shoot_side",
 "speed": 12.0
@@ -208,5 +224,10 @@ animations = [
 "loop": true,
 "name": &"sad",
 "speed": 1.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("atlas_36")}, {"duration": 1.0, "texture": SubResource("atlas_37")}, {"duration": 2.0, "texture": SubResource("atlas_38")}, {"duration": 1.0, "texture": SubResource("atlas_39")}],
+"loop": false,
+"name": &"reload",
+"speed": 8.0
 }
 ]

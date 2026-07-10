@@ -1,601 +1,705 @@
 #!/usr/bin/env python3
-"""High-fidelity procedural sprite sheet for Basil, the science cat.
+"""Basil, the science cat — sprite sheet on the _sprites.py kit, at TRUE SNES
+density (the CT-chunk restart): 48x48 cells, ~33px figure, flat 4-tone shading
+with hard band edges (Sprite jitter=0), every pixel deliberate.
 
-Rendering aims for an FF6 / Chrono Trigger field-sprite read: taller proportions
-(head / torso / legs each roughly a third of the figure), a muted 4-tone SNES
-palette, restrained dithering, near-dark unified outlines, and small expressive
-eyes. Writes assets/basil_gen.png
-(288x336, 48x48 cells, 6x7) matching entities/player/player_frames.tres:
+Writes assets/basil_gen.png (288x384, 48x48 cells, 6x8) matching
+entities/player/player_frames.tres (FROZEN region contract):
 
-  row0 walk_down(6)   row1 walk_up(6)   row2 walk_side(6, faces RIGHT; code mirrors)
+  row0 walk_down(6)   row1 walk_up(6)   row2 walk_side(6, faces RIGHT — player.gd
+                                              sets flip_h only when facing LEFT)
   row3 shoot_down(4)  row4 shoot_up(4)  row5 shoot_side(4)
-  row6 hurt(2) + idle_down blink + idle_side tail-flick
+  row6 hurt(2) + idle_down blink + idle_side tail-flick + happy + sad
+  row7 reload(4): he tips a beaker of glow-juice into the gun's open port
 
-Design (from the real Basil's photos/sketches): jet-black tuxedo cat; big close-set
-yellow eyes with round dark pupils; wide white blaze flowing into a plump white
-muzzle; black nose smudge; aviator goggles pushed up on the forehead; white lab coat
-over dark trousers; white "poopy" paws. Feet baseline y=44; origin (24,24); gun
-muzzle ~16px from origin (player.gd muzzle_offset).
+Art contracts consumed by code: feet baseline y=44 (_core.ZONE_FEET); origin
+(24,24); in the leveled shoot frames the gun muzzle TIP sits exactly 16px from
+the cell center along the facing (player.gd muzzle_offset spawns the bolt and
+flash there); idle_down/idle_side alternate walk f0 with the blink/tail-flick
+cells, so walk f0 is a planted neutral pose the extras redraw exactly.
+
+Character (docs/DESIGN.md): jet-black tuxedo cat — narrow white blaze into a
+plump muzzle, white paws/chest, close-set yellow eyes, black nose, whiskers
+breaking the silhouette (drawn post-outline), aviator goggles up on the head,
+straight-cut lab coat worn LONG (hem y=35 — only paw stubs show, so the walk
+reads as feet peeking from under the hem, CT-Lucca style), laser gun (purple
+body, green emitter). CT field-sprite proportions: big head over a squat body,
+like the Frog sheet; the coat shades as big flat fields with ONE hard shade
+band, never gradient mush.
 
 Re-run: python3 assets/_gen_basil_sprites.py
 """
-import struct, zlib, os, math
+import os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-CELL, COLS, ROWS = 48, 6, 7
-FEET = 44
+sys.path.insert(0, HERE)
+from _core import write_cells, ZONE_CELL, ZONE_FEET
+from _sprites import Sprite, Rig
+from _palette import BASIL, ramp
 
-# ---- material ramps (light -> dark), shadows hue-shift cool/purple ------------
-FUR    = [(78, 74, 96, 255), (52, 50, 66, 255), (34, 32, 46, 255), (20, 18, 30, 255)]
-WHITE  = [(250, 248, 242, 255), (228, 224, 216, 255), (198, 194, 192, 255), (162, 158, 166, 255)]
-COATR  = [(236, 236, 238, 255), (204, 204, 210, 255), (166, 166, 178, 255), (126, 126, 142, 255)]
-PANTR  = [(72, 70, 86, 255), (56, 54, 68, 255), (42, 40, 52, 255), (30, 28, 40, 255)]
-GOGRIM = [(140, 100, 62, 255), (112, 78, 50, 255), (86, 58, 38, 255), (60, 40, 28, 255)]
-GOGLEN = [(238, 214, 168, 255), (206, 178, 132, 255), (174, 146, 104, 255), (140, 114, 82, 255)]
-GUNR   = [(140, 148, 164, 255), (108, 114, 130, 255), (80, 86, 102, 255), (56, 60, 76, 255)]
+CELL, COLS, ROWS = ZONE_CELL, 6, 8
+FEET = ZONE_FEET          # 44 — bottom row of the paw FILL (outline sits at 45)
+CX = 24
+HEM = 40                  # near-floor lab-coat hem — only paw TIPS peek below it,
+                          # so the walk reads as hem sway + paws tucking under
 
-EYE_Y  = (224, 188, 70, 255)
-EYE_YL = (242, 218, 118, 255)
-PUPIL  = (16, 12, 16, 255)
-GLINT  = (255, 255, 250, 255)
-NOSE   = (28, 22, 26, 255)
-MOUTH  = (146, 108, 104, 255)
-EARIN  = (204, 116, 134, 255)
-EARIN_D= (160, 84, 104, 255)
-WHISK  = (216, 214, 208, 235)
-WHISKD = (150, 146, 142, 255)   # whisker dots on the muzzle
-GUNE   = (132, 246, 152, 255)
-GUNP   = (188, 132, 232, 255)
+FUR    = BASIL["FUR"]
+WHITE  = BASIL["WHITE"]
+COATR  = BASIL["COATR"]
+PANTR  = BASIL["PANTR"]
+GOGRIM = BASIL["GOGRIM"]
+GOGLEN = BASIL["GOGLEN"]
+GUNR   = BASIL["GUNR"]
+EYE_Y, EYE_YL = BASIL["EYE_Y"], BASIL["EYE_YL"]
+PUPIL, GLINT  = BASIL["PUPIL"], BASIL["GLINT"]
+NOSE, MOUTH   = BASIL["NOSE"], BASIL["MOUTH"]
+EARIN, EARIN_D = BASIL["EARIN"], BASIL["EARIN_D"]
+WHISK, WHISKD  = BASIL["WHISK"], BASIL["WHISKD"]
+GUNE, GUNP     = BASIL["GUNE"], BASIL["GUNP"]
 
-# outline color per material family
-OUT_FUR   = (8, 6, 14, 255)
-OUT_LIGHT = (58, 56, 72, 255)    # around whites / coat
-OUT_GOG   = (38, 24, 16, 255)
-OUTS = {}
-for r in (FUR, PANTR):
-    for c in r:
-        OUTS[c] = OUT_FUR
-for r in (WHITE, COATR):
-    for c in r:
-        OUTS[c] = OUT_LIGHT
-for r in (GOGRIM, GOGLEN):
-    for c in r:
-        OUTS[c] = OUT_GOG
-for r in (GUNR,):
-    for c in r:
-        OUTS[c] = OUT_FUR
-OUT_SET = set(OUTS.values())
+# purple laser-gun body ramp derived from the GUNP accent (4-tone)
+GUNPR   = ramp(GUNP, "violet", 4)
+OUT_GUN = (40, 22, 60, 255)
+# local expression accents (single-use, kept out of the shared palette)
+LID    = (188, 158, 66, 255)      # closed-eye stroke
+BLUSH  = (238, 160, 158, 255)
+TEAR   = (170, 214, 250, 255)
+MAW    = (96, 54, 60, 255)
+TONGUE = (226, 120, 128, 255)
+GLASS  = (214, 232, 244, 255)     # reload beaker
+GLASSD = (152, 178, 204, 255)
 
-
-class Cell:
-    def __init__(self):
-        self.px = [[None] * CELL for _ in range(CELL)]
-
-    def set(self, x, y, c):
-        if 0 <= x < CELL and 0 <= y < CELL:
-            self.px[y][x] = c
-
-    def get(self, x, y):
-        if 0 <= x < CELL and 0 <= y < CELL:
-            return self.px[y][x]
-        return None
-
-    # -- shaded primitives -----------------------------------------------------
-    @staticmethod
-    def _pick(ramp, t, x, y):
-        """t in 0..1 (0 = lit, 1 = shadow) -> ramp tone, dithered at band edges."""
-        b = max(0.0, min(2.999, t * 3.0))
-        i = int(b)
-        frac = b - i
-        lo, hi = 0.45, 0.58        # narrow dither band: clean fields, soft edges
-        if frac > hi or (lo < frac <= hi and (x + y) % 2 == 0):
-            i += 1
-        return ramp[min(3, i)]
-
-    def oval(self, cx, cy, rx, ry, ramp, sh=0.0, power=2.0):
-        """Filled superellipse shaded as a dome lit from the upper-left.
-        sh biases the whole form darker (parts tucked in shadow)."""
-        for y in range(int(cy - ry), int(cy + ry) + 2):
-            for x in range(int(cx - rx), int(cx + rx) + 2):
-                nx = (x - cx) / rx
-                ny = (y - cy) / ry
-                d = abs(nx) ** power + abs(ny) ** power
-                if d > 1.0:
-                    continue
-                t = 0.42 + 0.30 * (nx * 0.55 + ny * 0.80) + 0.30 * d * d + sh
-                self.set(x, y, self._pick(ramp, t, x, y))
-
-    def cloth(self, x0, y0, x1, y1, ramp, round_=2, folds=(), sh=0.0):
-        """Rounded garment panel, lit from the upper-left, with vertical folds."""
-        w = max(1, x1 - x0)
-        h = max(1, y1 - y0)
-        for y in range(y0, y1 + 1):
-            vy = (y - y0) / h
-            for x in range(x0, x1 + 1):
-                hx = (x - x0) / w
-                # rounded corners
-                ex = min(x - x0, x1 - x)
-                ey = min(y - y0, y1 - y)
-                if ex + ey < round_:
-                    continue
-                t = 0.22 + 0.33 * hx + 0.38 * vy + sh
-                for fx in folds:
-                    if abs(x - fx) < 1.5:
-                        t += 0.22
-                self.set(x, y, self._pick(ramp, t, x, y))
-
-    def tri(self, apex, base_y, x0, x1, ramp_or_color, sh=0.0):
-        ax, ay = apex
-        span = max(1, base_y - ay)
-        for y in range(ay, base_y + 1):
-            f = (y - ay) / span
-            xl = round(ax + (x0 - ax) * f)
-            xr = round(ax + (x1 - ax) * f)
-            for x in range(min(xl, xr), max(xl, xr) + 1):
-                if isinstance(ramp_or_color, list):
-                    t = 0.30 + 0.45 * f + 0.25 * (x - xl) / max(1, xr - xl) + sh
-                    self.set(x, y, self._pick(ramp_or_color, t, x, y))
-                else:
-                    self.set(x, y, ramp_or_color)
-
-    def line(self, pts, c):
-        for (x, y) in pts:
-            self.set(x, y, c)
-
-    def rect(self, x0, y0, x1, y1, c):
-        for y in range(y0, y1 + 1):
-            for x in range(x0, x1 + 1):
-                self.set(x, y, c)
-
-    # -- finishing passes --------------------------------------------------------
-    def outline(self):
-        edge = []
-        for y in range(CELL):
-            for x in range(CELL):
-                if self.px[y][x] is not None:
-                    continue
-                for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
-                    p = self.get(nx, ny)
-                    if p and p[3] == 255 and p not in OUT_SET:
-                        edge.append((x, y, OUTS.get(p, OUT_FUR)))
-                        break
-        for x, y, c in edge:
-            self.px[y][x] = c
+OUTS = dict(BASIL["OUTS"])
+for _c in GUNPR:
+    OUTS[_c] = OUT_GUN
+OUT_FB = BASIL["OUT_FALLBACK"]
+RAMPS = [FUR, WHITE, COATR, PANTR, GOGRIM, GOGLEN, GUNR, GUNPR]
 
 
-# ---- shared body parts ---------------------------------------------------------
-
-def legs_front(c, lift_l=0, lift_r=0, spread=0):
-    """Slim trouser legs with small white paws and a toe notch. spread widens the
-    stance (braced against recoil)."""
-    for (x0, x1, lift, sp) in ((18, 21, lift_l, -spread), (26, 29, lift_r, spread)):
-        c.cloth(x0 + sp, 35 - lift, x1 + sp, FEET - 3 - lift, PANTR, round_=0)
-        c.oval((x0 + x1) / 2 + sp, FEET - 1.6 - lift, 2.2, 1.7, WHITE)
-        c.set((x0 + x1) // 2 + sp, FEET - lift, WHITE[3])     # toe notch
+def new():
+    return Sprite(CELL, grain=1, salt=5, jitter=0.0)   # flat CT bands
 
 
-def coat_front(c, dy=0):
-    """Lab coat, front: straight A-line silhouette, flat panels (no puff), crisp
-    center placket, lapels over a white chest tuft, hip pocket, hem line."""
-    top_y, hem_y = 20 + dy, 35 + dy
-    for y in range(top_y, hem_y + 1):
-        vy = (y - top_y) / (hem_y - top_y)
-        half = 5.6 + vy * 1.6                  # slight flare only
-        x0, x1 = int(round(24 - half)), int(round(23 + half))
-        for x in range(x0, x1 + 1):
-            hx = (x - x0) / max(1, x1 - x0)
-            t = 0.26 + 0.22 * hx               # flat panel, gentle side light
-            if x >= x1 - 1:
-                t += 0.30                      # shaded right edge
-            elif x <= x0:
-                t -= 0.10                      # lit left edge
-            if y >= hem_y:
-                t += 0.34                      # hem line
-            c.set(x, y, c._pick(COATR, t, x, y))
-    # center opening: dark placket + light catch on its edge
-    for y in range(top_y + 3, hem_y + 1):
-        c.set(24, y, COATR[3])
-        c.set(23, y, COATR[0])
-    # open collar: white chest tuft framed by lapels
-    c.tri((24, top_y), top_y + 3, 22, 26, WHITE)
-    c.line([(21, top_y + 1), (22, top_y + 2)], COATR[0])
-    c.line([(27, top_y + 1), (26, top_y + 2)], COATR[2])
-    # hip pocket + a 2px purple pen clipped in the breast (reads as an object,
-    # not stray noise, at 1x)
-    c.line([(18, 31 + dy), (19, 31 + dy), (20, 31 + dy)], COATR[3])
-    c.set(20, 23 + dy, GUNP)
-    c.set(20, 24 + dy, (132, 84, 174, 255))
+def finish(s):
+    s.despeckle(passes=1)
+    s.outline(OUTS, OUT_FB)
 
 
-def arms_hanging(c, dy=0, dl=0, dr=0):
-    """Coat sleeves with white paws; dl/dr swing them. Cuff + inner-edge lines keep
-    the sleeves reading against the coat body."""
-    c.cloth(14, 22 + dy + dl, 17, 29 + dy + dl, COATR, round_=1, sh=0.10)
-    for y in range(22 + dy + dl, 30 + dy + dl):
-        c.set(17, y, COATR[3])
-    c.rect(14, 29 + dy + dl, 17, 29 + dy + dl, COATR[3])      # cuff
-    c.oval(15.6, 31.2 + dy + dl, 1.7, 1.6, WHITE)
-    c.cloth(30, 22 + dy + dr, 33, 29 + dy + dr, COATR, round_=1, sh=0.18)
-    for y in range(22 + dy + dr, 30 + dy + dr):
-        c.set(30, y, COATR[3])
-    c.rect(30, 29 + dy + dr, 33, 29 + dy + dr, COATR[3])
-    c.oval(31.8, 31.2 + dy + dr, 1.7, 1.6, WHITE, sh=0.10)
+# ---- the body rig (down/up views share it; side view has its own) -----------------
+RIG = Rig(
+    head=(24, 18),
+    coat=(24, 22),
+    hipL=(21, 33), hipR=(27, 33),
+    footL=(21, 42), footR=(27, 42),
+    shL=(18, 23), shR=(30, 23),
+    handL=(16, 29), handR=(32, 29),
+    tail=(30, 33),
+)
+
+RIG_S = Rig(               # side view, facing RIGHT
+    skull=(23, 18),
+    coat=(23, 22),
+    hipF=(25, 33), hipB=(20, 33),
+    footF=(25, 42), footB=(20, 42),
+    sh=(23, 23), hand=(22, 29),
+    tail=(16, 30),
+)
 
 
-def tail_curl(c, dx=0, dy=0):
-    """Tail curling out right of the hem, dithered fur shading, fluffy tip."""
-    path = [(31.5, 35), (33, 33), (34, 30.5), (34.2 + dx * 0.5, 28), (33.8 + dx, 25.5)]
-    for i, (px_, py_) in enumerate(path):
-        r = 1.7 if i < 2 else 1.4
-        c.oval(px_, py_ + dy, r, r, FUR, sh=0.1 - i * 0.06)
-    c.set(int(33 + dx), int(24 + dy), FUR[0])                 # tip catchlight
+# ---- down-view parts ----------------------------------------------------------------
 
-
-def head_down(c, dy=0, dx=0, eyes="open", ears="up"):
-    """The face. eyes: open (stern-sweet) / closed (^ ^) / happy / sad / hurt (>_<).
-    ears: up / flat (hurt) / droop (sad)."""
-    # ears (behind head): curved triangles w/ pink inner + tuft
+def head_down(s, dx=0, dy=0, eyes="open", ears="up"):
+    hx, hy = CX + dx, 18 + dy
+    # ears first (skull overlaps their base): close-set, sitting ON the dome.
     if ears == "up":
-        c.tri((17 + dx, 1 + dy), 8 + dy, 14 + dx, 22 + dx, FUR)
-        c.tri((31 + dx, 1 + dy), 8 + dy, 26 + dx, 34 + dx, FUR, sh=0.15)
-        c.tri((17 + dx, 3 + dy), 7 + dy, 15 + dx, 20 + dx, EARIN)
-        c.tri((31 + dx, 3 + dy), 7 + dy, 28 + dx, 33 + dx, EARIN_D)
-    elif ears == "droop":                                     # slouched out + down (sad)
-        c.tri((15 + dx, 4 + dy), 9 + dy, 13 + dx, 20 + dx, FUR)
-        c.tri((33 + dx, 4 + dy), 9 + dy, 28 + dx, 35 + dx, FUR, sh=0.15)
-    else:                                                     # flattened (hurt)
-        c.tri((12 + dx, 6 + dy), 10 + dy, 15 + dx, 21 + dx, FUR)
-        c.tri((36 + dx, 6 + dy), 10 + dy, 27 + dx, 33 + dx, FUR, sh=0.15)
-    # skull: soft dome, CT-scaled (about a third of the figure)
-    c.oval(24 + dx, 12.5 + dy, 8.8, 7.4, FUR, power=2.4)
-    # plump white muzzle + NARROW blaze (his eyes sit in black fur, the white is a
-    # thin stripe between them that fans out at the nose)
-    c.oval(24 + dx, 17 + dy, 5.4, 3.2, WHITE, power=2.2)
-    c.tri((24 + dx, 7 + dy), 14 + dy, 23 + dx, 25 + dx, WHITE)
-    # fur ticks (cheek sheen)
-    c.line([(17 + dx, 10 + dy), (18 + dx, 9 + dy)], FUR[0])
-    c.line([(30 + dx, 9 + dy), (31 + dx, 10 + dy)], FUR[1])
-    # nose smudge + cat mouth
-    c.rect(23 + dx, 15 + dy, 25 + dx, 15 + dy, NOSE)
-    c.set(23 + dx, 15 + dy, (52, 42, 48, 255))                # nose highlight
+        s.tri((hx - 4, hy - 10), hy - 4, hx - 7, hx - 1, FUR)
+        s.tri((hx + 4, hy - 10), hy - 4, hx + 1, hx + 7, FUR, sh=0.15)
+        s.tri((hx - 4, hy - 8), hy - 5, hx - 5, hx - 3, EARIN)
+        s.tri((hx + 4, hy - 8), hy - 5, hx + 3, hx + 5, EARIN_D)
+    elif ears == "droop":                          # slouched out + down (sad)
+        s.tri((hx - 6, hy - 4), hy, hx - 8, hx - 1, FUR)
+        s.tri((hx + 6, hy - 4), hy, hx + 1, hx + 8, FUR, sh=0.15)
+    else:                                          # pinned flat (hurt / recoil)
+        s.tri((hx - 8, hy - 3), hy, hx - 6, hx - 1, FUR)
+        s.tri((hx + 8, hy - 3), hy, hx + 1, hx + 6, FUR, sh=0.15)
+    # skull dome + plump white muzzle + narrow blaze between the eyes
+    s.ball(hx, hy, 7.2, 6.0, FUR, power=2.4, wrap=0.34, curve=0.30)
+    s.ball(hx, hy + 4, 4.6, 2.9, WHITE, power=2.2, wrap=0.10, curve=0.10)
+    s.tri((hx, hy - 4), hy + 1, hx - 1, hx + 1, WHITE)
+    # nose
+    s.rect(hx - 1, hy + 2, hx, hy + 2, NOSE)
+    # mouths
     if eyes == "hurt":
-        c.rect(23 + dx, 17 + dy, 25 + dx, 18 + dy, MOUTH)     # little open wail
+        s.rect(hx - 1, hy + 4, hx, hy + 6, MOUTH)               # open wail
+        s.set(hx, hy + 5, MAW)
     elif eyes == "wince":
-        c.rect(22 + dx, 17 + dy, 26 + dx, 17 + dy, MOUTH)     # gritted teeth
-        c.set(24 + dx, 17 + dy, WHITE[0])
+        s.rect(hx - 2, hy + 4, hx + 1, hy + 5, MOUTH)           # gritted teeth
+        s.set(hx, hy + 4, WHITE[0])
     elif eyes == "happy":
-        c.rect(22 + dx, 16 + dy, 26 + dx, 18 + dy, (96, 54, 60, 255))   # open grin
-        c.rect(23 + dx, 18 + dy, 25 + dx, 18 + dy, (226, 120, 128, 255))  # tongue
-        c.set(18 + dx, 15 + dy, (238, 160, 158, 255))         # blush
-        c.set(30 + dx, 15 + dy, (238, 160, 158, 255))
+        s.rect(hx - 2, hy + 4, hx + 1, hy + 6, MAW)             # open grin
+        s.rect(hx - 1, hy + 6, hx, hy + 6, TONGUE)
+        s.set(hx - 6, hy + 3, BLUSH)
+        s.set(hx + 5, hy + 3, BLUSH)
     elif eyes == "sad":
-        c.line([(23 + dx, 17 + dy), (24 + dx, 16 + dy), (25 + dx, 17 + dy)], MOUTH)  # wobble frown
+        s.line([(hx - 2, hy + 5), (hx - 1, hy + 4), (hx, hy + 4),
+                (hx + 1, hy + 5)], MOUTH)                       # wobble frown
     else:
-        c.set(24 + dx, 16 + dy, MOUTH)
-        c.line([(22 + dx, 17 + dy), (23 + dx, 17 + dy)], MOUTH)
-        c.line([(25 + dx, 17 + dy), (26 + dx, 17 + dy)], MOUTH)
-    # whisker dots
-    for wx, wy in ((20, 15), (19, 17), (28, 15), (29, 17)):
-        c.set(wx + dx, wy + dy, WHISKD)
-    # eyes: close-set, small CT read: yellow with a dark pupil + glint
+        s.line([(hx - 1, hy + 4), (hx, hy + 4)], MOUTH)
+    # eyes — close-set, stern default
     if eyes == "open":
-        for ex in (19, 27):
-            c.rect(ex + dx, 10 + dy, ex + 2 + dx, 12 + dy, EYE_Y)
-            c.rect(ex + dx, 10 + dy, ex + 2 + dx, 10 + dy, EYE_YL)
-            c.rect(ex + 1 + dx, 11 + dy, ex + 1 + dx, 12 + dy, PUPIL)
-            c.set(ex + 1 + dx, 10 + dy, GLINT)
-            c.set(ex + dx if ex == 19 else ex + 2 + dx, 9 + dy, FUR[3])  # stern brow
-    elif eyes in ("closed", "happy"):                         # sweet ^ ^
-        for ex in (19, 27):
-            c.line([(ex + dx, 12 + dy), (ex + 1 + dx, 11 + dy),
-                    (ex + 2 + dx, 12 + dy)], (188, 158, 66, 255))
-    elif eyes == "sad":                                       # glossy, downcast, teary
-        for ex in (19, 27):
-            c.rect(ex + dx, 11 + dy, ex + 2 + dx, 13 + dy, EYE_Y)
-            c.rect(ex + dx, 11 + dy, ex + 2 + dx, 11 + dy, FUR[2])     # heavy upper lid
-            c.rect(ex + 1 + dx, 12 + dy, ex + 1 + dx, 13 + dy, PUPIL)
-            c.set(ex + 1 + dx, 13 + dy, GLINT)                # low watery glint
-            c.set(ex + 2 + dx, 12 + dy, GLINT)                # double shine = teary
-        c.set(21 + dx, 9 + dy, FUR[0])                        # raised inner brows
-        c.set(27 + dx, 9 + dy, FUR[0])
-        c.set(19 + dx, 14 + dy, (170, 214, 250, 255))         # a welling tear
-    else:                                                     # hurt / wince >_<
-        for ex, s in ((19, 1), (29, -1)):
-            c.set(ex + dx, 10 + dy, (188, 158, 66, 255))
-            c.set(ex + s + dx, 11 + dy, (188, 158, 66, 255))
-            c.set(ex + dx, 12 + dy, (188, 158, 66, 255))
-    # goggles: rimmed lenses pushed up on the forehead + strap
-    c.rect(16 + dx, 7 + dy, 32 + dx, 7 + dy, GOGRIM[2])
-    c.line([(22 + dx, 4 + dy), (23 + dx, 4 + dy), (24 + dx, 4 + dy), (25 + dx, 4 + dy)], GOGRIM[1])
-    for gx in (17, 26):
-        c.oval(gx + 2.5 + dx, 5.5 + dy, 2.8, 2.4, GOGRIM, power=2.0)
-        c.oval(gx + 2.5 + dx, 5.5 + dy, 1.7, 1.4, GOGLEN, power=2.0)
-        c.set(gx + 1 + dx, 4 + dy, (252, 240, 214, 255))      # hard glint
+        _eye(s, hx - 5, hy - 2, 0)
+        _eye(s, hx + 3, hy - 2, 2)
+    elif eyes in ("closed", "happy"):                            # sweet ^ ^
+        for ex in (hx - 5, hx + 3):
+            s.line([(ex, hy - 1), (ex + 1, hy - 2), (ex + 2, hy - 1)], LID)
+    elif eyes == "sad":                                          # teary, downcast
+        for ex in (hx - 5, hx + 3):
+            s.rect(ex, hy - 2, ex + 2, hy, EYE_Y)
+            s.rect(ex, hy - 2, ex + 2, hy - 2, FUR[2])           # heavy upper lid
+            s.set(ex + 1, hy, PUPIL)
+            s.set(ex + 2, hy - 1, GLINT)                         # shine = teary
+        s.set(hx - 5, hy + 2, TEAR)                              # a welling tear
+    else:                                                        # hurt / wince >_<
+        for ex in (hx - 5, hx + 3):
+            s.set(ex, hy - 2, LID)
+            s.set(ex + 1, hy - 1, LID)
+            s.set(ex, hy, LID)
+    goggles_down(s, hx, hy)
 
 
-def head_up(c, dy=0):
-    """Back of head: dome, ear backs, goggle strap + buckle."""
-    c.tri((17, 1 + dy), 8 + dy, 14, 22, FUR)
-    c.tri((31, 1 + dy), 8 + dy, 26, 34, FUR, sh=0.15)
-    c.tri((17, 3 + dy), 7 + dy, 15, 20, FUR, sh=0.35)
-    c.tri((31, 3 + dy), 7 + dy, 28, 33, FUR, sh=0.45)
-    c.oval(24, 12.5 + dy, 8.8, 7.4, FUR, power=2.4)
-    c.rect(16, 7 + dy, 32, 8 + dy, GOGRIM[2])
-    c.rect(16, 7 + dy, 32, 7 + dy, GOGRIM[1])
-    c.rect(22, 7 + dy, 25, 8 + dy, GOGRIM[0])                 # buckle
-    # neck fur part line
-    c.line([(21, 18 + dy), (23, 19 + dy), (25, 19 + dy), (27, 18 + dy)], FUR[3])
+def goggles_down(s, hx, hy):
+    """Aviator goggles parked on the forehead so they READ as goggles: a strap
+    across the dome under two big rimmed round lenses of amber glass (glint in
+    each), joined by a bridge pixel. Lenses bump past the dome silhouette."""
+    s.rect(hx - 7, hy - 4, hx + 7, hy - 4, GOGRIM[2])             # strap
+    for gx, rim_sh in ((hx - 3, 0.0), (hx + 3, 0.18)):
+        s.ball(gx, hy - 5.5, 2.4, 1.9, GOGRIM, power=2.0, sh=rim_sh)
+        s.blob(gx, hy - 5.5, 1.4, 1.0, GOGLEN[1])                 # amber glass
+        s.set(gx - 1, hy - 6, GOGLEN[0])                          # glint
+    s.set(hx, hy - 5, GOGRIM[1])                                  # bridge
 
 
-def head_side(c, dy=0, dx=0, eyes="open", ears="up"):
-    """Right-facing profile: snout, one small eye, goggles with one lens.
-    dx shifts the whole head — the recoil lean-back."""
+def _eye(s, ex, ey, brow_out):
+    """3x3 stern yellow eye: light top row, 1x2 pupil, dark lid pixel angling
+    in at the outer top corner (the scowl — no room for a brow above, the
+    goggle strap lives there)."""
+    s.rect(ex, ey, ex + 2, ey + 2, EYE_Y)
+    s.rect(ex, ey, ex + 2, ey, EYE_YL)
+    s.rect(ex + 1, ey + 1, ex + 1, ey + 2, PUPIL)
+    s.set(ex + brow_out, ey, FUR[3])
+
+
+def whiskers_down(s, dx=0, dy=0):
+    """Short strokes off the cheeks at muzzle height, past the outline."""
+    for pts in (((15, 21), (14, 21)),
+                ((15, 23), (14, 24)),
+                ((33, 21), (34, 21)),
+                ((33, 23), (34, 24))):
+        for (x, y) in pts:
+            s.set(x + dx, y + dy, WHISK)
+
+
+def legs_down(s, p, liftL=0, liftR=0, spread=0, heels=False):
+    """Short trouser stubs + chunky white paws — the long coat hides the leg
+    tops, so a step reads as a paw peeking under the hem. spread braces the
+    stance (recoil)."""
+    for (hip, foot, lift, sp, sh) in (("hipL", "footL", liftL, -spread, 0.0),
+                                      ("hipR", "footR", liftR, spread, 0.10)):
+        hx, hy = p[hip]
+        fx, fy = p[foot]
+        hx += sp
+        fx += sp
+        fy -= lift
+        s.capsule(hx, hy, fx, fy - 2, 2.2, 1.7, PANTR, sh=sh)
+        s.ball(fx, fy + 0.6, 2.2, 1.7, WHITE, power=2.2, sh=sh * 0.5,
+               wrap=0.10, curve=0.10)
+
+
+def coat_down(s, dy=0, back=False, sway=0):
+    """Straight-cut lab coat worn near-FLOOR (hem y=HEM). Flat CT bands,
+    hand-set: a lit field left of the placket, mid field right, a hard 1px
+    shade band at screen-right, a hem band with dark turn-under — no gradient,
+    no folds. `sway` drags just the bottom QUARTER of the skirt sideways 1px
+    so the walk reads as the hem trailing the step — any deeper and the whole
+    coat wags like hips. Front adds collar ticks over the chest tuft, hip
+    pockets, the purple pen; back adds collar band, belt and vent seam."""
+    top, hem = 22 + dy, HEM + dy
+    h = hem - top
+
+    def off(y):
+        return sway if (y - top) / h >= 0.75 else 0
+
+    for y in range(top, hem + 1):
+        vy = (y - top) / h
+        half = 5.6 + 2.0 * vy
+        x0 = int(round(CX - half)) + off(y)
+        x1 = int(round(CX + half)) + off(y)
+        if y == top:
+            x0 += 2
+            x1 -= 2
+        elif y == top + 1:
+            x0 += 1
+            x1 -= 1
+        for x in range(x0, x1 + 1):
+            if y >= hem - 1:                       # hem band
+                c = COATR[3] if x >= x1 - 1 else COATR[2]
+            elif x >= x1 - 1:                      # shade band, screen-right
+                c = COATR[2]
+            elif x < CX + off(y):                  # lit field
+                c = COATR[0]
+            else:                                  # mid field
+                c = COATR[1]
+            s.set(x, y, c)
+    s.rect(CX - 5 + sway, hem + 1, CX + 5 + sway, hem + 1, COATR[3])  # turn-under
+    if back:
+        s.rect(CX - 5, top, CX + 5, top + 1, COATR[1])            # collar band
+        s.rect(CX - 4, top + 6, CX + 4, top + 6, COATR[2])        # back belt
+        for y in range(top + 8, hem - 1):                         # vent seam
+            s.set(CX + off(y), y, COATR[2])
+        return
+    for y in range(top + 4, hem - 1):                             # center placket
+        s.set(CX + off(y), y, COATR[3])                           # (bends w/ sway)
+    s.tri((CX, top), top + 3, CX - 2, CX + 2, WHITE)              # chest tuft
+    s.set(CX - 2, top + 2, COATR[2])                              # collar ticks
+    s.set(CX + 2, top + 2, COATR[2])
+    s.rect(CX - 6, top + 12, CX - 3, top + 12, COATR[2])          # hip pockets
+    s.rect(CX + 3, top + 12, CX + 6, top + 12, COATR[3])          # (above the sway)
+    s.rect(CX - 4, top + 3, CX - 4, top + 4, GUNP)                # breast pen
+
+
+def arms_down(s, p, dl=0, dr=0):
+    """Hanging coat sleeves + white paws; dl/dr swing them. Sleeves shade a
+    band darker than the coat body so they separate from the flat fields."""
+    for (sh_a, hand, d, sh) in (("shL", "handL", dl, 0.18), ("shR", "handR", dr, 0.32)):
+        sx, sy = p[sh_a]
+        hx, hy = p[hand]
+        hy += d
+        s.capsule(sx, sy, hx, hy, 1.9, 1.6, COATR, sh=sh)
+        s.ball(hx, hy + 1.6, 1.8, 1.5, WHITE, power=2.2, sh=sh * 0.5,
+               wrap=0.10, curve=0.10)
+
+
+def tail_down(s, p, sway=0, droop=0):
+    """Tail curling out right of the hem; sway shifts the tip, droop sinks it."""
+    tx, ty = p["tail"]
+    if droop:
+        s.capsule(tx, ty + 1, tx + 3, ty + 3, 1.7, 1.4, FUR, sh=0.08)
+        s.capsule(tx + 3, ty + 3, tx + 5, ty + 2, 1.4, 1.1, FUR, sh=0.12)
+        s.set(tx + 6, ty + 2, FUR[0])
+        return
+    s.capsule(tx, ty + 1, tx + 3, ty - 3, 1.7, 1.4, FUR, sh=0.08)
+    s.capsule(tx + 3, ty - 3, tx + 4 + sway, ty - 7, 1.4, 1.1, FUR, sh=0.12)
+    s.set(tx + 3 + sway, ty - 8, FUR[0])                          # tip catchlight
+    s.set(tx + 4 + sway, ty - 8, FUR[0])
+
+
+def gun_down(s, dy=0, mode="aim"):
+    """Two-paw grip, barrel pointing SOUTH. In leveled frames the emitter tip
+    fills (24, 40) — cell center + muzzle_offset(16) toward the facing."""
+    k = -2 if mode == "recoil" else 0
+    if mode == "raise":                                           # gun still at the chest
+        s.capsule(18, 23 + dy, 21, 27 + dy, 1.9, 1.6, COATR)
+        s.capsule(30, 23 + dy, 27, 27 + dy, 1.9, 1.6, COATR, sh=0.12)
+        s.ball(22.5, 29 + dy, 1.7, 1.5, WHITE, wrap=0.10)
+        s.ball(25.5, 29 + dy, 1.7, 1.5, WHITE, wrap=0.10)
+        s.capsule(22, 30 + dy, 26, 30 + dy, 1.6, 1.6, GUNPR)
+        s.capsule(24, 31 + dy, 24, 34 + dy, 1.3, 1.2, GUNPR, sh=0.08)
+        s.rect(24, 35 + dy, 24, 35 + dy, GUNE)
+        return
+    s.capsule(18, 23 + dy, 21, 28 + dy, 1.9, 1.6, COATR)          # upper arms in
+    s.capsule(30, 23 + dy, 27, 28 + dy, 1.9, 1.6, COATR, sh=0.12)
+    s.capsule(21, 28 + dy, 22.5, 30 + dy + k, 1.7, 1.5, COATR)
+    s.capsule(27, 28 + dy, 25.5, 30 + dy + k, 1.7, 1.5, COATR, sh=0.12)
+    s.ball(22.5, 31.5 + dy + k, 1.7, 1.5, WHITE, wrap=0.10)       # gripping paws
+    s.ball(25.5, 31.5 + dy + k, 1.7, 1.5, WHITE, wrap=0.10)
+    s.capsule(22, 32.5 + dy + k, 26, 32.5 + dy + k, 1.6, 1.6, GUNPR)   # receiver
+    s.capsule(24, 34 + dy + k, 24, 38 + dy + k, 1.4, 1.2, GUNPR, sh=0.06)  # barrel
+    s.set(23, 35 + dy + k, GUNR[1])                               # side rail
+    s.blob(24, 39 + dy + k, 1.5, 1.1, GUNE)                       # emitter tip
+    s.set(24, 39 + dy + k, (240, 255, 240, 255))
+    if mode != "recoil":
+        s.set(24, 40 + dy, GUNE)                                  # tip kisses y=40
+        s.set(23, 40 + dy, GUNE)
+
+
+# ---- full down/up poses ---------------------------------------------------------------
+
+def cat_down(s, bobY=0, liftL=0, liftR=0, swing=0, tail_sway=0, tail_droop=0,
+             eyes="open", ears="up", head_dx=0, gun=None, spread=0, coat_sway=0):
+    p = RIG.pose(head=(head_dx, bobY), coat=(0, bobY), tail=(tail_sway // 2, bobY),
+                 shL=(0, bobY), shR=(0, bobY), handL=(0, bobY), handR=(0, bobY))
+    tail_down(s, p, tail_sway, tail_droop)
+    legs_down(s, p, liftL, liftR, spread)
+    coat_down(s, bobY, sway=coat_sway)
+    if gun is None:
+        arms_down(s, p, swing, -swing)
+    else:
+        gun_down(s, bobY, gun)
+    head_down(s, head_dx, bobY, eyes, ears)
+    finish(s)
+    whiskers_down(s, head_dx, bobY)
+
+
+def head_up(s, dy=0):
+    """Back of the head: dome, close-set ear backs, goggle strap + buckle and
+    the lens cups peeking over the crown, neck part."""
+    hy = 18 + dy
+    s.tri((CX - 4, hy - 10), hy - 4, CX - 7, CX - 1, FUR)
+    s.tri((CX + 4, hy - 10), hy - 4, CX + 1, CX + 7, FUR, sh=0.15)
+    s.tri((CX - 4, hy - 8), hy - 5, CX - 6, CX - 2, FUR, sh=0.38)
+    s.tri((CX + 4, hy - 8), hy - 5, CX + 2, CX + 6, FUR, sh=0.46)
+    s.ball(CX, hy, 7.2, 6.0, FUR, power=2.4, wrap=0.34, curve=0.30)
+    s.rect(CX - 6, hy - 4, CX + 6, hy - 4, GOGRIM[2])             # strap
+    s.rect(CX - 1, hy - 4, CX + 1, hy - 4, GOGRIM[1])             # buckle
+    s.ball(CX - 3, hy - 5.5, 2.0, 1.4, GOGRIM, power=2.0)         # cup backs
+    s.ball(CX + 3, hy - 5.5, 2.0, 1.4, GOGRIM, power=2.0, sh=0.15)  # over the dome
+    s.line([(CX - 2, hy + 5), (CX - 1, hy + 6), (CX, hy + 6),
+            (CX + 1, hy + 6), (CX + 2, hy + 5)], FUR[3])
+
+
+def tail_up(s, sway=0):
+    """Raised swish, seen from behind on his right."""
+    s.capsule(29, 31, 32, 27, 1.7, 1.4, FUR, sh=0.10)
+    s.capsule(32, 27, 32 + sway, 22, 1.4, 1.1, FUR, sh=0.14)
+    s.set(32 + sway, 21, FUR[0])
+
+
+def gun_up(s, dy=0, mode="aim", stage="back"):
+    """One-arm skyward aim seen from behind: the barrel rises past the head
+    (the `back` stage draws it BEFORE the body), and the `front` stage adds the
+    raised gripping paw beside the ear. Leveled tip fills (23..24, 8)."""
+    top = {"raise": 13, "recoil": 11}.get(mode, 10)
+    if stage == "back":
+        s.capsule(24.5, 22 + dy, 24.5, top + 2 + dy, 1.5, 1.3, GUNPR, sh=0.10)
+        s.capsule(24.5, top + 2 + dy, 24.5, top + dy, 1.2, 1.1, GUNPR, sh=0.04)
+        s.blob(24.5, top - 1 + dy, 1.3, 1.0, GUNE)
+        s.set(24, top - 1 + dy, (240, 255, 240, 255))
+        return
+    grip_dy = 2 if mode == "raise" else 0
+    s.ball(27, 15 + dy + grip_dy, 1.6, 1.4, WHITE, wrap=0.10)     # gripping paw
+
+
+def cat_up(s, bobY=0, liftL=0, liftR=0, swing=0, tail_sway=0, gun=None,
+           coat_sway=0):
+    p = RIG.pose(coat=(0, bobY), shL=(0, bobY), shR=(0, bobY),
+                 handL=(0, bobY), handR=(0, bobY))
+    if gun is not None:
+        gun_up(s, bobY, gun, stage="back")                        # barrel behind him
+    legs_down(s, p, liftL, liftR, heels=True)
+    coat_down(s, bobY, back=True, sway=coat_sway)
+    if gun is None:
+        arms_down(s, p, swing, -swing)
+    else:
+        # left sleeve hangs; right arm reaches up toward the grip
+        sx, sy = p["shL"]
+        hxx, hyy = p["handL"]
+        s.capsule(sx, sy, hxx, hyy, 1.9, 1.6, COATR, sh=0.18)
+        s.ball(hxx, hyy + 1.6, 1.8, 1.5, WHITE, power=2.2, wrap=0.10, curve=0.10)
+        s.capsule(30, 23 + bobY, 27, 17 + bobY, 1.8, 1.5, COATR, sh=0.10)
+    tail_up(s, tail_sway)
+    head_up(s, bobY)
+    if gun is not None:
+        gun_up(s, bobY, gun, stage="front")                       # paw beside the ear
+    finish(s)
+    if gun in ("aim", "settle"):
+        s.set(23, 8, GUNE)          # tip kisses y=8 — the muzzle contract; set
+        s.set(24, 8, GUNE)          # post-outline so despeckle can't eat it
+
+
+# ---- side view (faces RIGHT) ----------------------------------------------------------
+
+def head_side(s, dx=0, dy=0, eyes="open", ears="up"):
+    hx, hy = 23 + dx, 18 + dy
     if ears == "up":
-        c.tri((19 + dx, 0 + dy), 7 + dy, 15 + dx, 23 + dx, FUR)
-        c.tri((19 + dx, 2 + dy), 6 + dy, 17 + dx, 21 + dx, EARIN)
-        c.tri((27 + dx, 1 + dy), 7 + dy, 24 + dx, 30 + dx, FUR, sh=0.3)   # far ear
-    else:                                                     # swept back
-        c.tri((13 + dx, 5 + dy), 9 + dy, 15 + dx, 21 + dx, FUR)
-    c.oval(23 + dx, 12 + dy, 8.6, 7.0, FUR, power=2.4)        # skull
-    c.oval(29 + dx, 14.5 + dy, 4.0, 3.4, FUR, power=2.0)      # snout mass
-    c.oval(29.5 + dx, 15.5 + dy, 3.4, 2.6, WHITE, power=2.0)  # white muzzle
-    c.rect(31 + dx, 13 + dy, 32 + dx, 13 + dy, NOSE)          # nose smudge
-    c.set(30 + dx, 16 + dy, MOUTH); c.set(29 + dx, 17 + dy, MOUTH)
-    c.set(27 + dx, 14 + dy, WHISKD); c.set(26 + dx, 16 + dy, WHISKD)
+        s.tri((hx + 3, hy - 10), hy - 5, hx + 1, hx + 5, FUR, sh=0.30)  # far ear
+        s.tri((hx - 1, hy - 11), hy - 5, hx - 3, hx + 1, FUR)     # near ear, tall
+        s.tri((hx - 1, hy - 9), hy - 6, hx - 2, hx, EARIN)
+    else:                                                          # swept back
+        s.tri((hx - 8, hy - 5), hy - 1, hx - 6, hx - 1, FUR)
+    # SHORT-nosed cat with big cheeks: no protruding snout — a plump white
+    # cheek mass sits flush against the skull front, the little nose rides
+    # high on the flat face, jowl rounds the jaw.
+    s.ball(hx, hy, 6.8, 5.6, FUR, power=2.4, wrap=0.34, curve=0.30)      # skull
+    s.ball(hx + 4, hy + 2.5, 3.2, 2.7, FUR, power=2.0, wrap=0.30)        # cheek mass
+    s.ball(hx + 4.5, hy + 3.2, 3.2, 2.5, WHITE, power=2.0, wrap=0.10, curve=0.10)
+    s.rect(hx + 6, hy + 2, hx + 7, hy + 2, NOSE)                         # stub nose
+    s.line([(hx + 5, hy + 4), (hx + 6, hy + 4)], MOUTH)
     if eyes == "open":
-        c.rect(25 + dx, 9 + dy, 27 + dx, 11 + dy, EYE_Y)
-        c.rect(25 + dx, 9 + dy, 27 + dx, 9 + dy, EYE_YL)
-        c.rect(26 + dx, 10 + dy, 26 + dx, 11 + dy, PUPIL)
-        c.set(26 + dx, 9 + dy, GLINT)
-        c.set(28 + dx, 8 + dy, FUR[3])                        # brow
+        _eye(s, hx + 2, hy - 3, 2)
     elif eyes == "closed":
-        c.line([(25 + dx, 11 + dy), (26 + dx, 10 + dy), (27 + dx, 11 + dy)], (188, 158, 66, 255))
-    elif eyes == "wince":                                     # squeezed shut >
-        c.set(25 + dx, 9 + dy, (188, 158, 66, 255))
-        c.set(26 + dx, 10 + dy, (188, 158, 66, 255))
-        c.set(25 + dx, 11 + dy, (188, 158, 66, 255))
-        c.set(28 + dx, 8 + dy, FUR[3])                        # knit brow
-    # goggles: strap + one lens on the forehead
-    c.rect(16 + dx, 6 + dy, 30 + dx, 6 + dy, GOGRIM[2])
-    c.oval(26 + dx, 4.5 + dy, 3.0, 2.4, GOGRIM, power=2.0)
-    c.oval(26 + dx, 4.5 + dy, 1.8, 1.4, GOGLEN, power=2.0)
-    c.set(25 + dx, 3 + dy, (252, 240, 214, 255))
+        s.line([(hx + 2, hy - 2), (hx + 3, hy - 3), (hx + 4, hy - 2)], LID)
+    elif eyes == "wince":                                          # squeezed shut >
+        s.line([(hx + 2, hy - 3), (hx + 3, hy - 2)], LID)
+        s.line([(hx + 2, hy - 1), (hx + 3, hy - 2)], LID)
+        s.set(hx + 5, hy - 4, FUR[3])                              # knit brow
+    # goggles in profile: one big rimmed lens forward, strap running back
+    s.rect(hx - 6, hy - 5, hx + 3, hy - 5, GOGRIM[2])              # strap
+    s.set(hx - 2, hy - 6, GOGRIM[1])                               # far cup edge
+    s.ball(hx + 3, hy - 6.5, 2.3, 1.8, GOGRIM, power=2.0)
+    s.blob(hx + 3, hy - 6.5, 1.3, 1.0, GOGLEN[1])                  # amber glass
+    s.set(hx + 2, hy - 7, GOGLEN[0])                               # glint
 
 
-def whiskers_down(c, dy=0, dx=0):
-    """Whiskers breaking the silhouette (drawn after the outline): solid strokes
-    off the cheeks, not dotted specks."""
-    for pts in (((15, 16), (14, 16), (13, 17)),
-                ((15, 18), (14, 19)),
-                ((33, 16), (34, 16), (35, 17)),
-                ((33, 18), (34, 19))):
+def whiskers_side(s, dx=0, dy=0):
+    """Short strokes off the big cheek (front fill ~x30, outline x31)."""
+    for pts in (((32, 19), (33, 19), (34, 20)),
+                ((32, 22), (33, 23))):
         for (x, y) in pts:
-            c.set(x + dx, y + dy, WHISK)
+            s.set(x + dx, y + dy, WHISK)
 
 
-def whiskers_side(c, dy=0, dx=0):
-    for pts in (((33, 14), (34, 14), (35, 15)),
-                ((33, 17), (34, 17), (35, 18))):
-        for (x, y) in pts:
-            c.set(x + dx, y + dy, WHISK)
-
-
-# ---- full poses -----------------------------------------------------------------
-
-def cat_down(c, bob=0, lift_l=0, lift_r=0, swing=0, tail_dx=0,
-             eyes="open", ears="up", head_dx=0, gun=None, spread=0):
-    tail_curl(c, tail_dx, bob)
-    legs_front(c, lift_l, lift_r, spread)
-    coat_front(c, bob)
-    if gun is None:
-        arms_hanging(c, bob, swing, -swing)
-    elif gun == "raise":
-        arms_hanging(c, bob, 0, -2)
-        c.cloth(29, 27 + bob, 33, 30 + bob, GUNR, round_=0)   # gun at hip
-        c.set(31, 28 + bob, GUNE)
-    else:
-        k = -2 if gun == "recoil" else 0                      # recoil kicks UP
-        c.cloth(14, 23 + bob, 17, 28 + bob, COATR, round_=1, sh=0.1)
-        c.cloth(30, 23 + bob, 33, 28 + bob, COATR, round_=1, sh=0.16)
-        c.cloth(16, 28 + bob, 20, 31 + bob, COATR, round_=1, sh=0.1)
-        c.cloth(27, 28 + bob, 31, 31 + bob, COATR, round_=1, sh=0.16)
-        c.oval(23.5, 32 + bob + k, 3.2, 1.7, WHITE)           # gripping paws
-        c.cloth(21, 33 + bob + k, 26, 36 + bob + k, GUNR, round_=1)
-        c.cloth(22, 34 + bob + k, 25, 40 + bob + k, GUNR, round_=0)
-        c.set(21, 34 + bob + k, GUNE); c.set(26, 34 + bob + k, GUNE)
-        c.rect(22, 40 + bob + k, 25, 40 + bob + k, GUNP)
-        c.rect(23, 41 + bob + k, 24, 41 + bob + k, GUNP)
-    head_down(c, bob, head_dx, eyes, ears)
-    c.outline()
-    whiskers_down(c, bob, head_dx)
-
-
-def cat_up(c, bob=0, lift_l=0, lift_r=0, swing=0, tail_dx=0, gun=None):
-    legs_front(c, lift_l, lift_r)
-    # coat back: straight flat panel, center seam, back belt
-    top_y, hem_y = 20 + bob, 35 + bob
-    for y in range(top_y, hem_y + 1):
-        vy = (y - top_y) / (hem_y - top_y)
-        half = 5.6 + vy * 1.6
-        x0, x1 = int(round(24 - half)), int(round(23 + half))
-        for x in range(x0, x1 + 1):
-            hx = (x - x0) / max(1, x1 - x0)
-            t = 0.26 + 0.22 * hx
-            if x >= x1 - 1:
-                t += 0.30
-            elif x <= x0:
-                t -= 0.10
-            if y >= hem_y:
-                t += 0.34
-            c.set(x, y, c._pick(COATR, t, x, y))
-    for y in range(top_y + 2, hem_y + 1):                     # back vent seam
-        c.set(24, y, COATR[2])
-    c.line([(19, 27 + bob), (20, 27 + bob), (27, 27 + bob), (28, 27 + bob)], COATR[3])
-    c.rect(21, 26 + bob, 26, 27 + bob, COATR[1])              # back belt
-    c.rect(18, top_y, 29, top_y + 1, COATR[1])                # collar band
-    if gun is None:
-        arms_hanging(c, bob, swing, -swing)
-    else:
-        arms_hanging(c, bob, 0, 0)
-    tail_up_swish(c, tail_dx)
-    head_up(c, bob)
-    if gun is not None:                                       # raised gun over the head
-        k = 1 if gun == "recoil" else 0
-        if gun == "raise":
-            c.oval(29.5, 10 + bob, 1.9, 1.9, WHITE)
-            c.cloth(28, 5 + bob, 30, 8 + bob, GUNR, round_=0)
-            c.set(29, 6 + bob, GUNE)
-        else:
-            c.oval(29.5, 8.5 + bob + k, 1.9, 1.9, WHITE)
-            c.cloth(28, 2 + bob + k, 30, 6 + bob + k, GUNR, round_=0)
-            c.set(29, 4 + bob + k, GUNE)
-            c.rect(28, 1 + bob + k, 30, 1 + bob + k, GUNP)
-    c.outline()
-
-
-def tail_up_swish(c, dx=0):
-    path = [(30, 32), (32, 30), (33, 27.5), (33.5 + dx * 0.5, 25), (33 + dx, 22.5)]
-    for i, (px_, py_) in enumerate(path):
-        c.oval(px_, py_, 1.6, 1.6, FUR, sh=0.12 - i * 0.05)
-    c.set(int(32 + dx), 21, FUR[0])
-
-
-def cat_side(c, bob=0, front_dx=0, back_dx=0, lift_f=0, lift_b=0, arm_dx=0,
-             tail_dy=0, tail_raised=False, eyes="open", ears="up", gun=None):
-    # Recoil throws the torso/head BACK while the feet skid FORWARD under him —
-    # the classic braced-against-the-blast lean.
-    lean = 2 if gun == "recoil" else 0
-    tail_side(c, tail_dy, tail_raised or gun == "recoil")
-    if gun == "recoil":
-        front_dx += 3
-        back_dx += 2
-    for (x0, x1, dx_, lift) in ((17, 20, back_dx, lift_b), (25, 28, front_dx, lift_f)):
-        c.cloth(x0 + dx_, 35 - lift, x1 + dx_, FEET - 3 - lift, PANTR, round_=0)
-        c.oval((x0 + x1) / 2 + dx_, FEET - 1.6 - lift, 2.1, 1.7, WHITE)
-    # coat in profile: straight panel with a trailing back hem; the lean tips the
-    # shoulders further back than the hem
-    top_y, hem_y = 20 + bob, 35 + bob
-    for y in range(top_y, hem_y + 1):
-        vy = (y - top_y) / (hem_y - top_y)
+def coat_side(s, dy=0, lean=0, sway=0):
+    """Coat in profile, worn near-FLOOR: straight front edge, back hem
+    trailing. Flat CT bands — lit band along the back (light upper-left =
+    behind him), mid field, one crisp trailing-fold line, dark front edge,
+    hem band with turn-under. `sway` drags just the bottom QUARTER of the
+    skirt fore/aft 1px with the stride (any deeper wags the whole coat); the
+    lean tips the shoulders back (recoil)."""
+    top, hem = 22 + dy, HEM + dy
+    h = hem - top
+    for y in range(top, hem + 1):
+        vy = (y - top) / h
         x_off = -lean + int(round(vy * lean * 0.5))
-        x0 = int(round(17 - vy * 2.5)) + x_off                # back hem trails
+        if vy >= 0.75:
+            x_off += sway
+        x0 = int(round(17 - vy * 3.0)) + x_off
         x1 = 29 + x_off
+        if y == top:
+            x0 += 2
+            x1 -= 1
+        elif y == top + 1:
+            x0 += 1
+        fold = x0 + 3
         for x in range(x0, x1 + 1):
-            hx = (x - x0) / max(1, x1 - x0)
-            t = 0.26 + 0.22 * hx
-            if x >= x1 - 1:
-                t += 0.30
-            elif x <= x0:
-                t -= 0.10
-            if y >= hem_y:
-                t += 0.34
-            c.set(x, y, c._pick(COATR, t, x, y))
-        if y >= top_y + 2:                                    # coat front edge
-            c.set(x1 - 1, y, COATR[3])
-    if gun is None:
-        c.cloth(21 + arm_dx, 22 + bob, 24 + arm_dx, 28 + bob, COATR, round_=1, sh=0.14)
-        for y in range(23 + bob, 29 + bob):                   # sleeve seam
-            c.set(24 + arm_dx, y, COATR[3])
-        c.rect(21 + arm_dx, 28 + bob, 24 + arm_dx, 28 + bob, COATR[3])   # cuff
-        c.oval(22.5 + arm_dx, 30 + bob, 2.0, 2.0, WHITE)
-    else:
-        k = 2 if gun == "recoil" else 0                       # arm shoved back...
-        r = 2 if gun == "recoil" else 0                       # ...barrel kicked up
-        if gun == "raise":
-            c.cloth(23, 21 + bob, 28, 24 + bob, COATR, round_=1, sh=0.1)
-            c.oval(30, 22.5 + bob, 1.9, 1.9, WHITE)
-            c.cloth(29, 17 + bob, 32, 21 + bob, GUNR, round_=0)
-            c.set(30, 19 + bob, GUNE)
-        else:
-            c.cloth(24 - k, 22 + bob, 30 - k, 25 + bob, COATR, round_=1, sh=0.1)
-            c.oval(32 - k, 24.5 + bob - r * 0.5, 1.9, 1.9, WHITE)
-            c.cloth(33 - k, 22 + bob - r, 38 - k, 25 + bob - r, GUNR, round_=1)
-            c.cloth(34 - k, 26 + bob - r, 36 - k, 27 + bob - r, GUNR, round_=0)
-            c.set(35 - k, 23 + bob - r, GUNE); c.set(36 - k, 23 + bob - r, GUNE)
-            c.rect(39 - k, 22 + bob - r, 40 - k, 23 + bob - r, GUNP)
-    head_side(c, bob, -lean, eyes, ears)
-    c.outline()
-    whiskers_side(c, bob, -lean)
+            if y >= hem - 1:                       # hem band
+                c = COATR[3] if x >= x1 - 1 else COATR[2]
+            elif x == x1:                          # dark front edge
+                c = COATR[3] if y >= top + 2 else COATR[2]
+            elif x == x1 - 1:                      # shade band inside the edge
+                c = COATR[2]
+            elif x == fold and y >= top + 4:       # trailing fold crease
+                c = COATR[2]
+            elif x <= x0 + 2:                      # lit back
+                c = COATR[0]
+            else:                                  # mid field
+                c = COATR[1]
+            s.set(x, y, c)
+    x_off = -lean + int(round(lean * 0.5)) + sway
+    s.rect(16 + x_off, hem + 1, 27 + x_off, hem + 1, COATR[3])     # turn-under
 
 
-def tail_side(c, dy=0, raised=False):
+def tail_side(s, p, dy=0, raised=False):
+    tx, ty = p["tail"]
     if raised:
-        path = [(16, 27), (14.5, 24.5), (13.5, 22), (13.5, 19.5)]
+        s.capsule(tx, ty, tx - 2, ty - 5, 1.7, 1.4, FUR, sh=0.10)
+        s.capsule(tx - 2, ty - 5, tx - 1, ty - 9 + dy, 1.4, 1.1, FUR, sh=0.13)
+        s.set(tx - 2, ty - 10 + dy, FUR[0])
     else:
-        path = [(16, 29), (14.5, 27.5), (13, 26.5), (11.5, 25)]
-    for i, (px_, py_) in enumerate(path):
-        c.oval(px_, py_ + dy, 1.7, 1.7, FUR, sh=0.15 - i * 0.05)
-    tx, ty = path[-1]
-    c.set(int(tx) - 1, int(ty) - 2 + dy, FUR[0])
+        s.capsule(tx, ty, tx - 3, ty - 2, 1.7, 1.4, FUR, sh=0.10)
+        s.capsule(tx - 3, ty - 2, tx - 6, ty - 4 + dy, 1.4, 1.1, FUR, sh=0.13)
+        s.set(tx - 7, ty - 5 + dy, FUR[0])
 
 
-# ---- build the sheet -------------------------------------------------------------
-cells = [[Cell() for _ in range(COLS)] for _ in range(ROWS)]
+def gun_side(s, dy=0, mode="aim", lean=0):
+    """One-arm hold, barrel EAST; leveled tip fills (40, 23..24)."""
+    if mode == "raise":                                            # barrel angled up
+        s.capsule(23 - lean, 22.5 + dy, 27 - lean, 23 + dy, 1.8, 1.6, COATR)
+        s.ball(28.5 - lean, 23 + dy, 1.7, 1.5, WHITE, wrap=0.10)
+        s.capsule(29 - lean, 23.5 + dy, 32 - lean, 21 + dy, 1.6, 1.5, GUNPR)
+        s.capsule(32 - lean, 21 + dy, 34.5 - lean, 19 + dy, 1.2, 1.1, GUNPR, sh=0.06)
+        s.blob(35.5 - lean, 18.3 + dy, 1.2, 1.1, GUNE)
+        s.set(35 - lean, 18 + dy, (240, 255, 240, 255))
+        return
+    k = 2 if mode == "recoil" else 0                               # arm shoved back
+    r = 2 if mode == "recoil" else 0                               # barrel kicked up
+    s.capsule(23 - k, 22.5 + dy, 28 - k, 23 + dy - r * 0.4, 1.8, 1.6, COATR)
+    s.ball(29 - k, 23.5 + dy - r * 0.6, 1.7, 1.5, WHITE, wrap=0.10)
+    s.capsule(29.5 - k, 24 + dy - r * 0.7, 34 - k, 24 + dy - r, 1.7, 1.6, GUNPR)
+    s.capsule(31.5 - k, 25 + dy - r, 31 - k, 26.5 + dy - r, 1.1, 1.0, GUNR, sh=0.1)  # grip
+    s.capsule(34 - k, 24 + dy - r, 38 - k, 24 + dy - r, 1.3, 1.2, GUNPR, sh=0.06)
+    s.rect(32 - k, 22.5 + dy - r, 34 - k, 22.5 + dy - r, GUNPR[0])  # top catch
+    s.blob(39 - k, 23.8 + dy - r, 1.3, 1.2, GUNE)                  # emitter
+    s.set(39 - k, 23 + dy - r, (240, 255, 240, 255))
+    if mode != "recoil":
+        s.set(40, 23 + dy, GUNE)                                   # tip kisses x=40
+        s.set(40, 24 + dy, GUNE)
 
-walk_bob   = [0, -1, 0, 0, -1, 0]
-walk_liftl = [2, 1, 0, 0, 0, 0]
-walk_liftr = [0, 0, 0, 2, 1, 0]
-walk_swing = [1, 0, 0, -1, 0, 0]
-walk_tail  = [0, 1, 2, 2, 1, 0]
+
+def cat_side(s, bobY=0, fA=(0, 0), fB=(0, 0), arm_dx=0, tail_dy=0,
+             tail_raised=False, eyes="open", ears="up", gun=None, coat_sway=0):
+    lean = 2 if gun == "recoil" else 0
+    p = RIG_S.pose(skull=(-lean, bobY), coat=(0, bobY), tail=(0, bobY),
+                   sh=(0, bobY), hand=(arm_dx, bobY),
+                   footF=(fA[0], -fA[1]), footB=(fB[0], -fB[1]))
+    tail_side(s, p, tail_dy, tail_raised or gun == "recoil")
+    if gun == "recoil":
+        p["footF"] = (p["footF"][0] + 4, p["footF"][1])
+        p["footB"] = (p["footB"][0] + 2, p["footB"][1])
+    for (hip, foot, sh) in (("hipB", "footB", 0.16), ("hipF", "footF", 0.0)):
+        hx, hy = p[hip]
+        fx, fy = p[foot]
+        s.capsule(hx, hy + bobY, fx, fy - 2, 2.1, 1.7, PANTR, sh=sh)
+        s.ball(fx + 0.5, fy + 0.6, 2.2, 1.7, WHITE, power=2.2, sh=sh * 0.4,
+               wrap=0.10, curve=0.10)
+    coat_side(s, bobY, lean, coat_sway)
+    if gun is None:
+        sx, sy = p["sh"]
+        hxx, hyy = p["hand"]
+        s.capsule(sx, sy, hxx, hyy, 1.8, 1.6, COATR, sh=0.28)
+        s.ball(hxx, hyy + 1.6, 1.8, 1.5, WHITE, power=2.2, wrap=0.10, curve=0.10)
+    else:
+        gun_side(s, bobY, gun, lean)
+    head_side(s, -lean, bobY, eyes, ears)
+    finish(s)
+    whiskers_side(s, -lean, bobY)
+
+
+# ---- reload (row 7): pouring a beaker of glow-juice into the gun ----------------------
+
+def _flask(s, x, y, tip):
+    """Tiny Erlenmeyer of glow-juice around base center (x, y). tip: 0 upright
+    full, 1 tilted toward the gun, 2 pouring mouth-down, 3 upright drained."""
+    if tip in (0, 3):
+        s.tri((x, y - 3), y + 1, x - 2, x + 2, GLASS)             # cone body
+        s.set(x + 1, y, GLASSD)                                   # glass shade
+        s.set(x + 2, y + 1, GLASSD)
+        if tip == 0:
+            s.rect(x - 1, y, x + 1, y + 1, GUNE)                  # full
+        else:
+            s.set(x, y + 1, GUNE)                                 # last drop
+        return
+    if tip == 1:                                                  # tilted 45°
+        s.line([(x + 2, y - 2), (x + 3, y - 1)], GLASSD)          # base edge
+        s.rect(x + 1, y - 1, x + 2, y, GLASS)
+        s.line([(x, y), (x + 1, y + 1)], GLASS)
+        s.rect(x, y + 1, x + 1, y + 1, GUNE)                      # juice at mouth
+        s.set(x - 1, y + 1, GLASS)                                # mouth lip
+        return
+    # tip == 2: mouth-down over the port, juice falling out
+    s.line([(x + 1, y - 2), (x + 2, y - 2)], GLASSD)              # base up top
+    s.rect(x, y - 1, x + 2, y, GLASS)
+    s.rect(x, y, x + 1, y + 1, GUNE)                              # juice in the neck
+    s.set(x - 1, y + 1, GLASS)                                    # mouth lip
+
+
+def _reload_arm(s, phase):
+    """Right arm doing the beaker work; drawn AFTER the head so the raised
+    flask reads in front of his chin."""
+    if phase == 0:                                                # flask out, at his side
+        s.capsule(30, 23, 31, 27, 1.9, 1.6, COATR, sh=0.28)
+        s.ball(31.5, 28.5, 1.7, 1.5, WHITE, wrap=0.10)
+        _flask(s, 31, 26, 0)
+    elif phase == 1:                                              # swung over the gun
+        s.capsule(30, 23, 27.5, 25, 1.9, 1.6, COATR, sh=0.28)
+        s.ball(27, 26.5, 1.7, 1.5, WHITE, wrap=0.10)
+        _flask(s, 24, 26, 1)
+    elif phase == 2:                                              # full pour
+        s.capsule(30, 23, 27, 24.5, 1.9, 1.6, COATR, sh=0.28)
+        s.ball(26.5, 26, 1.7, 1.5, WHITE, wrap=0.10)
+        _flask(s, 23, 26, 2)
+    else:                                                         # flask stashed, arm drops
+        s.capsule(30, 23, 31.5, 28, 1.9, 1.6, COATR, sh=0.28)
+        s.ball(32, 30, 1.7, 1.5, WHITE, wrap=0.10)
+
+
+def _reload_fx(s, phase):
+    """Loose pour/sparkle pixels, placed after the outline like whiskers."""
+    if phase == 1:
+        s.set(23, 28, GUNE)                                       # first drip
+    elif phase == 2:
+        for y in (28, 29, 30):                                    # the stream
+            s.set(22, y, GUNE)
+        s.set(23, 30, GUNE)                                       # splash at the port
+    elif phase == 3:
+        for (x, y) in ((19, 29), (27, 28), (30, 33)):             # charged sparkle
+            s.set(x, y, GLINT)
+
+
+def reload_down(s, phase):
+    """Row-7 reload, facing camera: gun held flat at the belly in the left paw,
+    port hatch open; the right paw tips a beaker of glow-juice in. Last frame
+    sparkles with the sweet ^ ^ eyes."""
+    p = RIG.pose()
+    tail_down(s, p, (0, 1, 2, 1)[phase])
+    legs_down(s, p)
+    coat_down(s)
+    s.capsule(18, 23, 19.5, 29, 1.9, 1.6, COATR, sh=0.18)         # left arm crosses
+    s.ball(20.5, 31, 1.7, 1.5, WHITE, power=2.2, wrap=0.10, curve=0.10)
+    s.capsule(21.5, 32.5, 25, 32.5, 1.5, 1.5, GUNPR)              # gun at the belly
+    s.capsule(25.5, 32.5, 27.5, 32.5, 1.1, 1.0, GUNPR, sh=0.06)
+    s.blob(28.5, 32.5, 1.2, 1.1, GUNE)                            # emitter
+    s.set(22, 31, GUNPR[3])                                       # open port hatch
+    if phase == 3:
+        s.set(28, 32, (240, 255, 240, 255))                       # freshly charged
+    head_down(s, 0, 0, "closed" if phase == 3 else "open", "up")
+    _reload_arm(s, phase)
+    finish(s)
+    whiskers_down(s)
+    _reload_fx(s, phase)
+
+
+# ---- build the sheet -------------------------------------------------------------------
+cells = [[new() for _ in range(COLS)] for _ in range(ROWS)]
+
+# walk down/up: f0 planted neutral (idle_down/up reuse it). A SHUFFLE, not a
+# churn: both paw tips stay visible under the hem the whole cycle — the
+# stepping paw lifts only 1px (a heel-up tap, it never vanishes) — and bob +
+# arm swing + tail carry the motion. NO hem sway here: in these views it is
+# perpendicular to his travel and reads as a silly side-to-side wag (the side
+# view keeps its fore/aft sway, which lies along the motion).
+walk_bob   = [0, -1, -1, 0, -1, -1]
+walk_liftl = [0, 1, 1, 0, 0, 0]
+walk_liftr = [0, 0, 0, 0, 1, 1]
+walk_swing = [0, 1, 1, 0, -1, -1]
+walk_tail  = [0, 1, 1, 2, 1, 1]
 for i in range(6):
     cat_down(cells[0][i], walk_bob[i], walk_liftl[i], walk_liftr[i],
              walk_swing[i], walk_tail[i])
     cat_up(cells[1][i], walk_bob[i], walk_liftl[i], walk_liftr[i],
            walk_swing[i], walk_tail[i])
 
-side_front = [3, 1, 0, -3, -1, 0]
-side_back  = [-3, -1, 0, 3, 1, 0]
-side_liftf = [1, 0, 0, 0, 1, 0]
-side_liftb = [0, 1, 0, 1, 0, 0]
-side_bob   = [0, 0, -1, 0, 0, -1]
-side_arm   = [-2, -1, 0, 2, 1, 0]
-side_tail  = [0, -1, -1, 0, 1, 1]
+# walk side: a flat SCISSOR shuffle under the near-floor hem — each foot tip
+# slides along the ground between x=27 (reach ahead) and x=19 (behind): a
+# TIGHT 8px stride, planted while travelling backward, a bare 1px toe-lift
+# while swinging forward; the tips never leave the hem line, so nothing
+# orbits. Offsets are asymmetric because footF/footB anchor 5px apart — these
+# land both feet on the same absolute track, so f3 mirrors f0 instead of
+# collapsing to center. f0 is the contact pose (idle_side reuses it, so its
+# sway is 0). Body sits low on contact frames. Paired with the 14fps playback
+# in player_frames.tres so the cadence keeps up with his ground speed.
+side_fA   = [(2, 0), (0, 0), (-3, 0), (-6, 0), (-3, 1), (0, 1)]
+side_fB   = [(-1, 0), (2, 1), (5, 1), (7, 0), (5, 0), (2, 0)]
+side_bob  = [0, -1, -1, 0, -1, -1]
+side_arm  = [-2, -1, 1, 2, 1, -1]
+side_tail = [0, -1, -1, 0, 1, 1]
+side_sway = [0, -1, -1, 0, 1, 1]       # skirt trails the stride fore/aft
 for i in range(6):
-    cat_side(cells[2][i], side_bob[i], side_front[i], side_back[i],
-             side_liftf[i], side_liftb[i], side_arm[i], side_tail[i])
+    cat_side(cells[2][i], side_bob[i], side_fA[i], side_fB[i],
+             side_arm[i], side_tail[i], coat_sway=side_sway[i])
 
-for i, g in enumerate(("raise", "aim", "recoil", "aim")):
+# shoot rows: raise, aim (bolt fires here — muzzle tip on contract), recoil
+# (the shot KICKS: body shoved off the muzzle, ears pinned, wince), settle.
+for i, g in enumerate(("raise", "aim", "recoil", "settle")):
     rc = g == "recoil"
-    # Recoil frame: body shoved back off the muzzle, feet braced forward, ears
-    # pinned, eyes squeezed in a wince — the shot should look like it KICKS.
-    cat_down(cells[3][i], gun=g, bob=(-2 if rc else 0), spread=(1 if rc else 0),
+    gd = "aim" if g == "settle" else g
+    cat_down(cells[3][i], bobY=(-2 if rc else 0), gun=gd, spread=(1 if rc else 0),
              eyes=("wince" if rc else "open"), ears=("flat" if rc else "up"))
-    cat_up(cells[4][i], gun=g, bob=(1 if rc else 0))
-    cat_side(cells[5][i], gun=g, bob=(-1 if rc else 0),
+    cat_up(cells[4][i], bobY=(1 if rc else 0), gun=("settle" if g == "settle" else g))
+    cat_side(cells[5][i], bobY=(-1 if rc else 0), gun=gd,
              eyes=("wince" if rc else "open"), ears=("back" if rc else "up"))
 
-cat_down(cells[6][0], eyes="hurt", ears="flat", head_dx=-1, tail_dx=2)
-cat_down(cells[6][1], eyes="hurt", ears="flat", head_dx=1, tail_dx=0)
-cat_down(cells[6][2], eyes="closed")
-cat_side(cells[6][3], tail_raised=True)
-cat_down(cells[6][4], eyes="happy", tail_dx=2)               # his sweet face
-cat_down(cells[6][5], eyes="sad", ears="droop")              # his heartbroken face
+# row 6: hurt x2, idle-down blink, idle-side tail-flick, happy, sad
+cat_down(cells[6][0], eyes="hurt", ears="flat", head_dx=-1, tail_sway=2)
+cat_down(cells[6][1], eyes="hurt", ears="flat", head_dx=1, tail_sway=-1)
+cat_down(cells[6][2], eyes="closed")                    # matches walk_down f0
+cat_side(cells[6][3], 0, side_fA[0], side_fB[0], side_arm[0],
+         tail_raised=True)                              # matches walk_side f0
+cat_down(cells[6][4], eyes="happy", tail_sway=2)        # his sweet face
+cat_down(cells[6][5], eyes="sad", ears="droop", tail_droop=1)   # heartbroken
 
-# ---- write PNG --------------------------------------------------------------------
-W, H = COLS * CELL, ROWS * CELL
-buf = bytearray(W * H * 4)
-for r in range(ROWS):
-    for ci in range(COLS):
-        cell = cells[r][ci]
-        for y in range(CELL):
-            for x in range(CELL):
-                p = cell.px[y][x]
-                if p:
-                    o = ((r * CELL + y) * W + (ci * CELL + x)) * 4
-                    buf[o:o + 4] = bytes(p)
+# row 7: reload — a spare beaker mag poured into the gun (player.gd plays it
+# on the reload action or a dry trigger)
+for i in range(4):
+    reload_down(cells[7][i], i)
 
-raw = bytearray()
-for y in range(H):
-    raw.append(0)
-    raw += buf[y * W * 4:(y + 1) * W * 4]
-
-def chunk(tag, data):
-    c = tag + data
-    return struct.pack(">I", len(data)) + c + struct.pack(">I", zlib.crc32(c) & 0xFFFFFFFF)
-
-open(os.path.join(HERE, "basil_gen.png"), "wb").write(
-    b"\x89PNG\r\n\x1a\n"
-    + chunk(b"IHDR", struct.pack(">IIBBBBB", W, H, 8, 6, 0, 0, 0))
-    + chunk(b"IDAT", zlib.compress(bytes(raw), 9))
-    + chunk(b"IEND", b""))
-print(f"wrote basil_gen.png ({W}x{H})")
+write_cells(os.path.join(HERE, "basil_gen.png"), cells, CELL)

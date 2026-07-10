@@ -36,34 +36,61 @@ Magic as a metaphor for hope/connection returning to the protagonist and the wor
   (the sympathizers), set-piece dungeons.
 - **Zelda: ALttP:** zone gameplay — top-down 4-directional action combat, dungeons,
   items as gating tools.
-- **Chrono Trigger / Sea of Stars:** the **overworld** — a miniature painted continent
+- **Chrono Trigger / Sea of Stars:** the **overworld** — a miniature tiled continent
   walked by a tiny chibi travel sprite (~16 px tall on 16×16 terrain tiles) between
-  full-scale places. Their turn-based combat is **not** adopted; zones stay an
-  ALttP-style top-down shooter.
+  full-scale places, built the way CT built its own (a small reused tile vocabulary,
+  autotile coasts and cliffs, towns as drawn clusters of roofs). Their turn-based
+  combat is **not** adopted; zones stay an ALttP-style top-down shooter.
 - **Secret of Mana:** the closest gameplay cousin — real-time top-down action combat
   inside a lush 16-bit JRPG shell. Reference for how zones should _feel_: saturated
   organic terrain, big readable sprites, action combat that stays friendly, whimsical
   enemies with personality, and the seamless flow between exploring and fighting.
 - **Art direction** (canonical influence list): **Final Fantasy VI, Chrono Trigger,
   Secret of Mana, Sea of Stars, Adventure Time, and the Paper Girls comic.** Gameplay
-  feels like Zelda, but the _look_ is richer 16-bit JRPG — FF6/CT field-sprite
-  proportions, SoM's lush saturated environments, shading ramps and rim light over
-  flat fills, textured tiles, bitmap-font dialog boxes — with Adventure Time's whimsy
-  in character/creature design and Paper Girls' bold graphic color scripting (dusk
-  gradients, surreal duotone fields, violet-shifted shadows) for posters, title art,
-  and mood lighting.
+  feels like Zelda, but the _look_ is richer 16-bit JRPG: **TRUE SNES density**
+  (see Tech Conventions) — big deliberate CT-chunk pixels, ~24×13.5 tiles on
+  screen, characters ~2 tiles tall like CT/SoM. FF6/CT field-sprite proportions
+  (head/torso/legs roughly thirds), shading ramps and per-material outlines over flat
+  fills, textured tiles, bitmap-font dialog boxes — with Adventure Time's whimsy in
+  character/creature design and **Paper Girls' color law everywhere** (see "Palette
+  Registry"): palettes stay MINIMAL and surreal — duo/tri-tone casts, one dominant
+  hue field plus one hot accent, shadows hue-shift violet or teal (never neutral
+  gray). Wood may be an honest warm brown (a material, not the field); the ban is
+  on naturalistic beige/gray mud as a scene's whole field and on un-hue-shifted
+  muddy darks.
+
+**World genre: steampunk-inflected medieval fantasy.** The world is a
+Zelda-ALttP-style kingdom — cottages, bluffs, stone-and-timber architecture, a
+walkable overworld between named places — layered with an alchemical /
+Victorian-inventor technology strand carried by Basil and his world's
+trappings: gears, brass fittings, glass apparatus, lanterns, laser-gun
+gadgetry, corkboard research. It's already in the lore's own naming (Alembic
+Town — an alembic is distillation apparatus) and in Basil's design (goggles,
+lab coat, beaker magazines). Future locations, NPCs and props should lean into
+this pairing — brass-and-flask over chrome, candle-and-gear over circuitry —
+never modern tech or generic-fantasy defaults.
 
 ## World Structure — Overworld + Zones
 
 Two layers:
 
 - **Overworld** (`scene/overworld.tscn`) — the travel layer: a Chrono Trigger /
-  Sea of Stars–style miniature painted continent (64×36 tiles, 1024×576 px,
-  camera-clamped). Basil walks it as a 24×24-cell chibi sprite (~16 px tall) over
-  16×16 terrain tiles. **No combat on the map.** Terrain gates travel — water,
-  forest, mountains, rivers, cliffs and dead trees are solid; sand, grass, paths,
-  bridges, forest edges, hills and the wastes are walkable; bridges and paths open
-  the routes.
+  Sea of Stars–style miniature TILED continent (64×36 tiles, 1024×576 px,
+  camera-clamped), stamped at runtime from a generated CT-style tileset
+  (~210 unique tiles; coasts, riverbanks, cliff feet, canopy rims and road
+  shoulders are neighbor-keyed autotile transitions that dedupe by
+  construction) onto two TileMapLayers — under and over the chibi, so Basil
+  passes behind the forest canopy rim. He walks it as a 24×24-cell chibi
+  sprite (~16 px tall) over 16×16 terrain tiles; buildings are SQUAT (a
+  cottage is 32 px, ~1.8× the figure) so the hero reads proportionally big,
+  the CT area-map way. The 2026-07 darker pass replaced the candy-mint
+  field with mossy emerald / deep ocean teal / violet-slate rock (the law
+  holds: deep + saturated + hue-shifted, never gray).
+  **No combat on the map.** Terrain gates travel — water, forest, mountains,
+  rivers and buildings are solid; sand, grass, roads, bridges,
+  hills and the wastes are walkable; bridges and roads open the routes. The
+  eastern drained wastes render **hot violet-magenta** — the magic-drained
+  premise carried by color.
 - **Zones** — the full-scale scenes entered from the map, where the existing
   gameplay happens: 48×48-cell field sprites, SNES-Zelda ALttP-style movement, and
   the top-down laser-gun shooter combat.
@@ -74,19 +101,65 @@ a banner label; unlocked markers fade out and enter their zone; locked ones show
 flavor text instead. The **`Game` autoload** (`scene/game.gd`) remembers
 `overworld_spawn`, so leaving a zone returns Basil to the marker he entered from.
 
-**Geography:** home bluff SW → path NE past Whisker Meadow (center-west) → bridge
-over a N→S river → Alembic Town at the NE forest's edge; mountains + cave N; drained
-wastes + obelisk E/SE; ocean frames everything.
+**Towns are CT-faithful ICONS** (the 2026-07 icon pass): on the overworld a
+town is ONE hand-drawn cluster composition — overlapping squat roofs at
+staggered heights on an organic dirt apron, landmark silhouettes rising
+behind — over solid cells, NOT walkable. Its one walkable gate-mouth `D` cell
+carries the travel marker; stepping on it fades INTO the town's own walkable
+zone scene, exactly how CT's overworld towns open into their village maps.
 
-- **BASIL'S BLUFF** (`home`, locked — "HOME. IT CAN WAIT.") — the hermit home Basil
-  is leaving behind.
-- **WHISKER MEADOW** (`meadow` → `test_room.tscn`) — the first field zone; the one
-  playable zone today.
-- **ALEMBIC TOWN** (`town`, locked — academy shut) — home of the Academy and the
-  humiliation; future hub.
-- **THE BURROWS** (`cave`, locked) — future dungeon.
-- **THE DRAIN** (`obelisk`, locked) — drained-wastes story hook: where the magic
-  went.
+**Geography:** **ALEMBIC TOWN** as a DENSE cluster icon on the SW coast —
+seven small overlapping cottage roofs (openings are dabs: a town read from
+across the plain), the Academy's crenellated castle-keep at the back rank,
+and the steamworks' riveted copper boiler venting a steam plume the whole
+map can read, warm lit windows + rose window on the glow overlay, a
+flask-sign gate — → ONE winding trail NE past Whisker Meadow (center-west),
+over the rosewood bridge across the N→S river, petering out at the drained
+wastes; mountain ridge + foothills N with the Burrows pass (cave anchor),
+the **CAPITAL'S CASTLE** (`C` cells, 6×5) riding the west massif — pale
+stone hold, blue cones, pennants, its own steaming flue — and the **HORN**
+(`V`, 5×4), the one snowcapped summit breaking the ridge rhythm at the
+massif's NW tip; the **ELDER TREE** (`g`, 4×6, ~5× the chibi) leaning over
+the riverbank between trail and wastes — the plain's sense-of-scale anchor;
+wastes E/SE with the **crystal OBELISK monument** (`O`, 3×4, at the obelisk
+anchor) and 2×2 `K` crystal outcrops scattered around it; lone plains trees
++ flower patches scatter the grass; ocean frames everything. (The static
+cloud-shadow overlay was cut 2026-07-06 — at CT zoom the soft dark ovals
+read as smudges, not weather.) Region edges are drawn as 1-cell
+stair-steps in the map txt ON PURPOSE — the autotile's 45° corner cuts
+render them as continuous diagonal coasts/rims.
+
+- **ALEMBIC TOWN** (`town` → `downstairs.tscn` for now) — the icon's gate
+  mouth; it goes straight into Basil's downstairs while the walkable town
+  scene is parked.
+- **WHISKER MEADOW** (`meadow` → `meadow.tscn`) — the first field zone; the one
+  playable combat zone today. A flower ring marks its road entrance.
+- **THE BURROWS** (design only) — future dungeon; its pass and cave anchor
+  already sit in the northern ridge.
+- **THE DRAIN** (design only) — drained-wastes story hook: where the magic went.
+
+**Alembic Town, walkable** (`scene/alembic_town.tscn`, 40×28 tiles — built
+2026-07-05, currently PARKED/unreferenced: the icon's mouth goes straight to
+the downstairs instead) — the CT-Truce village at zone scale (48px player),
+riding the SAME OverWorld tile driver (hedge borders = the forest class,
+lanes = the trail painter, plus a fence class): Basil's cottage NW with an
+open candle-lit doorway (`home` → `downstairs.tscn` at the front door), the
+locked neighbor cottages (`cottage_w`/`cottage_e`, announce-only), the
+well/lamp/stall commons, and the barred Academy fenced apart SE (`school`,
+announce-only — "no magic has stirred here in years"). Buildings are TWO map
+chars: solid facade rows + WALKABLE roof rows whose art rides the upper tile
+layer, so the player walks behind rooflines, CT-style. The south lane gap
+(`exit_south`) returns to the overworld at the town icon. Spawns route
+through `Game.town_spawn` (read-and-clear; "" = the south entrance, `home` =
+below Basil's door).
+
+History: the 2026-07 town carve absorbed the old standalone "Basil's Bluff"
+into Alembic Town and moved the town from its old NE-forest anchor onto the SW
+coast; the proportion pass tore the rampart back out (the walled compound
+dwarfed the chibi) in favor of an open on-map cluster; the icon pass then went
+CT-faithful — the on-map cluster became a drawn icon and the open town moved
+into its own walkable scene. The Burrows and the Drain stay design-only until
+their zones exist.
 
 The cracked/dead-tree/crystal **wastes biome** (east) visually encodes the
 drained-magic premise. New regions and zones unlock as the story progresses; the
@@ -95,12 +168,34 @@ gating tools are terrain plus story keys.
 ## Tech / Engine Conventions
 
 - Engine: **Godot 4.6**, GDScript, GL Compatibility renderer.
-- Base resolution: **640×360**, integer-scaled. Tile size: **16×16**. Nearest filtering.
-  Characters stay 48×48-cell sprites — at 640×360 they occupy ~1/8 of screen height,
-  which is what gives the game its "high-resolution pixel art" scale (big world,
-  small detailed characters) instead of a chunky retro look.
-- **Two sprite scales:** zones use **48×48** field cells (above); the overworld uses
-  **24×24** chibi travel cells (~16 px Basil). Tiles are **16×16** everywhere.
+- Base resolution: **384×216** (16:9 — canvas_items stretch, integer-scales 5x to
+  1920×1080 / 10x to 4K so it fills a widescreen TV; the dev window runs 3x at
+  1152×648; `snap_2d_transforms_to_pixel` on). Nearest filtering. No camera zoom
+  anywhere — on-screen scale is purely sprite pixels vs. the viewport. (The
+  2026-07 zoom-out from 320×180: same sprites, ~20% more world on screen, Basil
+  reads ~15% of frame height instead of 18%.)
+- **TRUE SNES DENSITY** (the 2026-07 CT-chunk restart): pixels are big and
+  deliberate, Chrono Trigger scale — the earlier "SNES composition at 2x pixel
+  density" was reversed because fine detail read as noise, not craft.
+- **Scale Table** (canonical; mirrored by `assets/_core.py` constants — change them
+  together):
+
+  | Thing                            | Size                                                                                     |
+  | -------------------------------- | ---------------------------------------------------------------------------------------- |
+  | Viewport                         | 384×216 (16:9; 5x → 1920×1080)                                                           |
+  | Terrain tile (zones + overworld) | **16×16** (`ZONE_TILE`/`OW_TILE`)                                                        |
+  | Zone character cell (Basil)      | **48×48** (`ZONE_CELL`), figure ~33 px, feet y=44 (`ZONE_FEET`)                          |
+  | Slime cell                       | 24×24                                                                                    |
+  | Overworld chibi cell             | **24×24** (`OW_CELL`), ~16 px figure, feet y=21 (`OW_FEET`)                              |
+  | Overworld landmark icon          | 32×32 (`ICON`)                                                                           |
+  | Interior room map (house)        | 24×14 tiles = 384×224 (view clamps to 384×216; bottom void row is mostly offscreen)      |
+  | HUD heart / ammo pip / font_size | 16 / 8 / 8                                                                               |
+  | Gun muzzle offset (art contract) | 16 px from origin (`player.gd muzzle_offset`)                                            |
+
+  This puts ~24×13.5 tiles on screen with characters ~2 tiles tall — the CT/Frog
+  read where a character is a big chunky figure and every pixel is placed on
+  purpose, with enough room around him for the world to breathe.
+
 - Architecture: **component-based**. Reusable behavior lives in `components/` as nodes/
   resources (HealthComponent, HitboxComponent, HurtboxComponent, …). Entities in
   `entities/` compose these. Shared data (stats, items) as custom `Resource`s in
@@ -111,51 +206,109 @@ gating tools are terrain plus story keys.
   (`Area2D`) that travels and damages the first `HurtboxComponent` it hits. Always-on
   `HitboxComponent`s (e.g. an enemy body) handle contact damage. All damage flows
   through `HealthComponent`. Single shot per `attack` press.
-- **Ammo / beakers:** the gun holds `max_ammo` charges; each shot consumes one. **Beaker**
-  pickups (`entities/pickups/beaker.tscn`) in the world refill ammo on walkover. The HUD
+- **Ammo / beakers:** the gun holds `max_ammo` charges; each shot consumes one. **Beakers
+  are magazines**: pickups (`entities/pickups/beaker.tscn`) pocket as spares (up to
+  `max_beakers`; full paws leave the pickup in the world), and reloading — R/L, or pulling
+  the trigger dry — plays the planted pour animation and empties one into the gun. The HUD
   shows hearts + an ammo-pip row.
 - **Magic is deferred by design:** the world starts drained, so spell systems are
   introduced later as progression that mirrors the story. The laser gun is the
   early-game, magic-free weapon.
 
-## Current Milestone — Vertical Slice + Opening
+## Current Milestone — Combat Core (house · overworld · meadow)
 
-Flow: **title screen → intro (night yard → bedroom wake-up → morning yard → playable
-road → lecture hall) → overworld → zones** (Whisker Meadow playable; the other four
-places signposted).
+**The 2026-07 combat-first cut** pared the build to its core loop to hone the
+battling and the look. Deleted (git history keeps the implementations; the story
+sections above remain the plan): the title screen, the five-part intro (night
+yard → bedroom wake-up → morning yard → playable road → lecture hall),
+Schweinler's sprites, and the cutscene/dialog kit (`cutscene.gd`,
+`dialog_box.gd/.tscn` — awaitable say/walk/fade/card helpers, typewriter box).
 
-- **Title** (`scene/title.tscn`, main scene): 640×360 Paper-Girls-style sunset — banded
-  gradient sky, stars, a giant setting sun behind streaking clouds, mountain ridge,
-  silhouetted autumn canopy, and Basil small on the glowing path. Falling leaves.
-  Fire/accept starts the intro; ESC skips straight to the overworld.
-- **Intro pt.1 — night yard** (`intro_house.tscn`): night — Schweinler sneaks up and
-  plants the poop bag on Basil's doorstep, gloats, waddles off.
-- **Intro pt.2 — bedroom** (`intro_bedroom.tscn`): morning — Chrono Trigger-style
-  compact room floating on black. Basil asleep in bed (breathing loop), a songbird
-  flaps onto the windowsill and chirps him awake; he bolts upright, close-up of the
-  alarm clock frozen at **8:57** (alarm hand still at 8 — it never rang), and he
-  tears out the south doorway over the doormat. Art from
-  `assets/_gen_bedroom_art.py` (bedroom_bg / bed_basil / bird / nightstand /
-  clock_face).
-- **Intro pt.3 — morning yard** (`intro_house_morning.tscn`: instance of
-  `intro_house.tscn` with `morning = true`): Basil bursts into the doorway, steps
-  right in it (SQUELCH), sprints off leaving paw prints.
-- **Intro pt.4 — road** (`intro_road.tscn`, _playable_): run the hedge-lined road to
-  the Academy, two slimes to fight, a beaker, a fading poopy-paw-print trail, hint text.
-  Reaching the Academy doors continues the story.
-- **Intro pt.5 — hall** (`intro_hall.tscn`): the presentation, Schweinler's callout,
-  the nickname. Title cards bridge to "…YEARS LATER." and the overworld.
-- **Overworld** (`overworld.tscn`): the CT/SoS travel map (see "World Structure").
-  Basil fades in at Basil's Bluff and walks the path NE; Whisker Meadow enters the
-  meadow, the other markers announce themselves and show locked flavor text.
-- **Meadow — Whisker Meadow** (`test_room.tscn`): 30×17-tile room, 3 slimes, beaker
-  respawns, HUD; a south hedge-gap exit returns to the overworld at the meadow marker.
+Flow: **bedroom ↔ downstairs ↔ overworld ↔ Whisker Meadow**. The game boots
+into the loft bedroom; its stairs descend to the downstairs great room, whose
+front door opens onto the overworld at the town icon's gate mouth (and
+stepping on the mouth lands back at that front door). The walkable Alembic
+Town scene is PARKED — built, unreferenced by the flow for now.
 
-Feel: laser bolt (2 dmg; slimes have 6 HP → three shots), firing **recoil-shoves**
+- **House** (`scene/house.tscn`, main scene): Basil's LOFT bedroom as a TILED
+  room (the CT-bedroom treatment) — a SMALL dense diorama floating in a huge
+  black void (the room is only 10 tiles wide on the 24×14 map, ~7-tile side
+  margins; dormer window bay jutting above the cornice; every wall stretch
+  occupied: cork | window | shelf), warm brown plank walls over a teal weave
+  floor.
+  `assets/_gen_tileset_house.py` reads the feature chars in
+  `assets/maps/house.txt` (window, bookshelf, corkboard, bed, desk, chair,
+  rug, railing) and AUTHORS a real tile library: 16-periodic fabric
+  painters (weave/planks) whose repeated cells are byte-identical and so
+  collapse to single atlas tiles, whole-tile light variants for the dawn
+  window's hard-edged pool (lit core / ordered-dither fringe / shadow band —
+  never per-pixel gradients), and furniture painted once inside its map
+  footprint as crisp multi-tile objects (blazing gold dawn glass, hot-magenta
+  quilt, research desk with oil lamp + microscope, corkboard with red string).
+  Visible tiles and collision are both built at runtime from the same map
+  file. **Scene lighting** (runtime, over the tiles): a violet-biased
+  `CanvasModulate` dims the whole room (Basil included, the CT interior
+  read) — darker while the curtains are drawn; `house_glow.png` — a
+  hard-banded ADDITIVE beam the generator aims from the map's window cells
+  over the pool — draws UNDER entities (additive light over a sprite lifts
+  its darks and reads as transparency; sprites stay crisp, like CT). The
+  **curtain mechanic** (`house.gd`): the room wakes with the curtains drawn
+  (`house_curtains.png` closed/half frames, flasks redrawn in front of the
+  drapes, a hot sliver of dawn leaking between the panels); standing at the
+  window (WindowZone) and pressing **interact (E)** slides them open/closed,
+  tweening the beam and the dim with it. The south boundary is a **CT
+  staircase in the south-west corner**:
+  Basil passes the rail gap (balustrade + newel posts on the upper tile
+  layer, so he walks BEHIND them) onto visible treads that descend south out
+  of the room silhouette between dark jambs, each step darker until the void
+  swallows it — landing in the downstairs at `stair_arrival`.
+- **Downstairs** (`scene/downstairs.tscn`): the ground-floor **kitchen + lab
+  great room** — the steampunk-medieval genre statement in one room, and the
+  hub between bed and world. Twice the loft's width (a 20-tile room on the
+  same 24×14 map, ~2-tile void margins, one fixed screen), same authored-tile
+  pipeline (`assets/_gen_tileset_downstairs.py`, slate flagstone floor +
+  shared house planks). KITCHEN west: stone hearth with a live hard-banded
+  fire (the room's hot light source — whole lit-flag tiles + additive
+  `downstairs_glow.png` drawn under entities; the fire itself is an ANIMATED
+  overlay, `downstairs_fire.png`, 3 frames stepped by `downstairs.gd` over
+  the cold baked firebox), and the sink counter under the kitchen window
+  with the dish shelf above. STEAMPUNK LAB east: flask shelf, a copper pipe
+  manifold on the
+  wall feeding the **free-standing boiler** — an animated y-sorted World
+  entity (`downstairs_boiler.png`, 4 frames from
+  `_interior_props.boiler_frames`: gauge-needle wiggle, firebox flicker, a
+  lazy steam leak), its collision still the map's solid `A` cells, its node
+  placed at the player's feet convention (feet = node.y + 20) so y-sort
+  agrees — and a workbench with a half-built gizmo. The loft staircase descends through a top-center
+  alcove jutting above the cornice (treads brighten as they come down out of
+  the dark); the south wall holds the **front door** — an open doorway
+  spilling daylight, lintel on the upper layer (Basil ducks under it), stone
+  stoop into the void. Exits: up the alcove → bedroom (`stair_top`); out the
+  door → overworld at the town icon's gate mouth. Spawns route through
+  `Game.interior_spawn` (read-and-clear; default = `front_door`, the
+  overworld-entry landing).
+- **Overworld** (`overworld.tscn`): the CT/SoS TILED travel map (see "World
+  Structure"). Two markers: the town icon's gate mouth (`town`, straight
+  into the downstairs for now) and Whisker Meadow (enters the combat zone).
+  Cave and obelisk stay anchor-only landmarks in the terrain; their markers
+  return with their zones.
+- **Alembic Town, walkable** (`alembic_town.tscn`) — PARKED: the CT-Truce
+  village at zone scale (see "World Structure") is built and passes checks
+  but is unreferenced by the flow; rewire the town marker + downstairs door
+  through it (via `Game.town_spawn`) when the town earns its place.
+- **Meadow — Whisker Meadow** (`scene/meadow.tscn`): 48×24-tile TILED zone on
+  the shared overworld driver (forest treeline, sea pond + beach collar,
+  road trail, boulder-prop outcrops + the trailhead cairn),
+  4 slimes, beaker respawns, HUD; a south hedge-gap exit returns to the overworld
+  at the meadow marker.
+
+Feel: the bolt leaves the INSTANT the trigger is pulled (no wind-up — the shoot
+anim starts on the muzzle frame), laser bolt (2 dmg; slimes have 4 HP → two
+shots, and each kill respawns a slime elsewhere in the meadow), firing
+**recoil-shoves**
 Basil hard backward — the sheet's recoil frame leans him back, feet braced forward,
 ears pinned, eyes squeezed in a wince, barrel kicked up; hop jumps straight up when
 standing, leaps with held direction, and is **steerable mid-air** (SNES-Zelda style).
-Cutscenes are skippable with ESC.
 
 All art is **generated, frame-consistent pixel art** (see "Art pipeline") so animations
 actually cycle; hand-drawn sheets can still drop in later against "Asset Specs" below.
@@ -165,116 +318,399 @@ actually cycle; hand-drawn sheets can still drop in later against "Asset Specs" 
 - `components/health_component.gd`, `hitbox_component.gd`, `hurtbox_component.gd`
 - `entities/player/player.gd` + `player.tscn` (+ `player_frames.tres`)
 - `entities/enemies/slime.gd` + `slime.tscn` (+ `slime_frames.tres`)
-- `entities/npcs/schweinler_frames.tres` (cutscene actor; sheet from
-  `_gen_schweinler_sprites.py`)
 - `entities/projectiles/laser_bolt.gd/.tscn`, `muzzle_flash.gd/.tscn`
 - `entities/pickups/beaker.gd` + `beaker.tscn`
-- `scene/hud.gd/.tscn` · `scene/dialog_box.gd/.tscn` (typewriter box, pixel font)
-- `scene/cutscene.gd` — base class: awaitable `say/walk/hop/fade_in/fade_out/card`
-  helpers + ESC skip. `intro_house.gd`/`intro_bedroom.gd`/`intro_hall.gd` extend it.
-- `scene/title.gd/.tscn`, `intro_house` (+ `intro_house_morning.tscn` variant),
-  `intro_bedroom`, `intro_road`, `intro_hall`
-- `scene/test_room.gd` + `test_room.tscn` (paints an ASCII map onto a `TileMapLayer` —
-  hedge tiles are solid via the tileset's physics layer; road scene uses the same trick)
-- `scene/overworld.gd/.tscn` (64×36 ASCII-painted continent) ·
+- `scene/hud.gd/.tscn`
+- `scene/house.gd/.tscn` — the playable bedroom: tiled-interior reference
+  implementation (Tiles → Collision → y-sorted World), visible tiles from the
+  generated layout + collision from `assets/maps/house.txt`, south-door exit
+- `scene/meadow.gd/.tscn` — the combat zone; the tiled combat-zone reference
+  implementation (Tiles → Collision → y-sorted World → TilesUpper)
+- `scene/map_data.gd` (map-file loader — keep in sync with `assets/_maps.py`) ·
+  `scene/painted_map.gd` (stamps the invisible collision tiles at runtime) ·
+  `scene/tiled_map.gd` (stamps visible tiles from a generated layout file)
+- `scene/overworld.gd/.tscn` (64×36 TILED continent: layout-stamped Tiles/
+  TilesUpper + additive glow + the town/meadow markers) ·
+  `scene/alembic_town.gd/.tscn` (40×28 TILED walkable town: same
+  stamp-and-anchor pattern with the full-scale player, door/announce markers
+  + the south exit) ·
   `scene/overworld_location.gd` (markers: id/display_name/target_scene/locked_text) ·
-  `scene/game.gd` (autoload **Game** — remembers `overworld_spawn`)
+  `scene/game.gd` (autoload **Game** — remembers `overworld_spawn`, plus
+  `town_spawn`/`interior_spawn`: the map anchor the next town/interior scene
+  spawns at, read-and-cleared by the scene's `_ready` so "" = its default entry)
 - `entities/player/overworld_player.gd/.tscn` (+ `overworld_basil_frames.tres`) —
-  travel-only `CharacterBody2D`: 8-way move, 4-way facing, ~90 px/s, no gun/hop/health
-- `assets/overworld_tileset.tres` — water/forest/mountain/river/cliff/dead-tree tiles
-  are solid (physics layer); sand/grass/path/bridge/forest-edge/hills/wastes walkable
-- `assets/font/pixel_font.fnt/.png` — 5×7 bitmap font (`assets/font/_gen_font.py`,
-  glyphs shared via `assets/_pixfont.py`)
+  travel-only `CharacterBody2D`: 8-way move, 4-way facing, 90 px/s, no gun/hop/health
+- `assets/font/pixel_font.fnt/.png` — bitmap font all Labels use
+  (`assets/font/_gen_font.py`, glyphs shared via `assets/_pixfont.py`)
 
-### Art pipeline (generated placeholders that animate)
+### Art pipeline (generated, frame-consistent, palette-locked)
 
 The AI-generated sheets (`assets/basil.png`, `assets/basil_sheet.png`) draw a slightly
 different cat in every frame, so animations strobe; they are kept only as concept
-reference (along with the old `_repack_basil.py` slicer and its `basil_packed.png`).
-The live art is drawn procedurally — every frame from one parametric model — by three
-stdlib-only scripts:
+reference. The live art is drawn procedurally by stdlib-only Python scripts.
 
-- `assets/_gen_basil_sprites.py` → `basil_gen.png` (288×336, 48×48 cells): Basil,
-  modeled on the real cat — jet-black tuxedo, close-set yellow eyes with round
-  pupils (stern by default, sweet ^ ^ on the idle blink), narrow white blaze into a
-  plump muzzle, black nose smudge, whiskers breaking the silhouette, aviator goggles,
-  straight-cut lab coat, white paws. **FF6/CT field-sprite proportions**: head /
-  torso / legs each roughly a third of the figure, slim coat, small feet; walk
-  cycles, shoot poses, hurt, and a full row 6
-  of expressions: hurt ×2, blink, tail-flick, **happy** (open grin + blush) and
-  **sad** (droopy ears, teary eyes, wobble frown) — exposed as `happy` / `sad`
-  animations in `player_frames.tres` for cutscenes.
-- `assets/_gen_slime_sprites.py` → `slime_gen.png` (144×96, 24×24 cells): bounce cycle
-  (airborne on frames 2–4; `slime.gd` syncs movement speed to those frames so slimes
-  hop instead of glide) + 4-frame splat death. Used by
-  `entities/enemies/slime_frames.tres`.
-- `assets/_gen_tileset.py` → `tileset_gen.png` (64×32, 16×16 tiles): grass/tufts/
-  flowers/path/hedge/rock. Used by `assets/tileset.tres` (hedges collide).
-- `assets/_gen_overworld.py` → the CT/SoS overworld look — broccoli forest canopies,
-  sparkle water, snow-capped ridges, cracked wastes — same procedural style (muted
-  SNES palette, 4-tone ramps, hash-dithering, upper-left light). Three sheets:
-  `overworld_tiles.png` (128×48, 8×3 of 16×16 seamless terrain — water, water
-  sparkle, sand, grass, grass detail, scrub, path, bridge / forest A/B, forest edge,
-  hills, mountain, mountain snow, river, cliff / cracked A/B, dead tree, crystal,
-  +4 reserved grass variants; the cracked/dead/crystal tiles are the drained-wastes
-  biome), `overworld_basil.png` (96×72, 4×3 of 24×24: chibi Basil — big head, tuxedo,
-  goggles, lab coat — walk down/up/side ×4, side right-facing, flipped in code), and
-  `overworld_icons.png` (160×32, five 32×32 landmark icons: HOME cottage, TOWN,
-  MEADOW grove, CAVE mouth, OBELISK).
-- `assets/_gen_schweinler_sprites.py` → `schweinler_gen.png`: Schweinler the pig
-  (big snout, beady angry eyes, red neckerchief, curly tail, cloven trotters);
-  walks + point_up + laugh_down. Compact upright FF6/CT figure, same
-  scale/baseline as Basil.
-- `assets/_gen_title.py` → `title_bg.png` + `leaf.png`: the autumn-poster title art.
-- `assets/_gen_intro_art.py` → `assets/props/*`: house front, Academy front,
-  poop bag (3 frames), paw print, hall floor/wall, chalkboard, podium, audience cats.
-- `assets/font/_gen_font.py` → the BMFont bitmap font all Labels use.
+**One scene pipeline, one map format.** Every scene is TILED (the interiors —
+the 2026-07 CT-bedroom pivot — then, with the 2026-07 town carve, the
+OVERWORLD and walkable ALEMBIC TOWN, and since the 2026-07 meadow conversion,
+WHISKER MEADOW too — the painted pipeline is retired, git history keeps it):
+the generator composes the
+scene from 16-periodic fabric functions (grass/forest carry a 32-periodic
+phase on interior cells) + whole-tile variants + footprint-bounded prop
+painters — and, on the overworld driver, neighbor-keyed autotile transitions
+that are pure functions of (terrain, per-class 8-neighbor masks, local pixel),
+including **45° corner cuts**: a cell whose neighbor mask is one orthogonal
+pair renders that corner cut along the tile diagonal, each boundary painted
+one-sidedly by its OWNER class (water > waste > beach > road > forest >
+mountain), so 1-cell stair-steps in the map txt chain into continuous
+diagonal coasts, rims and ridge edges — so repeated cells are byte-identical
+BY CONSTRUCTION and the slicer collapses them to a small atlas, exactly how
+an SNES scene lives in VRAM (house: 60 tiles from 336 cells; overworld: ~260
+from 2304; town: ~240 from 1120; meadow: ~145 from 1152). Every scene is
+driven by its `assets/maps/*.txt` file.
 
-Style: **FF6 / Chrono Trigger render, Paper Girls palette** — restrained
-dithering, dark unified outlines, small expressive eyes, and taller field-sprite
-proportions (movement/perspective stays SNES-Zelda; only the look is Square-style).
-The **color script is surreal duotone**: every scene picks a dominant hue field plus
-a hot accent (periwinkle + magenta, teal + peach), shadows hue-shift violet/teal,
-glass and skies carry sunset gradients — never neutral beige/brown/gray fields.
-Night scenes tint through a violet-magenta `CanvasModulate` (see `intro_house.gd`).
-The Basil
-and slime generators render every form as a shaded volume: 4-tone material ramps
-(shadows hue-shift cool), light from the upper-left, ordered dithering between tone
-bands (`_pick`), superellipse silhouettes (`oval`/`cloth` primitives), per-material
-outline colors, and details that break the silhouette (whiskers, drawn after the
-outline). Older generators (props) still use the simpler rim-light `shade()`
-pass — upgrade them to the primitive-based renderer as they get screen time.
+- **`assets/maps/*.txt`** — the shared source of truth per map: a `legend`
+  (char → terrain + walk/solid), named `anchor`s (spawns, exits), and the ASCII
+  tile grid. Python paints from it; `scene/map_data.gd` builds collision and
+  logic queries from the same file, so paint and physics cannot drift. Keep
+  `assets/_maps.py` and `scene/map_data.gd` parsers in sync.
+- **`assets/_core.py`** — canonical scale constants (`ZONE_TILE=16`,
+  `ZONE_CELL=48`, `ZONE_FEET=44`, `OW_CELL=24`, `ICON=32` — the Scale Table above
+  mirrors these), `h2()` deterministic hash noise, `pick()` ramp dither, `Img`
+  canvas, PNG writer.
+- **`assets/_palette.py`** — the color script as data. `ramp(seed, shadow, tones)`
+  derives N-tone material ramps (6 for terrain, 4 for sprites) from scene
+  seeds, hue-shifting the dark end toward the scene's shadow bias (violet or
+  teal). `SCENES` is the palette registry (below) — per-scene `"ramps"` entries
+  hold hand-tuned identity ramps for materials that can't be derived (warm dirt:
+  teal shadows turn it yellow-green, violet ones salmon); `ACTORS` holds the
+  hand-tuned identity ramps for Basil / Schweinler / slime.
+- **`assets/_tiles.py`** — the tileset kit: `slice_atlas()` cuts full-room
+  compositions on the 16px grid and dedupes identical cells into ONE shared
+  atlas across TWO layers — a lower canvas (under entities) and a sparse
+  upper canvas (over entities: railings, furniture tops, lintels — anything a
+  body walks behind). Writers emit the packed atlas PNG, the TileSet `.tres`
+  (visuals only — collision stays on the invisible collision layer) and the
+  layered layout txt that `scene/tiled_map.gd` stamps at runtime.
+  **The tiled READ is a discipline, not a file format:** repeating art must be
+  a function of tile-local coordinates + a per-cell variant hash, and light/
+  shade must be quantized PER TILE (whole lit tiles + ordered-dither fringe
+  tiles, per-tile vignette/halo bands) — per-pixel gradients make every tile
+  unique and dissolve the tile rhythm into a painting.
+- **`assets/_tilekit.py`** — the shared base of every TILED scene:
+  int-casting `Canvas`, the shared material ramps (one hardware store:
+  TIMBER/BRASS/COPPER/STONER/...), and `TileScene` — map + LOWER/UPPER
+  canvases + palette wiring, `bbox`/`px` footprint geometry,
+  `place`/`place_upper`/`place_split`/`place_each` prop placement with baked
+  contact shadows, `write_glow`, and `finish()` (the slice/dedupe/write).
+  `Room` (interiors) and `OverWorld` (the continent) both subclass it.
+- **`assets/_interior.py` + `assets/_interior_props.py`** — the interior kit,
+  THE standard for every future interior room. `_interior.py` owns the
+  interior skeleton (the 16-periodic terrain fabrics: `plank_px` walls with
+  wainscot base row, `weave_px` / `flag_px` floors, per-cell painters with
+  whole-tile light dispatch, stair/jamb/rail/drop/south cells, and the `Room`
+  driver: `paint_terrain(rules)`, `place(char, prop, shadow_h)`).
+  `_interior_props.py` is the furniture library — every prop a function
+  returning a `_sprites.py` Sprite (jitter=0 hard CT bands;
+  `ball`/`capsule`/`tri` volumes on round forms; outline/crease/specular
+  finishing), blitted at its map footprint with a baked contact-shadow band.
+  Windows and rugs are size-parameterized and shared across rooms. A NEW
+  ROOM = a map txt + a ~100-line config (`assets/_gen_tileset_house.py` /
+  `_gen_tileset_downstairs.py` are the two references) — pick the scene
+  palette, declare light pools + odd cells, place props, `finish()`.
+- **`assets/_overworld_tiles.py` + `assets/_overworld_props.py`** — the
+  overworld kit: the CT autotile look on the same bake→slice→dedupe path.
+  `OverWorld(TileScene)` owns the terrain fabrics (sea/grass/hills/flowers/
+  beach/forest-crowns/mountain-ridges/waste/road/bridge) and
+  the neighbor-stamp transitions — every cell's art is a PURE function of
+  (terrain class, per-class 8-neighbor masks via `edge_dist`, coast-distance
+  band) + tile-local pixels, so coasts/foam, riverbanks, cliff faces,
+  snowcapped back crests, crown-arc forest silhouettes and road shoulders
+  all collapse into autotile families (the terrain painter sends nothing
+  to the UPPER layer — no terrain pixel ever covers the chibi). Hash variants (sea sparkle, tufts, waste crystals/dead trees,
+  crest snow, cave nicks) are allowed ONLY on family-interior cells (and
+  never under a landmark's footprint) — the dedupe contract. Fabric texture
+  rides two tile-local primitives (`_dither_i`/`_grain_dither`, the
+  cluster-jittered Sprite.tone formula standalone, and `_hatch`, an ordered
+  engraved-linework predicate — both keyed on tile-local/32-space coords
+  ONLY, never absolute position): sparse turf clumps + broad warm-green
+  drift patches (the second `grass2` ramp, dithered in at matched value —
+  CT's two-green field) under the grass, painter-sorted scalloped crown
+  ROWS in the forest (south crowns overlap north ones; lit caps, near-black
+  under-rims — stacked canopy, not bubble wrap; lobe GEOMETRY is
+  16-periodic, because edge cells render phase 0 and a 32-periodic lattice
+  would chop lobes at every transition seam), the SAME lobe lattice shaded
+  as stylized PEAKS on the mountains (`_rock_px`: hard two-face split —
+  sunlit west, strata-hatched shadow east — under a bright ridge crest;
+  snowy cells whiten the summit arcs), 2-tone `_lip_band` grades at every
+  water/waste boundary, a creeping grass fringe on the beach seam. Forest
+  AND mountain rims ride one mechanism (`_arc_cell`): a lobe instance is
+  rejected if its disc would cross any open boundary, the surviving edge
+  lobes' arcs form the outline, a 1px near-black ring seals it, and the
+  bays render the neighbor's fabric — the silhouette follows the lobes,
+  never the tile grid; narrow runs fall back to small strip lobes, and
+  nothing goes to the upper layer. Mountains front the forest too
+  (MOUNT_OWN), so canopy flows into the massif's bays.
+  `_overworld_props.py` is the LANDMARK library — one-off compositions,
+  never deduped, so they use full per-pixel `Sprite` shading (`tone()`
+  lambert roofs/cylindrical towers via `_hip_roof`/`_coursed_wall`,
+  `_hatch_px` shingle/strata linework on ABSOLUTE pixels — kept deliberately
+  separate from the terrain `_hatch` — chimney cast shadows, window reveals
+  + sky-catch streaks, `despeckle`+`cluster_shade` finishing): `town_cluster`
+  (the 128×96 icon: dense mini-cottage ranks with dab openings, the Academy
+  keep, `_boiler_house` steamworks + `_steam` plumes, well/awning, the gate),
+  `castle` (a ~46×54 hold centered in the 96×80 footprint, nestled into
+  the massif — pale STONER walls, slim towers, keep cone, tiny lit gate,
+  steaming flue; elements stay SMALL so it reads distant, never a
+  walk-up building scaled up),
+  `mountain_peak` (80×64: the Horn — three shaded facets, snowcap with
+  wind-torn fingers, crevasses), `giant_tree` (64×96: the Elder Tree —
+  ball-lobed crown with seam shadows, bark-grooved trunk, root flare,
+  surviving blooms), `obelisk` (48×64 faceted CRYSTAL obelisk — lit/deep
+  facets on the CRYS ramp, rune score, crystal burst + floating shard),
+  and `crystal_outcrop` (32×32 shard cluster, one per 2×2
+  `K` block). Walkable-town facades live at zone scale in
+  `assets/_town_props.py` (`town_home`, `town_cottage`, `town_academy`,
+  `town_well`, `town_lamp`, `town_stall`); the meadow's per-cell boulder
+  domes + trailhead cairn in `assets/_meadow_props.py`; the shared drawing
+  primitives (`S`, `ln`, `edge`) live in `assets/_propkit.py`.
+  A new overworld = the map txt + `assets/_gen_tileset_overworld.py`'s
+  ~90-line config.
+- **Godot side:** a scene is `Tiles` (TileMapLayer, under entities) →
+  `Collision` (invisible TileMapLayer, `assets/collision_tileset.tres` — one
+  transparent full-square physics tile stamped on every solid cell by
+  `scene/painted_map.gd`) → entities → `TilesUpper` (TileMapLayer, OVER
+  entities — the walk-behind layer), the visible layers stamped by
+  `scene/tiled_map.gd` from the generated
+  layout's `layer lower` / `layer upper` sections (interiors and combat zones
+  put a y-sorted `World` between; the overworld's lone chibi needs none).
+  Entity/exit positions come from map anchors where practical.
+  `scene/house.tscn` is the tiled
+  interior reference; `scene/overworld.tscn` the tiled exterior reference;
+  `scene/meadow.tscn` the tiled combat-zone reference.
+- **`assets/_sprites.py`** — the sprite construction kit: `Sprite` canvas with
+  steer-lit `ball`/`capsule`/`panel` volumes, cluster-jittered tone selection,
+  `cluster_shade`/`despeckle`/`outline`/`crease` finishing passes, and `Rig`
+  (named anchors + per-frame offsets so cycles animate as one body).
+  Generators (re-run any with `python3 <script>`; then let Godot reimport, or
+  `godot --headless --path . --import`; **always run `python3 assets/_check_art.py`
+  after regenerating** — it asserts map enclosure/anchors, layout/atlas/.tres
+  agreement, collision tileset shape, entity placements on walkable
+  cells, sheet dims and `.tres` regions):
 
-Re-run any script with `python3 <script>`; Godot reimports the PNG on editor focus.
+- `assets/_gen_collision.py` → `collision_tile.png` (16×16 transparent) for the
+  shared collision tileset.
+
+Tiled scenes (atlas + `.tres` + layout from `assets/maps/*.txt`):
+
+- `assets/_gen_tileset_overworld.py` → `tilesets/overworld_tiles.png/.tres` +
+  `overworld_layout.txt` + `overworld_glow.png`
+  (64×36 map → ~575 unique tiles): the CT/FF6 continent as real tiles —
+  shallow→deep sea with foam-arc autotile coasts and layered swells, sand
+  with wet lips and a creeping grass fringe, canopy-crown forests
+  (crown-arc silhouette rims, dark outline ring), peak-lobe massifs
+  (lit/shadow faces, scalloped snow crests on north rims), river +
+  rosewood bridge with
+  rails, crack-web violet wastes with crystal / dead-tree variant tiles,
+  the dirt trail (gentle edge-keyed wobble), and the landmark compositions:
+  the Alembic Town cluster icon (dense roofs, Academy keep, steamworks
+  plume), the Capital's castle + the Horn summit on the massif, the Elder
+  Tree on the river plain, the wastes' obelisk monument + crystal outcrops
+  (grass variants: tufts, boulders, mossy sinks, wild blooms). The glow PNG
+  is the additive night-lights overlay (cottage candlelight, the rose
+  window, firebox coals, the boiler gauge, castle windows + gate lamps,
+  obelisk + outcrop + shard crystals). (If a darkening overlay ever comes
+  back: Godot's canvas MUL blend darkens through transparent texels on
+  Compatibility — use plain MIX alpha blending.) ~2s.
+- `assets/_gen_tileset_meadow.py` → `tilesets/meadow_tiles.png/.tres` +
+  `meadow_layout.txt` (48×24 map → ~145 unique tiles): Whisker Meadow as real
+  tiles on the same driver — teal-indigo treeline border (crown-arc rims),
+  the cyan pond with foam coasts + a wet-sand beach collar on its
+  trail-facing shore, the wobbly dirt trail from the south gap to the
+  flower-ringed trailhead cairn, per-cell squat boulder domes
+  (`assets/_meadow_props.py`, three salted variants on the solid `r` cells —
+  the `boulder` terrain renders grass underlay + a south contact band),
+  hot-pink flower drifts; no glow overlay (daylight scene). ~2s.
+- `assets/_gen_tileset_house.py`, `assets/_gen_tileset_downstairs.py` — the
+  interiors (see the interior kit above).
+
+Sprites and fx (on `_sprites.py`; sheet layouts frozen against the `.tres` files):
+
+- `assets/_gen_basil_sprites.py` → `basil_gen.png` (288×384, 48×48, 6×8): Basil —
+  jet-black tuxedo, stern yellow eyes (sweet ^ ^ blink), white blaze/muzzle/paws,
+  close-set ears, big rimmed aviator goggles (amber glass) up on the forehead,
+  lab coat worn LONG (hem y=35, flat CT bands — paw stubs peek under it, so the
+  walk reads CT-Lucca style), laser gun. CT-Frog proportions (big head); walk/
+  shoot ×3 facings (up-shot holds the gun skyward past his head, muzzle on the
+  16px contract), hurt ×2, blink, tail-flick, happy, sad + a 4-frame reload
+  (beaker of glow-juice poured into the gun's port — plays on reload: R/L or
+  a dry trigger; beakers are carried as spare mags).
+- `assets/_gen_slime_sprites.py` → `slime_gen.png` (144×96, 24×24, 6×4):
+  squash-stretch bounce with conserved volume and a lagging gel nucleus
+  (airborne frames 2–4 — `slime.gd` syncs speed to them) + 4-frame splat death.
+- `assets/_gen_overworld_actors.py` → `overworld_basil.png` (96×72, 24×24,
+  4×3 chibi) + `overworld_icons.png` (160×32, five 32×32 landmark vignettes).
+- `assets/_gen_fx.py` → `placeholder/`: ruby hearts 48×16, energy pips 16×8,
+  laser bolt 26×8, muzzle flash 20×20, glass beaker 12×14, violet hop
+  shadow 24×10.
+
+Tiled interiors (atlas + TileSet + layout from `assets/maps/*.txt`):
+
+- `assets/_gen_tileset_house.py` → `tilesets/house_tiles.png/.tres` +
+  `tilesets/house_layout.txt`: the loft bedroom as an AUTHORED tile library —
+  16-periodic fabric (warm brown plank walls, low-contrast teal basket-weave
+  floor) that dedupes to single atlas tiles; whole-tile light variants (lit
+  weave / dither fringe / shadow band) for the dawn window's hard pool;
+  hash-placed whole-tile variety (worn floor cell, knotted plank cell — one
+  atlas tile each); and furniture as footprint-bounded multi-tile objects
+  (dormer gable + brass vent over the blazing quantized-dawn window with sun
+  disc, skyline and flask-lined sill; corkboard obsession wall with red
+  string; bookshelf with scroll + glow jar; bed with hot-magenta quilt; desk
+  with oil lamp, microscope + book stack — a WALK-BEHIND piece: the desk is a
+  **y-sorted World entity** (`house_desk.png`) on a one-row solid footprint
+  with a 2-row walkway behind it — behind it your legs hide under the desktop
+  plane, in front you draw over it. (The static upper-TILE-layer trick is
+  reserved for room-edge art like the rail/lintel: a 2-tile-tall body
+  standing directly south clips its head behind static-over furniture —
+  y-sort is unconditionally correct.) Chair; rug beside the bed; the BED is
+  split for the FF/CT under-the-covers read (`_interior_props.bed_parts`):
+  headboard/pillow bake under entities, the quilt+footboard cover is a
+  y-sorted entity (`house_bed_cover.png`) — walk onto the bed's middle row
+  and Basil slides under the quilt with only his head showing on the pillow;
+  stand south of the bed and he draws over the covers. Railed
+  stairwell south whose balustrade rides the upper layer over steps sinking
+  into dark). Every prop carries dark contact edges, 3-tone banding and
+  single-pixel speculars; contact shadows are baked inside each footprint.
+  Feature positions come from the map's feature chars — move the window in
+  `maps/house.txt` and it moves in-game.
+- `assets/_gen_tileset_downstairs.py` → `tilesets/downstairs_tiles.png/.tres` +
+  `tilesets/downstairs_layout.txt` + `downstairs_glow.png`: the ground-floor
+  great room on the same disciplines — slate flagstone fabric (16x8 running
+  bond), shared house planks, whole-tile hearth light (lit flags + dither
+  fringe + the additive glow overlay), and the furniture objects (stone
+  hearth with hard-banded fire, sink counter + dish shelf, flask shelf,
+  wall pipe manifold + the free-standing animated boiler, workbench with
+  half-built gizmo, alcove stair treads, open front doorway whose lintel
+  rides the
+  upper layer).
+- `assets/font/_gen_font.py` → the BMFont all Labels use: the **native 5×7
+  glyphs** from `assets/_pixfont.py` (caps/digits/punctuation) at size=8 —
+  Labels use `font_size = 8`. UI text is uppercase; a lowercase set returns
+  with the dialog system.
+- Screenshot check: `Godot --path . --script tools/shot.gd --
+res://scene/meadow.tscn /tmp/shot.png` (windowed; headless renders black).
+
+Render style (CT-chunk): every form is a shaded volume — material ramps whose
+shadows hue-shift cool, light from the upper-left. Sprites: 4-tone ramps with
+**hard, flat band edges** (Sprite jitter=0 — no dither inside characters),
+superellipse silhouettes, per-material 1px outlines, details that break the
+silhouette (whiskers, drawn after the outline). Painted terrain: 6-tone ramps,
+cluster-jittered tone quantization (organic 2px clumps, never checkerboard
+fields), scene-wide light gradient + cloud shade, contact shadows grounding every
+mass, and no texture element repeating on any visible 16px rhythm. Night scenes
+tint through a violet-magenta `CanvasModulate` over the one daytime painting —
+a single tint mechanism, never a night repaint.
+
+### Palette Registry (the color script — `assets/_palette.py` SCENES)
+
+Every scene keys into this table; new materials derive via
+`ramp4(seed, SCENES[key]["shadow"])`. Keep every palette MINIMAL and surreal —
+a duo/tri-tone cast per scene. Wood may be an honest warm brown (a material,
+not the field); never a naturalistic beige/gray mud FIELD, and never
+un-hue-shifted muddy darks — if a dark wants to be gray, it's lavender.
+(Only `bedroom`, `downstairs`, `overworld`, and `meadow` are in the current build; the other
+rows are the standing color script for scenes to come.)
+
+| Scene key      | Dominant field                          | Hot accent                    | Shadow bias |
+| -------------- | --------------------------------------- | ----------------------------- | ----------- |
+| `title`        | indigo→magenta→gold posterized sunset   | leaf gold                     | violet      |
+| `night_yard`   | periwinkle-violet night                 | amber lantern glow            | violet      |
+| `bedroom`      | warm brown plank walls / teal weave floor | hot-magenta quilt, peach dawn | violet      |
+| `downstairs`   | shared house timber / slate flag floor  | amber hearth fire, daylight door | violet   |
+| `morning_yard` | peach plaster                           | magenta shingles, pink blooms | violet      |
+| `road`         | minty teal + peach path                 | hot pink flowers              | teal        |
+| `hall`         | plum panelling / rose floor             | chalk-mint board writing      | violet      |
+| `overworld`    | deep ocean teal + mossy emerald land    | violet wastes + crystal       | teal        |
+| `meadow`       | minty teal greens (mossy 2026-07 register) | candy hot-pink flowers     | teal        |
 
 ## Asset Specs (sprite sheets to provide)
 
 All PNG, transparent background, **0 padding/margin between cells**, nearest-neighbor
-(no anti-aliased edges). Grid is **16×16**.
+(no anti-aliased edges). Grid is **16×16**. Style target: **Chrono Trigger's Frog
+sheet** — big flat color regions, hard band edges, 1px outlines, every pixel
+deliberate.
 
 1. **Player — Professor Poopy Paws** _(highest priority)_ — **48×48 px** cells, **6
    columns**, one direction/action per row to match `player_frames.tres`:
    Walk Down (6) · Walk Up (6) · Walk Side (6, mirrored in code) · Shoot Down (4) ·
-   Shoot Up (4) · Shoot Side (4) · Hurt (2) + idle-down blink + idle-side tail-flick.
-   Full sheet **288×336**. The cat holds a **laser gun** in the shoot rows. See
-   **`docs/SPRITE_PROMPT.md`** for the exact image-generation prompt, or use
-   `assets/_gen_basil_sprites.py` (current art) as the layout reference.
-2. **Slime / first enemy** — **24×24 px** cells. Walk Down/Up/Side (6 each, side
+   Shoot Up (4) · Shoot Side (4) · Hurt (2) + idle-down blink + idle-side tail-flick
+   - happy + sad · Reload (4, beaker pour). Full sheet **288×384**. Figure ~33 px
+	 tall, feet baseline y=44, gun muzzle 16 px from cell center. The cat holds a
+	 **laser gun** in the shoot rows (weapon-agnostic rows welcome — see "Future
+	 Direction"). Use `assets/_gen_basil_sprites.py` (current art) as the layout
+	 reference.
+2. **Fuji — the librarian cat** _(current playable)_ — **48×48 px** cells, **6
+   columns × 10 rows**, sheet **288×480**, matching `entities/fuji/fuji_frames.tres`:
+   Walk Down/Up/Side (6 each) · Book Down/Up/Side (6 each: windup, peak, strike,
+   IMPACT held, follow, recover-redraws-walk-f0) · Dart Down/Up/Side (4 each:
+   raise, aim, PUFF, settle; cols 4-5 empty) · Hurt (2) + blink + tail-flick +
+   happy + sad. Same figure/feet/16px-tip contracts as Basil. Tortoiseshell —
+   split ears (left black / right ginger), placed rust patches (never dithered),
+   cream muzzle/chest/paws, green-gold eyes in round brass reading glasses, plum
+   scholar's robe (mustard trim placket + hem stripe, hood on the back view),
+   tome hugged to her chest in the walk. `assets/_gen_fuji_sprites.py`.
+3. **Slime / first enemy** — **24×24 px** cells. Walk Down/Up/Side (6 each, side
    mirrored) + 4-frame death. Sheet **144×96** (matches `slime_frames.tres`).
-3. **Tileset** — **16×16** tiles in one sheet (~**128×128**, 8×8). Grass/floor, wall/cliff
-   edges with a few corners, a path, one decorative tile. Wall tiles get collision.
 4. **HUD hearts** — **16×16** heart, 3 frames in a horizontal strip:
-   full | half | empty → **48×16**.
-5. **Overworld terrain** — **16×16** seamless tiles, 8×3 sheet **128×48**: water,
-   water sparkle, sand, grass, grass detail, scrub, path, bridge / forest A, forest
-   B, forest edge, hills, mountain, mountain snow, river, cliff / cracked A, cracked
-   B, dead tree, crystal (+4 reserved grass variants).
-6. **Overworld Basil (travel chibi)** — **24×24** cells, 4×3 sheet **96×72**:
-   walk down / up / side ×4 (side right-facing, flipped in code). Big head, tuxedo
-   cat, goggles, lab coat — matches `overworld_basil_frames.tres`.
-7. **Overworld landmark icons** — five **32×32** icons in a strip → **160×32**:
+   full | half | empty → **48×16**. Ammo pips: **8×8** ×2 → **16×8**.
+5. **Overworld travel chibis** — **24×24** cells, 4×3 sheet **96×72** each:
+   walk down / up / side ×4 (side right-facing, flipped in code), feet y=21.
+   Basil (tuxedo, goggles, lab coat — `overworld_basil_frames.tres`) and Fuji
+   (split tortie ears, spectacle glints, plum robe — `overworld_fuji_frames.tres`),
+   both from `assets/_gen_overworld_actors.py`.
+6. **Overworld landmark icons** — five **32×32** icons in a strip → **160×32**:
    HOME cottage, TOWN, MEADOW grove, CAVE mouth, OBELISK.
+
+(Every scene's terrain is a generated tileset — see "Art pipeline".
+Hand-drawn tiles would replace a
+generated `tilesets/<name>_tiles.png` atlas in place. The landmark-icon strip
+is now only used for the meadow marker — drawn buildings replaced the rest.)
 
 > Prefer a different layout (e.g. Aseprite export with tags)? Send it plus the frame
 > tags and the slice will be re-sliced to match. The dimensions above are the defaults
-> the code assumes.
+> the code assumes (and what `assets/_check_art.py` asserts).
+
+## Future Direction — Combat & Party (recorded 2026-07, not yet in scope)
+
+The target feel is **Secret of Mana, but snappier**: real-time top-down action that
+stays friendly, with crisp fire/recover cadence, hit-pause, and readable knockback.
+
+- **Weapon variety** — the laser gun is the first of several blaster-type weapons;
+  each should differ in arc/range/rate/knockback the way SoM's weapon families did.
+  The 48×48 cells and 4-frame shoot rows are sized so alternate weapons swap into
+  the same animation contract (`shoot_down/up/side` + `muzzle_offset`).
+- **3-person party** — the sympathizers (starting with **Fuji**, the librarian cat
+  who pulls Basil back into the world) eventually join as party members, SoM-style:
+  same 48 px sprite spec, composing the same Health/Hurtbox components, AI-followed
+  with leader switching. Party UI stacks additional heart rows.
+  **Fuji is BUILT and currently swapped in as the playable character (2026-07-07)**
+  to dial her look and feel — tortoiseshell (real-Fuji faithful: warm-black fur,
+  placed rust patches, cream chin/chest/paws, green-gold eyes), round brass
+  reading glasses, deep plum scholar's robe with mustard trim, hugging her
+  clasped tome as she walks. Kit: **tome swing** (attack — two-paw overhead slam,
+  BookHitbox opens through the strike/impact window, forward lunge) + **blow-pipe
+  darts** (`dart` action, L — unlimited, the planted pose is the cost; dart leaves
+  on the puff frame at the pipe-tip 16px contract) + Basil's hop-dodge.
+  `entities/fuji/` (fuji.gd/.tscn/frames), `entities/projectiles/blow_dart.*`,
+  `assets/_gen_fuji_sprites.py` → `fuji_gen.png` (288×480, 6×10), chibi
+  `overworld_fuji.png` in `_gen_overworld_actors.py`, `FUJI` palette dict.
+  Scene scripts are now player-agnostic (`DirectionalBody2D` + the `player`
+  group) — the groundwork for the Basil⇄Fuji switch; Basil's `player.tscn` is
+  parked, fully working, one ext_resource repoint away.
+- **Magic returns late** — spell systems unlock as the story restores magic; the
+  drained world is why early combat is all blasters.
+- ~~**The downstairs**~~ — **BUILT (2026-07-04).** The kitchen + lab great
+  room now sits between the loft and the overworld (see "House" above);
+  leaving home routes bedroom → stairs → downstairs → front door → overworld.
+  Remaining downstairs ideas for later: cooking/eating at the hearth,
+  crafting at the workbench, the boiler as a story prop (the last machine
+  still running on drained-world power).
