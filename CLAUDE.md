@@ -92,7 +92,8 @@ tome hugged to her chest in the walk; walk/hop (Basil's air-steerable dodge) /
 **tome swing** (attack — overhead slam, BookHitbox shape-toggled through the
 strike/impact window, damage 2, forward lunge) / **blow-pipe darts** (`dart`
 action, L — unlimited `blow_dart` projectiles, damage 1, leaves on the puff
-frame at the 16px pipe-tip contract). Basil's kit (instant-fire laser, recoil
+frame at the 19px pipe-tip contract — Fuji's reed runs longer than Basil's
+16px gun muzzle). Basil's kit (instant-fire laser, recoil
 skid, beaker mags) lives on in player.gd/tscn; slimes explode in 2 book
 swings or 2 laser shots and a replacement respawns elsewhere in the meadow.
 GOTCHA fixed 2026-07-07: hand-authored .tscn node exports NEED

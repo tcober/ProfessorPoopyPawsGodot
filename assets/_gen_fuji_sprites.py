@@ -16,10 +16,11 @@ entities/fuji/fuji_frames.tres (region contract):
   row9 hurt(2) + idle_down blink + idle_side tail-flick + happy + sad
 
 Art contracts consumed by code: feet baseline y=44 (_core.ZONE_FEET); origin
-(24,24); in the leveled dart frames the pipe TIP sits exactly 16px from the
-cell center along the facing (fuji.gd muzzle_offset spawns the dart there);
-the book impact frame plants the tome over the same 16px reach (fuji.gd's
-BookHitbox center); idle_down/idle_side alternate walk f0 with the
+(24,24); in the leveled dart frames the pipe TIP sits exactly 19px from the
+cell center along the facing (fuji.gd muzzle_offset spawns the dart there —
+LONGER than Basil's 16px gun contract, the reed pipe reads as a full staff);
+the book impact frame plants the tome over the 12px BookHitbox reach (fuji.gd
+book_reach); idle_down/idle_side alternate walk f0 with the
 blink/tail-flick cells, so walk f0 is a planted neutral pose the extras
 redraw exactly.
 
@@ -519,26 +520,32 @@ def cat_side(s, bobY=0, fA=(0, 0), fB=(0, 0), tail_dy=0, tail_raised=False,
 
 def _book_edge(s, x0, y, x1):
     """Edge-on tome, horizontal: leather boards sandwiching the cream page
-    stripe, dark caps at both ends."""
+    stripe (2px boards each side — the BIG 2026-07 tome), dark underside,
+    dark caps at both ends."""
     for x in range(x0, x1 + 1):
+        s.set(x, y - 2, BOOK[0])
         s.set(x, y - 1, BOOK[1])
         s.set(x, y, CREAM[1])
         s.set(x, y + 1, BOOK[2])
-    s.rect(x0, y - 1, x0, y + 1, BOOK[3])
-    s.rect(x1, y - 1, x1, y + 1, BOOK[3])
+        s.set(x, y + 2, BOOK[3])
+    s.rect(x0, y - 2, x0, y + 2, BOOK[3])
+    s.rect(x1, y - 2, x1, y + 2, BOOK[3])
 
 
 def _book_vert(s, x, y0, y1):
-    """Edge-on tome, vertical (side-view arc frames)."""
+    """Edge-on tome, vertical (side-view arc frames): lit board 2px on the
+    screen-left, 2px shade board right."""
     for y in range(y0, y1 + 1):
+        s.set(x - 2, y, BOOK[0])
         s.set(x - 1, y, BOOK[1])
         s.set(x, y, CREAM[1])
         s.set(x + 1, y, BOOK[2])
-    s.rect(x - 1, y0, x + 1, y0, BOOK[3])
-    s.rect(x - 1, y1, x + 1, y1, BOOK[3])
+        s.set(x + 2, y, BOOK[2])
+    s.rect(x - 2, y0, x + 2, y0, BOOK[3])
+    s.rect(x - 2, y1, x + 2, y1, BOOK[3])
 
 
-def _book_flat(s, cx, cy, w=4, h=2):
+def _book_flat(s, cx, cy, w=6, h=3):
     """Cover-up tome (the slam): flat leather fields, one hard shade band,
     spine left, brass clasp, page block along the bottom."""
     x0, x1 = cx - w, cx + w
@@ -566,7 +573,7 @@ def _impact_fx(s, pts):
 
 def book_down(s, phase):
     """Row-3 tome swing, facing camera: a two-paw overhead slam. The impact
-    frame plants the tome over the 16px melee reach in front of her."""
+    frame plants the tome over the 12px BookHitbox reach in front of her."""
     p = RIG.pose()
     tail = (1, 2, 0, -1, 0, 0)[phase]
     spread = 1 if phase == 3 else 0
@@ -580,7 +587,7 @@ def book_down(s, phase):
         s.ball(20, by + 2.5, 1.5, 1.3, CREAM, wrap=0.10)
         s.ball(28, by + 2.5, 1.5, 1.3, CREAM, wrap=0.10)
         head_down(s, 0, -1 if phase == 1 else 0, "open", "up")
-        _book_edge(s, 19, by, 29)
+        _book_edge(s, 18, by, 30)
         finish(s)
         whiskers_down(s, 0, -1 if phase == 1 else 0)
     elif phase == 2:                               # strike: tome falls past her chest
@@ -589,7 +596,7 @@ def book_down(s, phase):
         head_down(s, 0, 1, "open", "flat")
         s.ball(20, 27, 1.5, 1.3, CREAM, wrap=0.10)
         s.ball(28, 27, 1.5, 1.3, CREAM, wrap=0.10)
-        _book_edge(s, 19, 29, 29)                  # in FRONT of the torso
+        _book_edge(s, 18, 29, 30)                  # in FRONT of the torso
         finish(s)
         whiskers_down(s, 0, 1)
         for (x, y) in ((23, 18), (25, 22), (24, 14)):   # arc smear
@@ -603,12 +610,12 @@ def book_down(s, phase):
         _book_flat(s, 24, 37)
         finish(s)
         whiskers_down(s, 0, 2)
-        _impact_fx(s, ((17, 34), (31, 35), (24, 42), (19, 41), (29, 40)))
+        _impact_fx(s, ((17, 34), (31, 35), (24, 42), (19, 41), (31, 41)))
     elif phase == 4:                               # follow: tome easing up
         s.capsule(18, 23, 20, 29, 1.8, 1.5, ROBE, sh=0.18)
         s.capsule(30, 23, 28, 29, 1.8, 1.5, ROBE, sh=0.30)
-        s.ball(20, 31, 1.5, 1.3, CREAM, wrap=0.10)
-        s.ball(28, 31, 1.5, 1.3, CREAM, wrap=0.10)
+        s.ball(20, 30, 1.5, 1.3, CREAM, wrap=0.10)
+        s.ball(28, 30, 1.5, 1.3, CREAM, wrap=0.10)
         head_down(s, 0, 1, "open", "up")
         _book_flat(s, 24, 34)
         finish(s)
@@ -637,10 +644,10 @@ def book_up(s, phase):
         head_up(s)
         s.ball(20, by + 2.5, 1.5, 1.3, CREAM, wrap=0.10)
         s.ball(28, by + 2.5, 1.5, 1.3, CREAM, wrap=0.10)
-        _book_edge(s, 19, by, 29)
+        _book_edge(s, 18, by, 30)
         tail_up(s, 1)
     elif phase == 2:                               # strike: pitching forward/away
-        _book_edge(s, 19, 10, 29)
+        _book_edge(s, 18, 10, 30)
         s.capsule(18, 23, 19, 14, 1.8, 1.5, ROBE, sh=0.18)
         s.capsule(30, 23, 29, 14, 1.8, 1.5, ROBE, sh=0.30)
         head_up(s, 1)
@@ -665,7 +672,8 @@ def book_up(s, phase):
 
 def book_side(s, phase):
     """Row-5 tome swing, facing RIGHT: over-the-shoulder arc into a forward
-    plant. The impact frame covers the 16px reach (tome at x37-39)."""
+    plant. The impact frame covers the 12px BookHitbox reach (tome at
+    x36-40)."""
     p = RIG_S.pose()
     fA, fB = (0, 0), (0, 0)
     if phase == 3:
@@ -689,34 +697,34 @@ def book_side(s, phase):
         s.capsule(23, 23, 17, 15, 1.7, 1.5, ROBE, sh=0.24)
         s.ball(16.5, 13.5, 1.5, 1.3, CREAM, wrap=0.10)
         head_side(s, 0, 0, "open", "up")
-        _book_vert(s, 14, 9, 15)
+        _book_vert(s, 13, 7, 17)
     elif phase == 1:                               # peak: tome overhead
         s.capsule(23, 23, 23, 11, 1.7, 1.5, ROBE, sh=0.24)
         head_side(s, 0, 0, "open", "up")
         s.ball(23.5, 8.3, 1.5, 1.3, CREAM, wrap=0.10)   # grip between the ears
-        _book_edge(s, 19, 5, 27)
+        _book_edge(s, 17, 5, 29)
     elif phase == 2:                               # strike: mid-arc in front
         s.capsule(23, 23, 29, 15, 1.7, 1.5, ROBE, sh=0.24)
         s.ball(30, 13.5, 1.5, 1.3, CREAM, wrap=0.10)
         head_side(s, 1, 0, "open", "back")
-        _book_vert(s, 33, 10, 16)
+        _book_vert(s, 33, 8, 18)
     elif phase == 3:                               # IMPACT: planted forward
         s.capsule(23, 23, 33, 21, 1.7, 1.5, ROBE, sh=0.24)
         s.ball(34, 22, 1.5, 1.3, CREAM, wrap=0.10)
         head_side(s, 1, 0, "wince", "back")
-        _book_vert(s, 38, 19, 27)
+        _book_vert(s, 38, 17, 29)
     elif phase == 4:                               # follow: easing back
         s.capsule(23, 23, 31, 24, 1.7, 1.5, ROBE, sh=0.24)
         s.ball(32, 25, 1.5, 1.3, CREAM, wrap=0.10)
         head_side(s, 0, 0, "open", "up")
-        _book_vert(s, 35, 22, 28)
+        _book_vert(s, 35, 20, 30)
     else:                                          # recover = walk_side f0 carry
         book_carry_side(s)
         head_side(s)
     finish(s)
     whiskers_side(s, 1 if phase in (2, 3) else 0, 0)
     if phase == 2:
-        for (x, y) in ((27, 5), (30, 7), (32, 9)):     # arc smear
+        for (x, y) in ((27, 4), (30, 6), (32, 8)):     # arc smear
             s.set(x, y, BOOK[2])
     elif phase == 3:
         _impact_fx(s, ((41, 17), (42, 25), (36, 16), (41, 29)))
@@ -726,7 +734,7 @@ def book_side(s, phase):
 
 def dart_down(s, mode):
     """Row-6 blow-pipe, facing camera: pipe to her lips pointing SOUTH. In the
-    leveled frames the tip fills (24, 40) — cell center + muzzle_offset(16)."""
+    leveled frames the tip fills (24, 43) — cell center + muzzle_offset(19)."""
     p = RIG.pose()
     tail_down(s, p, 1 if mode == "puff" else 0)
     legs_down(s, p)
@@ -737,34 +745,45 @@ def dart_down(s, mode):
     if mode in ("raise", "settle"):                # pipe diagonal at the chest
         head_down(s, 0, 0, "open", "up")
         s.capsule(30, 23, 27.5, 26.5, 1.8, 1.5, ROBE, sh=0.30)
-        s.capsule(21, 31, 26, 26, 1.1, 1.0, PIPE, sh=0.08)
+        s.capsule(20, 32, 27, 25, 1.1, 1.0, PIPE, sh=0.08)
         s.set(22, 30, TRIM[1])                     # brass band
         s.ball(26.5, 27.5, 1.5, 1.3, CREAM, wrap=0.10)
     else:                                          # aim / puff: pipe level, south
         head_down(s, 0, 0, "open", "up", puff=(mode == "puff"))
         s.capsule(30, 23, 27.5, 28, 1.8, 1.5, ROBE, sh=0.30)
-        # a 1px drift off the trim placket so pipe and placket stay two lines
-        s.capsule(25.5, 24, 24, 38, 1.2, 1.0, PIPE, sh=0.06)
-        s.set(25, 34, TRIM[1])                     # brass band
+        # the blowgun reads as a TUBE, not a stick: flared mouthpiece cup at
+        # her lips, a dead-straight 2px reed bore (lit left / shaded right,
+        # covering the trim placket — it's in front), twin brass cane wraps
+        s.rect(23, 24, 26, 24, PIPE[0])            # mouthpiece cup, flared
+        s.rect(23, 25, 26, 25, PIPE[2])
+        s.rect(24, 26, 24, 41, PIPE[0])            # bore, lit side
+        s.rect(25, 26, 25, 41, PIPE[2])            # bore, shade side
+        for by in (31, 36):                        # cane wraps
+            s.set(24, by, TRIM[1])
+            s.set(25, by, TRIM[2])
         s.ball(27, 29.5, 1.5, 1.3, CREAM, wrap=0.10)     # paw steadying the pipe
     finish(s)
     whiskers_down(s)
     if mode in ("aim", "puff"):
-        s.set(24, 39, PIPE[1])                     # tip past the outline
-        s.set(24, 40, DARTF)                       # tip kisses y=40 (contract)
-        s.set(23, 40, DARTF)
+        s.set(24, 42, PIPE[3])                     # square-cut muzzle, open bore
+        s.set(25, 42, PIPE[3])
+        s.set(24, 43, DARTF)                       # dart in the bore — tip kisses
+        s.set(25, 43, DARTF)                       # y=43 (contract)
     if mode == "puff":
-        for (x, y) in ((21, 39), (27, 39), (24, 43)):
-            s.set(x, y, PUFFC)                     # blown-air wisps
+        for (x, y) in ((18, 42), (30, 42), (24, 46)):
+            s.set(x, y, PUFFC)                     # blown-air wisps skirt the paws
 
 
 def dart_up(s, mode):
     """Row-7 blow-pipe, facing away: the pipe rises past her head on the far
-    side (drawn first). Leveled tip fills (23..24, 8)."""
+    side (drawn first). Leveled tip fills (23..24, 5)."""
     p = RIG.pose()
     if mode in ("aim", "puff"):                    # pipe beyond the head
-        s.capsule(23.5, 19, 23.5, 10, 1.1, 1.0, PIPE, sh=0.10)
-        s.set(23, 12, TRIM[1])
+        s.rect(23, 7, 23, 19, PIPE[0])             # straight 2px reed bore
+        s.rect(24, 7, 24, 19, PIPE[2])
+        for by in (9, 12):                         # cane wraps (skull hides below)
+            s.set(23, by, TRIM[1])
+            s.set(24, by, TRIM[2])
     legs_down(s, p)
     robe_down(s, back=True)
     # off arm hangs; pipe arm reaches up beside the head
@@ -782,17 +801,18 @@ def dart_up(s, mode):
         s.ball(27, 14.5, 1.5, 1.3, CREAM, wrap=0.10)
     finish(s)
     if mode in ("aim", "puff"):
-        s.set(23, 9, PIPE[1])                      # tip past the outline
-        s.set(23, 8, DARTF)                        # tip kisses y=8 (contract)
-        s.set(24, 8, DARTF)
+        s.set(23, 6, PIPE[3])                      # square-cut muzzle, open bore
+        s.set(24, 6, PIPE[3])
+        s.set(23, 5, DARTF)                        # dart in the bore — tip kisses
+        s.set(24, 5, DARTF)                        # y=5 (contract)
     if mode == "puff":
-        for (x, y) in ((21, 9), (27, 9), (24, 5)):
+        for (x, y) in ((21, 6), (27, 6), (24, 2)):
             s.set(x, y, PUFFC)
 
 
 def dart_side(s, mode):
     """Row-8 blow-pipe, facing RIGHT: pipe level from her lips going EAST,
-    cheeks puffed on the shot. Leveled tip fills (40, 23..24)."""
+    cheeks puffed on the shot. Leveled tip fills (43, 23..24)."""
     p = RIG_S.pose()
     tail_side(s, p, 0, raised=(mode == "puff"))
     for (hip, foot, sh) in (("hipB", "footB", 0.16), ("hipF", "footF", 0.0)):
@@ -806,23 +826,32 @@ def dart_side(s, mode):
         head_side(s, 0, 0, "open", "up")
         s.capsule(23, 23, 26, 26, 1.7, 1.5, ROBE, sh=0.24)
         dy = 2 if mode == "settle" else 0
-        s.capsule(26, 27 + dy, 34, 23 + dy, 1.1, 1.0, PIPE, sh=0.08)
+        s.capsule(26, 27 + dy, 37, 21.5 + dy, 1.1, 1.0, PIPE, sh=0.08)
         s.set(31, 25 + dy, TRIM[1])
         s.ball(27.5, 26.5 + dy, 1.5, 1.3, CREAM, wrap=0.10)
     else:                                          # aim / puff: level at the lips
         head_side(s, 0, 0, "open", "up", puff=(mode == "puff"))
         s.capsule(23, 23, 28, 25.5, 1.7, 1.5, ROBE, sh=0.24)
-        s.capsule(30, 22.5, 38, 23.2, 1.2, 1.0, PIPE, sh=0.06)
-        s.set(35, 23, TRIM[1])                     # brass band
-        s.ball(31.5, 24.5, 1.5, 1.3, CREAM, wrap=0.10)   # paw under the pipe
+        # the blowgun as a TUBE: flared mouthpiece cup against her lips, a
+        # dead-straight 2px bore (lit top / shaded belly), twin brass wraps
+        s.rect(29, 22, 30, 22, PIPE[0])            # mouthpiece cup, flared
+        s.rect(29, 23, 30, 24, PIPE[1])
+        s.rect(29, 25, 30, 25, PIPE[2])
+        s.rect(31, 23, 41, 23, PIPE[0])            # bore, lit top
+        s.rect(31, 24, 41, 24, PIPE[2])            # bore, shaded belly
+        for bx in (34, 38):                        # cane wraps
+            s.set(bx, 23, TRIM[1])
+            s.set(bx, 24, TRIM[2])
+        s.ball(31.5, 24.5, 1.5, 1.3, CREAM, wrap=0.10)   # paw cupping the bore
     finish(s)
     whiskers_side(s)
     if mode in ("aim", "puff"):
-        s.set(39, 23, PIPE[1])                     # tip past the outline
-        s.set(40, 23, DARTF)                       # tip kisses x=40 (contract)
-        s.set(40, 24, DARTF)
+        s.set(42, 23, PIPE[3])                     # square-cut muzzle, open bore
+        s.set(42, 24, PIPE[3])
+        s.set(43, 23, DARTF)                       # dart in the bore — tip kisses
+        s.set(43, 24, DARTF)                       # x=43 (contract)
     if mode == "puff":
-        for (x, y) in ((42, 21), (43, 23), (42, 25)):
+        for (x, y) in ((45, 21), (46, 23), (45, 25)):
             s.set(x, y, PUFFC)
 
 

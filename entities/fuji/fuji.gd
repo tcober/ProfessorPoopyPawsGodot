@@ -25,7 +25,7 @@ enum State { MOVE, BOOK, DART, HURT }
 ## with the puff held 2 ticks (5/12s total).
 @export var dart_time: float = 0.42
 @export var dart_spawn_at: float = 0.17     # the puff frame — the dart leaves here
-@export var muzzle_offset: float = 16.0     # pipe tip in the art
+@export var muzzle_offset: float = 19.0     # pipe tip in the art (longer than Basil's gun)
 
 ## Hop: jumps straight up when standing, leaps in the held direction when
 ## moving, air-steerable, dodges hits while airborne (same feel as Basil).
