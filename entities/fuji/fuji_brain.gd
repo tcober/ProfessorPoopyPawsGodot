@@ -11,7 +11,9 @@ func _combat(target: Node2D, intent: PartyMember.Intent) -> void:
 	var to_target := target.global_position - member.global_position
 	if to_target.length() > swing_range:
 		intent.move = to_target.normalized()
-	elif _cool <= 0.0:
+	elif _cool <= 0.0 and not member.is_airborne():
+		# The body drops attack edges mid-hop (only reachable right after a
+		# mid-hop leader swap) — don't spend the cooldown on one.
 		intent.face = to_target
 		intent.attack = true
 		_cool = attack_cooldown

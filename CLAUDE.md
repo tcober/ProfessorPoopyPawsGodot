@@ -27,6 +27,8 @@ again. (Full story in docs/DESIGN.md.)
 - Player: `CharacterBody2D`, 8-way movement, 4-way facing; fires a laser gun in the
   facing direction — instant on the trigger, hard recoil. Beakers are the gun's
   magazines: pickups pocket as spares, reload (R, or a dry trigger) pours one in.
+  Full gamepad (PS5 DualSense) bindings live alongside the keys in the InputMap —
+  see the Controls table in DESIGN.md; `reload`+`dart` share L2 (leader-contextual).
 - Combat: `Area2D` Hitbox vs `Area2D` Hurtbox → HealthComponent. `LaserBolt` projectile.
 - **Overworld layer:** CT/SoS-style TILED travel map (`scene/overworld.tscn`)
   between zones — 24×24 chibi travel scale (~16 px figure), terrain-gated
@@ -97,15 +99,20 @@ hop/knockback/hurt/can't-die, driven per-frame by an `Intent` (move/face +
 attack/secondary/jump edges) filled from `Input` when leading or from the
 scene's `Brain` node (**`AIBrain`**, `entities/party/ai_brain.gd`) when
 following. The brain is a three-MOOD machine — FOLLOW (stop/resume hysteresis
-34/44px, sprint >56px) / ENGAGE (nearest enemy ≤70px while ≤96px of the
-leader) / RETURN (leash breaks past 128px → run home to 48px IGNORING enemies
-before re-engaging; a same-frame ENGAGE⇄FOLLOW flip at one leash line reads
-as twitching, hence the wide hysteresis band) — and its catch-up teleport
-fires only >170px AND OFF-SCREEN (checked against the live camera's
+34/44px, sprint >56px) / ENGAGE (acquire nearest enemy ≤70px while ≤96px of
+the leader, then LATCH it and hold to 140px — Basil's ~30px recoil skid
+crosses any single line every shot) / RETURN (leash breaks past 128px → run
+home to 48px IGNORING enemies before re-engaging; every boundary is a
+two-threshold band because lone edges read as twitching) — its cooldown
+decays in the brain's own `_physics_process` (think() pauses during kit/hurt
+states), brains reset on leader swap, and the catch-up teleport fires only
+>130px (must stay ≤ min view half-extent + margin, or a stuck follower sits
+invisible and never comes home) AND OFF-SCREEN (live camera's
 `get_screen_center_position()` + `MapData.view_size()`), landing a step
-behind the leader. `tools/party_probe.gd` asserts all of this headlessly-ish
-(windowed): mood-transition count, no in-view pops, settle distances — run it
-after touching brain/member code. Kits stay in the
+behind the leader only after a `test_move` sweep proves the step walkable
+(else on the leader). `tools/party_probe.gd` asserts all of this
+headlessly-ish (windowed): mood-transition count, no in-view pops, settle
+distances — run it after touching brain/member code. Kits stay in the
 subclasses behind `_process_kit`/`_on_attack_intent`/`_on_secondary_intent`:
 **Basil** (`entities/player/` — instant-fire laser damage 2, recoil skid,
 beaker mags, reload ritual; `basil_brain.gd` sidles onto a cardinal — 4-way

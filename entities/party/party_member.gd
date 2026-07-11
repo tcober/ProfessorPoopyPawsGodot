@@ -90,6 +90,10 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 
+func is_airborne() -> bool:
+	return _airborne
+
+
 func _gather_intent() -> void:
 	intent.clear()
 	if is_leader:
@@ -109,8 +113,10 @@ func _gather_intent() -> void:
 func _process_move() -> void:
 	if _airborne:
 		# Launch momentum plus a bit of mid-air steering with the held direction.
+		# Clamped to the leap speed: steering turns or brakes the arc, but
+		# holding the jump direction can't stack past jump_speed into a glide.
 		var steer := intent.move.normalized() * air_steer if intent.move != Vector2.ZERO else Vector2.ZERO
-		velocity = _jump_dir * jump_speed + steer
+		velocity = (_jump_dir * jump_speed + steer).limit_length(jump_speed)
 	else:
 		if intent.move != Vector2.ZERO:
 			velocity = intent.move.limit_length(MOVE_CLAMP) * speed

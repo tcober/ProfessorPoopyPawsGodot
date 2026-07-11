@@ -31,7 +31,14 @@ func _combat(target: Node2D, intent: PartyMember.Intent) -> void:
 	var dist := d.length()
 	if dist < min_range:
 		intent.move = -aim
-	elif dist <= fire_range and _cool <= 0.0:
+	elif dist > fire_range:
+		# The latch holds targets past gun range (recoil skids out there) —
+		# walk the cardinal back in.
+		intent.move = aim
+	# Firing is independent of the retreat: cornered against a wall he shoots
+	# the pinning slime instead of grinding into the bricks forever (the bolt
+	# spawns 16px out, so point-blank still connects).
+	if dist <= fire_range and _cool <= 0.0:
 		intent.face = aim
 		intent.attack = true
 		_cool = attack_cooldown

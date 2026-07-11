@@ -202,6 +202,25 @@ gating tools are terrain plus story keys.
   `resources/`. Playable rooms/levels in `scene/`. Art/audio in `assets/`.
 - Movement: `CharacterBody2D`, 8-way movement with 4-way facing (fires in the facing
   direction), ALttP-style.
+- **Controls** (InputMap in `project.godot`; every action is POLLED — the shot.gd
+  synthesized-press gotcha — so keyboard and gamepad share one code path). Gamepad
+  bindings use Godot's generic SDL indices labeled here for the PS5 DualSense
+  (2026-07-11); any XInput-style pad maps the same:
+
+  | Action                                 | Keyboard      | Gamepad            |
+  | -------------------------------------- | ------------- | ------------------ |
+  | Move                                   | WASD / arrows | Left stick / D-pad |
+  | Attack (Basil laser · Fuji tome)       | J / Space     | R2 or Square       |
+  | Secondary (Basil reload · Fuji dart)   | R · L         | L2                 |
+  | Hop                                    | K / Shift     | Cross              |
+  | Interact                               | E             | Circle             |
+  | Swap leader                            | Q / Tab       | Triangle or L1     |
+
+  `reload` and `dart` are separate actions sharing the L2 event on purpose: only
+  the **leader** polls their own secondary (`PartyMember._gather_intent`), so one
+  physical button is contextual per character. The analog stick feeds the same
+  `move_*` actions (0.2 deadzone) and the intent vector is normalized, so stick
+  tilt never changes speed — same 8-way feel as keys.
 - Combat: a **laser gun** with limited charges. Firing spawns a `LaserBolt` projectile
   (`Area2D`) that travels and damages the first `HurtboxComponent` it hits. Always-on
   `HitboxComponent`s (e.g. an enemy body) handle contact damage. All damage flows
@@ -704,13 +723,20 @@ stays friendly, with crisp fire/recover cadence, hit-pause, and readable knockba
     behind `_process_kit` / `_on_attack_intent` / `_on_secondary_intent`.
   - `entities/party/ai_brain.gd` — `AIBrain` (a plain `Brain` node in each
     member scene), a three-mood machine: FOLLOW with hysteresis (stop 34px /
-    resume 44px), catch-up sprint past 56px; ENGAGE the nearest `enemies`-
-    group node within 70px while ≤96px of the leader; RETURN once the leash
-    breaks past 128px — run home to 48px ignoring enemies before re-engaging
-    (single-threshold leash flip-flop read as twitching, 2026-07-10 fix). The
-    catch-up teleport fires only past 170px AND off-screen (live camera
-    check), landing a step behind the leader — never a visible pop.
-    `tools/party_probe.gd` is the behavioral regression probe (mood
+    resume 44px), catch-up sprint past 56px; ENGAGE acquires the nearest
+    `enemies`-group node within 70px while ≤96px of the leader, then LATCHES
+    the target and holds it to 140px (acquire/hold split — Basil's ~30px
+    recoil skid crosses any single line every shot); RETURN once the leash
+    breaks past 128px — run home to 48px ignoring enemies before re-engaging.
+    Every boundary is a two-threshold band; single-threshold edges read as
+    frame twitching (2026-07-10 fix). Attack cooldowns decay in the brain's
+    own `_physics_process` (think() pauses during the member's kit/hurt
+    states); brains reset on leader swap. The catch-up teleport fires only
+    past 130px (kept ≤ the smallest view half-extent + margin so an
+    off-screen-stuck follower always qualifies) AND off-screen (live camera
+    check), landing a step behind the leader after a `test_move` sweep proves
+    the step walkable (else on the leader) — never a visible pop, never an
+    embed. `tools/party_probe.gd` is the behavioral regression probe (mood
     transitions, in-view pops, settle distances). Kit brains:
     `fuji_brain.gd` (close to swing range, tome slam), `basil_brain.gd`
     (sidle the shorter axis onto a cardinal — 4-way facing — fire in

@@ -97,6 +97,10 @@ func _apply_leader(next: PartyMember) -> void:
 			m.add_to_group("player")
 		elif m.is_in_group("player"):
 			m.remove_from_group("player")
+		if m.brain is AIBrain:
+			# Moods are about the OLD leader — a demoted member must not
+			# resume a stale RETURN/ENGAGE from before its stint in the lead.
+			(m.brain as AIBrain).reset()
 		var cam := m.get_node("Camera2D") as Camera2D
 		cam.enabled = leads
 		if leads:
