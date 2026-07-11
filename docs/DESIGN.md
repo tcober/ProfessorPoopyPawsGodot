@@ -653,7 +653,9 @@ deliberate.
    Walk Down/Up/Side (6 each) · Book Down/Up/Side (6 each: windup, peak, strike,
    IMPACT held, follow, recover-redraws-walk-f0) · Dart Down/Up/Side (4 each:
    raise, aim, PUFF, settle; cols 4-5 empty) · Hurt (2) + blink + tail-flick +
-   happy + sad. Same figure/feet/16px-tip contracts as Basil. Tortoiseshell —
+   happy + sad. Same figure/feet contracts as Basil, but her blow-pipe TIP
+   sits at **19px** from cell center (`fuji.gd muzzle_offset` — the reed runs
+   longer than Basil's 16px gun muzzle). Tortoiseshell —
    split ears (left black / right ginger), placed rust patches (never dithered),
    cream muzzle/chest/paws, green-gold eyes in round brass reading glasses, plum
    scholar's robe (mustard trim placket + hem stripe, hood on the back view),
