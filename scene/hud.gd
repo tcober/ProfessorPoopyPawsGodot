@@ -1,11 +1,12 @@
 class_name HUD
 extends CanvasLayer
 
-## Heart row driven by a HealthComponent's `health_changed` signal, a laser-ammo
-## pip row driven by the Player's `ammo_changed` signal, and a spare-magazine row
-## (one beaker icon per spare mag) driven by `beakers_changed`.
-## HP is in half-hearts (2 per heart). hearts.png frames: full | half | empty.
-## ammo_pips.png frames: full | empty.
+## One heart row per party member (roster order, leader's row full-bright and
+## the follower's dimmed — rows are fixed, so a leader swap only re-dims), a
+## laser-ammo pip row driven by the Player's `ammo_changed` signal, and a
+## spare-magazine row (one beaker icon per spare mag) driven by
+## `beakers_changed`. HP is in half-hearts (2 per heart). hearts.png frames:
+## full | half | empty. ammo_pips.png frames: full | empty.
 
 const CELL := 16
 const FRAME_FULL := 0
@@ -20,14 +21,28 @@ const AMMO_EMPTY := 1
 @export var ammo_texture: Texture2D
 @export var beaker_texture: Texture2D
 
-@onready var container: HBoxContainer = $MarginContainer/Rows/Hearts
+const FOLLOWER_DIM := 0.55
+
+var _bound: Array = []   # party members, row-for-row with heart_rows
+
+@onready var heart_rows: Array[HBoxContainer] = [
+	$MarginContainer/Rows/Hearts,
+	$MarginContainer/Rows/Hearts2,
+]
 @onready var ammo_container: HBoxContainer = $MarginContainer/Rows/Ammo
 @onready var mags_container: HBoxContainer = $MarginContainer/Rows/Mags
 
 
-func bind_health(health: HealthComponent) -> void:
-	health.health_changed.connect(_on_health_changed)
-	_on_health_changed(health.current_health, health.max_health)
+## One heart row per member, in the order given (Party.members = roster
+## order). Rows stay put on a leader swap; only the dimming moves.
+func bind_party(party_members: Array) -> void:
+	_bound = party_members.duplicate()
+	for i in mini(_bound.size(), heart_rows.size()):
+		var health: HealthComponent = _bound[i].get_node("HealthComponent")
+		health.health_changed.connect(_on_health_changed.bind(heart_rows[i]))
+		_on_health_changed(health.current_health, health.max_health, heart_rows[i])
+	Party.leader_changed.connect(_on_leader_swap)
+	_refresh_dim()
 
 
 func bind_ammo(player: Player) -> void:
@@ -37,10 +52,19 @@ func bind_ammo(player: Player) -> void:
 	_on_beakers_changed(player.beakers, player.max_beakers)
 
 
-func _on_health_changed(current: int, max_health: int) -> void:
+func _on_leader_swap(_leader: PartyMember) -> void:
+	_refresh_dim()
+
+
+func _refresh_dim() -> void:
+	for i in mini(_bound.size(), heart_rows.size()):
+		heart_rows[i].modulate.a = 1.0 if _bound[i] == Party.leader else FOLLOWER_DIM
+
+
+func _on_health_changed(current: int, max_health: int, row: HBoxContainer) -> void:
 	var heart_count := int(ceil(max_health / 2.0))
-	_ensure_count(container, heart_count, heart_texture, CELL)
-	var hearts := container.get_children()
+	_ensure_count(row, heart_count, heart_texture, CELL)
+	var hearts := row.get_children()
 	for i in heart_count:
 		var hp_in_heart := current - i * 2
 		var frame := FRAME_EMPTY

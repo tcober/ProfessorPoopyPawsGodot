@@ -16,7 +16,7 @@ const ARRIVE_DROP := 24.0
 
 
 func _player_node() -> Node2D:
-	return $World/Player
+	return Party.spawn($World, Vector2.ZERO)   # placed for real in _place_player
 
 
 func _map_path() -> String:
@@ -31,14 +31,22 @@ func _place_player() -> void:
 	var spawn := Game.town_spawn
 	Game.town_spawn = ""
 	if spawn == "home":
-		player.position = MapData.anchor_px(map, "home") + Vector2(0.0, ARRIVE_DROP)
+		Party.place(MapData.anchor_px(map, "home") + Vector2(0.0, ARRIVE_DROP))
 	else:
-		player.position = MapData.anchor_px(map, "player_start")
+		Party.place(MapData.anchor_px(map, "player_start"))
 
 
 func _extra_setup() -> void:
 	$ExitSouth.position = MapData.anchor_px(map, "exit_south")
 	$ExitSouth.body_entered.connect(_on_exit_south)
+	Party.clamp_cameras(MapData.size_px(map))
+	# TravelScene gates its markers on `body != player` — re-aim it when the
+	# lead changes hands mid-town.
+	Party.leader_changed.connect(_on_leader_changed)
+
+
+func _on_leader_changed(leader: PartyMember) -> void:
+	player = leader
 
 
 ## Through Basil's open door, down to the lab.

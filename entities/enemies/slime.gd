@@ -1,9 +1,11 @@
 class_name Slime
 extends CharacterBody2D
 
-## Minimal chase enemy for the vertical slice. Chases the player when in range,
+## Minimal chase enemy for the vertical slice. Chases the nearest party member
+## in range (leader or AI follower alike — SoM pressure on the whole party),
 ## deals contact damage via an always-on Hitbox, takes laser hits via its Hurtbox,
-## and splats through a death animation when its HealthComponent dies.
+## and splats through a death animation when its HealthComponent dies. Sits in
+## the "enemies" group so party brains can target it; leaves the group on death.
 ##
 ## Movement is synced to the bounce animation: the slime only really travels while
 ## airborne (frames 2-4 of the walk cycle), so it hops instead of gliding.
@@ -27,7 +29,6 @@ const GROUND_DRAG := 0.1   # ...vs. barely creeping while grounded
 @onready var hurtbox: HurtboxComponent = $HurtboxComponent
 @onready var hitbox: HitboxComponent = $Hitbox
 
-var _player: Node2D
 var _knockback: Vector2 = Vector2.ZERO
 var _dying: bool = false
 
@@ -35,7 +36,7 @@ var _dying: bool = false
 func _ready() -> void:
 	health.died.connect(_on_died)
 	hurtbox.hit.connect(_on_hit)
-	_player = get_tree().get_first_node_in_group("player")
+	add_to_group("enemies")
 	sprite.play("walk_down")
 
 
@@ -43,17 +44,30 @@ func _physics_process(delta: float) -> void:
 	if _dying:
 		velocity = Vector2.ZERO
 		return
+	var target := _nearest_party()
 	if _knockback != Vector2.ZERO:
 		velocity = _knockback
 		_knockback = _knockback.move_toward(Vector2.ZERO, knockback_friction * delta)
-	elif _player and global_position.distance_to(_player.global_position) <= detect_range:
-		var dir := (_player.global_position - global_position).normalized()
+	elif target and global_position.distance_to(target.global_position) <= detect_range:
+		var dir := (target.global_position - global_position).normalized()
 		var hop := AIR_BOOST if sprite.frame >= AIR_FIRST and sprite.frame <= AIR_LAST else GROUND_DRAG
 		velocity = dir * speed * hop
 		_face(dir)
 	else:
 		velocity = Vector2.ZERO
 	move_and_slide()
+
+
+## Re-picked every frame so pressure follows whoever wanders closest.
+func _nearest_party() -> Node2D:
+	var best: Node2D = null
+	var best_d := INF
+	for m in get_tree().get_nodes_in_group("party"):
+		var d := global_position.distance_to((m as Node2D).global_position)
+		if d < best_d:
+			best_d = d
+			best = m
+	return best
 
 
 func _face(dir: Vector2) -> void:
@@ -86,6 +100,7 @@ func _on_hit(_damage: int, source: Node) -> void:
 
 func _on_died() -> void:
 	_dying = true
+	remove_from_group("enemies")   # party brains stop targeting the splat
 	died.emit()
 	# Stop dealing/receiving damage while the splat plays out.
 	hitbox.set_deferred("monitoring", false)

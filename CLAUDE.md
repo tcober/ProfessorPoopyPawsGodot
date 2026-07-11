@@ -81,25 +81,54 @@ returns to its marker via the
 `Game` autoload. (A walkable zone-scale **Alembic
 Town** — `scene/alembic_town.tscn`, 40×28 on the shared overworld driver,
 walk-behind rooflines, `Game.town_spawn` routing — is built but PARKED:
-unreferenced by the flow until the town earns its place.) **Current playable:
-FUJI, the librarian cat** (`entities/fuji/` — swapped in for Basil 2026-07-07
-to dial her look/feel; Basil's `entities/player/player.tscn` is parked, fully
-working, one ext_resource repoint away; scene scripts are player-agnostic —
-`DirectionalBody2D` + the `player` group — the Basil⇄Fuji switch groundwork).
-Fuji: tortoiseshell (warm-black fur, PLACED rust patches, cream chin/chest/
-paws, green-gold eyes), round brass reading glasses, plum scholar's robe,
-tome hugged to her chest in the walk; walk/hop (Basil's air-steerable dodge) /
-**tome swing** (attack — overhead slam, BookHitbox shape-toggled through the
-strike/impact window, damage 2, forward lunge) / **blow-pipe darts** (`dart`
-action, L — unlimited `blow_dart` projectiles, damage 1, leaves on the puff
-frame at the 19px pipe-tip contract — Fuji's reed runs longer than Basil's
-16px gun muzzle). Basil's kit (instant-fire laser, recoil
-skid, beaker mags) lives on in player.gd/tscn; slimes explode in 2 book
-swings or 2 laser shots and a replacement respawns elsewhere in the meadow.
+unreferenced by the flow until the town earns its place.) **The PARTY
+(2026-07-10, SoM-style 2-member slice):** Basil leads, Fuji runs AI-companion,
+**Q/Tab swaps the lead** (`swap_member`; camera `make_current`+
+`reset_smoothing`, HUD row dim, modulate blink). No scene instances a player
+anymore — the **`Party` autoload** (`scene/party.gd`, registered after `Game`)
+`spawn()`s the roster `[basil, fuji]` into each zone's `World` and scenes keep
+the returned leader as `player`; `leader_id` persists across scenes (HP
+doesn't, as before). Group contract: **`player` = current leader ONLY** (all
+door/exit/zone triggers gate on it, unchanged), **`party` = all members**
+(slimes re-pick the nearest every frame), **`enemies` = live slimes** (brains
+target it; left on death). Bodies extend **`PartyMember`**
+(`entities/party/party_member.gd`, extends `DirectionalBody2D`): shared move/
+hop/knockback/hurt/can't-die, driven per-frame by an `Intent` (move/face +
+attack/secondary/jump edges) filled from `Input` when leading or from the
+scene's `Brain` node (**`AIBrain`**, `entities/party/ai_brain.gd`) when
+following. The brain is a three-MOOD machine — FOLLOW (stop/resume hysteresis
+34/44px, sprint >56px) / ENGAGE (nearest enemy ≤70px while ≤96px of the
+leader) / RETURN (leash breaks past 128px → run home to 48px IGNORING enemies
+before re-engaging; a same-frame ENGAGE⇄FOLLOW flip at one leash line reads
+as twitching, hence the wide hysteresis band) — and its catch-up teleport
+fires only >170px AND OFF-SCREEN (checked against the live camera's
+`get_screen_center_position()` + `MapData.view_size()`), landing a step
+behind the leader. `tools/party_probe.gd` asserts all of this headlessly-ish
+(windowed): mood-transition count, no in-view pops, settle distances — run it
+after touching brain/member code. Kits stay in the
+subclasses behind `_process_kit`/`_on_attack_intent`/`_on_secondary_intent`:
+**Basil** (`entities/player/` — instant-fire laser damage 2, recoil skid,
+beaker mags, reload ritual; `basil_brain.gd` sidles onto a cardinal — 4-way
+facing — fires in [36,110]px, reloads when dry, restocks off beaker pickups)
+and **Fuji** (`entities/fuji/` — tortoiseshell librarian: warm-black fur,
+PLACED rust patches, cream chin/chest/paws, green-gold eyes, brass reading
+glasses, plum robe, tome hugged in the walk; **tome swing** attack — overhead
+slam, BookHitbox shape-toggled through the strike/impact window, damage 2,
+forward lunge — and **blow-pipe darts**, `dart`/L, unlimited, damage 1,
+leaves on the puff frame at the 19px pipe-tip contract; `fuji_brain.gd`
+closes to swing range and slams). HUD: one heart row per member (follower
+dimmed 55%) + Basil's ammo pips/mags wherever he sits in the party. The
+overworld travels as ONE chibi — the leader's (frames swap on entry). Slimes
+explode in 2 book swings or 2 laser shots and a replacement respawns
+elsewhere in the meadow.
 GOTCHA fixed 2026-07-07: hand-authored .tscn node exports NEED
 `node_paths=PackedStringArray("health_component")` on the node header or the
 reference silently loads null (HurtboxComponent now also falls back to the
-sibling HealthComponent in `_ready`).
+sibling HealthComponent in `_ready`). GOTCHA 2026-07-10: a NEW `class_name`
+script needs `--headless --import` before headless runs see it (same
+never-reimports rule as assets); and `tools/shot.gd`'s synthesized presses
+exist only in the polled Input state — never as InputEvents — so testable
+actions must be POLLED (`Party` polls `swap_member` in `_process`).
 **One scene pipeline, one map format:** every scene is TILED on the shared
 **tile kit** `assets/_tilekit.py`
 (`TileScene`: canvases, material ramps, footprint `place()`/`place_split`/

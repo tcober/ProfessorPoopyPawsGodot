@@ -690,24 +690,59 @@ stays friendly, with crisp fire/recover cadence, hit-pause, and readable knockba
   each should differ in arc/range/rate/knockback the way SoM's weapon families did.
   The 48×48 cells and 4-frame shoot rows are sized so alternate weapons swap into
   the same animation contract (`shoot_down/up/side` + `muzzle_offset`).
-- **3-person party** — the sympathizers (starting with **Fuji**, the librarian cat
-  who pulls Basil back into the world) eventually join as party members, SoM-style:
-  same 48 px sprite spec, composing the same Health/Hurtbox components, AI-followed
-  with leader switching. Party UI stacks additional heart rows.
-  **Fuji is BUILT and currently swapped in as the playable character (2026-07-07)**
-  to dial her look and feel — tortoiseshell (real-Fuji faithful: warm-black fur,
-  placed rust patches, cream chin/chest/paws, green-gold eyes), round brass
-  reading glasses, deep plum scholar's robe with mustard trim, hugging her
-  clasped tome as she walks. Kit: **tome swing** (attack — two-paw overhead slam,
-  BookHitbox opens through the strike/impact window, forward lunge) + **blow-pipe
-  darts** (`dart` action, L — unlimited, the planted pose is the cost; dart leaves
-  on the puff frame at the pipe-tip 16px contract) + Basil's hop-dodge.
+- ~~**3-person party**~~ — **2-member slice BUILT (2026-07-10), SoM-style.**
+  Basil is back as the default leader; **Fuji** (the librarian cat who pulls
+  Basil back into the world) runs as the AI companion — and **Q/Tab swaps the
+  lead** (camera + control hand off, the AI takes the other body). The
+  architecture is roster-based, so the third sympathizer is additive:
+  - `entities/party/party_member.gd` — `PartyMember` base (extends
+    `DirectionalBody2D`): shared 8-way move, hop, knockback/hurt, can't-die
+    refill. Each physics frame it fills an `Intent` (move/face vectors +
+    attack/secondary/jump edges) from the keyboard when leading or from its
+    `Brain` child when following — one movement/attack code path for both.
+    Kits (Basil's gun states, Fuji's book/dart states) live in the subclasses
+    behind `_process_kit` / `_on_attack_intent` / `_on_secondary_intent`.
+  - `entities/party/ai_brain.gd` — `AIBrain` (a plain `Brain` node in each
+    member scene), a three-mood machine: FOLLOW with hysteresis (stop 34px /
+    resume 44px), catch-up sprint past 56px; ENGAGE the nearest `enemies`-
+    group node within 70px while ≤96px of the leader; RETURN once the leash
+    breaks past 128px — run home to 48px ignoring enemies before re-engaging
+    (single-threshold leash flip-flop read as twitching, 2026-07-10 fix). The
+    catch-up teleport fires only past 170px AND off-screen (live camera
+    check), landing a step behind the leader — never a visible pop.
+    `tools/party_probe.gd` is the behavioral regression probe (mood
+    transitions, in-view pops, settle distances). Kit brains:
+    `fuji_brain.gd` (close to swing range, tome slam), `basil_brain.gd`
+    (sidle the shorter axis onto a cardinal — 4-way facing — fire in
+    [36, 110]px, recoil kites him out, reload when dry, passive when out of
+    beakers too; he restocks by walking over beaker pickups).
+  - `scene/party.gd` — the `Party` autoload: roster `[basil, fuji]`,
+    `leader_id` persists across scenes (HP does not, same as before),
+    `spawn(world, pos)` replaces per-scene player instances, `place()`,
+    `clamp_cameras()`, swap on `swap_member` (polled). Leadership = three
+    things it applies together: `is_leader` on the body, sole membership of
+    the **`player` group** (all door/exit/zone triggers still gate on it,
+    untouched), and the live child `Camera2D` (`make_current` +
+    `reset_smoothing` on swap). All members sit in the **`party` group**;
+    slimes re-pick the nearest party member every frame and join/leave the
+    **`enemies` group** for brain targeting.
+  - HUD stacks one heart row per member (roster order, follower dimmed to
+    55%); Basil's ammo pips/mags bind to him whether he leads or follows.
+    The overworld stays ONE chibi — the leader's (frames swap on entry).
+  Fuji's build notes (2026-07-07, look/feel dialed as solo playable):
+  tortoiseshell (real-Fuji faithful: warm-black fur, placed rust patches,
+  cream chin/chest/paws, green-gold eyes), round brass reading glasses, deep
+  plum scholar's robe with mustard trim, hugging her clasped tome as she
+  walks. Kit: **tome swing** (attack — two-paw overhead slam, BookHitbox
+  opens through the strike/impact window, forward lunge) + **blow-pipe
+  darts** (`dart` action, L — unlimited, the planted pose is the cost; dart
+  leaves on the puff frame at the pipe-tip contract) + Basil's hop-dodge.
   `entities/fuji/` (fuji.gd/.tscn/frames), `entities/projectiles/blow_dart.*`,
   `assets/_gen_fuji_sprites.py` → `fuji_gen.png` (288×480, 6×10), chibi
   `overworld_fuji.png` in `_gen_overworld_actors.py`, `FUJI` palette dict.
-  Scene scripts are now player-agnostic (`DirectionalBody2D` + the `player`
-  group) — the groundwork for the Basil⇄Fuji switch; Basil's `player.tscn` is
-  parked, fully working, one ext_resource repoint away.
+  Remaining party ideas for later: member 3, real KO/downed state (both
+  members currently refill on death), per-member AI stance settings
+  (aggressive/defensive), SoM ring-menu flavor for swapping.
 - **Magic returns late** — spell systems unlock as the story restores magic; the
   drained world is why early combat is all blasters.
 - ~~**The downstairs**~~ — **BUILT (2026-07-04).** The kitchen + lab great

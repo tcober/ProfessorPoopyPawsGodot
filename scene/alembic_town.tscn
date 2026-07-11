@@ -1,8 +1,7 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scene/alembic_town.gd" id="1_town"]
 [ext_resource type="Script" path="res://scene/overworld_location.gd" id="2_loc"]
-[ext_resource type="PackedScene" path="res://entities/fuji/fuji.tscn" id="3_player"]
 [ext_resource type="FontFile" path="res://assets/font/pixel_font.fnt" id="4_font"]
 [ext_resource type="TileSet" path="res://assets/collision_tileset.tres" id="5_collision"]
 [ext_resource type="TileSet" path="res://assets/tilesets/town_tiles.tres" id="6_tiles"]
@@ -85,9 +84,6 @@ shape = SubResource("RectangleShape2D_exit")
 
 [node name="World" type="Node2D" parent="."]
 y_sort_enabled = true
-
-[node name="Player" parent="World" instance=ExtResource("3_player")]
-position = Vector2(312, 392)
 
 [node name="TilesUpper" type="TileMapLayer" parent="."]
 texture_filter = 1

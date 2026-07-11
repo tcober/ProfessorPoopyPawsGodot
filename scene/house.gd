@@ -30,7 +30,7 @@ var curtains_open := false
 var _near_window := false
 var _curtain_busy := false
 
-@onready var player: DirectionalBody2D = $World/Player
+var player: DirectionalBody2D
 
 
 func _ready() -> void:
@@ -43,9 +43,9 @@ func _ready() -> void:
 	Game.interior_spawn = ""
 	if spawn.is_empty() or not map.anchors.has(spawn):
 		spawn = "player_spawn"
-	player.position = MapData.anchor_px(map, spawn)
+	player = Party.spawn($World, MapData.anchor_px(map, spawn))
 	$ExitDoor.position = MapData.anchor_px(map, "exit_door")
-	MapData.clamp_camera(player.get_node("Camera2D"), MapData.view_size())
+	Party.clamp_cameras(MapData.view_size())
 	$ExitDoor.body_entered.connect(_on_exit_door)
 	# Curtain mechanic: the room wakes with the curtains drawn; standing at
 	# the window (WindowZone) and pressing interact toggles them. Positions

@@ -28,7 +28,7 @@ const FIRE_OFFSET := Vector2(10.0, 20.0)
 var map: Dictionary
 var _anim_t := 0.0
 
-@onready var player: DirectionalBody2D = $World/Player
+var player: DirectionalBody2D
 
 
 func _ready() -> void:
@@ -39,11 +39,11 @@ func _ready() -> void:
 	Game.interior_spawn = ""
 	if spawn.is_empty() or not map.anchors.has(spawn):
 		spawn = "front_door"
-	player.position = MapData.anchor_px(map, spawn)
+	player = Party.spawn($World, MapData.anchor_px(map, spawn))
 	$ExitDoor.position = MapData.anchor_px(map, "exit_door")
 	$UpStair.position = MapData.anchor_px(map, "exit_up")
 	$Dim.color = DIM
-	MapData.clamp_camera(player.get_node("Camera2D"), MapData.view_size())
+	Party.clamp_cameras(MapData.view_size())
 	$ExitDoor.body_entered.connect(_on_exit_door)
 	$UpStair.body_entered.connect(_on_up_stair)
 	_place_dressing()
