@@ -33,11 +33,13 @@ CRYST = (196, 120, 255)
 ow.paint_terrain()
 
 # ---- the landmark compositions at their map footprints ------------------------------
-lo, up = town_cluster(ROOFG, ROOFB, PLAST, STONE)
-ow.place_split("T", lo, up)
+ow.place("T", town_cluster(ROOFG, ROOFB, PLAST, STONE))
 ow.place("C", castle(ROOFB, ow.ROCK))
 ow.place("V", mountain_peak(ow.ROCK, ow.SNOW))
-ow.place("g", giant_tree(ow.FOREST, ow.TRUNK, ow.GRASS))
+# the elder tree splits: the whole crown rides the upper layer over the
+# walkable G cells (duck in from the north or west, hidden under the canopy)
+lo, up = giant_tree(ow.FOREST, ow.TRUNK, ow.GRASS)
+ow.place_split("gG", lo, up)
 ow.place("O", obelisk())
 ow.place_each("K", crystal_outcrop())
 ow.place_each("t", lone_tree(ow.FOREST))

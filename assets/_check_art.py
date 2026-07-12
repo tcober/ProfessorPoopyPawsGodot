@@ -81,6 +81,7 @@ TILED = {
 }
 
 print("tiled scenes:")
+LAYERS = {}
 for map_rel, (layout, atlas, tres) in TILED.items():
     mm = maps[map_rel]
     layers = {}
@@ -116,6 +117,127 @@ for map_rel, (layout, atlas, tres) in TILED.items():
     undeclared = [rc for rc in refs if f"{rc[0]}:{rc[1]}/0 = 0" not in tsrc]
     check(f"assets/{tres} declares every referenced tile", not undeclared,
           f"missing {sorted(undeclared)[:4]}")
+    LAYERS[map_rel] = layers
+
+# ---- z-order doctrine (see DESIGN.md "Z-order / layering doctrine") -------------------
+# Upper-layer art draws over EVERY body unconditionally, so it is only legal
+# where a body can never stand south of it un-occluded: anchored on solid
+# ground (or more upper art), with walk-behind corridors capped by a solid
+# ridge row so at most a head-peek crosses the silhouette.
+print("z-order:")
+UPPER_REQUIRED = {"maps/overworld.txt", "maps/town.txt",
+                  "maps/house.txt", "maps/downstairs.txt"}
+CHIBI_MAPS = {"maps/overworld.txt"}    # 24x24 travel chibi, figure <=1 tile tall
+for map_rel, layers in LAYERS.items():
+    mm = maps[map_rel]
+    upper = {(x, y) for y, row in enumerate(layers["upper"])
+             for x, tok in enumerate(row.split()) if tok != "-"}
+    if map_rel in UPPER_REQUIRED:
+        check(f"{map_rel} upper layer non-empty", bool(upper))
+    if not upper:
+        continue
+
+    def terr(x, y, mm=mm):
+        ch = mm.at(x, y)
+        return mm.legend[ch]["terrain"] if ch else None
+
+    def solid(x, y, mm=mm):
+        ch = mm.at(x, y)
+        return mm.legend[ch]["solid"] if ch else True
+
+    # (support) every upper cell IS solid (the mask-band idiom: _eave_lift
+    # mirrors a solid row's top <=12px so pressed bodies' feet are swallowed
+    # — a south body's head only reaches the row's bottom ~3px), or rests on
+    # solid ground / more upper art / a doorway (lintels + door-top strips
+    # float over the walk-through by design)
+    bad = [(x, y) for (x, y) in upper
+           if not (solid(x, y) or solid(x, y + 1) or (x, y + 1) in upper
+                   or terr(x, y) == "door" or terr(x, y + 1) == "door")]
+    check(f"{map_rel} upper art supported", not bad,
+          f"floating over walkable ground at {sorted(bad)[:4]}")
+    # (head clearance) a walkable covered cell needs covered art due north:
+    # the corridor is capped by a solid ridge row, so a body can never poke
+    # more than its head over the prop's silhouette. Scale-gated: a chibi map's
+    # figure fits inside one tile, so it can't out-peek a silhouette — whole
+    # crowns/roofs may be open walk-behind there, no cap required
+    if map_rel not in CHIBI_MAPS:
+        bad = [(x, y) for (x, y) in upper
+               if not solid(x, y) and terr(x, y) != "door" and (x, y - 1) not in upper]
+        check(f"{map_rel} walk-behind corridors capped", not bad,
+              f"make the row above a solid ridge at {sorted(bad)[:4]}")
+    # (ridge placement) a ridge cell exists to sit under a prop's top rows —
+    # it (or, at silhouette corners, a 4-neighbor) must carry upper art
+    bad = [(x, y) for y in range(mm.rows_n) for x in range(mm.cols)
+           if terr(x, y) == "ridge" and (x, y) not in upper
+           and not any(n in upper for n in ((x + 1, y), (x - 1, y),
+                                            (x, y + 1), (x, y - 1)))]
+    check(f"{map_rel} ridge cells under upper art", not bad, str(bad[:4]))
+
+# ---- Tier-3 props manifests (TileScene.emit_prop -> scene/prop_spawner.gd) -----------
+print("props manifests:")
+PROPS = {
+    "maps/house.txt": "tilesets/house_props.txt",
+    "maps/downstairs.txt": "tilesets/downstairs_props.txt",
+    "maps/town.txt": "tilesets/town_props.txt",
+}
+T3_CHARS = {}                          # map_rel -> chars whose art is y-sorted
+for map_rel, props_rel in PROPS.items():
+    mm = maps[map_rel]
+    path = os.path.join(HERE, props_rel)
+    if not os.path.exists(path):
+        check(f"assets/{props_rel} exists", False)
+        continue
+    for ln in open(path):
+        ln = ln.strip()
+        if not ln or ln.startswith(";"):
+            continue
+        parts = ln.split()
+        ok = len(parts) >= 4 and parts[0] == "prop"
+        if ok:
+            T3_CHARS.setdefault(map_rel, set()).update(parts[2])
+        detail = ""
+        hframes = 1
+        for opt in parts[4:]:
+            if opt.startswith("hframes="):
+                hframes = int(opt.split("=", 1)[1])
+            elif opt != "each" and not opt.startswith(("anchor=top:", "base_inset=")):
+                ok, detail = False, f"unknown option {opt!r}"
+        chars = parts[2]
+        if not any(ch in chars for row in mm.rows for ch in row):
+            ok, detail = False, f"no {chars!r} cells in the map"
+        dims = png_size(os.path.join("assets", "tilesets", parts[3]))
+        if dims is None or dims[0] % hframes:
+            ok, detail = False, f"png {dims}, hframes {hframes}"
+        check(f"assets/{props_rel}: {parts[1]}", ok, detail)
+
+# ---- invisible walls (silhouette-fit rule, DESIGN.md) ---------------------------------
+# A solid cell whose art dedupes to a tile also used on open walkable ground
+# reads as walkable but blocks — the deduped atlas makes this exact: an
+# art-free prop-footprint corner shares its atlas tile with plain fabric.
+# Only faces a body can press count (4-adjacent to a walkable cell); Tier-3
+# chars are exempt (their solid cells sit under y-sorted World sprites).
+print("invisible walls:")
+for map_rel, layers in LAYERS.items():
+    mm = maps[map_rel]
+    lower = [row.split() for row in layers["lower"]]
+    upper = {(x, y) for y, row in enumerate(layers["upper"])
+             for x, tok in enumerate(row.split()) if tok != "-"}
+    exempt = T3_CHARS.get(map_rel, set())
+
+    def solid(x, y, mm=mm):
+        ch = mm.at(x, y)
+        return mm.legend[ch]["solid"] if ch else True
+
+    walk_toks = {lower[y][x] for y in range(mm.rows_n) for x in range(mm.cols)
+                 if not solid(x, y)}
+    bad = [(x, y) for y in range(mm.rows_n) for x in range(mm.cols)
+           if solid(x, y) and mm.at(x, y) not in exempt
+           and lower[y][x] != "-" and lower[y][x] in walk_toks
+           and (x, y) not in upper
+           and any(not solid(*n) for n in ((x + 1, y), (x - 1, y),
+                                           (x, y + 1), (x, y - 1)))]
+    check(f"{map_rel} no invisible walls", not bad,
+          f"solid cells rendering as open ground at {sorted(bad)[:6]}")
 
 # ---- collision tileset ---------------------------------------------------------------
 print("collision tileset:")

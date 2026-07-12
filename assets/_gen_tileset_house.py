@@ -16,6 +16,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from _core import Img
 from _palette import ramp
+from _tilekit import sprite_img
 from _interior import (Room, Canvas, weave_px, TIMBER, OUTDIR, T)
 from _interior_props import (window, window_geom, sill_flasks, rug, bed_parts,
                              desk, bookshelf, corkboard, chair, framed_picture)
@@ -89,24 +90,20 @@ room.bake_shadow("d", 3)
 room.place("h", chair(), shadow_h=2)
 
 
-def _entity_sheets():
-    """house_desk.png + house_bed_cover.png — furniture that lives in the
-    scene's y-sorted World (house.gd positions them from the map bboxes)."""
-    dsk = desk(48, 32, DAWN)
-    img = Img(48, 32)
-    img.blit_cell(dsk, 0, 0)
-    img.save(os.path.join(OUTDIR, "house_desk.png"))
-    cy0, cy1 = 24, 59                      # cover crop (bed_parts cover_span)
-    img = Img(32, cy1 - cy0 + 1)
-    for y in range(_bed_cover.n):
-        for x in range(_bed_cover.n):
-            p = _bed_cover.px[y][x]
-            if p and cy0 <= y <= cy1:
-                img.put(x, y - cy0, p)
-    img.save(os.path.join(OUTDIR, "house_bed_cover.png"))
-
-
-_entity_sheets()
+# Tier-3 manifest props (house_props.txt -> scene/prop_spawner.gd spawns
+# them into the y-sorted World): the desk and the bed cover
+room.emit_prop("Desk", "d", sprite_img(desk(48, 32, DAWN), 48, 32))
+_cy0, _cy1 = 24, 59                        # cover crop (bed_parts cover_span)
+_img = Img(32, _cy1 - _cy0 + 1)
+for _y in range(_bed_cover.n):
+    for _x in range(_bed_cover.n):
+        _p = _bed_cover.px[_y][_x]
+        if _p and _cy0 <= _y <= _cy1:
+            _img.put(_x, _y - _cy0, _p)
+# top-anchored at the crop start; y-sort baseline sits above the 5px baked
+# contact shadow (the numbers live HERE, next to the bed_parts placement)
+room.emit_prop("BedCover", "bB", _img, fname="house_bed_cover.png",
+               top=_cy0, base_inset=5)
 
 
 # runtime overlays: additive dawn beam + the curtain frames -------------------------

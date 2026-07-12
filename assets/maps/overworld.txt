@@ -8,10 +8,12 @@
 ; drained wastes SE around the obelisk MONUMENT ('O' cells) and its 'K'
 ; crystal outcrops; mountain ridge N with foothills, one pass (the Burrows,
 ; the cave anchor), the Capital's CASTLE ('C' cells) riding the west massif
-; and the HORN summit ('V') crowning its NW tip; the ELDER TREE ('g', 4x6)
-; leans over the riverbank between trail and wastes — the plain's
-; sense-of-scale landmark. Region edges are drawn in 1-cell stair-steps ON
-; PURPOSE — the autotile renders them as 45-degree runs.
+; and the HORN summit ('V') crowning its NW tip; the ELDER TREE (4x6:
+; 'G' walk-behind canopy rows — the whole crown draws over the chibi, duck
+; in from the north or west / 'g' solid trunk rows) leans over the riverbank
+; between trail and wastes —
+; the plain's sense-of-scale landmark. Region edges are drawn in 1-cell
+; stair-steps ON PURPOSE — the autotile renders them as 45-degree runs.
 legend ~ sea solid
 legend s beach walk
 legend . grass walk
@@ -31,6 +33,7 @@ legend O obelisk solid
 legend K crystal solid
 legend g giant_tree solid
 legend V peak solid
+legend G treecanopy walk
 anchor player_start 13 24
 anchor town 8 25
 anchor meadow 20 16
@@ -43,7 +46,7 @@ map
 ~~~~~~~~~~~~~~~~ssss.......ssss~~~~~~~~~~~~~~~~ffffff~~~~~~~~~~~
 ~~~~~~~~~~~~~~sssVVVVV........sss~~~~~~~~~~~~fffffffffff~~~~~~~~
 ~~~~~~~~~~~~~ss..VVVVVMMMMMMMM..sss~~~~~~~~ffffffffffffff~~~fff~
-~~~~~~~~~~~~ss...VVVVVCCCCCCMMMM..ss~~~~~~ffffffffffffffff~~~~~~
+~~~~~~~~~~~~ss...VVVVVCCCCCCMMM...ss~~~~~~ffffffffffffffff~~~~~~
 ~~~~~~~~~~~~s....VVVVVCCCCCCMMMhh..ss~MMMMMMffffffffffffff~~~~~~
 ~~~~~~~~~~~~ss...MMMMMCCCCCCMMMhhhhhssMMMMMMMMMffffffffffff~~~~~
 ~~~~~~~~~~~~~sss..MMMMCCCCCC...........MMMMMMMhhfffffffffff~~~~~
@@ -55,11 +58,11 @@ map
 ~~~~~~~~~~~fffffff.,,,,.ppppppppppppppppp=ppppp....ff~~~~~~~~~~~
 ~~~~~~~~~~fffffff.,pppppp,...............r..t.......s~~~~~~~~~~~
 ~~~~~~~~sss.t......p.............,,.....rr..........sss~~~~~~~~~
-~~~~~ssss......t...p.......t......,.ggggr........xxxs~~~~~~~~~~~
-~~~ss.............pp................ggggr.......KKxxxxxx~~~~~~~~
-~~~ssTTTTTTTT....pp..............t..ggggr.....xxKKxxxxxxx~~~~~~~
+~~~~~ssss......t...p.......t......,..GG.r........xxxs~~~~~~~~~~~
+~~~ss.............pp................GGGGr.......KKxxxxxx~~~~~~~~
+~~~ssT.TT...T....pp..............t..GGGGr.....xxKKxxxxxxx~~~~~~~
 ~~~ssTTTTTTTT...pp............t.....ggggr...xxxxxxxxxxxxxxx~~s~~
-~~~ssTTTTTTTT.,pp....f......t.......ggggr..xxxxxxxxOOOxxxxxsss~~
+~~~ssTTTTTTTT.,pp....f......t........gggr..xxxxxxxxxOOxxxxxsss~~
 ~~~ssTTTTTTTT.pp....fffff...........ggggrr.xxxxxxxxOOOxxxKKx.s~~
 ~~~ssTTTTTTTTpp....fffffffff............r.xxxxxxxxxOOOxxxKK..s~~
 ~~~ssTTTDTTTTp......fffffff.............rr.xxxxxxxxOOOxxxxxxss~~

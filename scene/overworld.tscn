@@ -56,8 +56,8 @@ shape = SubResource("RectangleShape2D_marker")
 position = Vector2(136, 408)
 script = ExtResource("3_loc")
 id = "town"
-display_name = "BASIL'S COTTAGE"
-target_scene = "res://scene/downstairs.tscn"
+display_name = "ALEMBIC TOWN"
+target_scene = "res://scene/alembic_town.tscn"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Town"]
 shape = SubResource("RectangleShape2D_door")

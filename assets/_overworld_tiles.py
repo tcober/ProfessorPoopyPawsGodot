@@ -179,11 +179,25 @@ TERRAIN_CLS = {
     "cotWbody": "grass", "cotWroof": "grass",
     "cotEbody": "grass", "cotEroof": "grass",
     "academybody": "grass", "academyroof": "grass",
+    "weaponbody": "grass", "weaponroof": "grass",
+    "itembody": "grass", "itemroof": "grass",
+    "innbody": "grass", "innroof": "grass",
+    # the town's depth kit: an authored cliff-column band over grass, a stair
+    # flight that renders road so the lane ribbons connect through it, the
+    # fountain on plaza paving, walk-behind trees (canopy walk / trunk solid)
+    "cliff": "grass", "stairs": "road", "fountain": "grass",
+    "treecanopy": "grass", "treetrunk": "grass",
+    # solid crest cells under a walk-behind prop's top rows (roof ridges,
+    # crown tops): collision-only, renders plain ground — NEVER a struct
+    # (a struct's shade band would peek through the upper art's silhouette)
+    "ridge": "grass",
 }
 # solid built things that drop a contact shadow on the ground cell south of them
 STRUCT_TERRAIN = {"well", "lamp", "stall", "fence", "town", "tree", "boulder",
                   "obelisk", "crystal", "castle", "peak", "giant_tree",
-                  "homebody", "cotWbody", "cotEbody", "academybody"}
+                  "homebody", "cotWbody", "cotEbody", "academybody",
+                  "weaponbody", "itembody", "innbody",
+                  "cliff", "fountain", "treetrunk"}
 
 WATERC = {"sea", "river", "bridge"}     # no coastline forms inside this family
 GRASSY = {"grass", "hills", "flowers"}

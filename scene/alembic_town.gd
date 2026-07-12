@@ -1,11 +1,12 @@
 extends TravelScene
 
-## Alembic Town, walkable at zone scale — the CT-Truce village the overworld's
-## town icon opens into (see TravelScene for the shared machinery). Basil's open
-## door travels down to the lab (downstairs); the neighbor cottages and the
-## barred Academy announce in the banner; the south lane exits to the overworld.
-## The spawn is routed through Game.town_spawn (read-and-clear; "" = the south
-## entrance, where the overworld drops you). PARKED for now — see DESIGN.md.
+## Alembic Town, walkable at zone scale — the Kakariko-style village the
+## overworld's town icon opens into (see TravelScene for the shared machinery).
+## Basil's open door travels down to the lab (downstairs); the shops, inn,
+## neighbor cottages and the terrace's barred Academy announce in the banner;
+## the south lane exits to the overworld. The spawn is routed through
+## Game.town_spawn (read-and-clear; "home" = below Basil's door for the
+## downstairs front door, "" = the south gate, where the overworld drops you).
 
 const MAP_PATH := "res://assets/maps/town.txt"
 const LAYOUT_PATH := "res://assets/tilesets/town_layout.txt"
@@ -37,6 +38,10 @@ func _place_player() -> void:
 
 
 func _extra_setup() -> void:
+	# street furniture (well, lamps, stall, fountain) as y-sorted World
+	# entities; the spawner front-loads them in child order so the party
+	# (spawned first by TravelScene) still wins y-sort ties
+	PropSpawner.build("res://assets/tilesets/town_props.txt", map, $World)
 	$ExitSouth.position = MapData.anchor_px(map, "exit_south")
 	$ExitSouth.body_entered.connect(_on_exit_south)
 	Party.clamp_cameras(MapData.size_px(map))

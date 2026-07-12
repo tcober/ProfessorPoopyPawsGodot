@@ -9,7 +9,10 @@
 ; boiler below (an animated y-sorted scene entity — its 'A' cells here are
 ; only its solid footprint; sprites from _interior_props.boiler_frames),
 ; workbench, a reading armchair, potted
-; plants in the corners. The FRONT DOOR to the overworld is in the south
+; plants in the corners. The table and workbench are COUNTER-WALK props
+; (the desk pattern): their top row (T/E) is walkable so a body tucks in
+; behind the tabletop, legs hidden by the y-sorted art; only the bottom
+; row (t/B) is solid. The FRONT DOOR to the overworld is in the south
 ; wall — an open doorway spilling daylight onto a stone stoop. This file is
 ; BOTH the collision grid and the room layout:
 ; assets/_gen_tileset_downstairs.py places its props from the feature chars,
@@ -26,7 +29,9 @@ legend F flasks solid
 legend y pipes solid
 legend A boiler solid
 legend B bench solid
+legend E benchtop walk
 legend t table solid
+legend T tabletop walk
 legend r armchair solid
 legend P plant solid
 legend . floor walk
@@ -44,8 +49,8 @@ VV#HHHWWkk#ss#ppoyyy##VV
 VV#HHHWWCC#ss#FFFyyy##VV
 VV#HHH##CC#ss#FFFyyyP#VV
 VV#...............AAP#VV
-VV#...gttg.....rr.AA.#VV
-VV#...gttg.....rrBBBB#VV
+VV#...gTTg.....rr.AA.#VV
+VV#...gttg.....rrEEEE#VV
 VV#...gggg.......BBBB#VV
 VV#..................#VV
 VV#########--#########VV

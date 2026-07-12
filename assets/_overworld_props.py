@@ -22,7 +22,7 @@ sys.path.insert(0, HERE)
 from _core import lerp
 from _tilekit import (TIMBER, BRASS, STEEL, COPPER, IRON, STONER, GLASS, MINT,
                       VIOLETF, PAPER, PAPERD, RED, SPEC, WATER, STEAM)
-from _propkit import S, ln, edge
+from _propkit import S, ln, edge, split_rows
 
 DOORDARK = (24, 18, 44, 255)      # an open doorway's inside
 WARM = (255, 208, 120, 255)       # candlelight through glass
@@ -314,10 +314,10 @@ def town_cluster(roof_a, roof_b, plaster, stone, salt=151):
     at the back rank, the steamworks' copper drum venting a plume, a well and
     a market awning on the apron, and an open mouth in the huddle over the
     walkable D cell (map col 8 -> prop x 48..63) that travels INTO
-    scene/alembic_town.tscn. Returns (lower, upper); upper is empty today
-    (the old gate archway is gone — the mouth is just the gap)."""
+    scene/alembic_town.tscn. One solid-footprint sprite, all on the lower
+    layer (the old gate archway is gone — the mouth is just the gap)."""
     w, h = 128, 96
-    lo, up = S(w, h, salt), S(w, h, salt + 1)
+    lo = S(w, h, salt)
     rd = [(240, 206, 160, 255), (228, 184, 136, 255), (212, 158, 116, 255),
           (184, 124, 100, 255), (146, 84, 90, 255), (104, 54, 74, 255)]
     # the dirt apron, an organic blob everything stands on
@@ -403,7 +403,7 @@ def town_cluster(roof_a, roof_b, plaster, stone, salt=151):
     lo.despeckle(2, 1)
     lo.cluster_shade([roof_a, roof_b, plaster, stone], passes=1)
     edge(lo, h)
-    return lo, up
+    return lo
 
 
 def castle(roof, rock, salt=163):
@@ -574,7 +574,9 @@ def giant_tree(f, trunk, grass, salt=181):
     travel chibi): a crown of overlapping lambert-lit lobes with dark seam
     shadows, a bark-grooved trunk two cells wide, root flare gripping its
     own shadowed ground, a few pink blooms surviving in the old canopy.
-    Same contract as the castle: pure landmark, solid cells."""
+    Returns (lower, upper) split at the crown underside (y 48): the whole
+    crown is walkable G cells drawn over the chibi — it ducks behind the
+    canopy from the north or west; only the trunk rows block."""
     w, h = 64, 96
     sp = S(w, h, salt)
     sp.blob(32, 89, 17, 4.5, grass[4])                     # canopy ground shadow
@@ -590,8 +592,12 @@ def giant_tree(f, trunk, grass, salt=181):
     for y in range(54, 85):                                # west rim light
         if sp.get(26, y) is not None:
             sp.set(26, y, trunk[1])
-    # the crown: back lobes first, canopy masses overlapping forward
+    # the crown: back lobes first, canopy masses overlapping forward. The two
+    # y11 shoulder lobes keep the TOP silhouette within ~4px of the top G
+    # row's upper edge across both middle columns (walk-behind coverage: a
+    # chibi in the top cells is swallowed by the crown, not a lobe-seam dip)
     for cx, cy, rx, ry, sh in ((18, 26, 13, 11, 0.10), (46, 24, 13, 11, 0.06),
+                               (19, 11, 6.5, 8, 0.04), (44, 11, 6.5, 8, 0.10),
                                (32, 15, 14, 11, -0.04), (12, 40, 10, 8, 0.16),
                                (52, 42, 9, 8, 0.14), (32, 34, 15, 12, -0.10)):
         sp.ball(cx, cy, rx, ry, f, sh=sh, power=2.2)
@@ -604,10 +610,27 @@ def giant_tree(f, trunk, grass, salt=181):
     for bx, by in ((20, 18), (40, 12), (51, 31)):          # surviving blooms
         sp.set(bx, by, BLOOM)
     sp.set(21, 17, SPEC)
+    # the crown's top ROW of map cells carries art only where the silhouette
+    # actually fills it (map row = `.GG.` — round crown, square cells): clip
+    # the lobes out of the two grass corner cells BEFORE edge(), one px
+    # past the cell boundary so the 4-way outline dilation can't spill in
+    for y in range(0, 17):
+        for x in range(47, w):                             # NE corner cell
+            sp.px[y][x] = None
+        for x in range(0, 17):                             # NW corner cell
+            sp.px[y][x] = None
     sp.despeckle(2, 1)
     sp.cluster_shade([f, trunk], passes=2)
     edge(sp, h)
-    return sp
+    lo, up = split_rows(sp, 48)
+    # mask band (the town _eave_lift idiom at chibi scale): a corridor body
+    # pressed against the trunk row sinks its feet a few px into it — mirror
+    # the row's top onto the upper canvas so the crown swallows them
+    for y in range(48, 56):
+        for x in range(w):
+            if lo.px[y][x]:
+                up.px[y][x] = lo.px[y][x]
+    return lo, up
 
 
 def mountain_peak(rock, snow, salt=191):

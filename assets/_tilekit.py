@@ -57,6 +57,14 @@ GLOW_WARM = (255, 200, 120)                   # lamp / window / coal light
 GLOW_MINT = (150, 246, 190)                   # gauge / rose-window glow
 
 
+def sprite_img(sp, w, h):
+    """Crop a (square, sparse) prop Sprite to its w x h footprint as an Img —
+    the emit_prop() input for props authored on the _propkit canvas."""
+    img = Img(w, h)
+    img.blit_cell(sp, 0, 0)
+    return img
+
+
 class Canvas(Img):
     """Scene canvas: int-casting put/rect."""
 
@@ -82,6 +90,7 @@ class TileScene:
         self.W, self.H = self.m.cols * T, self.m.rows_n * T
         self.bg = Canvas(self.W, self.H, fill)
         self.ov = Canvas(self.W, self.H)
+        self._props = []               # Tier-3 manifest rows (emit_prop)
         sc = SCENES[scene_key]
         self.scene = sc
         self.shadow = sc["shadow"]
@@ -130,6 +139,8 @@ class TileScene:
         self.bg.blit_cell(sprite, X, Y)
 
     def place_upper(self, chars, sprite):
+        assert any(p for row in sprite.px for p in row), \
+            f"upper sprite for {chars!r} is fully transparent (dead split)"
         X, Y, _, _ = self.px(self.bbox(chars))
         self.ov.blit_cell(sprite, X, Y)
 
@@ -160,6 +171,29 @@ class TileScene:
                         comp.append(n)
             self.bg.blit_cell(sprite, min(c[0] for c in comp) * T,
                               min(c[1] for c in comp) * T)
+
+    def emit_prop(self, name, chars, img, fname=None, top=None, base_inset=0,
+                  hframes=1, each=False):
+        """A y-sorted WORLD prop (Tier 3): save its PNG beside the atlas and
+        record a manifest row that scene/prop_spawner.gd spawns into the
+        scene's y-sorted World at the chars' map bbox. For anything a body
+        can stand both north and south of — the static layers can't sort it
+        (see DESIGN.md "Z-order / layering doctrine").
+
+        `top`: anchor the sprite's top at bbox_top + top px instead of its
+        bottom at the bbox's south edge (the bed-cover crop case).
+        `base_inset`: y-sort baseline pulled up from the south edge (a baked
+        contact shadow's rows don't count as body).
+        `each`: one sprite per connected component of the chars (the
+        place_each idiom — several lamp posts share one char)."""
+        self.bbox(chars)                   # assert the chars exist in the map
+        fname = fname or f"{self.name}_{name.lower()}.png"
+        img.save(os.path.join(OUTDIR, fname))
+        opts = ([f"anchor=top:{int(top)}"] if top is not None else []) + \
+               ([f"base_inset={int(base_inset)}"] if base_inset else []) + \
+               ([f"hframes={hframes}"] if hframes > 1 else []) + \
+               (["each"] if each else [])
+        self._props.append(" ".join(["prop", name, chars, fname] + opts))
 
     # -- output --------------------------------------------------------------------------
     def write_overlay(self, suffix, draw_fn):
@@ -194,6 +228,11 @@ class TileScene:
         write_layout(os.path.join(OUTDIR, f"{self.name}_layout.txt"),
                      {"lower": lower, "upper": upper},
                      f"from assets/maps/{self.name}.txt")
+        if self._props:
+            with open(os.path.join(OUTDIR, f"{self.name}_props.txt"), "w") as f:
+                f.write(f"; y-sorted World props from assets/maps/"
+                        f"{self.name}.txt — see scene/prop_spawner.gd\n")
+                f.write("\n".join(self._props) + "\n")
         n_upper = sum(1 for row in upper for i in row if i is not None)
         print(f"{len(tiles)} unique tiles from {self.m.cols * self.m.rows_n} cells "
               f"({n_upper} upper-layer cells)")

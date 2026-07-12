@@ -35,6 +35,9 @@ func _run() -> void:
 			elif i == pr[2]:
 				Input.action_release(pr[0])
 		await process_frame
+	# macOS suspends drawing for occluded windows — the framebuffer goes
+	# stale and get_image() returns an old frame. Force a fresh draw.
+	RenderingServer.force_draw()
 	var img := root.get_viewport().get_texture().get_image()
 	img.save_png(args[1])
 	print("shot saved: ", args[1])

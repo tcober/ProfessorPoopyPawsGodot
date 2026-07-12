@@ -1,0 +1,3 @@
+; y-sorted World props from assets/maps/house.txt — see scene/prop_spawner.gd
+prop Desk d house_desk.png
+prop BedCover bB house_bed_cover.png anchor=top:24 base_inset=5

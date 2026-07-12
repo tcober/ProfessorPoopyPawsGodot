@@ -1,0 +1,5 @@
+; y-sorted World props from assets/maps/downstairs.txt — see scene/prop_spawner.gd
+prop Table tT downstairs_table.png
+prop Armchair r downstairs_armchair.png
+prop Workbench BE downstairs_workbench.png
+prop Boiler A downstairs_boiler.png hframes=4

@@ -56,7 +56,8 @@ again. (Full story in docs/DESIGN.md.)
 ## Current state
 
 **Combat-first cut (2026-07):** the build is pared to its core loop — HOUSE →
-OVERWORLD → Whisker Meadow — to hone the battling and the look. The
+ALEMBIC TOWN → OVERWORLD → Whisker Meadow — to hone the battling and the
+look. The
 title screen, five-part intro, Schweinler's sprites, and the cutscene/dialog
 kit were deleted (git history keeps them; the story stays in docs/DESIGN.md as
 the plan). The game boots into Basil's loft bedroom (`scene/house.tscn`, main
@@ -65,25 +66,38 @@ on the 24×14 map), brown plank walls / teal weave / gold dawn window, E
 toggles the curtains at the window; its SW staircase descends to the
 **downstairs** (`scene/downstairs.tscn`) — the kitchen + steampunk-lab great
 room (20-tile room, hearth fire = light source + glow, copper boiler,
-workbench, alcove stairs back up) whose south front door opens onto the
+workbench, alcove stairs back up) whose south front door opens into walkable
+**Alembic Town** (`scene/alembic_town.tscn`, 56×34 on the shared overworld
+driver — rebuilt from scratch 2026-07-11 as the Kakariko-style hub, LIVE in
+the flow): the barred Academy crowns a north cliff terrace on the central
+axis (authored 16×32 cliff-face columns, 3 salted variants stamped per
+column; a grand stone stair descends to a lamp-flanked plaza), a fountain
+square at the lane crossing (trail ring forks around the basin + brass
+alembic finial; flask stall on the rim), the weapons shop "THE BRASS FANG" +
+item shop "THE CRACKED FLASK" (ONE shared `town_shop` builder, SAME salt —
+only roof/sign/wares differ so facade tiles dedupe), the two-story inn "THE
+COPPER KETTLE" by the stream bridge (river + sea/beach pond classes at town
+scale), locked cottages around the well + fenced garden, a fenced NE orchard,
+and six walk-behind trees (canopy rows walk on the upper layer, trunk row
+solid + opaque — dedupe rule); all shop/inn/cottage/school doors are
+announce-only banners (caps-only font!), Basil's `home` door → downstairs
+(`interior_spawn="front_door"`), the south gate (`exit_south`) → the
 **tiled overworld**, where Alembic Town is a CT-faithful cluster ICON on the
 SW coast (one DENSE drawn composition — seven small overlapping roofs with
 dab openings, the Academy castle-keep, the steamworks' riveted copper boiler
 venting a steam plume; darker mossy-emerald 2026-07 palette) whose gate-mouth
-`D` marker (`town`) goes straight back into the downstairs, with ONE winding
+`D` marker (`town`) opens back into the town's south gate, with ONE winding
 trail NE past Whisker Meadow (`scene/meadow.tscn` — slimes, beaker respawns,
 HUD; marker `meadow`) over the river bridge to the wastes; steampunk-medieval
 landmarks anchor the horizon — the Capital's pale-stone CASTLE on the north
 massif (`C` cells) with the snowcapped HORN summit (`V`) at its NW tip, the
-ELDER TREE (`g`, 64×96, ~5× the chibi) leaning over the riverbank, the
+ELDER TREE (`g`, 64×96, ~5× the chibi, whole crown walk-behind — only
+the trunk blocks) leaning over the riverbank, the
 wastes' crystal OBELISK monument (`O`) + scattered 2×2 `K` crystal outcrops,
 lit windows/coals/crystals on the glow overlay (the cloud-shadow shade
 overlay was cut — dark ovals read as smudges at CT zoom); leaving a zone
 returns to its marker via the
-`Game` autoload. (A walkable zone-scale **Alembic
-Town** — `scene/alembic_town.tscn`, 40×28 on the shared overworld driver,
-walk-behind rooflines, `Game.town_spawn` routing — is built but PARKED:
-unreferenced by the flow until the town earns its place.) **The PARTY
+`Game` autoload. **The PARTY
 (2026-07-10, SoM-style 2-member slice):** Basil leads, Fuji runs AI-companion,
 **Q/Tab swaps the lead** (`swap_member`; camera `make_current`+
 `reset_smoothing`, HUD row dim, modulate blink). No scene instances a player
@@ -171,8 +185,8 @@ actions must be POLLED (`Party` polls `swap_member` in `_process`).
   `_gen_tileset_meadow.py`) is a thin config:
   palette + pools/terrain + `place()` props at map feature chars;
   `assets/_tiles.py` slices the composed canvases into a real TileSet (atlas
-  + `.tres` + layout in `assets/tilesets/`; 60-88 tiles from 336 interior
-  cells, ~580 from the overworld's 2304, ~255 from the town's 1120, ~145
+  + `.tres` + layout in `assets/tilesets/`; 60-77 tiles from 336 interior
+  cells, ~605 from the overworld's 2304, ~450 from the town's 1904, ~145
   from the meadow's 1152) that
   `scene/tiled_map.gd` stamps onto TWO TileMapLayers — under and over
   entities, so bodies walk behind railings/lintels/ROOFLINES
@@ -180,6 +194,39 @@ actions must be POLLED (`Party` polls `swap_member` in `_process`).
   `scene/alembic_town.tscn` = exterior references, `scene/meadow.tscn` =
   combat-zone reference) — move a feature char in
   the map txt and it moves in-game. A NEW scene = map txt + thin config.
+  **Z-ORDER DOCTRINE (2026-07-11, lint-enforced — full statement in
+  DESIGN.md "Z-order / layering doctrine"):** draw order is the fixed
+  sandwich lower tiles → y-sorted `World` entities → upper tiles; three
+  tiers decide where art goes. Tier 1 terrain/flat/wall-flush props → lower.
+  Tier 2 roofs/canopies/lintels → `place_split`, upper art ONLY above solid
+  cells (or door cells) — every walk-behind corridor is capped by a solid
+  `ridge` row (map digits, all named `ridge`, never a struct) so at most
+  a head-peek crosses the silhouette; the cap is SCALE-GATED (`CHIBI_MAPS`
+  in `_check_art.py`): the overworld's ≤1-tile chibi can't out-peek a
+  silhouette, so its covered cells need no cap — the Elder Tree's whole
+  crown is open walk-behind `G` cells, only the trunk solid. Tier 3 = anything a body can stand
+  BOTH north and south of (free-standing furniture, street lamps/well/
+  stall/fountain) — NEVER baked: `emit_prop()` writes the PNG + a
+  `<scene>_props.txt` manifest row and `scene/prop_spawner.gd` spawns it
+  into `World` at the feet convention (`node.y + 20`); counter-height
+  pieces (desk/table/workbench) make their TOP footprint row `walk` so a
+  body tucks in behind the tabletop. The collision box hugs the feet, so a
+  pressed body sinks ~10px of sprite past a solid boundary in EITHER
+  direction: a corridor's south edge needs the MASK BAND
+  (`_town_props._eave_lift`: mirror the solid row's top 12px onto upper),
+  legal ONLY with a ≥2-row solid base below the corridor (building
+  facades, the elder trunk) — never on a 1-row solid between walk rows (a
+  south head sinks ~10px into it too). Small-prop rule: anything without
+  2 covered rows + a 2-row base (town trees) gets NO corridor — fully
+  solid. `_check_art.py`
+  fails the build on floating upper art (solid-cell mask bands exempt),
+  uncapped corridors (waived on `CHIBI_MAPS`), misplaced ridge cells, an
+  empty upper layer, a bad manifest, or a pressable solid cell whose tile
+  dedupes to open ground (the INVISIBLE-WALL lint; Tier-3 manifest chars
+  exempt — solid map cells under y-sorted sprites are fine). A 1-cell-thick
+  forest/hedge line can't terminate in the open (the lobe lattice rejects
+  the tip into a grass bay) — end it against another solid class or use
+  fence cells.
   Sprites/fx build on `assets/_sprites.py`; collision is always an
   invisible TileMapLayer built at runtime by `scene/painted_map.gd` from the same
   map file. Regenerate via `assets/_gen_*.py`, then

@@ -129,29 +129,42 @@ read as smudges, not weather.) Region edges are drawn as 1-cell
 stair-steps in the map txt ON PURPOSE — the autotile's 45° corner cuts
 render them as continuous diagonal coasts/rims.
 
-- **ALEMBIC TOWN** (`town` → `downstairs.tscn` for now) — the icon's gate
-  mouth; it goes straight into Basil's downstairs while the walkable town
-  scene is parked.
+- **ALEMBIC TOWN** (`town` → `alembic_town.tscn`) — the icon's gate mouth;
+  it opens into the walkable town at its south gate.
 - **WHISKER MEADOW** (`meadow` → `meadow.tscn`) — the first field zone; the one
   playable combat zone today. A flower ring marks its road entrance.
 - **THE BURROWS** (design only) — future dungeon; its pass and cave anchor
   already sit in the northern ridge.
 - **THE DRAIN** (design only) — drained-wastes story hook: where the magic went.
 
-**Alembic Town, walkable** (`scene/alembic_town.tscn`, 40×28 tiles — built
-2026-07-05, currently PARKED/unreferenced: the icon's mouth goes straight to
-the downstairs instead) — the CT-Truce village at zone scale (48px player),
-riding the SAME OverWorld tile driver (hedge borders = the forest class,
-lanes = the trail painter, plus a fence class): Basil's cottage NW with an
-open candle-lit doorway (`home` → `downstairs.tscn` at the front door), the
-locked neighbor cottages (`cottage_w`/`cottage_e`, announce-only), the
-well/lamp/stall commons, and the barred Academy fenced apart SE (`school`,
-announce-only — "no magic has stirred here in years"). Buildings are TWO map
-chars: solid facade rows + WALKABLE roof rows whose art rides the upper tile
-layer, so the player walks behind rooflines, CT-style. The south lane gap
-(`exit_south`) returns to the overworld at the town icon. Spawns route
-through `Game.town_spawn` (read-and-clear; "" = the south entrance, `home` =
-below Basil's door).
+**Alembic Town, walkable** (`scene/alembic_town.tscn`, 56×34 tiles — rebuilt
+from scratch 2026-07-11 as the Kakariko-style hub, LIVE in the flow) — the
+village at zone scale (48px player), riding the SAME OverWorld tile driver
+(tree borders = the forest class, lanes = the trail painter, fence class
+yards, sea+beach pond, a river stream with one bridge cell), composed
+DEPTH-FIRST: the barred **Academy crowns a north cliff terrace** on the
+town's central axis (`school`, announce-only — "no magic has stirred here in
+years"), a grand stone stair descending through the authored cliff-column
+band (16×32 face columns, 3 salted variants stamped per column — the
+meadow-boulder reuse pattern) to a lamp-flanked stair plaza; the **fountain
+square** at the lane crossing (basin + brass alembic-bulb finial, trail ring
+forking around it, the flask-stall on its rim); the **weapons shop** "THE
+BRASS FANG" (`weapons`) and **item shop** "THE CRACKED FLASK" (`items`)
+facing the market cross-lane — one shared shopfront builder, same salt, only
+roof/sign/wares differ so their facade tiles dedupe; the two-story **inn**
+"THE COPPER KETTLE" (`inn`) fronting the square SE by the stream bridge, lit
+windows and a tankard sign (all three announce-only until shops earn
+systems); **Basil's cottage** NW in its fenced yard with the open candle-lit
+doorway (`home` → `downstairs.tscn` at the front door); the locked neighbor
+cottages staggered SW (`cottage_w`/`cottage_e`) around the well and fenced
+garden; the fenced NE orchard across the bridge; the SE pond; and six
+walk-behind trees (canopy rows walk on the upper layer, trunk row solid).
+Buildings are TWO map chars: solid facade rows + WALKABLE roof rows whose
+art rides the upper tile layer, so the player walks behind rooflines,
+CT-style. The south lane gap (`exit_south`) returns to the overworld at the
+town icon. Spawns route through `Game.town_spawn` (read-and-clear; "" = the
+south gate, `home` = below Basil's door — the downstairs front door now
+opens HERE, not onto the overworld).
 
 History: the 2026-07 town carve absorbed the old standalone "Basil's Bluff"
 into Alembic Town and moved the town from its old NE-forest anchor onto the SW
@@ -243,11 +256,12 @@ yard → bedroom wake-up → morning yard → playable road → lecture hall),
 Schweinler's sprites, and the cutscene/dialog kit (`cutscene.gd`,
 `dialog_box.gd/.tscn` — awaitable say/walk/fade/card helpers, typewriter box).
 
-Flow: **bedroom ↔ downstairs ↔ overworld ↔ Whisker Meadow**. The game boots
-into the loft bedroom; its stairs descend to the downstairs great room, whose
-front door opens onto the overworld at the town icon's gate mouth (and
-stepping on the mouth lands back at that front door). The walkable Alembic
-Town scene is PARKED — built, unreferenced by the flow for now.
+Flow: **bedroom ↔ downstairs ↔ Alembic Town ↔ overworld ↔ Whisker Meadow**.
+The game boots into the loft bedroom; its stairs descend to the downstairs
+great room, whose front door opens into walkable Alembic Town just below the
+cottage door; the town's south gate leads out to the overworld at the town
+icon (and stepping on the icon's mouth lands back at the town's south gate).
+Basil's home door in town travels down into the downstairs.
 
 - **House** (`scene/house.tscn`, main scene): Basil's LOFT bedroom as a TILED
   room (the CT-bedroom treatment) — a SMALL dense diorama floating in a huge
@@ -303,18 +317,19 @@ Town scene is PARKED — built, unreferenced by the flow for now.
   the dark); the south wall holds the **front door** — an open doorway
   spilling daylight, lintel on the upper layer (Basil ducks under it), stone
   stoop into the void. Exits: up the alcove → bedroom (`stair_top`); out the
-  door → overworld at the town icon's gate mouth. Spawns route through
-  `Game.interior_spawn` (read-and-clear; default = `front_door`, the
-  overworld-entry landing).
+  door → Alembic Town just below the cottage door (`Game.town_spawn =
+  "home"`). Spawns route through `Game.interior_spawn` (read-and-clear;
+  default = `front_door`, the town-entry landing).
 - **Overworld** (`overworld.tscn`): the CT/SoS TILED travel map (see "World
-  Structure"). Two markers: the town icon's gate mouth (`town`, straight
-  into the downstairs for now) and Whisker Meadow (enters the combat zone).
-  Cave and obelisk stay anchor-only landmarks in the terrain; their markers
-  return with their zones.
-- **Alembic Town, walkable** (`alembic_town.tscn`) — PARKED: the CT-Truce
-  village at zone scale (see "World Structure") is built and passes checks
-  but is unreferenced by the flow; rewire the town marker + downstairs door
-  through it (via `Game.town_spawn`) when the town earns its place.
+  Structure"). Two markers: the town icon's gate mouth (`town`, into the
+  walkable town at its south gate) and Whisker Meadow (enters the combat
+  zone). Cave and obelisk stay anchor-only landmarks in the terrain; their
+  markers return with their zones.
+- **Alembic Town, walkable** (`alembic_town.tscn`) — the Kakariko-style hub
+  (see "World Structure" for the full composition): terrace Academy over the
+  cliff-and-stair band, fountain square, the two shops + inn (announce-only
+  facades), cottages, stream/bridge/pond, walk-behind trees; Basil's home
+  door travels down to the downstairs; the south gate exits to the overworld.
 - **Meadow — Whisker Meadow** (`scene/meadow.tscn`): 48×24-tile TILED zone on
   the shared overworld driver (forest treeline, sea pond + beach collar,
   road trail, boulder-prop outcrops + the trailhead cairn),
@@ -350,8 +365,8 @@ actually cycle; hand-drawn sheets can still drop in later against "Asset Specs" 
   `scene/tiled_map.gd` (stamps visible tiles from a generated layout file)
 - `scene/overworld.gd/.tscn` (64×36 TILED continent: layout-stamped Tiles/
   TilesUpper + additive glow + the town/meadow markers) ·
-  `scene/alembic_town.gd/.tscn` (40×28 TILED walkable town: same
-  stamp-and-anchor pattern with the full-scale player, door/announce markers
+  `scene/alembic_town.gd/.tscn` (56×34 TILED walkable town: same
+  stamp-and-anchor pattern with the full-scale party, door/announce markers
   + the south exit) ·
   `scene/overworld_location.gd` (markers: id/display_name/target_scene/locked_text) ·
   `scene/game.gd` (autoload **Game** — remembers `overworld_spawn`, plus
@@ -384,7 +399,7 @@ mountain), so 1-cell stair-steps in the map txt chain into continuous
 diagonal coasts, rims and ridge edges — so repeated cells are byte-identical
 BY CONSTRUCTION and the slicer collapses them to a small atlas, exactly how
 an SNES scene lives in VRAM (house: 60 tiles from 336 cells; overworld: ~260
-from 2304; town: ~240 from 1120; meadow: ~145 from 1152). Every scene is
+from 2304; town: ~470 from 1904; meadow: ~145 from 1152). Every scene is
 driven by its `assets/maps/*.txt` file.
 
 - **`assets/maps/*.txt`** — the shared source of truth per map: a `legend`
@@ -506,6 +521,100 @@ driven by its `assets/maps/*.txt` file.
   `scene/house.tscn` is the tiled
   interior reference; `scene/overworld.tscn` the tiled exterior reference;
   `scene/meadow.tscn` the tiled combat-zone reference.
+- **Z-order / layering doctrine (2026-07-11, lint-enforced).** Draw order is
+  the fixed sandwich above — lower tiles always under every body, upper
+  tiles always over, only `World` children y-sort against each other. There
+  is NO per-tile depth (per-tile `y_sort_origin` was rejected: the dedupe
+  atlas shares tiles between props at different heights). Every piece of art
+  therefore belongs to one of THREE TIERS, chosen by one question — *can a
+  body stand directly south of it and overlap it?*
+  1. **Tier 1 — baked lower**: terrain, flat props, and wall-flush furniture
+     (a body can never get north of it, so always-under is always right).
+  2. **Tier 2 — static split** (`place_split`: roof/canopy/lintel rows on
+     the upper canvas, base rows + contact shadow on the lower): tall props
+     whose over-art sits ONLY above solid cells or door cells. The top row
+     of every walk-behind corridor is a solid **`ridge`** cell (map digits,
+	 all legend-named `ridge`, never a struct — a struct's shade band
+	 peeks through the silhouette): a 33px body over 16px tiles covers its
+	 feet row + the row above + ~5px more, so a ridge-capped corridor shows
+	 at most a head-peek over the roofline (the CT "behind the house" read)
+	 and never a full body "standing on the roof". The cap is SCALE-GATED:
+	 a chibi map's figure (the overworld's 24x24 travel chibi, ~16px) fits
+	 inside one tile and can't out-peek a silhouette, so covered walk-behind
+	 cells there need no ridge cap — a whole crown may be open walk-behind
+	 (`CHIBI_MAPS` in `_check_art.py` waives the cap lint; the Elder Tree's
+	 entire crown is walkable `G` cells since 2026-07-11, only its trunk
+	 blocks).
+  3. **Tier 3 — y-sorted `World` entity**: free-standing props a body can
+	 round (furniture, street lamps/well/stall/fountain, the animated
+	 boiler). NEVER baked: the generator calls `TileScene.emit_prop()`
+	 (PNG + a row in generated `tilesets/<scene>_props.txt`; `each` splits
+	 one char into per-component sprites) and `scene/prop_spawner.gd`
+	 spawns them into `World` — node origin on the feet line
+	 (`base_y - 20`, matching `ZONE_FEET=44` in the 48px cell), art bottom
+	 on the footprint's south edge (or `anchor=top:<px>` for crops like the
+     bed cover, `base_inset=<px>` to lift the baseline off a baked shadow).
+	 Collision stays on the map's solid cells — spawned props are visual
+	 only, and the spawner front-loads them in child order so bodies win
+	 y-sort ties. **Counter-walk variant** (desk / table / workbench): a
+	 counter-height Tier-3 prop makes its TOP footprint row `walk` and only
+	 its bottom row `solid`, so a body steps onto the top row and tucks in
+	 behind the y-sorted tabletop, legs hidden — the SoM shop-counter read.
+  **The mask band (pressed-body rule).** The collision box hugs the FEET,
+  so a body pressed against a solid row sinks ~10px of sprite past the
+  boundary in EITHER direction: pressed from the north, its feet + shadow
+  leak ~14px over the lower-layer art of the row below (facade top);
+  pressed from the south, its HEAD sinks ~10px into a solid row's top.
+  `_town_props._eave_lift(lo, up, w, fy)` mirrors a solid row's top 12px
+  onto the UPPER canvas (pixel-identical composite) to swallow the corridor
+  sliver — legal ONLY when the nearest south-side walkable row is ≥2 rows
+  below the band row, so no south head can reach it (buildings' 2-row
+  facades, the elder tree's 3-row trunk block). NEVER band a 1-row-deep
+  solid strip between two walkable rows — the corridor feet and the south
+  head need the same 12px and one of them always wears it (this killed the
+  town-tree corridor, below). The band is the only legal upper art on a
+  body-adjacent solid row, and why the lint's support rule accepts upper
+  cells that are themselves solid.
+  **The small-prop rule.** A walk-behind corridor needs ~2 covered rows
+  above the corridor row AND a ≥2-row solid base below it. Props smaller
+  than that (the 2x3 town trees: 2-row crown, 1-row trunk) get NO corridor
+  — every cell solid, the ALttP small-tree standard. Their crown still
+  rides the upper layer so a body passing east/west tucks its inner
+  shoulder behind the silhouette, and a south-pressed body correctly draws
+  over the trunk row's lower-layer art.
+  **The silhouette-fit rule.** Solid must READ solid: a round prop over a
+  square footprint leaves corner cells the art barely touches — a solid
+  corner cell with no visible art is an invisible wall (hit on the elder
+  tree's crown-top corners 2026-07-11). Shape the map chars to the
+  silhouette (the elder's top canopy row is `.GG.`) and clip the prop's
+  stray corner pixels one px past the cell boundary BEFORE `edge()` (the
+  4-way outline dilates one pixel and must not spill into the walkable
+  cell — the head-clearance lint catches spills). The collision box must
+  also be FEET-ALIGNED like the zone bodies' — the overworld chibi's box
+  was 3px below its `OW_FEET` baseline, which added a phantom margin to
+  every south press (fixed 2026-07-11: `CollisionShape2D` at (0, -3) in
+  both overworld_*.tscn bodies). The landmark footprints were audited
+  2026-07-11: every art-free solid cell a body could press (town-icon
+  spire gaps, the massif's east tip, the obelisk's NW corner, the elder
+  trunk's bare west flank, the town's home/inn ridge corners) was retyped
+  walkable, the town garden hedge spur became a fence run (a 1-cell-thick
+  forest line can't terminate — the lobe lattice always rejects the tip
+  cell into a grass bay), and the invisible-wall lint below keeps the
+  class extinct.
+  `assets/_check_art.py` enforces the doctrine: upper art must rest on
+  solid/upper/door cells or itself be a solid-cell mask band (no floating
+  over walkable ground), walkable
+  covered cells must have covered art due north (corridors capped —
+  waived on `CHIBI_MAPS`),
+  `ridge` cells must sit under upper art, the four upper layers must be
+  non-empty, every props manifest must parse against its map and PNGs,
+  and NO pressable solid cell may render as open ground (the
+  invisible-wall lint: a solid cell 4-adjacent to walkable whose lower
+  tile dedupes to one used on walkable ground, with no upper art, fails
+  the build; Tier-3 manifest chars are exempt — their solid cells
+  legitimately sit under y-sorted sprites).
+  Generator-side, `place_upper` asserts a non-empty upper sprite (no dead
+  splits).
 - **`assets/_sprites.py`** — the sprite construction kit: `Sprite` canvas with
   steer-lit `ball`/`capsule`/`panel` volumes, cluster-jittered tone selection,
   `cluster_shade`/`despeckle`/`outline`/`crease` finishing passes, and `Rig`
@@ -513,7 +622,9 @@ driven by its `assets/maps/*.txt` file.
   Generators (re-run any with `python3 <script>`; then let Godot reimport, or
   `godot --headless --path . --import`; **always run `python3 assets/_check_art.py`
   after regenerating** — it asserts map enclosure/anchors, layout/atlas/.tres
-  agreement, collision tileset shape, entity placements on walkable
+  agreement, the z-order doctrine (upper-art support, capped walk-behind
+  corridors, ridge placement, non-empty upper layers, props manifests),
+  collision tileset shape, entity placements on walkable
   cells, sheet dims and `.tres` regions):
 
 - `assets/_gen_collision.py` → `collision_tile.png` (16×16 transparent) for the
@@ -715,46 +826,46 @@ stays friendly, with crisp fire/recover cadence, hit-pause, and readable knockba
   lead** (camera + control hand off, the AI takes the other body). The
   architecture is roster-based, so the third sympathizer is additive:
   - `entities/party/party_member.gd` — `PartyMember` base (extends
-    `DirectionalBody2D`): shared 8-way move, hop, knockback/hurt, can't-die
-    refill. Each physics frame it fills an `Intent` (move/face vectors +
-    attack/secondary/jump edges) from the keyboard when leading or from its
-    `Brain` child when following — one movement/attack code path for both.
-    Kits (Basil's gun states, Fuji's book/dart states) live in the subclasses
-    behind `_process_kit` / `_on_attack_intent` / `_on_secondary_intent`.
+	`DirectionalBody2D`): shared 8-way move, hop, knockback/hurt, can't-die
+	refill. Each physics frame it fills an `Intent` (move/face vectors +
+	attack/secondary/jump edges) from the keyboard when leading or from its
+	`Brain` child when following — one movement/attack code path for both.
+	Kits (Basil's gun states, Fuji's book/dart states) live in the subclasses
+	behind `_process_kit` / `_on_attack_intent` / `_on_secondary_intent`.
   - `entities/party/ai_brain.gd` — `AIBrain` (a plain `Brain` node in each
-    member scene), a three-mood machine: FOLLOW with hysteresis (stop 34px /
-    resume 44px), catch-up sprint past 56px; ENGAGE acquires the nearest
-    `enemies`-group node within 70px while ≤96px of the leader, then LATCHES
-    the target and holds it to 140px (acquire/hold split — Basil's ~30px
-    recoil skid crosses any single line every shot); RETURN once the leash
-    breaks past 128px — run home to 48px ignoring enemies before re-engaging.
-    Every boundary is a two-threshold band; single-threshold edges read as
-    frame twitching (2026-07-10 fix). Attack cooldowns decay in the brain's
-    own `_physics_process` (think() pauses during the member's kit/hurt
-    states); brains reset on leader swap. The catch-up teleport fires only
-    past 130px (kept ≤ the smallest view half-extent + margin so an
-    off-screen-stuck follower always qualifies) AND off-screen (live camera
-    check), landing a step behind the leader after a `test_move` sweep proves
-    the step walkable (else on the leader) — never a visible pop, never an
-    embed. `tools/party_probe.gd` is the behavioral regression probe (mood
-    transitions, in-view pops, settle distances). Kit brains:
-    `fuji_brain.gd` (close to swing range, tome slam), `basil_brain.gd`
-    (sidle the shorter axis onto a cardinal — 4-way facing — fire in
-    [36, 110]px, recoil kites him out, reload when dry, passive when out of
-    beakers too; he restocks by walking over beaker pickups).
+	member scene), a three-mood machine: FOLLOW with hysteresis (stop 34px /
+	resume 44px), catch-up sprint past 56px; ENGAGE acquires the nearest
+	`enemies`-group node within 70px while ≤96px of the leader, then LATCHES
+	the target and holds it to 140px (acquire/hold split — Basil's ~30px
+	recoil skid crosses any single line every shot); RETURN once the leash
+	breaks past 128px — run home to 48px ignoring enemies before re-engaging.
+	Every boundary is a two-threshold band; single-threshold edges read as
+	frame twitching (2026-07-10 fix). Attack cooldowns decay in the brain's
+	own `_physics_process` (think() pauses during the member's kit/hurt
+	states); brains reset on leader swap. The catch-up teleport fires only
+	past 130px (kept ≤ the smallest view half-extent + margin so an
+	off-screen-stuck follower always qualifies) AND off-screen (live camera
+	check), landing a step behind the leader after a `test_move` sweep proves
+	the step walkable (else on the leader) — never a visible pop, never an
+	embed. `tools/party_probe.gd` is the behavioral regression probe (mood
+	transitions, in-view pops, settle distances). Kit brains:
+	`fuji_brain.gd` (close to swing range, tome slam), `basil_brain.gd`
+	(sidle the shorter axis onto a cardinal — 4-way facing — fire in
+	[36, 110]px, recoil kites him out, reload when dry, passive when out of
+	beakers too; he restocks by walking over beaker pickups).
   - `scene/party.gd` — the `Party` autoload: roster `[basil, fuji]`,
-    `leader_id` persists across scenes (HP does not, same as before),
-    `spawn(world, pos)` replaces per-scene player instances, `place()`,
-    `clamp_cameras()`, swap on `swap_member` (polled). Leadership = three
-    things it applies together: `is_leader` on the body, sole membership of
-    the **`player` group** (all door/exit/zone triggers still gate on it,
-    untouched), and the live child `Camera2D` (`make_current` +
-    `reset_smoothing` on swap). All members sit in the **`party` group**;
-    slimes re-pick the nearest party member every frame and join/leave the
-    **`enemies` group** for brain targeting.
+	`leader_id` persists across scenes (HP does not, same as before),
+	`spawn(world, pos)` replaces per-scene player instances, `place()`,
+	`clamp_cameras()`, swap on `swap_member` (polled). Leadership = three
+	things it applies together: `is_leader` on the body, sole membership of
+	the **`player` group** (all door/exit/zone triggers still gate on it,
+	untouched), and the live child `Camera2D` (`make_current` +
+	`reset_smoothing` on swap). All members sit in the **`party` group**;
+	slimes re-pick the nearest party member every frame and join/leave the
+	**`enemies` group** for brain targeting.
   - HUD stacks one heart row per member (roster order, follower dimmed to
-    55%); Basil's ammo pips/mags bind to him whether he leads or follows.
-    The overworld stays ONE chibi — the leader's (frames swap on entry).
+	55%); Basil's ammo pips/mags bind to him whether he leads or follows.
+	The overworld stays ONE chibi — the leader's (frames swap on entry).
   Fuji's build notes (2026-07-07, look/feel dialed as solo playable):
   tortoiseshell (real-Fuji faithful: warm-black fur, placed rust patches,
   cream chin/chest/paws, green-gold eyes), round brass reading glasses, deep
