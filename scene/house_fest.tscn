@@ -1,0 +1,56 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scene/house_fest.gd" id="1_hf"]
+[ext_resource type="TileSet" path="res://assets/collision_tileset.tres" id="2_collision"]
+[ext_resource type="TileSet" path="res://assets/tilesets/house_tiles.tres" id="3_tiles"]
+[ext_resource type="Texture2D" path="res://assets/tilesets/house_glow.png" id="4_glow"]
+[ext_resource type="FontFile" path="res://assets/font/pixel_font.fnt" id="5_font"]
+
+[sub_resource type="CanvasItemMaterial" id="mat_add"]
+blend_mode = 1
+
+[node name="HouseFest" type="Node2D"]
+script = ExtResource("1_hf")
+
+[node name="Dim" type="CanvasModulate" parent="."]
+color = Color(0.9, 0.86, 0.94, 1)
+
+[node name="Tiles" type="TileMapLayer" parent="."]
+texture_filter = 1
+tile_set = ExtResource("3_tiles")
+
+[node name="Glow" type="Sprite2D" parent="."]
+material = SubResource("mat_add")
+texture = ExtResource("4_glow")
+centered = false
+texture_filter = 1
+modulate = Color(1, 1, 1, 0.35)
+
+[node name="Collision" type="TileMapLayer" parent="."]
+tile_set = ExtResource("2_collision")
+
+[node name="World" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="TilesUpper" type="TileMapLayer" parent="."]
+texture_filter = 1
+tile_set = ExtResource("3_tiles")
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="Hint" type="Label" parent="UI"]
+modulate = Color(1, 1, 1, 0)
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -27.0
+offset_right = -10.0
+offset_bottom = -8.0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("5_font")
+theme_override_font_sizes/font_size = 8
+horizontal_alignment = 1

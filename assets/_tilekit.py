@@ -118,17 +118,48 @@ class TileScene:
         return (bbox[0] * T, bbox[1] * T,
                 (bbox[2] - bbox[0] + 1) * T, (bbox[3] - bbox[1] + 1) * T)
 
+    def comps(self, chars):
+        """4-connected components of the chars' cells, each as a cell list
+        (the place_each / emit_prop each=True idiom)."""
+        m = self.m
+        todo = {(x, y) for y in range(m.rows_n) for x in range(m.cols)
+                if m.at(x, y) in chars}
+        assert todo, f"no {chars!r} cells in {self.name}.txt"
+        out = []
+        while todo:
+            comp = [todo.pop()]
+            i = 0
+            while i < len(comp):
+                cx, cy = comp[i]
+                i += 1
+                for n in ((cx + 1, cy), (cx - 1, cy), (cx, cy + 1), (cx, cy - 1)):
+                    if n in todo:
+                        todo.remove(n)
+                        comp.append(n)
+            out.append(comp)
+        return out
+
+    def comp_bbox(self, comp):
+        xs, ys = [c[0] for c in comp], [c[1] for c in comp]
+        return (min(xs), min(ys), max(xs), max(ys))
+
     # -- prop placement -----------------------------------------------------------------
-    def bake_shadow(self, chars, shadow_h):
+    def bake_shadow(self, chars, shadow_h, each=False):
         """Contact-shadow band across a footprint's bottom rows: darken the
         already-painted ground toward the scene's dark, whatever fabric is
         under it. (Room overrides this with its repaint-the-fabric version,
-        which the interiors' whole-tile light dispatch depends on.)"""
-        X, Y, XW, YH = self.px(self.bbox(chars))
-        for y in range(Y + YH - shadow_h, Y + YH):
-            for x in range(X + 1, X + XW - 1):
-                base = self.bg.get(x, y)
-                self.bg.put(x, y, lerp(base[:3], VOID[:3], 0.35) + (255,))
+        which the interiors' whole-tile light dispatch depends on.)
+        `each`: one band per connected component — a shared-char prop set
+        (the hall's four benches) must NOT shade the combined bbox, which
+        smears the band across the open cells between them."""
+        boxes = [self.comp_bbox(c) for c in self.comps(chars)] if each \
+                else [self.bbox(chars)]
+        for box in boxes:
+            X, Y, XW, YH = self.px(box)
+            for y in range(Y + YH - shadow_h, Y + YH):
+                for x in range(X + 1, X + XW - 1):
+                    base = self.bg.get(x, y)
+                    self.bg.put(x, y, lerp(base[:3], VOID[:3], 0.35) + (255,))
 
     def place(self, chars, sprite, shadow_h=0):
         """Blit a prop Sprite at its feature bbox; bake a contact-shadow band
@@ -155,20 +186,7 @@ class TileScene:
         """Blit one sprite per CONNECTED COMPONENT of the feature chars (two
         lamp posts share a char; each gets the same sprite, and identical
         cells dedupe to the same atlas tiles)."""
-        m = self.m
-        todo = {(x, y) for y in range(m.rows_n) for x in range(m.cols)
-                if m.at(x, y) in chars}
-        assert todo, f"no {chars!r} cells in {self.name}.txt"
-        while todo:
-            comp = [todo.pop()]
-            i = 0
-            while i < len(comp):
-                cx, cy = comp[i]
-                i += 1
-                for n in ((cx + 1, cy), (cx - 1, cy), (cx, cy + 1), (cx, cy - 1)):
-                    if n in todo:
-                        todo.remove(n)
-                        comp.append(n)
+        for comp in self.comps(chars):
             self.bg.blit_cell(sprite, min(c[0] for c in comp) * T,
                               min(c[1] for c in comp) * T)
 

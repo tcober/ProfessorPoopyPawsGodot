@@ -10,3 +10,21 @@ extends Node
 var overworld_spawn: String = "town"
 var town_spawn: String = ""
 var interior_spawn: String = ""
+
+## Story flags — set-once booleans that survive scene changes (no save system
+## yet, so a run's story state lives and dies with the process). Prologue
+## flags in use: prologue_festival_done, prologue_gate_open, prologue_done.
+var flags: Dictionary = {}
+
+## Which phase the thesis-day town scene (scene/town_thesis.gd) plays on entry
+## ("plant" | "dash" | "call" | "fountain" | "leaving"), read-and-cleared like
+## the spawn routers. "" = the scene's default (plant).
+var town_thesis_phase: String = ""
+
+
+func flag(flag_name: String) -> bool:
+	return flags.get(flag_name, false)
+
+
+func set_flag(flag_name: String) -> void:
+	flags[flag_name] = true

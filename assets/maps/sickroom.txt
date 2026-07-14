@@ -1,0 +1,41 @@
+; The doctor's surgery — Prologue B "the verdict" (24x14 tiles, 384x224 px;
+; view clamps to 384x216). A small hushed room in void (a 14-tile room, wide
+; side margins), pale-linen walls and a cool lavender floor. Kitty lies in the
+; SICKBED (north wall, the bed_parts split: her upper body against the
+; headboard bakes below, the blanket over her lap is a y-sorted entity that
+; sorts over a body south of her). A tall WINDOW spills grey daylight; a
+; FLASK shelf of tonics, a framed picture, a visitor's CHAIR, a small RUG.
+; Basil enters from the south DOOR, crosses to the bedside, hears the verdict,
+; and leaves. Feature chars place props in assets/_gen_tileset_sickroom.py.
+legend V void solid
+legend # wall solid
+legend W window solid
+legend B bedframe solid
+legend b bed walk
+legend F flasks solid
+legend p picture solid
+legend h chair solid
+legend P plant solid
+legend . floor walk
+legend g rug walk
+legend - door walk
+anchor player_spawn 9 10
+anchor door 9 11
+anchor bedside 9 5
+anchor doctor_spot 13 7
+anchor kitty_bed 9 4
+map
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVV################VVVV
+VVVV#WW#BBBB#ppFP#VVVVVV
+VVVV#...BBBB#..F.#VVVVVV
+VVVV#...BbbB.....#VVVVVV
+VVVV#.....gg.....#VVVVVV
+VVVV#..h..gg.....#VVVVVV
+VVVV#.....gg.....#VVVVVV
+VVVV#..........P.#VVVVVV
+VVVV#...........#VVVVVVV
+VVVV#...........#VVVVVVV
+VVVV####.--.#####VVVVVVV
+VVVVVVVV#--#VVVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV

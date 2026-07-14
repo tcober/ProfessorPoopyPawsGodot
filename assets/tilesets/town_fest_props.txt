@@ -1,0 +1,5 @@
+; y-sorted World props from assets/maps/town_fest.txt — see scene/prop_spawner.gd
+prop Fountain oO town_fest_fountain.png
+prop Well uU town_fest_well.png
+prop Lamp lL town_fest_lamp.png each
+prop Stall m town_fest_stall.png

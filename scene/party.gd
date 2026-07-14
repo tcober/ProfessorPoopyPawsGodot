@@ -13,6 +13,8 @@ signal leader_changed(leader: PartyMember)
 const SCENES := {
 	&"basil": preload("res://entities/player/player.tscn"),
 	&"fuji": preload("res://entities/fuji/fuji.tscn"),
+	&"kid_basil": preload("res://entities/kid/kid_basil.tscn"),
+	&"basil_student": preload("res://entities/student/basil_student.tscn"),
 }
 
 ## Follower spawn nudge — party bodies don't collide with each other, this
@@ -28,6 +30,18 @@ var roster: Array[StringName] = [&"basil", &"fuji"]
 var leader_id: StringName = &"basil"     # survives scene changes
 var members: Array[PartyMember] = []
 var leader: PartyMember
+
+
+## Story-driven recomposition (the prologue plays kid Basil solo; Act 1 will
+## open as Fuji alone). Call BETWEEN scenes — the next spawn() instances the
+## new roster; live bodies in the current scene are left to die with it.
+func set_roster(ids: Array[StringName], lead: StringName = &"") -> void:
+	for id in ids:
+		assert(SCENES.has(id), "unknown party member: " + String(id))
+	roster = ids.duplicate()
+	leader_id = lead if ids.has(lead) else ids[0]
+	members.clear()
+	leader = null
 
 
 ## Instance the whole roster under `world` with the leader at `pos`.

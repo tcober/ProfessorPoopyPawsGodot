@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
-"""Bake the native 5x7 pixel font (assets/_pixfont.py — caps/digits/punctuation)
-into a BMFont bitmap font Godot can load: assets/font/pixel_font.png +
-pixel_font.fnt.
+"""Bake the native 5x7 pixel font (assets/_pixfont.py — caps/LOWERCASE/digits/
+punctuation) into a BMFont bitmap font Godot can load: assets/font/pixel_font.png
++ pixel_font.fnt.
 
-BMFont size=8 so Labels with font_size=8 render 1:1 at the 320x180 SNES-density
-viewport (advance 6, lineHeight 9 — CT-chunk text scale). All UI text is
-uppercase; a lowercase set returns with the dialog system if story scenes do.
+BMFont size=8 so Labels with font_size=8 render 1:1 at the 384x216 SNES-density
+viewport (advance 6, lineHeight 10 — CT-chunk text scale; the extra px over the
+old caps-only 9 clears the lowercase descenders, which sit 2px below the
+baseline via each glyph's YOFF yoffset). UI chrome stays uppercase by
+convention; mixed case is the dialog system's (2026-07-12).
 Re-run: python3 assets/font/_gen_font.py
 """
 import struct, zlib, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(HERE))
-from _pixfont import GLYPHS, CHAR_W, CHAR_H, ADVANCE
+from _pixfont import GLYPHS, YOFF, CHAR_W, CHAR_H, ADVANCE
 
 BASE = 7             # px from line top to baseline (full glyph height)
 CELL_W, CELL_H = CHAR_W + 1, CHAR_H + 1
@@ -50,13 +52,13 @@ open(os.path.join(HERE, "pixel_font.png"), "wb").write(
 
 lines = [
     'info face="PoopyPixel" size=8 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=0 aa=1 padding=0,0,0,0 spacing=0,0 outline=0',
-    f'common lineHeight=9 base={BASE} scaleW={W} scaleH={H} pages=1 packed=0 alphaChnl=1 redChnl=0 greenChnl=0 blueChnl=0',
+    f'common lineHeight=10 base={BASE} scaleW={W} scaleH={H} pages=1 packed=0 alphaChnl=1 redChnl=0 greenChnl=0 blueChnl=0',
     'page id=0 file="pixel_font.png"',
     f"chars count={len(entries)}",
 ]
 for cid, gx, gy in sorted(entries):
     lines.append(
         f"char id={cid} x={gx} y={gy} width={CHAR_W} height={CHAR_H} "
-        f"xoffset=0 yoffset=0 xadvance={ADVANCE} page=0 chnl=15")
+        f"xoffset=0 yoffset={YOFF.get(chr(cid), 0)} xadvance={ADVANCE} page=0 chnl=15")
 open(os.path.join(HERE, "pixel_font.fnt"), "w").write("\n".join(lines) + "\n")
 print(f"wrote pixel_font.png ({W}x{H}) + pixel_font.fnt ({len(entries)} chars)")

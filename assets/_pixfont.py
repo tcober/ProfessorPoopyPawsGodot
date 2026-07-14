@@ -2,7 +2,12 @@
 
 Used by _gen_font.py (bakes assets/font/pixel_font.png + .fnt for Godot Labels) and by
 art generators that stamp text straight into images (title logo, chalkboard, signs).
-Caps + digits + basic punctuation; text is expected to be uppercase.
+Caps + LOWERCASE + digits + basic punctuation. UI chrome stays uppercase by
+convention; mixed case is for the dialog system (2026-07-12). Lowercase glyphs
+are 7-row bitmaps like the caps, but sit 2px lower via YOFF (x-height rows
+2-6 of the line box; descenders dip 2px below the baseline — _gen_font.py
+writes the per-char yoffset and a lineHeight that clears them). draw_text()
+still uppercases: art generators stamp caps-only signage.
 """
 
 # 7 rows x 5 cols, 'X' = pixel on.
@@ -59,7 +64,42 @@ GLYPHS = {
     "+": [".....", "..X..", "..X..", "XXXXX", "..X..", "..X..", "....."],
     "=": [".....", ".....", "XXXXX", ".....", "XXXXX", ".....", "....."],
     "*": [".....", "X.X.X", ".XXX.", "XXXXX", ".XXX.", "X.X.X", "....."],
+    "▼": [".....", ".....", "XXXXX", ".XXX.", "..X..", ".....", "....."],
+    # ---- lowercase (2026-07-12, for the dialog system). Same 5x7 cell; YOFF
+    # below sinks each glyph 2px so the x-height fills line rows 2-6 and the
+    # descender letters (g j p q y) dip 2px below the baseline. Ascenders
+    # (b d f h i k l t) keep yoff 0 and use the full 7 rows.
+    "a": [".XXX.", "....X", ".XXXX", "X...X", ".XXXX", ".....", "....."],
+    "b": ["X....", "X....", "X....", "XXXX.", "X...X", "X...X", "XXXX."],
+    "c": [".XXX.", "X....", "X....", "X....", ".XXX.", ".....", "....."],
+    "d": ["....X", "....X", "....X", ".XXXX", "X...X", "X...X", ".XXXX"],
+    "e": [".XXX.", "X...X", "XXXXX", "X....", ".XXX.", ".....", "....."],
+    "f": ["..XX.", ".X...", ".X...", "XXXX.", ".X...", ".X...", ".X..."],
+    "g": [".XXXX", "X...X", "X...X", "X...X", ".XXXX", "....X", ".XXX."],
+    "h": ["X....", "X....", "X....", "XXXX.", "X...X", "X...X", "X...X"],
+    "i": ["..X..", ".....", ".XX..", "..X..", "..X..", "..X..", ".XXX."],
+    "j": ["..X..", ".....", "..X..", "..X..", "..X..", "X.X..", ".X..."],
+    "k": ["X....", "X....", "X..X.", "X.X..", "XXX..", "X.X..", "X..X."],
+    "l": ["..X..", "..X..", "..X..", "..X..", "..X..", "..X..", "...XX"],
+    "m": ["XXXX.", "X.X.X", "X.X.X", "X.X.X", "X.X.X", ".....", "....."],
+    "n": ["XXXX.", "X...X", "X...X", "X...X", "X...X", ".....", "....."],
+    "o": [".XXX.", "X...X", "X...X", "X...X", ".XXX.", ".....", "....."],
+    "p": ["XXXX.", "X...X", "X...X", "X...X", "XXXX.", "X....", "X...."],
+    "q": [".XXXX", "X...X", "X...X", "X...X", ".XXXX", "....X", "....X"],
+    "r": ["X.XX.", "XX..X", "X....", "X....", "X....", ".....", "....."],
+    "s": [".XXXX", "X....", ".XXX.", "....X", "XXXX.", ".....", "....."],
+    "t": [".X...", ".X...", "XXXX.", ".X...", ".X...", ".X...", "..XX."],
+    "u": ["X...X", "X...X", "X...X", "X...X", ".XXXX", ".....", "....."],
+    "v": ["X...X", "X...X", "X...X", ".X.X.", "..X..", ".....", "....."],
+    "w": ["X...X", "X...X", "X.X.X", "X.X.X", ".X.X.", ".....", "....."],
+    "x": ["X...X", ".X.X.", "..X..", ".X.X.", "X...X", ".....", "....."],
+    "y": ["X...X", "X...X", "X...X", "X...X", ".XXXX", "....X", ".XXX."],
+    "z": ["XXXXX", "...X.", "..X..", ".X...", "XXXXX", ".....", "....."],
 }
+
+# per-char y offset from the line top (see the lowercase note above)
+YOFF = {c: 2 for c in "acegjmnopqrsuvwxy"}
+YOFF["z"] = 2
 
 CHAR_W, CHAR_H = 5, 7
 ADVANCE = 6          # monospace advance at scale 1

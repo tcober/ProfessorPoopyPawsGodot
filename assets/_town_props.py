@@ -39,18 +39,29 @@ def _stone_courses(sp, x0, y0, x1, y1, stone):
     _coursed_wall(sp, x0, y0, x1, y1, stone, salt=21, course=8, joint=12)
 
 
-def _eave_lift(lo, up, w, fy, band=12):
+def _eave_lift(lo, up, w, fy, band=12, h=None, side=6):
     """Mirror a solid row's top pixels onto the UPPER canvas (pixel-identical
     composite): a body pressed against the row from the NORTH sinks its
     visual feet ~10px past its physics box into the row (plus sprite bottom
     and shadow), over the lower-layer art — the lifted band masks that
     sliver. A body pressed from the SOUTH is safe: its head tops out in the
-    row's bottom ~3px, below a 12px band. Call after edge(up, …) so the band
-    gets no outline of its own (it must blend seamlessly). This is the ONLY
+    row's bottom ~3px, below a 12px band. Pass `h` to also mirror the
+    facade's outer `side` columns down to the footing (the SIDE band,
+    2026-07-12): a body pressed against the building's west/east face
+    overlaps the wall edge at every height — its sliver reads as standing ON
+    the corner without the mask. Call after edge(up, …) so the bands get no
+    outline of their own (they must blend seamlessly). This is the ONLY
     legal way to put upper art on a body-adjacent solid row (see the z-order
     doctrine's mask-band rule)."""
     for y in range(fy, fy + band):
         for x in range(w):
+            p = lo.px[y][x]
+            if p:
+                up.px[y][x] = p
+    if h is None:
+        return
+    for y in range(fy, h):
+        for x in list(range(side)) + list(range(w - side, w)):
             p = lo.px[y][x]
             if p:
                 up.px[y][x] = p
@@ -103,7 +114,7 @@ def town_home(roof, plaster, salt=201):
     up.rect(dx0 - 1, fy + 8, dx1 + 1, fy + 8, TIMBER[1])   # lintel
     up.rect(dx0, fy + 9, dx1, fy + 9, TIMBER[4])           # its shadow
     edge(up, fy + 10)
-    _eave_lift(lo, up, w, fy)
+    _eave_lift(lo, up, w, fy, h=h)
     return lo, up
 
 
@@ -143,7 +154,7 @@ def town_cottage(roof, plaster, salt=211):
     up.rect(dx0 - 2, fy + 3, dx1 + 2, fy + 8, TIMBER[4])   # casing head
     up.rect(dx0 - 1, fy + 9, dx1 + 1, fy + 9, TIMBER[1])   # lintel
     edge(up, fy + 10)
-    _eave_lift(lo, up, w, fy)
+    _eave_lift(lo, up, w, fy, h=h)
     return lo, up
 
 
@@ -228,6 +239,9 @@ def town_academy(roof, stone, salt=221):
         lo.rect(tx0, h - 1, tx0 + tw - 1, h - 1, stone[4])
     edge(lo, h)
     edge(up, split + 16)
+    # the keep was authored before the mask-band rule: top band for bodies
+    # pressing down from the roof corridor, side bands for the tower bases
+    _eave_lift(lo, up, w, split, h=h)
     return lo, up
 
 
@@ -378,7 +392,7 @@ def town_shop(roof, plaster, sign, wares, salt=251):
     up.rect(dx0 - 2, fy + 3, dx1 + 2, fy + 8, TIMBER[4])   # casing head
     up.rect(dx0 - 1, fy + 9, dx1 + 1, fy + 9, TIMBER[1])   # lintel
     edge(up, fy + 10)
-    _eave_lift(lo, up, w, fy)
+    _eave_lift(lo, up, w, fy, h=h)
     return lo, up
 
 
@@ -454,7 +468,7 @@ def town_inn(roof, plaster, salt=261):
     up.rect(dx0 - 3, fy + 19, dx1 + 3, fy + 19, TIMBER[3])
     up.rect(dx0 - 3, fy + 20, dx1 + 3, fy + 20, TIMBER[4]) # casing head
     edge(up, fy + 21)
-    _eave_lift(lo, up, w, fy)
+    _eave_lift(lo, up, w, fy, h=h)
     return lo, up
 
 

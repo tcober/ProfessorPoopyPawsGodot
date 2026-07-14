@@ -132,13 +132,20 @@ SCENES = {
             "rock": (154, 146, 190, 255),
         },
     },
-    "hall": {           # deep plum timber duotone, chalk-mint accent
-        "shadow": "violet",
+    "hall": {           # deep plum panelling / rose floor, chalk-mint accent
+        "shadow": "violet",                     # (Prologue B lecture hall)
         "accent": (150, 240, 214, 255),         # chalk mint
         "mats": {
-            "timber": (118, 76, 128, 255),
-            "floor": (146, 96, 132, 255),
-            "board": (36, 72, 74, 255),
+            "wall": (118, 76, 128, 255),        # plum panelling (Room wants `wall`)
+            "floor": (150, 100, 136, 255),      # dusty rose floor
+        },
+    },
+    "sickroom": {       # the doctor's surgery (Prologue B): pale linen walls,
+        "shadow": "violet",                     # cool lavender floor, a single
+        "accent": (238, 214, 168, 255),         # warm lamp against the chill
+        "mats": {
+            "wall": (206, 198, 224, 255),       # pale lavender plaster
+            "floor": (150, 158, 190, 255),      # cool slate-blue boards
         },
     },
     "overworld": {      # hot teal sea + minty continent, hot violet wastes
@@ -198,6 +205,36 @@ SCENES = {
             "roof_blue": (70, 124, 178, 255),
             "roof_green": (62, 138, 110, 255),
             "plaster": (168, 158, 196, 255),
+        },
+    },
+    "town_fest": {      # Alembic Town, FESTIVAL ERA (Prologue A) — the same
+        "shadow": "teal",               # town ALIVE: spring grass, cream
+        "accent": (240, 96, 170, 255),  # plaster, festival-banner magenta
+        # Sunnier walk ramps than the drained town's (closer to morning_yard's
+        # warmth) — the era difference must read in the ground itself.
+        "ramps": {
+            "sand": [(250, 228, 182, 255), (242, 206, 152, 255), (230, 182, 132, 255),
+                     (204, 146, 112, 255), (162, 98, 98, 255), (114, 62, 80, 255)],
+            "road": [(246, 214, 166, 255), (236, 192, 142, 255), (222, 168, 122, 255),
+                     (194, 134, 106, 255), (154, 92, 94, 255), (110, 58, 78, 255)],
+        },
+        # The drained "town" seeds, lifted: higher L, kept saturation, same
+        # teal lean — bright but never candy (the darker-tone law still
+        # holds; this is spring, not sugar).
+        "mats": {
+            "sea": (48, 128, 164, 255),
+            "grass": (84, 172, 108, 255),
+            "grass2": (110, 178, 94, 255),
+            "forest": (52, 148, 112, 255),
+            "rock": (122, 114, 168, 255),
+            "sand": (244, 210, 160, 255),
+            "waste": (188, 112, 178, 255),
+            "snow": (234, 242, 252, 255),
+            "bridge": (168, 102, 122, 255),
+            "trunk": (66, 78, 138, 255),
+            "roof_blue": (86, 146, 198, 255),
+            "roof_green": (78, 158, 124, 255),
+            "plaster": (236, 210, 182, 255),
         },
     },
     "meadow": {         # minty teal greens, candy hot-pink flowers — the

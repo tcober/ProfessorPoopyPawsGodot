@@ -1,0 +1,113 @@
+; Alembic Town, FESTIVAL ERA (Prologue A "Sparkless", 2026-07-12) — the same
+; 56x34 village grid as maps/town.txt, decades younger and ALIVE: tiled by
+; assets/_gen_tileset_town_fest.py in the bright town_fest palette (spring
+; grass, cream plaster, festival magenta), collision/markers/NPCs by
+; scene/town_fest.gd. The GRID IS A BYTE COPY of town.txt on purpose — the
+; player must recognize every lane when the drained present arrives; only the
+; anchors differ (festival cutscene marks + villager positions). Keep the two
+; grids in lockstep when the town changes. Silhouette-fit retypes
+; (2026-07-12): O/L/U are WALKABLE twins of o/l/u for footprint cells whose
+; y-sorted art is transparent or a thin walk-behind head — same terrain
+; name, identical paint, collision only (see town.txt + the T3 coverage
+; lint in _check_art.py).
+legend # forest solid
+legend . grass walk
+legend , flowers walk
+legend - road walk
+legend D door walk
+legend F fence solid
+legend C cliff solid
+legend S stairs walk
+legend T treecanopy solid
+legend t treetrunk solid
+legend r river solid
+legend = bridge walk
+legend ~ sea solid
+legend s beach walk
+legend o fountain solid
+legend O fountain walk
+legend u well solid
+legend U well walk
+legend l lamp solid
+legend L lamp walk
+legend m stall solid
+legend h homeroof walk
+legend H homebody solid
+legend q cotWroof walk
+legend 1 cotWbody solid
+legend w cotEroof walk
+legend 2 cotEbody solid
+legend k academyroof walk
+legend K academybody solid
+legend x weaponroof walk
+legend X weaponbody solid
+legend p itemroof walk
+legend P itembody solid
+legend n innroof walk
+legend N innbody solid
+legend 3 ridge solid
+legend 4 ridge solid
+legend 5 ridge solid
+legend 6 ridge solid
+legend 7 ridge solid
+legend 8 ridge solid
+legend 9 ridge solid
+legend ^ ridge solid
+anchor player_start 27 30
+anchor festival 27 26
+anchor basil_mark 27 24
+anchor sage_pos 24 23
+anchor schw_pos 30 23
+anchor npc_sheep 11 26
+anchor npc_owl 23 13
+anchor npc_goose 40 19
+anchor npc_mouse 33 19
+anchor mom_pos 10 20
+anchor classmate_pos 30 24
+anchor post 25 21
+anchor puddle_1 14 19
+anchor puddle_2 22 19
+anchor puddle_3 27 15
+anchor home 10 18
+anchor cottage_w 9 25
+anchor cottage_e 17 27
+anchor school 27 9
+anchor weapons 20 18
+anchor items 36 18
+anchor inn 38 25
+anchor exit_south 27 32
+map
+########################################################
+########################################################
+#######################6666666666#######################
+#######################kk6kkkk6kk#######################
+#######################kkkkkkkkkk#######################
+#######################kkkkkkkkkk#######################
+#####################..KKKKKKKKKK..#####################
+###################.,,.KKKKKKKKKK.,,.###################
+#################..,,..KKKKKKKKKK..,,..#################
+########............,,.....-......,,............########
+########..,,...............-................,,..########
+######CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCC######
+######CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCC######
+#####.......,,.........,,L.-..L,,.......^^...r.,,,,#####
+#####F..3333..F..........l.-..l.........TT...r.FFFFF####
+#####F.3hhhh3.F..777777....-.....888888.tt...r,,^^,,####
+#####F.hhhhhh.F..xxxxxx.,,.-..,,.pppppp......r,,TT,,####
+#####F.HHHHHH.F..XXXXXX....-.....PPPPPP......r..tt..####
+#####F.HHHDHH.F..XXXDXX....-.....PPPDPP......r,,..,,####
+#####.---------------------------------------=--....####
+####..,,....FFFFFFF.mmm..-OoO-.........,,....r.,,..#####
+####^^......F.......mmm..-ooo-.,,..9999999...r.,,...####
+####TT.44444..,,....,,,..-ooo-....9nnnnnnn9..r......####
+####tt.qqqqq.............-----....NNNNNNNNN..r..,,..####
+#####..11111...55555..L....-......NNNNNNNNNl.r......####
+####...11D11...wwwww..l....-......NNNNDNNNNl.r......####
+####FFF........22222...,,..-..,,.L.........ss~~~~ss.####
+####,,,.^^..UU.22D22.......-.....l...,,..ss~~~~~~~~s####
+####....TT..uu.......,,....-.....^^......ss~~~~~~~~~####
+####..,,tt..,,..,,..^^..#..-.....TT.......ss~~~~~~~s####
+####....,,......,,..TT...L.-..L..tt...,,....sssssss.####
+####....,,..........ttFFFl.-..lFFF,,......,,.......#####
+###########################--###########################
+###########################--###########################

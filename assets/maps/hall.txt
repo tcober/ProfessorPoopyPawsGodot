@@ -1,0 +1,52 @@
+; The Alembic Academy lecture hall — Prologue B "the naming" (24x14 tiles,
+; 384x224 px; view clamps to 384x216). A 20-tile room in void (2-tile side
+; margins), the plum-panelled / rose-floor Academy palette. FRONT (north):
+; the great CHALKBOARD (Q) with the RE-ENCHANTMENT thesis, tall windows (W)
+; flanking it, the speaker's LECTERN (L, a y-sorted entity) on the dais.
+; GALLERY: three tiered rows of BENCHES (B solid base / E walkable top — the
+; counter-walk read, audience NPCs stand on E so their legs tuck under the
+; seat). The main DOORS (south wall, walkable -) are where Basil enters and
+; is laughed back out of. Feature chars place props in
+; assets/_gen_tileset_hall.py; the same grid is the collision. Anchors put
+; the cast where the cutscene needs them. Silhouette-fit retype (2026-07-12):
+; l = walkable twin of L for the lectern's art-free corner cells (same
+; terrain name, identical paint, collision only — the T3 coverage lint).
+legend V void solid
+legend # wall solid
+legend W window solid
+legend Q board solid
+legend L lectern solid
+legend l lectern walk
+legend p picture solid
+legend P plant solid
+legend B bench solid
+legend E benchtop walk
+legend . floor walk
+legend g rug walk
+legend - door walk
+anchor player_spawn 11 11
+anchor lectern_spot 11 5
+anchor dean_spot 8 4
+anchor schweinler_spot 16 8
+anchor door 11 11
+anchor aud_l1 5 7
+anchor aud_l2 7 7
+anchor aud_r1 12 7
+anchor aud_r2 14 7
+anchor aud_c1 5 10
+anchor aud_c2 13 10
+map
+VVVVVVVVVVVVVVVVVVVVVVVV
+VV####################VV
+VV#pWWW#QQQQQQ#WWWp##VVV
+VV#....glLLlg......P#VVV
+VV#.................#VVV
+VV#.................#VVV
+VV#.BBBBB...BBBBB...#VVV
+VV#.EEEEE...EEEEE...#VVV
+VV#.................#VVV
+VV#.BBBBB...BBBBB...#VVV
+VV#.EEEEE...EEEEE...#VVV
+VV#........--.......#VVV
+VV#########--#########VV
+VVVVVVVVVVVVVVVVVVVVVVVV

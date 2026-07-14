@@ -6,9 +6,13 @@
 
 A Zelda: ALttP–style action-RPG with deeper RPG systems, tonal blend of **Adventure
 Time** and **Final Fantasy**, about a science cat branded "Professor Poopy Paws" who —
-after public humiliation, losing his girlfriend, and the world's magic being drained —
-is pulled out of hermithood by sympathizers, restores the world's magic, and finds love
-again. (Full story in docs/DESIGN.md.)
+after public humiliation and losing his girlfriend to a machine accident that erased
+her memory of him — becomes a hermit, until the world's magic drains away in a single
+night (**the Ebb**, natural/ancient — a mystery, never villain-made) and Fuji, a
+librarian stranger who unearthed his old thesis, pulls him back to restore the world's
+magic and find love again, with her. (Full chapter structure — Prologue A "Sparkless",
+Prologue B "Professor Poopy Paws", Act 1 "The Ebb", Act 2+ "Re-Enchantment", cast,
+lore spine, pacing rules — in docs/DESIGN.md "Story".)
 
 ## Tech conventions (read before writing code)
 
@@ -59,9 +63,95 @@ again. (Full story in docs/DESIGN.md.)
 ALEMBIC TOWN → OVERWORLD → Whisker Meadow — to hone the battling and the
 look. The
 title screen, five-part intro, Schweinler's sprites, and the cutscene/dialog
-kit were deleted (git history keeps them; the story stays in docs/DESIGN.md as
-the plan). The game boots into Basil's loft bedroom (`scene/house.tscn`, main
-scene) — a small dense CT-bedroom diorama floating in void (10-tile-wide room
+kit were deleted (git history keeps them; the story lives in docs/DESIGN.md
+"Story", now a full chapter structure — and **nothing narrative is ever
+recovered from git**: the 2026-07-12 build-fresh doctrine).
+**PROLOGUE A "SPARKLESS" IS LIVE (2026-07-12):** the game now boots into
+`scene/prologue_open.tscn` (title + era cards; ESC skips to the adult
+sandbox) and plays the childhood chapter end-to-end — kid Basil (playable,
+`entities/kid/`, no kit: walk/hop/interact only, the pre-Ebb world is SAFE)
+alone on the roster, **opening AT HOME, playable from the first frame** (the
+2026-07-12 polish pass): `scene/house_fest.tscn` (the loft, bright tint) →
+the stairs → `scene/downstairs_fest.tscn` where MOM's good-morning by the
+hearth (`prologue_saw_mom`) unlocks the front door into the Founding
+Festival in the bright-era town
+(`scene/town_fest.tscn`, `maps/town_fest.txt` — a BYTE COPY of town.txt in
+the `town_fest` palette: spring grass, cream plaster, festival magenta;
+keep the two grids in lockstep), the fountain-square teasing cutscene fired
+by a PROXIMITY zone when Basil first walks by the square (Sage
+floats three ribbons, kid Schweinler coins "Sparkless"), the WANDER GATE
+(talk to any 3 of six NPCs — sheep matron / owl scholar / chaos goose /
+mouse kid / Sage / Schweinler, every line stings — then the south gate
+opens), the prologue meadow (`scene/meadow_fest.tscn`, same meadow map +
+anchors, no slimes) where Kitty Cool's whirligig fetch-quest (gear on the
+beach / spring in the flowers / crank by the boulders) ends in the flight
+finale and the **crank-up mash** minigame + montage cards. **Pacing pass
+(2026-07-12):** the wander gate is now MOM-gated — three stinging talks make
+Basil want to go home, and Mom's encouragement by the cottage
+(`npc_mom_gen.png`) is the gate key; the **goose ribbon chase**
+(`entities/npcs/goose_chase.gd`, a fleeing CharacterBody2D, catch 3×) replaces
+the static goose. **PROLOGUE B "PROFESSOR POOPY PAWS" IS LIVE (2026-07-12):**
+A's montage swaps to `basil_student` (kit-less adult, no gun) and hands to
+`scene/town_thesis.gd` — ONE scene, four `Game.town_thesis_phase` phases
+tinted by a CanvasModulate (plant/night → `house_thesis` wake-up →
+dash/morning with hop-the-puddles + paw-print trail → `hall` the naming →
+call/dusk + accident over black → `sickroom` the verdict → fountain/dusk the
+"selfish" beat → leaving/night → `house.tscn`). New interiors on the Room kit
+(`scene/hall.*` + `maps/hall.txt` + `_gen_tileset_hall.py`; `scene/sickroom.*`
+likewise), new reusable interior props (`chalkboard`/`lectern`/`bench` in
+`_interior_props.py`), new cast in `_gen_prologue_sprites.py` (Mom, adult
+Schweinler, badger, stork, Kitty-in-bed), `prologue_fx.png` grown to 16 cells.
+GOTCHA: an input-polling coroutine on `process_frame` must LEVEL-detect
+(`is_action_pressed` + a latch), never `is_action_just_pressed` — the frame
+signal can beat the same-frame press (killed the crank mash). Built on the
+**narrative kit**:
+`scene/dialog_box.gd/.tscn` (typewriter box, brass bevel, name plate, ▼
+arrow, POLLED input, mixed-case text — lowercase glyphs shipped in
+`assets/_pixfont.py`, lineHeight 9→10), `scene/theater.gd/.tscn` (awaitable
+card/fade/say/walk/face/hop + lock_party via the "party" GROUP + **walk_gate**
+(goal pos passed in; unlock → one-shot Area2D → await player → re-lock) — the
+kit must never reference autoload identifiers, or --script probes poison its
+compile), `entities/npcs/npc.gd/.tscn` (interact-to-talk, one-row 48px
+sheets, SpriteFrames built at RUNTIME — a new villager is a PNG + exports),
+`Game.flags` story flags, `Party.set_roster()` (typed
+Array[StringName] — dynamic callers must pass a TYPED array). Cast sheets
+from `assets/_gen_prologue_sprites.py`; probe:
+`tools/prologue_probe.gd` (drives the whole chapter with synthesized
+presses, asserts every flag; run it after touching story scenes).
+**POLISH PASS (2026-07-12):** pacing is fixed with AGENCY, never cuts —
+Prologue B hands control back FIVE times via `walk_gate` (lectern / hall
+door / the pneumatic post — new fest anchor `post` / bedside / fountain;
+`prologue_scolded` marks the fountain beat's end), no stretch runs ~45s
+without movement. GATE GEOMETRY RULE (review pass): a walk-gate must be
+UNAVOIDABLE for its objective — a point-rect is walkable around (hall
+aisles, the fountain ring) and reads as a hang; use a full-width room band
+(hall row 8, sickroom row 5) or the whole square zone (both town phases =
+the fest cutscene's 96×96 fountain zone), then stage the last steps with
+`walk_via` waypoints. Theater walks are straight NO-COLLISION tweens: any
+scripted approach near the fountain must dog-leg the ring
+(`_square_route`/`_post_route` in the town scenes). Runtime FX depth-sort
+via **`scene/world_fx.gd`** — `decal()` (ground art: origin DECAL_BIAS=32px
+north + child index 0 — the bias must exceed feet-offset 20 + half-cell 8
+or a body standing ON the decal renders under it) / `airborne()` (origin
+ground-anchored, art lifted by sprite `offset` only; tween the offset,
+never the origin) — NEVER add FX to the scene root (paw prints died under
+the floor to a z_index hack). The house_thesis bed spawn sits 4px north so
+the quilt (origin 119) covers him. `bake_shadow(..., each=True)` for any
+shared-char prop SET (the hall's four benches — a merged bbox smears the
+band across the aisle). Refused exits need a wall: the gate-mouth road
+runs to the map edge and collision only stamps grid cells
+(`_wall_gate_mouth` in both town scenes). A talked-signal handler that
+starts a dialog coroutine must AWAIT it before falling through to logic
+that can start another (the Sage ribbon-return + want-home collision —
+one advance press resumes BOTH pending say() awaits).
+Invisible walls: the T3 coverage lint (a prop footprint cell stays solid
+only if frame-0 art covers ≥20% of it — else retype to a walkable TWIN
+char with the same terrain name: town `O/U/L`, hall `l`; paint stays
+byte-identical) — but never open a walkable pocket inside a chase leash
+(the goose wedged in the inn-nook lamp cell; reverted). Facades carry
+`_eave_lift` TOP + SIDE mask bands (outer 6px columns; Academy included).
+`tools/shot.gd` gained `phase:<name>` + `roster:<id>[:...]` args.
+The adult sandbox underneath is unchanged: `scene/house.tscn` — a small dense CT-bedroom diorama floating in void (10-tile-wide room
 on the 24×14 map), brown plank walls / teal weave / gold dawn window, E
 toggles the curtains at the window; its SW staircase descends to the
 **downstairs** (`scene/downstairs.tscn`) — the kitchen + steampunk-lab great

@@ -1,5 +1,5 @@
 ; y-sorted World props from assets/maps/town.txt — see scene/prop_spawner.gd
-prop Fountain o town_fountain.png
-prop Well u town_well.png
-prop Lamp l town_lamp.png each
+prop Fountain oO town_fountain.png
+prop Well uU town_well.png
+prop Lamp lL town_lamp.png each
 prop Stall m town_stall.png

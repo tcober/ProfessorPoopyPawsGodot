@@ -22,7 +22,12 @@
 ; downstairs) in its fenced NW yard; the two locked cottages staggered SW
 ; around the well and the fenced garden; the stream (r) drops from the cliff
 ; foot to the SE pond (~ with s beach lip); the lane runs out the lamp-and-
-; fence-flanked south gate to the overworld.
+; fence-flanked south gate to the overworld. Silhouette-fit retypes
+; (2026-07-12): street-furniture footprint cells whose y-sorted art is
+; transparent (the fountain's top corners) or a thin walk-behind head (lamp
+; tops O/L/U-style) are WALKABLE twins of their solid char — same terrain
+; name, so the paint is identical and only collision changes; the T3
+; coverage lint in _check_art.py keeps the pairing honest.
 legend # forest solid
 legend . grass walk
 legend , flowers walk
@@ -38,8 +43,11 @@ legend = bridge walk
 legend ~ sea solid
 legend s beach walk
 legend o fountain solid
+legend O fountain walk
 legend u well solid
+legend U well walk
 legend l lamp solid
+legend L lamp walk
 legend m stall solid
 legend h homeroof walk
 legend H homebody solid
@@ -86,24 +94,24 @@ map
 ########..,,...............-................,,..########
 ######CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCC######
 ######CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCC######
-#####.......,,.........,,l.-..l,,.......^^...r.,,,,#####
+#####.......,,.........,,L.-..L,,.......^^...r.,,,,#####
 #####F..3333..F..........l.-..l.........TT...r.FFFFF####
 #####F.3hhhh3.F..777777....-.....888888.tt...r,,^^,,####
 #####F.hhhhhh.F..xxxxxx.,,.-..,,.pppppp......r,,TT,,####
 #####F.HHHHHH.F..XXXXXX....-.....PPPPPP......r..tt..####
 #####F.HHHDHH.F..XXXDXX....-.....PPPDPP......r,,..,,####
 #####.---------------------------------------=--....####
-####..,,....FFFFFFF.mmm..-ooo-.........,,....r.,,..#####
+####..,,....FFFFFFF.mmm..-OoO-.........,,....r.,,..#####
 ####^^......F.......mmm..-ooo-.,,..9999999...r.,,...####
 ####TT.44444..,,....,,,..-ooo-....9nnnnnnn9..r......####
 ####tt.qqqqq.............-----....NNNNNNNNN..r..,,..####
-#####..11111...55555..l....-......NNNNNNNNNl.r......####
+#####..11111...55555..L....-......NNNNNNNNNl.r......####
 ####...11D11...wwwww..l....-......NNNNDNNNNl.r......####
-####FFF........22222...,,..-..,,.l.........ss~~~~ss.####
-####,,,.^^..uu.22D22.......-.....l...,,..ss~~~~~~~~s####
+####FFF........22222...,,..-..,,.L.........ss~~~~ss.####
+####,,,.^^..UU.22D22.......-.....l...,,..ss~~~~~~~~s####
 ####....TT..uu.......,,....-.....^^......ss~~~~~~~~~####
 ####..,,tt..,,..,,..^^..#..-.....TT.......ss~~~~~~~s####
-####....,,......,,..TT...l.-..l..tt...,,....sssssss.####
+####....,,......,,..TT...L.-..L..tt...,,....sssssss.####
 ####....,,..........ttFFFl.-..lFFF,,......,,.......#####
 ###########################--###########################
 ###########################--###########################

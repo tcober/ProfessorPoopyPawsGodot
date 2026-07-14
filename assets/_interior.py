@@ -327,7 +327,7 @@ class Room(TileScene):
                     else:
                         self.floor_cell(tx, ty, "plain")
 
-    def bake_shadow(self, chars, shadow_h):
+    def bake_shadow(self, chars, shadow_h, each=False):
         """Contact-shadow band of shaded fabric across a footprint's bottom
         rows (overrides TileScene's darken pass: the interiors repaint their
         own floor fabric two steps darker, so the shadow stays on-weave) —
@@ -335,8 +335,12 @@ class Room(TileScene):
         ENTITY rather than baked tiles (desk, boiler: the static upper-tile
         walk-behind trick fails when a 2-tile-tall body stands directly
         south — its head clips behind the furniture top; y-sort is
-        unconditionally correct)."""
-        X, Y, XW, YH = self.px(self.bbox(chars))
-        for y in range(Y + YH - shadow_h, Y + YH):
-            for x in range(X + 1, X + XW - 1):
-                self.bg.put(x, y, self.floor_px(x, y, self.FLOORR, 2))
+        unconditionally correct). `each` shades per connected component
+        (see TileScene.bake_shadow)."""
+        boxes = [self.comp_bbox(c) for c in self.comps(chars)] if each \
+                else [self.bbox(chars)]
+        for box in boxes:
+            X, Y, XW, YH = self.px(box)
+            for y in range(Y + YH - shadow_h, Y + YH):
+                for x in range(X + 1, X + XW - 1):
+                    self.bg.put(x, y, self.floor_px(x, y, self.FLOORR, 2))

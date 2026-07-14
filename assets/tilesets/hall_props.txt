@@ -1,0 +1,3 @@
+; y-sorted World props from assets/maps/hall.txt — see scene/prop_spawner.gd
+prop Lectern Ll hall_lectern.png
+prop Bench BE hall_bench.png each

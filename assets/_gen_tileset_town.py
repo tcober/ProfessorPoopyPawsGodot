@@ -59,10 +59,10 @@ tn.place("S", town_stairs(STONE))
 # south of it), so the art rides y-sorted World entities spawned from
 # town_props.txt (scene/prop_spawner.gd); the map chars keep the solid
 # collision and anchor the glow dabs
-tn.bake_shadow("o", 3)
-tn.emit_prop("Fountain", "o", sprite_img(town_fountain(STONE), 48, 48))
-tn.emit_prop("Well", "u", sprite_img(town_well(STONE), 32, 32))
-tn.emit_prop("Lamp", "l", sprite_img(town_lamp(), 16, 32), each=True)
+tn.bake_shadow("oO", 3)
+tn.emit_prop("Fountain", "oO", sprite_img(town_fountain(STONE), 48, 48))
+tn.emit_prop("Well", "uU", sprite_img(town_well(STONE), 32, 32))
+tn.emit_prop("Lamp", "lL", sprite_img(town_lamp(), 16, 32), each=True)
 tn.emit_prop("Stall", "m", sprite_img(town_stall(), 48, 32))
 
 # ---- the terrace cliff band: one 16x32 face column per map column, hash-
@@ -111,12 +111,15 @@ def _glow(img):
         _blob(img, nx + wx_, ny + 33, 9, WARM, 54)
     _blob(img, nx + 72, ny + 23, 7, WARM, 46)              # the transom
     _blob(img, nx + 56, ny + 31, 6, WARM, 44)              # the wall lantern
-    ox_, oy_ = tn.bbox("o")[0] * T, tn.bbox("o")[1] * T
+    ox_, oy_ = tn.bbox("oO")[0] * T, tn.bbox("oO")[1] * T
     _blob(img, ox_ + 24, oy_ + 29, 10, MINTG, 40)          # fountain shimmer
     m = tn.m
     for y in range(m.rows_n):
         for x in range(m.cols):
-            if m.at(x, y) == "l" and m.at(x, y - 1) != "l":
+            # each lamp component's TOP cell (usually the walkable L head;
+            # the inn-nook lamp keeps a solid l top — the goose chase wedges
+            # in a walkable pocket there)
+            if m.at(x, y) in "lL" and m.at(x, y - 1) not in "lL":
                 _blob(img, x * T + 7, y * T + 4, 11, MINTG, 58)
 
 

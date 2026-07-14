@@ -5,10 +5,15 @@ extends SceneTree
 ##
 ##   /Applications/Godot.app/Contents/MacOS/Godot --path . \
 ##       --script tools/shot.gd -- res://scene/meadow.tscn /tmp/shot.png \
-##       [frames] [action:pressFrame:releaseFrame ...]
+##       [frames] [phase:<name>] [roster:<id>[:<id>...]] \
+##       [action:pressFrame:releaseFrame ...]
 ##
 ## The optional action args synthesize input mid-run (e.g. move_up:20:45
 ## interact:60:62) so interactive beats can be screenshot end-to-end.
+## phase:<name> sets Game.town_thesis_phase before the scene loads (the only
+## way to shoot town_thesis's dash/call/fountain dressings); roster:<ids>
+## swaps the party first (story scenes assume e.g. the solo basil_student —
+## the boot default is the adult pair).
 
 
 func _initialize() -> void:
@@ -23,10 +28,25 @@ func _run() -> void:
 		return
 	var wait := 30 if args.size() < 3 else int(args[2])
 	var presses: Array = []
+	var phase := ""
+	var roster: Array[StringName] = []
 	for i in range(3, args.size()):
 		var p := args[i].split(":")
+		if p[0] == "phase":
+			phase = p[1]
+			continue
+		if p[0] == "roster":
+			for id in p.slice(1):
+				roster.append(StringName(id))
+			continue
 		presses.append([p[0], int(p[1]), int(p[2]) if p.size() > 2 else int(p[1]) + 1])
 	await process_frame
+	# runtime lookups, not autoload identifiers — --script runs compile this
+	# file before autoloads register
+	if phase != "":
+		root.get_node("Game").set("town_thesis_phase", phase)
+	if not roster.is_empty():
+		root.get_node("Party").call("set_roster", roster)
 	change_scene_to_file(args[0])
 	for i in wait:
 		for pr in presses:
