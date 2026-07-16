@@ -58,8 +58,8 @@ shape = SubResource("RectangleShape2D_door")
 position = Vector2(280, 440)
 script = ExtResource("2_loc")
 id = "cottage_e"
-display_name = "A NEIGHBOR'S COTTAGE"
-locked_text = "DARK WINDOWS. NOBODY ANSWERS."
+display_name = "THE DOCTOR'S OFFICE"
+locked_text = "DARK WINDOWS. THE OLD STORK RETIRED YEARS AGO. NOBODY CAME AFTER."
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/CottageE"]
 shape = SubResource("RectangleShape2D_door")

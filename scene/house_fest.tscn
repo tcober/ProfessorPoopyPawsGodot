@@ -1,10 +1,12 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scene/house_fest.gd" id="1_hf"]
 [ext_resource type="TileSet" path="res://assets/collision_tileset.tres" id="2_collision"]
 [ext_resource type="TileSet" path="res://assets/tilesets/house_tiles.tres" id="3_tiles"]
 [ext_resource type="Texture2D" path="res://assets/tilesets/house_glow.png" id="4_glow"]
 [ext_resource type="FontFile" path="res://assets/font/pixel_font.fnt" id="5_font"]
+[ext_resource type="Texture2D" path="res://assets/tilesets/house_curtains.png" id="6_curtains"]
+[ext_resource type="PackedScene" path="res://scene/theater.tscn" id="7_theater"]
 
 [sub_resource type="CanvasItemMaterial" id="mat_add"]
 blend_mode = 1
@@ -18,6 +20,12 @@ color = Color(0.9, 0.86, 0.94, 1)
 [node name="Tiles" type="TileMapLayer" parent="."]
 texture_filter = 1
 tile_set = ExtResource("3_tiles")
+
+[node name="Curtains" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("6_curtains")
+centered = false
+hframes = 2
 
 [node name="Glow" type="Sprite2D" parent="."]
 material = SubResource("mat_add")
@@ -35,6 +43,8 @@ y_sort_enabled = true
 [node name="TilesUpper" type="TileMapLayer" parent="."]
 texture_filter = 1
 tile_set = ExtResource("3_tiles")
+
+[node name="Theater" parent="." instance=ExtResource("7_theater")]
 
 [node name="UI" type="CanvasLayer" parent="."]
 layer = 10

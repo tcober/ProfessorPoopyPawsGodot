@@ -15,6 +15,11 @@ const LAYOUT_PATH := "res://assets/tilesets/town_layout.txt"
 ## player, so leaving the cottage lands him clear of the door marker.
 const ARRIVE_DROP := 24.0
 
+## Animated Tier-3 props (multi-frame sheets — e.g. the home's water + smoke);
+## cycled in _process the way downstairs cycles its boiler.
+var _anim_t := 0.0
+var _animated: Array[Sprite2D] = []
+
 
 func _player_node() -> Node2D:
 	return Party.spawn($World, Vector2.ZERO)   # placed for real in _place_player
@@ -42,12 +47,25 @@ func _extra_setup() -> void:
 	# entities; the spawner front-loads them in child order so the party
 	# (spawned first by TravelScene) still wins y-sort ties
 	PropSpawner.build("res://assets/tilesets/town_props.txt", map, $World)
+	for c in $World.get_children():
+		if c is Sprite2D and (c as Sprite2D).hframes > 1:
+			_animated.append(c)
 	$ExitSouth.position = MapData.anchor_px(map, "exit_south")
 	$ExitSouth.body_entered.connect(_on_exit_south)
 	Party.clamp_cameras(MapData.size_px(map))
 	# TravelScene gates its markers on `body != player` — re-aim it when the
 	# lead changes hands mid-town.
 	Party.leader_changed.connect(_on_leader_changed)
+
+
+func _process(delta: float) -> void:
+	if _animated.is_empty():
+		return
+	_anim_t += delta
+	var f := int(_anim_t / 0.18)
+	for i in _animated.size():          # per-building phase offset = looser, less mechanical
+		var s := _animated[i]
+		s.frame = (f + i) % s.hframes
 
 
 func _on_leader_changed(leader: PartyMember) -> void:

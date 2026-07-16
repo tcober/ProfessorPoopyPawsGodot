@@ -267,6 +267,52 @@ def dish_shelf(w, h, salt=53):
 # ====================================================================================
 
 
+def privacy_screen(w, h, linen, salt=67):
+    """A folding three-panel linen ward screen on little timber feet — the
+    hospital read in one prop (sickroom, 2026-07-16). Draw for a 2x1 solid
+    footprint as a y-sorted entity: bodies pass both sides."""
+    sp = S(w, h, salt)
+    pw = w // 3
+    for i in range(3):
+        x0 = i * pw + (1 if i == 0 else 0)
+        x1 = (i + 1) * pw - (2 if i == 2 else 0)
+        top = 4 if i == 1 else 7                              # center panel proud
+        sp.rect(x0, top, x1, h - 5, TIMBER[3])                # frame
+        sp.rect(x0 + 1, top + 1, x1 - 1, h - 6, linen[1])     # linen field
+        sp.rect(x0 + 1, top + 1, x1 - 1, top + 1, linen[0])
+        sp.rect(x0 + 1, h - 6, x1 - 1, h - 6, linen[3])
+        sp.rect(x0 + 1, top + 4, x1 - 1, top + 4, linen[2])   # seam
+        sp.set(x0, top, TIMBER[1])                            # lit frame corner
+        sp.rect(x0 + 1, h - 5, x0 + 2, h - 2, TIMBER[3])      # feet
+        sp.rect(x1 - 2, h - 5, x1 - 1, h - 2, TIMBER[4])
+    edge(sp)
+    return sp
+
+
+def drip_stand(w, h, salt=69):
+    """A brass drip-stand: weighted tripod base, tall pole, crossarm, and a
+    hanging tonic flask with a tube arcing off east toward the sickbed —
+    candle-and-gear medicine (sickroom, 2026-07-16). One-cell footprint,
+    y-sorted entity."""
+    sp = S(w, h, salt)
+    px_ = w // 2 - 1
+    sp.rect(px_ - 4, h - 4, px_ + 5, h - 3, BRASS[3])         # base
+    sp.rect(px_ - 2, h - 6, px_ + 3, h - 5, BRASS[2])
+    sp.rect(px_, 4, px_ + 1, h - 6, BRASS[2])                 # pole
+    sp.rect(px_, 4, px_, h - 6, BRASS[1])
+    sp.rect(px_ - 3, 4, px_ + 4, 5, BRASS[1])                 # crossarm
+    sp.set(px_ - 3, 6, BRASS[3])                              # hook
+    sp.rect(px_ - 4, 7, px_ - 2, 13, GLASS)                   # hanging flask
+    sp.rect(px_ - 4, 10, px_ - 2, 13, MINT)                   # the tonic
+    sp.set(px_ - 4, 8, SPEC)
+    sp.rect(px_ - 3, 13, px_ - 3, 15, GLASS)                  # flask neck
+    # the tube, arcing east toward the bed
+    ln(sp, px_ - 3, 16, px_ + 4, 22, COPPER[1])
+    ln(sp, px_ + 4, 22, w - 1, 26, COPPER[1])
+    edge(sp)
+    return sp
+
+
 def bed(w, h, quilt, linen, salt=3):
     sp = S(w, h, salt)
     for px in (0, w - 3):                                     # posts + ball caps

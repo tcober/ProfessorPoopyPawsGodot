@@ -16,11 +16,13 @@ const SHEET_OWL := preload("res://assets/npc_owl_gen.png")
 const SHEET_SHEEP := preload("res://assets/npc_sheep_gen.png")
 const SHEET_MOUSE := preload("res://assets/npc_mouse_gen.png")
 const SHEET_BADGER := preload("res://assets/npc_badger_gen.png")
+const SHEET_STORK := preload("res://assets/npc_stork_gen.png")
 
 var map: Dictionary
 var player: Node2D
 var _dean: NPC
 var _schw: NPC
+var _panel: Array[NPC] = []
 var _audience: Array[NPC] = []
 
 @onready var theater: Theater = $Theater
@@ -38,15 +40,19 @@ func _ready() -> void:
 
 
 func _spawn_cast() -> void:
-	_dean = _npc("Dean Strix", SHEET_OWL, 4, "dean_spot")
+	# the judging panel behind the long dais desk — the Dean presides, three
+	# faculty flank him; they stand on the open row behind the desk so the
+	# desktop plane hides their legs (the desk() entity idiom)
+	_dean = _npc("Dean Strix", SHEET_OWL, 4, "judge_1")
 	_dean.play_act()                                   # a lecturing wing
+	var jsheets := [SHEET_STORK, SHEET_BADGER, SHEET_SHEEP]
+	for i in jsheets.size():
+		_panel.append(_npc("", jsheets[i], 4, "judge_%d" % (i + 2)))
 	_schw = _npc("Schweinler", SHEET_SCHW, 6, "schweinler_spot")
-	var seats := ["aud_l1", "aud_l2", "aud_r1", "aud_r2", "aud_c1", "aud_c2"]
-	var sheets := [SHEET_SHEEP, SHEET_MOUSE, SHEET_BADGER, SHEET_SHEEP,
-			SHEET_MOUSE, SHEET_BADGER]
-	var cols := [4, 4, 4, 4, 4, 4]
-	for i in seats.size():
-		_audience.append(_npc("", sheets[i], cols[i], seats[i]))
+	# a PACKED gallery: three to a bench, twelve in all
+	var sheets := [SHEET_SHEEP, SHEET_MOUSE, SHEET_BADGER]
+	for i in 12:
+		_audience.append(_npc("", sheets[i % 3], 4, "aud_%d" % (i + 1)))
 
 
 func _npc(nm: String, sheet: Texture2D, cols: int, anchor: String) -> NPC:
@@ -91,9 +97,11 @@ func _naming_cutscene() -> void:
 	await theater.hop(_schw, 5.0)
 	_schw.play_emote()
 	await theater.say("Schweinler", "A brilliant lecture, everyone. From PROFESSOR... POOPY... PAWS!")
-	# the gallery turns
+	# the gallery turns — even the panel cracks (that's the sting)
 	for a in _audience:
 		a.play_emote()
+	for j in _panel:
+		j.play_emote()
 	await theater.wait(0.3)
 	await theater.say("", "The whole hall laughs. Someone starts a chant.")
 	await theater.say("Gallery", "Poopy Paws! POOPY PAWS! POOPY PAWS!")

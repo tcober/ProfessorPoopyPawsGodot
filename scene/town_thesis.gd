@@ -22,6 +22,7 @@ const SHEET_BADGER := preload("res://assets/npc_badger_gen.png")
 
 const FX_BAG := 10
 const FX_PRINT := 11
+const FX_WATCH := 16               # row 2 of the fx sheet (the watch call)
 
 const TINT_NIGHT := Color(0.42, 0.40, 0.66)
 const TINT_MORNING := Color(0.98, 0.93, 0.86)
@@ -86,14 +87,26 @@ func _phase_plant() -> void:
 	var schw: NPC = _npc("Schweinler", SHEET_SCHW, 6, MapData.anchor_px(map, "exit_south"))
 	await theater.wait(ENTRY_FADE + 0.4)
 	await theater.say("", "The night before the lecture. A shape creeps up to Basil's door.")
-	await theater.walk(schw, MapData.anchor_px(map, "home") + Vector2(0.0, 26.0), 44.0)
+	# theater walks are straight no-collision tweens — creep the LANES (up
+	# the gate road, around the fountain's west ring, west down the main
+	# lane), never the diagonal through the shop blocks
+	await theater.walk_via(schw, [
+			Vector2(440.0, 384.0),
+			Vector2(408.0, 384.0),
+			Vector2(408.0, 312.0),
+			Vector2(168.0, 312.0),
+			MapData.anchor_px(map, "home") + Vector2(0.0, 26.0)], 44.0)
 	schw.play_idle()
 	# the bag
 	var bag := _fx_at(FX_BAG, MapData.anchor_px(map, "home") + Vector2(0.0, 18.0))
 	await theater.say("Schweinler", "Heh heh heh. A little CONGRATULATIONS for Mr. Youngest-Professor-Ever.")
 	schw.play_emote()
 	await theater.say("Schweinler", "Enjoy your big lecture tomorrow, Basil. Oink - hahaha!")
-	await theater.walk(schw, MapData.anchor_px(map, "exit_south"), 60.0)
+	await theater.walk_via(schw, [
+			Vector2(408.0, 312.0),
+			Vector2(408.0, 384.0),
+			Vector2(440.0, 384.0),
+			MapData.anchor_px(map, "exit_south")], 60.0)
 	schw.queue_free()
 	bag.queue_free()
 	theater.close_dialog()
@@ -226,27 +239,27 @@ func _phase_call() -> void:
 	theater.close_dialog()
 	# down the grand stair to the square, at the player's pace — the gate is
 	# the square itself (the fest cutscene's zone: the ring roads on every
-	# side; a point-gate at the post is walkable around), then the last
-	# steps to the post are staged around the basin's west ring
-	_show_banner("THE PNEUMATIC POST - BY THE FOUNTAIN SQUARE", BANNER_HOLD)
+	# side; a point-gate is walkable around), then the last steps to the old
+	# post stand-mark are staged around the basin's west ring
+	_show_banner("THE FOUNTAIN SQUARE - SOMEWHERE QUIET TO CALL HER", BANNER_HOLD)
 	var basin := MapData.bbox_rect(map, "oO")
 	await theater.walk_gate(basin.get_center(), Vector2(96.0, 96.0))
 	await theater.walk_via(player, _post_route(player.global_position), 50.0)
-	await theater.say("", "He drops a message into the pneumatic post. The canister whistles away.")
-	await theater.wait(0.6)
-	await theater.say("Kitty", "(the reply rattles back at once) ON MY WAY. PEDALING FAST. HANG ON. - K")
-	await theater.say("Basil", "...Yeah. Okay. Hang on.")
+	# the watch call (2026-07-15): comms on his wrist — the watch face
+	# blinks awake over him while the connection hunts for her
+	theater.face(player, Vector2.DOWN)
+	var watch := WorldFx.airborne($World, FX_SHEET, 0,
+			player.global_position + Vector2(10.0, 4.0), 36.0)
+	watch.frame = FX_WATCH
+	await theater.wait(0.5)
+	await theater.say("Basil", "Kitty. It's me. It's bad. The lecture, Schweinler, the whole hall - please pick up.")
+	await theater.say("Kitty", "Oh no... that asshole. I'm coming! Stay where you are!")
+	await theater.say("Basil", "Wait - it's nearly dark, don't take the road - Kitty? ...She's already pedaling.")
 	theater.close_dialog()
+	watch.queue_free()
 	await theater.black(1.0)
-	await theater.card("Somewhere across town, a bicycle bell rings.", 2.0)
-	await theater.say("", "An engine ROARS. Brakes shriek.")
-	await theater.wait(0.4)
-	await theater.say("", "A crash. Then nothing.")
-	await theater.wait(0.8)
-	await theater.say("Schweinler", "...I didn't see her. I swear I - the machine just - I didn't SEE her!")
-	await theater.wait(0.6)
-	Game.set_flag("prologue_accident")
-	get_tree().change_scene_to_file("res://scene/sickroom.tscn")
+	# the accident is SHOWN now — the side-view set-piece owns the flag
+	get_tree().change_scene_to_file("res://scene/accident.tscn")
 
 
 # ---- fountain (dusk) + the leaving (night) ----------------------------------------
@@ -342,9 +355,9 @@ func _square_route(from: Vector2, to: Vector2) -> Array:
 	return pts
 
 
-## Ring route to the pneumatic post on the basin's WEST ring: unlike the
-## south-side targets _square_route serves, east/south arrivals must loop
-## under the basin to the west road first.
+## Ring route to the watch-call stand mark (the old `post` anchor) on the
+## basin's WEST ring: unlike the south-side targets _square_route serves,
+## east/south arrivals must loop under the basin to the west road first.
 func _post_route(from: Vector2) -> Array:
 	var basin := MapData.bbox_rect(map, "oO")
 	var w := basin.position.x - 8.0

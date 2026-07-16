@@ -69,17 +69,29 @@ func _scene_is(path: String) -> bool:
 
 
 ## Stand at an NPC, press E, mash through the conversation (and any beat it
-## chains into) until the box drops.
+## chains into) until the box drops. Success is the NPC's own `talked`
+## signal, and the opening press RETRIES: a staged beat racing the teleport
+## (the downstairs door hint fired by the previous step's body_entered
+## landing a physics tick late) can hold the party locked, eat the interact,
+## and leave the mash closing the WRONG box.
 func _talk_to(npc: NPC, scene: Node) -> bool:
-	_player().global_position = npc.global_position + Vector2(0.0, 16.0)
-	await _wait_frames(8)
-	Input.action_press("interact")
-	await _wait_frames(3)
-	Input.action_release("interact")
+	var talked := [false]
+	var mark := func(_n: NPC) -> void: talked[0] = true
+	npc.talked.connect(mark)
 	var closed := func() -> bool: return not scene.theater.dialog.visible
-	var done: bool = await _mash_until(closed, 2400)
-	await _wait_frames(30)
-	return done
+	for attempt in 4:
+		_player().global_position = npc.global_position + Vector2(0.0, 16.0)
+		await _wait_frames(8)
+		Input.action_press("interact")
+		await _wait_frames(3)
+		Input.action_release("interact")
+		await _mash_until(closed, 2400)
+		await _wait_frames(30)
+		if talked[0]:
+			npc.talked.disconnect(mark)
+			return true
+	npc.talked.disconnect(mark)
+	return false
 
 
 func _player() -> Node2D:
@@ -89,6 +101,10 @@ func _player() -> Node2D:
 
 func _run() -> void:
 	await process_frame
+	# an OCCLUDED macOS window runs UNCAPPED (~2000fps): frame budgets burn
+	# in real seconds while the cutscenes' wall-clock timers don't advance
+	# any faster — pin 60fps so budgets always track wall-clock (2026-07-16)
+	Engine.max_fps = 60
 	game = root.get_node("Game")
 	party = root.get_node("Party")
 	print("prologue probe:")
@@ -102,9 +118,14 @@ func _run() -> void:
 			party.members.size() == 1 and party.leader is KidBasil
 			and _scene_is("res://scene/house_fest.tscn"))
 	var house_map: Dictionary = MapData.load_map("res://assets/maps/house.txt")
+	# the sunrise wake-up holds the kid locked through the sigh — mash to
+	# the unlock (the pollable end-state, the house_thesis wake idiom)
+	var awake := func() -> bool: return _player() != null and _player().is_physics_processing()
+	var ok: bool = await _mash_until(awake, 3600)
+	_check("the sunrise wake-up hands control back", ok)
 	_player().global_position = MapData.anchor_px(house_map, "exit_door")
 	var in_down := func() -> bool: return _scene_is("res://scene/downstairs_fest.tscn")
-	var ok: bool = await _mash_until(in_down, 1200)
+	ok = await _mash_until(in_down, 1200)
 	_check("stairs descend to the fest downstairs", ok)
 	await _wait_frames(20)
 	var down := current_scene
@@ -128,39 +149,32 @@ func _run() -> void:
 	_check("front door opens into the festival town", ok)
 	await _wait_frames(40)                # entry fade
 
-	# ---- the fountain proximity trigger -> the teasing ----------------------
+	# ---- the fountain proximity trigger -> the teasing + the theft ----------
+	# (the goose theft runs inside the festival cutscene now — budget covers
+	# the waddle-in, the snatch, and the bridge getaway)
 	var town_map: Dictionary = MapData.load_map("res://assets/maps/town_fest.txt")
 	_player().global_position = MapData.anchor_px(town_map, "basil_mark") + Vector2(0.0, -16.0)
 	var festival_done := func() -> bool: return game.flag("prologue_festival_done")
-	ok = await _mash_until(festival_done, 6000)
+	ok = await _mash_until(festival_done, 9000)
 	_check("walking by the fountain fires the teasing", ok)
 	await _wait_frames(30)
 
-	# ---- the goose ribbon chase --------------------------------------------
+	# ---- the hidden goose in the orchard ------------------------------------
 	var town := current_scene
 	var town_box_closed := func() -> bool: return not town.theater.dialog.visible
 	var npcs := {}
-	var goose: GooseChase = null
 	for child in town.get_node("World").get_children():
 		if child is NPC:
 			npcs[child.display_name] = child
-		elif child is GooseChase:
-			goose = child
-	_check("festival cast spawned (6 NPCs + the goose)", npcs.size() == 6
-			and goose != null)
+	_check("festival cast spawned (5 villagers + the hidden goose)",
+			npcs.size() == 6 and game.flag("prologue_goose_hidden"))
 	var ribbon := func() -> bool: return game.flag("prologue_ribbon")
-	for i in 8:
-		if ribbon.call() or goose == null:
-			break
-		_player().global_position = goose.global_position
-		await _wait_frames(12)            # the catch fires...
-		await _wait_frames(130)           # ...then wait out the 1s cooldown
+	ok = await _talk_to(npcs["Goose"], town)
 	ok = await _mash_until(ribbon, 1200)
-	_check("goose surrenders the ribbon", ok)
-	ok = await _mash_until(town_box_closed, 1200)
+	_check("the startled goose surrenders the ribbon", ok)
 	await _wait_frames(20)
 
-	# ---- three stings, then Mom's blessing opens the gate -------------------
+	# ---- three stings, then the blessing double-back (Mom is DOWNSTAIRS) ----
 	ok = await _talk_to(npcs["Sage"], town)
 	_check("ribbon returned to Sage", game.flag("prologue_ribbon_returned"))
 	await _talk_to(npcs["Mrs. Flockhart"], town)
@@ -169,9 +183,23 @@ func _run() -> void:
 	_check("three stings -> wants home, gate still shut",
 			game.flag("prologue_want_home") and not game.flag("prologue_gate_open"))
 	await _wait_frames(30)
-	ok = await _talk_to(npcs["Mom"], town)
-	ok = await _mash_until(town_box_closed, 1800)   # the blessing beat
+	# the home door re-opens while he wants home: step on it -> downstairs
+	_player().global_position = MapData.anchor_px(town_map, "home") + Vector2(0.0, 24.0)
+	var back_down := func() -> bool: return _scene_is("res://scene/downstairs_fest.tscn")
+	ok = await _mash_until(back_down, 900)
+	_check("the home door re-opens into the downstairs", ok)
+	await _wait_frames(20)
+	var down2 := current_scene
+	var mom2: NPC = null
+	for child in down2.get_node("World").get_children():
+		if child is NPC:
+			mom2 = child
+	ok = await _talk_to(mom2, down2)
 	_check("Mom's blessing opens the south gate", game.flag("prologue_gate_open"))
+	await _wait_frames(20)
+	_player().global_position = MapData.anchor_px(down_map, "exit_door")
+	ok = await _mash_until(in_town, 900)
+	_check("the front door returns to town, gate open", ok)
 	await _wait_frames(40)
 
 	# ---- south to the meadow ----------------------------------------------
@@ -264,12 +292,13 @@ func _run() -> void:
 	_check("hall -> the call/accident phase", ok)
 	await _wait_frames(40)
 
-	# call: two lines -> the walk to the pneumatic post -> the accident
+	# call: two lines -> the walk to the square -> the watch call -> the
+	# SHOWN accident (scene/accident.tscn auto-runs between mashed lines)
 	ok = await _mash_until(unlocked, 4000)
 	_check("the call phase hands over the walk to the post", ok)
 	_player().global_position = MapData.anchor_px(town_map, "post")
 	var in_sick := func() -> bool: return _scene_is("res://scene/sickroom.tscn")
-	ok = await _mash_until(in_sick, 7000)
+	ok = await _mash_until(in_sick, 10000)
 	_check("call + accident -> the sickroom", ok)
 	await _wait_frames(40)
 

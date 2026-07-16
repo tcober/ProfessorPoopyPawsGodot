@@ -70,37 +70,68 @@ recovered from git**: the 2026-07-12 build-fresh doctrine).
 `scene/prologue_open.tscn` (title + era cards; ESC skips to the adult
 sandbox) and plays the childhood chapter end-to-end — kid Basil (playable,
 `entities/kid/`, no kit: walk/hop/interact only, the pre-Ebb world is SAFE)
-alone on the roster, **opening AT HOME, playable from the first frame** (the
-2026-07-12 polish pass): `scene/house_fest.tscn` (the loft, bright tint) →
+alone on the roster, **opening AT HOME on a scripted SUNRISE** (the
+2026-07-15 narrative pass): `scene/house_fest.tscn` (the loft, bright tint) —
+asleep in bed (kid sheet row 4: sleep/wake/sigh, 6×5 now) → eyes open → pads
+to the window → curtains slide apart (house.gd's Curtains+Glow idiom, Theater
+instanced) → a sigh → control →
 the stairs → `scene/downstairs_fest.tscn` where MOM's good-morning by the
 hearth (`prologue_saw_mom`) unlocks the front door into the Founding
 Festival in the bright-era town
 (`scene/town_fest.tscn`, `maps/town_fest.txt` — a BYTE COPY of town.txt in
 the `town_fest` palette: spring grass, cream plaster, festival magenta;
-keep the two grids in lockstep), the fountain-square teasing cutscene fired
+keep the two grids in lockstep; the fest Academy door is OPEN —
+`town_academy(open_door=True)`, sealed bars stay drained-only), the
+fountain-square teasing cutscene fired
 by a PROXIMITY zone when Basil first walks by the square (Sage
-floats three ribbons, kid Schweinler coins "Sparkless"), the WANDER GATE
-(talk to any 3 of six NPCs — sheep matron / owl scholar / chaos goose /
-mouse kid / Sage / Schweinler, every line stings — then the south gate
-opens), the prologue meadow (`scene/meadow_fest.tscn`, same meadow map +
+floats three ribbons, kid Schweinler coins "Sparkless", and the GOOSE THEFT
+plays out mid-cutscene: it snatches a ribbon, Sage yells, it bolts over the
+bridge and HIDES behind the orchard TreeCrown — `goose_hide`+16px east, head
+over the leaves; startling it returns the ribbon; goose_chase.gd retired
+2026-07-15), the WANDER GATE
+(talk to any 3 of the six talkables — sheep matron / owl scholar / the goose
+/ mouse kid / Sage / Schweinler, every line stings — then "I want to go
+home"), the BLESSING DOUBLE-BACK (2026-07-15: Mom stays home; the home-door
+re-entry zone — armed only after the arrival body steps off it — leads back
+to the fest downstairs where her hearth blessing sets `prologue_gate_open`;
+the front door softlock-guards until then), the prologue meadow
+(`scene/meadow_fest.tscn`, same meadow map +
 anchors, no slimes) where Kitty Cool's whirligig fetch-quest (gear on the
 beach / spring in the flowers / crank by the boulders) ends in the flight
-finale and the **crank-up mash** minigame + montage cards. **Pacing pass
-(2026-07-12):** the wander gate is now MOM-gated — three stinging talks make
-Basil want to go home, and Mom's encouragement by the cottage
-(`npc_mom_gen.png`) is the gate key; the **goose ribbon chase**
-(`entities/npcs/goose_chase.gd`, a fleeing CharacterBody2D, catch 3×) replaces
-the static goose. **PROLOGUE B "PROFESSOR POOPY PAWS" IS LIVE (2026-07-12):**
+finale and the **crank-up mash** minigame + montage cards.
+**PROLOGUE B "PROFESSOR POOPY PAWS" IS LIVE (2026-07-12):**
 A's montage swaps to `basil_student` (kit-less adult, no gun) and hands to
 `scene/town_thesis.gd` — ONE scene, four `Game.town_thesis_phase` phases
-tinted by a CanvasModulate (plant/night → `house_thesis` wake-up →
-dash/morning with hop-the-puddles + paw-print trail → `hall` the naming →
-call/dusk + accident over black → `sickroom` the verdict → fountain/dusk the
+tinted by a CanvasModulate (plant/night, Schweinler creeping the LANES —
+walk_via dog-legs, never through the blocks → `house_thesis` wake-up →
+dash/morning with hop-the-puddles + paw-print trail → `hall` the naming
+before a JUDGING PANEL — 112px desk() on a one-row `J` footprint, Dean +
+stork/badger/sheep at `judge_1..4`, gallery packed 3-per-bench `aud_1..12` →
+call/dusk: the WATCH CALL (fx row 2 watch face over Basil) → black →
+**`scene/accident.tscn`** (2026-07-15/16, the accident SHOWN with CAUSE: a
+partyless side-view set-piece — Schweinler brags to Ridley over the parked
+machine, mounts against his warning and instantly loses control as Kitty
+rides in; dusk-road painting `accident_bg.png` (one NARROW lane the 48px
+cast fills), CHIBI-proportioned profile sheets `accident_kitty_gen`
+pedal×2/brace/down + `accident_atv_gen` drive×2/swerve/skid/parked +
+`accident_bike_down_gen`; poof + white Flash + instant black at impact,
+never a contact frame; owns `prologue_accident`) → `sickroom` the
+verdict — THE DOCTOR'S OFFICE (rebuilt 2026-07-16 on the loft-diorama
+recipe: 8-tile interior floating in void, every wall stretch occupied,
+clinical pale-teal bedding, new `privacy_screen`/`drip_stand` props +
+the doctor's desk() as y-sorted entities, kitty_bed redrawn at full chibi
+scale with the brow bandage; canonically the EAST NEIGHBOR COTTAGE — the
+town door banners name it in both eras; never move
+bedside/kitty_bed/doctor_spot) →
+fountain/dusk the
 "selfish" beat → leaving/night → `house.tscn`). New interiors on the Room kit
 (`scene/hall.*` + `maps/hall.txt` + `_gen_tileset_hall.py`; `scene/sickroom.*`
 likewise), new reusable interior props (`chalkboard`/`lectern`/`bench` in
 `_interior_props.py`), new cast in `_gen_prologue_sprites.py` (Mom, adult
-Schweinler, badger, stork, Kitty-in-bed), `prologue_fx.png` grown to 16 cells.
+Schweinler, badger, stork, Kitty-in-bed), `prologue_fx.png` now TWO 16-cell
+rows (256×32 — row 0 frozen byte-identical, row 1 = watch/poof/motion-lines;
+`WorldFx.sheet_sprite` infers vframes from sheet height so old frame indices
+survive; NEVER widen a row).
 GOTCHA: an input-polling coroutine on `process_frame` must LEVEL-detect
 (`is_action_pressed` + a latch), never `is_action_just_pressed` — the frame
 signal can beat the same-frame press (killed the crank mash). Built on the
@@ -125,7 +156,7 @@ door / the pneumatic post — new fest anchor `post` / bedside / fountain;
 without movement. GATE GEOMETRY RULE (review pass): a walk-gate must be
 UNAVOIDABLE for its objective — a point-rect is walkable around (hall
 aisles, the fountain ring) and reads as a hang; use a full-width room band
-(hall row 8, sickroom row 5) or the whole square zone (both town phases =
+(hall row 8, sickroom row 6) or the whole square zone (both town phases =
 the fest cutscene's 96×96 fountain zone), then stage the last steps with
 `walk_via` waypoints. Theater walks are straight NO-COLLISION tweens: any
 scripted approach near the fountain must dog-leg the ring
@@ -150,7 +181,11 @@ char with the same terrain name: town `O/U/L`, hall `l`; paint stays
 byte-identical) — but never open a walkable pocket inside a chase leash
 (the goose wedged in the inn-nook lamp cell; reverted). Facades carry
 `_eave_lift` TOP + SIDE mask bands (outer 6px columns; Academy included).
-`tools/shot.gd` gained `phase:<name>` + `roster:<id>[:...]` args.
+`tools/shot.gd` gained `phase:<name>` + `roster:<id>[:...]` +
+`flag:<name>` + `pos:<x>:<y>` args, and both shot.gd and the probe pin
+`Engine.max_fps = 60` (an OCCLUDED macOS window runs UNCAPPED ~2000fps —
+frame budgets burn in real seconds while wall-clock cutscene timers don't
+advance any faster; the 2026-07-16 harness gotcha).
 The adult sandbox underneath is unchanged: `scene/house.tscn` — a small dense CT-bedroom diorama floating in void (10-tile-wide room
 on the 24×14 map), brown plank walls / teal weave / gold dawn window, E
 toggles the curtains at the window; its SW staircase descends to the

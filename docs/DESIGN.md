@@ -137,12 +137,23 @@ decision: the old look is rejected wholesale); only the beats are canon:
 5. **The lecture** *(cutscene, Academy hall interior — new scene)*: the
    re-enchantment thesis; Schweinler's "WHAT'S THAT SMELL?!"; the naming; the
    laughter. Cards: "THE NAME STUCK."
-6. **The call** *(new beat)*: Basil, wrecked, sends word to Kitty by pneumatic
-   post. Her reply arrives instantly: "ON MY WAY. PEDALING FAST. —K"
-7. **The accident** *(cutscene, restrained — mostly offscreen)*: a machine
-   roar, a crash sound over black, Schweinler's stunned "...I DIDN'T SEE
-   HER." She lives. The doctor: her memories will never come back. She looks
-   at Basil like a stranger.
+6. **The call** *(reworked 2026-07-15)*: Basil, wrecked, calls Kitty on his
+   brass wrist-watch comm (the watch-face fx blinks over him). Her reply:
+   "Oh no... that asshole. I'm coming! Stay where you are!"
+7. **The accident** *(reworked 2026-07-15/16 — SHOWN, side-view set-piece,
+   `scene/accident.tscn`, WITH CAUSE)*: dusk roadside — Schweinler shows
+   Ridley the badger his brand-new machine (parked frame, a bow on the
+   bars), Ridley warns him it looks DANGEROUS, Schweinler climbs on
+   ("You don't DRIVE a machine like this. You POINT it.") and loses
+   control the moment the engine catches — exactly as Kitty happens to
+   pedal around the bend, bell bright. Wobble, motion lines, the drift
+   across the centerline; Kitty braces — hard cut to black on the moment
+   itself (poof + a white screen flash, never a contact frame), then the
+   quiet aftermath under a darker sky: the fallen bike, Kitty still,
+   Schweinler's stunned "...I DIDN'T SEE HER.", Ridley running for the
+   doctor — he SAW it, which is why his fountain-scene bluntness lands.
+   Non-violent, a little tragic. She lives. The doctor: her memories will
+   never come back. She looks at Basil like a stranger.
 8. **The fountain** *(cutscene, the existing fountain square at dusk)*: a
    classmate asks what's wrong; Basil confesses everything; "you're selfish —
    YOU weren't the one who got run over." The worst possible words at the
@@ -463,9 +474,11 @@ the laser is still years off). The whole chapter, in flow order:
   `Game.town_thesis_phase`: **plant** (night — Schweinler creeps up and leaves
   the bag, "a little CONGRATULATIONS", → the wake-up), **dash** (morning — the
   SQUELCH, the **hop-the-puddles** run with a fading paw-print trail, reach the
-  Academy → the hall), **call** (dusk — the pneumatic-post message to Kitty,
-  then the machine roar / crash / "...I didn't see her" over black → the
-  sickroom), **fountain→leaving** (dusk then night — the blunt badger
+  Academy → the hall), **call** (dusk — the watch call to Kitty at the square,
+  the fx-sheet watch face blinking over Basil, then black →
+  **`scene/accident.tscn`**, the SHOWN side-view accident set-piece, which owns
+  `prologue_accident` and hands to the sickroom), **fountain→leaving** (dusk
+  then night — the blunt badger
   classmate's "you're selfish, YOU weren't the one who got run over", the tint
   slides to night, Basil walks out the south gate → the closing cards →
   `house.tscn` with the adult roster `[basil, fuji]`).
@@ -483,6 +496,11 @@ the laser is still years off). The whole chapter, in flow order:
   walkable top row so their legs tuck = the seated-gallery read). The Dean is
   **Professor Strix the owl** (the childhood note-taker, grown into the
   Academy); the naming plays out, the gallery chants, cards "THE NAME STUCK."
+  2026-07-15: the hall gained its **judging panel** — a 112px `desk()` on a
+  one-row solid `J` footprint across the dais east flank (the desktop plane
+  hides the panel's legs; lamp flame chalk-mint), Dean + stork/badger/sheep
+  at `judge_1..4`, and the gallery packed to twelve (three per bench,
+  `aud_1..12`); the panel cracks up with the gallery at the naming.
 - **`scene/sickroom.gd/.tscn`** + `maps/sickroom.txt` +
   `_gen_tileset_sickroom.py` + the `sickroom` palette (pale lavender walls,
   one warm bedside lamp) — Kitty in the bed (the `npc_kitty_bed` sprite:
@@ -494,11 +512,21 @@ the laser is still years off). The whole chapter, in flow order:
   goose extended to a 6-col waddle. `prologue_fx.png` grew 10→16 cells (+ bag,
   paw-print, bird×2, puddle, zzz) — `meadow_fest.gd` slices it at hframes 16.
 **Prologue A pacing pass (same day):** **Mom** is now load-bearing — three
-stinging talks make Basil want to go home, and **her encouragement by the
-cottage is the gate key** ("Sparks are common as dandelions. You take things
-apart to see WHY. That's rarer."). Two minigames: the **goose ribbon chase**
-(`entities/npcs/goose_chase.gd` — the goose stole Sage's ribbon; catch it
-3× to earn a warmth beat that counts as a talk) and the **crank-up mash** at
+stinging talks make Basil want to go home, and **her blessing is the gate
+key** ("Sparks are common as dandelions. You take things apart to see WHY.
+That's rarer."). Reworked 2026-07-15: Mom STAYS home all festival (no
+duplicate festival Mom) — the want-home beat sends Basil back through his
+own FRONT DOOR (`town_fest`'s home-door re-entry zone, armed only after the
+arrival body steps off it) to the fest downstairs, where the blessing by the
+hearth sets `prologue_gate_open`; the downstairs front door refuses (softlock
+guard) until she's heard. The **goose ribbon chase** minigame was retired the
+same day (goose_chase.gd deleted): the goose now STEALS a ribbon inside the
+festival cutscene (waddles up the lanes, snatches, Sage's "HEY!!", bolts over
+the bridge at 130px/s) and HIDES behind the orchard TreeCrown east of the
+river (`goose_hide` anchor + one step east — head over the leaves, the stolen
+ribbon floating as the tell); finding and startling it is the warmth beat
+(`prologue_goose_hidden` → talk → `prologue_ribbon`). One minigame remains:
+the **crank-up mash** at
 the whirligig flight (mash E to fill a meter, the rotor spins up with it).
 GOTCHA (2026-07-12): a coroutine polling input on `process_frame` must use
 LEVEL-edge detection (`is_action_pressed` + a was-down latch), NOT
@@ -543,7 +571,7 @@ control was inserted BETWEEN beats.
   UNAVOIDABLE for its objective, or the beat soft-stalls with no re-prompt
   — a point-rect is walkable around (the hall's side aisles, the
   fountain's ring roads). The shapes that work: a FULL-WIDTH room band on
-  an open row every route crosses (hall row 8, sickroom row 5), or the
+  an open row every route crosses (hall row 8, sickroom row 6), or the
   whole objective zone (both town phases gate on the fest cutscene's
   96×96 fountain-square zone). The last steps from wherever the gate
   fired are then staged with `walk_via` waypoints — and since theater
@@ -562,6 +590,76 @@ control was inserted BETWEEN beats.
   dressing) and `roster:<id>[:<id>...]` (story scenes assume story
   rosters); the probe covers the home start, the Mom gate (door refuses
   before her), the proximity trigger, and every walk-gate — 33 checks.
+
+**Narrative & cutscene rework (2026-07-15/16)** — seven story-beat changes,
+each probe-verified in lockstep (the plan lived in docs/FOUNDATION_PLAN.md's
+tab; probe now 36 checks):
+- **Sunrise opening**: `house_fest` is a scripted wake-up — kid Basil asleep
+  in bed (new `kid_basil_gen.png` row 4: `sleep`/`wake`/`sigh`, sheet now
+  6×5) → eyes open → pads to the window (`walk_via` dog-leg) → the curtains
+  slide apart (the house.gd Curtains sprite + Glow/Dim tween, now instanced
+  in house_fest.tscn with a Theater) → a sigh ("...the whole town") →
+  control. The probe mashes to the unlock before the stair teleport.
+- **The fest Academy door is OPEN** (`town_academy(open_door=True)` —
+  `_arch_door` at the sealed door's own arch rows; warm mouth on the glow):
+  the drained town keeps the iron bars. The hall gained the judging panel +
+  the packed gallery (see the hall bullet).
+- **Mom's blessing moved home**; **the goose chase became the theft** (see
+  the pacing-pass paragraph above).
+- **The accident is SHOWN**: the watch call (fx row 2 watch face) → black →
+  `scene/accident.gd/.tscn`, a partyless side-view set-piece on a generated
+  384×216 dusk-road painting (`accident_bg.png`) with new profile sheets
+  `accident_kitty_gen` (pedal ×2 / brace / down), `accident_atv_gen`
+  (drive ×2 / swerve / skid — Schweinler baked into every frame, so the
+  aftermath line comes from the stopped machine), `accident_bike_down_gen`;
+  impact = poof flash + instant black, never a contact frame. The scene owns
+  `prologue_accident` and hands to the sickroom.
+  **Recomposed 2026-07-16 on the user's notes** ("the road is way too big;
+  the side-view sprites don't match the cast"): ONE narrow country lane
+  (46px, y 154-200) the 48px cast nearly fills, dark foreground meadow
+  strip framing the bottom; the profile sprites redrawn at the cast's
+  CHIBI proportions (head nearly half the figure, the kid-sheet 3×3 lit
+  eye + glint, white muzzle/snout leading). Staging: Kitty rides the NEAR
+  side, the machine enters on the FAR side and drifts across the
+  centerline during the swerve (rotation wobble + motion lines + a bell
+  sparkle on her bars earlier); impact adds a full-screen white Flash
+  before the black; the aftermath plays under a cooler CanvasModulate
+  (the sun is gone). RULE for any future one-off cutscene art: keep the
+  cast's chibi proportions and let the characters DOMINATE the
+  composition — scenery bands stay narrow.
+- **`prologue_fx.png` grew a second 16-cell row** (256×32: watch 16, poof
+  17, motion lines 18) — row 0 stays byte-identical, and
+  `WorldFx.sheet_sprite` now infers `vframes` from the sheet's height
+  (square cells), so every old frame index survived. NEVER widen the row.
+- **Sickroom REBUILT as THE DOCTOR'S OFFICE** (2026-07-16, superseding the
+  same-day ambient pass, on the user's notes — smaller, floating in void,
+  elaborate like the bedroom): the loft-diorama recipe — an 8-tile interior
+  in a 24×14 void with every wall stretch occupied (tonic-sill window |
+  4-cell sickbed | wall clock | flask shelf) and a packed floor: new
+  `privacy_screen` (3-panel linen ward divider) and `drip_stand` (brass
+  tripod, hanging tonic flask, tube arcing to the bed) props in
+  `_interior_props.py`, the doctor's own `desk()` by the door (he stands
+  behind it, legs hidden), chair, rose rug, plant; clinical pale-teal
+  BEDDING ramp (the old blue-lavender quilt read as a kid's bedroom);
+  glow adds the drip-tonic mint dot + the desk lamp's flame.
+  `npc_kitty_bed` REDRAWN at full chibi scale (head nearly the figure,
+  kid-sheet eyes, a clean three-band brow bandage where the bandana sits;
+  softer shade wrap — the full band left her cheek raw red) and centered
+  on the pillow via the spawn offset (+8,-14). The walk-gate row moved
+  with the geometry (y=104, row 6). CANON: the office is the EAST
+  NEIGHBOR COTTAGE — `cottage_e` banners name it in the fest town
+  ("THE DOCTOR IS AT THE SQUARE.") and the drained present ("THE OLD
+  STORK RETIRED YEARS AGO. NOBODY CAME AFTER."). bedside/kitty_bed/
+  doctor_spot anchors remain load-bearing.
+- **Cutscene routes creep the lanes**: Schweinler's plant-phase walk now
+  dog-legs the gate road → fountain west ring → main lane (he walked
+  straight through the shop blocks); same rule as `_square_route`.
+- **Harness hardening**: an OCCLUDED macOS window runs UNCAPPED (~2000fps) —
+  frame budgets burned in real seconds while wall-clock cutscene timers
+  didn't move, so `shot.gd` and `prologue_probe.gd` pin `Engine.max_fps=60`
+  at start. `shot.gd` also grew `flag:<name>` (pre-set story flags — shoot
+  staged states like the hidden goose) and `pos:<x>:<y>` (teleport the
+  leader after load).
 
 ### Prologue A "Sparkless" + the combat core (detail)
 
@@ -582,9 +680,11 @@ magic is ALIVE; keep the two grids in lockstep) where **kid Basil**
 (`entities/kid/kid_basil.*` — a kit-less PartyMember, walk/hop/interact only;
 the pre-Ebb world is SAFE) plays the fountain-square teasing beat (levitated
 ribbon fx, Sage's three ribbons, kid Schweinler coining "Sparkless"), then
-the **wander gate**: six talkable NPCs (Sage, Schweinler, sheep matron, owl
-scholar, chaos goose, mouse kid — the animal-folk rule in action; every line
-stings a little), any three talks open the south gate → the **prologue
+the **wander gate**: six talkables (Sage, Schweinler, sheep matron, owl
+scholar, the thieving goose, mouse kid — the animal-folk rule in action;
+every line stings a little), any three talks → "I want to go home" → back
+through the front door for Mom's blessing (2026-07-15) → the south gate →
+the **prologue
 meadow** (`scene/meadow_fest.tscn`, the same meadow map + quest anchors, no
 slimes): meeting Kitty Cool, the whirligig fetch-quest (gear on the beach /
 spring in the flowers / crank by the boulders — `prologue_fx.png` pickups

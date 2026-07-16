@@ -1,0 +1,63 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scene/accident.gd" id="1_acc"]
+[ext_resource type="Texture2D" path="res://assets/accident_bg.png" id="2_bg"]
+[ext_resource type="Texture2D" path="res://assets/accident_kitty_gen.png" id="3_kitty"]
+[ext_resource type="Texture2D" path="res://assets/accident_atv_gen.png" id="4_atv"]
+[ext_resource type="Texture2D" path="res://assets/accident_bike_down_gen.png" id="5_bike"]
+[ext_resource type="Texture2D" path="res://assets/prologue_fx.png" id="6_fx"]
+[ext_resource type="PackedScene" path="res://scene/theater.tscn" id="7_theater"]
+[ext_resource type="Texture2D" path="res://assets/npc_schweinler_adult_gen.png" id="8_schw"]
+[ext_resource type="Texture2D" path="res://assets/npc_badger_gen.png" id="9_badger"]
+
+[node name="Accident" type="Node2D"]
+script = ExtResource("1_acc")
+
+[node name="Dim" type="CanvasModulate" parent="."]
+
+[node name="Bg" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("2_bg")
+centered = false
+
+[node name="BikeDown" type="Sprite2D" parent="."]
+visible = false
+texture_filter = 1
+texture = ExtResource("5_bike")
+
+[node name="Ridley" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("9_badger")
+hframes = 4
+
+[node name="SchwStand" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("8_schw")
+hframes = 6
+
+[node name="Kitty" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("3_kitty")
+hframes = 4
+
+[node name="Atv" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("4_atv")
+hframes = 5
+
+[node name="Poof" type="Sprite2D" parent="."]
+visible = false
+texture_filter = 1
+texture = ExtResource("6_fx")
+hframes = 16
+vframes = 2
+frame = 17
+scale = Vector2(3, 3)
+
+[node name="Flash" type="ColorRect" parent="."]
+modulate = Color(1, 1, 1, 0)
+offset_right = 384.0
+offset_bottom = 216.0
+color = Color(1, 0.98, 0.92, 1)
+
+[node name="Theater" parent="." instance=ExtResource("7_theater")]

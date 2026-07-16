@@ -18,7 +18,7 @@ from _palette import ramp
 from _tilekit import sprite_img
 from _interior import Room, weave_px, TIMBER, BRASS, T
 from _interior_props import (window, rug, framed_picture, potted_plant,
-                             chalkboard, lectern, bench)
+                             chalkboard, lectern, bench, desk)
 
 # rose floor lit toward a soft chalk-mint (the board's ward-light spills onto
 # the front of the hall)
@@ -79,6 +79,12 @@ room.bake_shadow("Ll", 3)
 room.emit_prop("Lectern", "Ll", sprite_img(lectern(64, 32), 64, 32))
 room.bake_shadow("BE", 3, each=True)   # four benches — never the merged bbox
 room.emit_prop("Bench", "BE", sprite_img(bench(80, 32), 80, 32), each=True)
+# the judging panel's long desk on the dais east flank: a one-row solid
+# footprint, the desktop plane rising into open row 3 where the four
+# professors stand — their legs tuck behind it (the desk() entity idiom);
+# the lamp flame burns chalk-mint, the Academy's ward-light
+room.bake_shadow("J", 3)
+room.emit_prop("PanelDesk", "J", sprite_img(desk(112, 32, CHALK), 112, 32))
 
 
 def _glow(img):

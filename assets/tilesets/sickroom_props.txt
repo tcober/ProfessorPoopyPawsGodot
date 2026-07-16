@@ -1,2 +1,5 @@
 ; y-sorted World props from assets/maps/sickroom.txt — see scene/prop_spawner.gd
+prop Drip i sickroom_drip.png
+prop Screen S sickroom_screen.png
+prop Desk d sickroom_desk.png
 prop Chair h sickroom_chair.png

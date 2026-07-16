@@ -5,10 +5,13 @@ The town map (assets/maps/town.txt, 56x34) rides assets/_overworld_tiles.py's
 OverWorld driver directly: the tree border is the forest class, lanes are the
 wobbly trail painter, yards are the fence class, the SE pond is sea+beach and
 the stream a river with one bridge cell. This file picks the palette,
-place_split()s the zone-scale facades from assets/_town_props.py (roofs to
-the upper layer, so the player walks behind rooflines), stamps the terrace's
-cliff columns and the walk-behind trees from salted repeating variants (the
-meadow-boulder reuse pattern), and writes the additive night-glow.
+emit_prop()s the zone-scale facades and trees from assets/_town_props.py as
+single Tier-3 y-sorted World sprites (native y-sort sorts each building/tree
+against the player — no upper-layer roof, ridge cap, or _eave_lift mask band),
+stamps the terrace's cliff columns from salted repeating variants (the
+meadow-boulder reuse pattern) into the lower layer, and writes the additive
+night-glow. The upper tile layer is now empty (the cliff/stairs are lower-only
+backdrops the player never occludes).
 
 Re-run: python3 assets/_gen_tileset_town.py [--preview out.png]
 """
@@ -34,26 +37,31 @@ STONE = tn.ROCK                        # town masonry = the scene's violet slate
 
 tn.paint_terrain()
 
-# ---- the buildings at their map footprints (roofs ride the upper layer).
-# Reuse contract: the two shops share one salt (only roof/sign/wares differ)
-# and the two cottages share one salt (only the roof differs), so their plain
-# facade cells dedupe to the same atlas tiles. ---------------------------------------
-# (each building's char set includes its solid ridge digit — the bbox must
-# still start at the roof's top row or the facade blits one row low)
-lo, up = town_home(ROOFB, PLAST)
-tn.place_split("hH3", lo, up)
-lo, up = town_cottage(ROOFG, PLAST, salt=211)
-tn.place_split("q14", lo, up)
-lo, up = town_cottage(ROOFB, PLAST, salt=211)
-tn.place_split("w25", lo, up)
-lo, up = town_academy(ROOFB, STONE)
-tn.place_split("kK6", lo, up)
-lo, up = town_shop(COPPER, PLAST, sign="sword", wares="arms", salt=251)
-tn.place_split("xX7", lo, up)
-lo, up = town_shop(ROOFG, PLAST, sign="flask", wares="tonics", salt=251)
-tn.place_split("pP8", lo, up)
-lo, up = town_inn(ROOFR, PLAST, salt=261)
-tn.place_split("nN9", lo, up)
+# ---- the buildings, each a single Tier-3 y-sorted World sprite (composite=
+# True flattens the old (facade, roof) split into one opaque feet-origin PNG).
+# Native y-sort sorts the whole building against a body at the front-wall
+# baseline, which retires the upper-layer roof + ridge-cap + _eave_lift mask
+# band this scene used to need. The char triples stay (solid facade `H..N` +
+# WALKABLE roof `h..n` corridor + solid ridge digit `3..9`) purely for
+# collision + the footprint bbox; nothing rides the upper tile layer now. ------------
+# every building is a 4-frame sheet (animated water + chimney smoke), cycled
+# by scene/alembic_town.gd the way downstairs cycles its boiler.
+tn.emit_prop("Home", "hH3",
+             town_home(ROOFB, PLAST, composite=True, frames=4), hframes=4)
+tn.emit_prop("CottageW", "q14",
+             town_cottage(ROOFG, PLAST, salt=211, composite=True, frames=4), hframes=4)
+tn.emit_prop("CottageE", "w25",
+             town_cottage(ROOFB, PLAST, salt=211, composite=True, frames=4), hframes=4)
+tn.emit_prop("Academy", "kK6",
+             town_academy(ROOFB, STONE, composite=True, frames=4), hframes=4)
+tn.emit_prop("Weapons", "xX7",
+             town_shop(COPPER, PLAST, sign="sword", wares="arms",
+                       salt=251, composite=True, frames=4), hframes=4)
+tn.emit_prop("Items", "pP8",
+             town_shop(ROOFG, PLAST, sign="flask", wares="tonics",
+                       salt=251, composite=True, frames=4), hframes=4)
+tn.emit_prop("Inn", "nN9",
+             town_inn(ROOFR, PLAST, salt=261, composite=True, frames=4), hframes=4)
 tn.place("S", town_stairs(STONE))
 # street furniture is Tier 3: free-standing (bodies pass both north and
 # south of it), so the art rides y-sorted World entities spawned from
@@ -74,26 +82,19 @@ for ty in range(tn.m.rows_n):
         if tn.m.at(tx, ty) == "C" and tn.m.at(tx, ty - 1) != "C":
             tn.bg.blit_cell(cliffs[h2(tx, ty, 51) % 3], tx * T, ty * T)
 
-# ---- walk-behind trees: one (lower, upper) pair per connected {^,T,t}
-# component — canopy over entities (top row = solid ridge), opaque trunk
-# row under them ---------------------------------------------------------------------
-trees = [town_tree(tn.FOREST, tn.TRUNK, tn.GRASS, salt=s) for s in (301, 307, 311)]
-_todo = {(x, y) for y in range(tn.m.rows_n) for x in range(tn.m.cols)
-         if tn.m.at(x, y) in "Tt^"}
-while _todo:
-    comp = [_todo.pop()]
-    i = 0
-    while i < len(comp):
-        cx, cy = comp[i]
-        i += 1
-        for nb in ((cx + 1, cy), (cx - 1, cy), (cx, cy + 1), (cx, cy - 1)):
-            if nb in _todo:
-                _todo.remove(nb)
-                comp.append(nb)
-    ox, oy = min(c[0] for c in comp), min(c[1] for c in comp)
-    lo, up = trees[h2(ox, oy, 59) % 3]
-    tn.bg.blit_cell(lo, ox * T, oy * T)
-    tn.ov.blit_cell(up, ox * T, oy * T)
+# ---- walk-behind trees: TWO y-sorted World props per {^,T,t} component
+# (prop_spawner's `each` splits them by connected component). The opaque TRUNK
+# sprite sorts at the footprint's south edge; the CROWN sprite's y-sort
+# baseline is pushed ~1 tile SOUTH (base_inset=-16) so the canopy overhangs —
+# a body beside or at the trunk tucks behind it, a body a tile south walks out
+# in front. Native y-sort gives the "behind crown / in front of trunk" read
+# that the old upper-layer + solid-ridge trick faked. (each=True reuses ONE
+# PNG, so the three salted variants collapse to a uniform tree — fine for the
+# pilot; distinct char families would restore the variety.) --------------------------
+lo, up = town_tree(tn.FOREST, tn.TRUNK, tn.GRASS)
+tn.emit_prop("TreeTrunk", "Tt^", sprite_img(lo, 32, 48), each=True)
+tn.emit_prop("TreeCrown", "Tt^", sprite_img(up, 32, 48), each=True,
+             top=0, base_inset=-16)
 
 
 # ---- additive glow: the sleeping town's little lights ------------------------------

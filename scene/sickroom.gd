@@ -1,11 +1,14 @@
 extends Node2D
 
-## The doctor's surgery — Prologue B "the verdict" (docs/DESIGN.md Story).
-## Kitty survives the crash but her memory is gone; the stork doctor delivers
-## the verdict; Basil sits at the bedside and she looks at him like a kind
-## stranger. Then he leaves, and the town's fountain phase closes the chapter.
-## Interior pattern; Kitty is the npc_kitty_bed sprite propped at the pillow,
-## the doctor an npc_stork sprite, both posed by the Theater.
+## THE DOCTOR'S OFFICE — Prologue B "the verdict" (docs/DESIGN.md Story).
+## The front room of the east neighbor cottage in town (the door banners
+## name it — one village, one doctor), rebuilt 2026-07-16 as a small dense
+## diorama on the loft-bedroom recipe. Kitty survives the crash but her
+## memory is gone; the stork doctor delivers the verdict; Basil sits at the
+## bedside and she looks at him like a kind stranger. Then he leaves, and
+## the town's fountain phase closes the chapter. Interior pattern; Kitty is
+## the npc_kitty_bed sprite propped at the pillow, the doctor an npc_stork
+## sprite, both posed by the Theater.
 
 const MAP_PATH := "res://assets/maps/sickroom.txt"
 const LAYOUT_PATH := "res://assets/tilesets/sickroom_layout.txt"
@@ -40,7 +43,10 @@ func _spawn_cast() -> void:
 	_kitty.display_name = "Kitty"
 	_kitty.sheet = SHEET_KITTY
 	_kitty.frame_cols = 6
-	_kitty.position = MapData.anchor_px(map, "kitty_bed") + Vector2(0.0, -6.0)
+	# +8 centers her on the 4-cell bed's pillow (the anchor is the west
+	# walk cell); -14 sets her head ON the pillow volume with the gown
+	# meeting the folded sheet — the 2026-07-16 small-room geometry
+	_kitty.position = MapData.anchor_px(map, "kitty_bed") + Vector2(8.0, -14.0)
 	$World.add_child(_kitty)
 	_kitty.sprite.play("act")             # 'vacant' pair = act (cols 2-3)
 	_doctor = NPCScene.instantiate()
@@ -61,12 +67,13 @@ func _verdict_cutscene() -> void:
 	# the player crosses the room themselves (the pacing pass); the gate is
 	# the full-width open row below the bed — the east floor reaches the bed
 	# row too, so a point-gate at the bedside is walkable around — then the
-	# last steps slide along the row to her side
-	await theater.walk_gate(Vector2(MapData.size_px(map).x * 0.5, 88.0),
+	# last steps slide along the row to her side (y = the bedside row of the
+	# 2026-07-16 small-room map)
+	await theater.walk_gate(Vector2(MapData.size_px(map).x * 0.5, 104.0),
 			Vector2(MapData.size_px(map).x, 20.0))
 	await theater.walk(player, MapData.anchor_px(map, "bedside"), 50.0)
 	theater.face(player, Vector2.UP)
-	await theater.say("Basil", "Kitty. Kitty, I'm here. It's me. I'm so sorry, I - the post said you were pedaling and I -")
+	await theater.say("Basil", "Kitty. Kitty, I'm here. It's me. I'm so sorry - you told ME to stay put, and then YOU were the one on the road, I -")
 	_kitty.sprite.play("act")             # vacant stare
 	await theater.say("Dr. Ciconia", "Gently. She's been asking who she is. The body will mend - the leg, the ribs. All of it heals.")
 	await theater.say("Dr. Ciconia", "But the blow to her head... the memories are not coming back. Not the accident. Not before it. I am sorry. It is permanent.")

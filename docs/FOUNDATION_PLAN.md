@@ -87,6 +87,21 @@ tilesets/generators deleted; `_artlib.py` shim remains only under
 `_gen_intro_art.py` (house/school/small props — future prop pass).
 Details: docs/DESIGN.md "Art pipeline".
 
+### Prologue narrative & cutscene rework ✅ (2026-07-15/16)
+
+Seven story-beat changes across Prologue A/B, shipped phase-by-phase with the
+probe green in lockstep (36 checks; details in DESIGN.md "Narrative &
+cutscene rework"): the scripted sunrise wake-up opening (new kid
+sleep/wake/sigh frames), the fest Academy's OPEN door, the hall's judging
+panel + packed gallery, Mom's blessing moved home (the front-door
+double-back), the goose theft/hide/startle replacing the chase minigame
+(goose_chase.gd retired), the watch call + the SHOWN side-view accident
+set-piece (`scene/accident.tscn`, new profile sheets + dusk-road painting,
+fx sheet grown to 256×32), and the sickroom ambient pass. Plus: Schweinler's
+plant-phase walk dog-legs the lanes (no more walking through houses), and
+the shot/probe harness pins 60fps (occluded windows run uncapped) + shot.gd
+`flag:`/`pos:` args.
+
 ## Next milestone — candidates (pick when ready)
 
 1. **Game over / respawn flow** — player death currently just freezes the cat.

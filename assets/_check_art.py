@@ -188,7 +188,11 @@ for map_rel, (layout, atlas, tres) in TILED.items():
 # ground (or more upper art), with walk-behind corridors capped by a solid
 # ridge row so at most a head-peek crosses the silhouette.
 print("z-order:")
-UPPER_REQUIRED = {"maps/overworld.txt", "maps/town.txt", "maps/town_fest.txt",
+# maps/town.txt is intentionally absent: its buildings + trees are now Tier-3
+# y-sorted World sprites (not upper-layer tiles), so its upper layer is empty
+# and the z-order checks below short-circuit for it (the invisible-wall +
+# T3-coverage lint carry the load). town_fest still bakes them, so it stays.
+UPPER_REQUIRED = {"maps/overworld.txt",
                   "maps/house.txt", "maps/downstairs.txt", "maps/hall.txt",
                   "maps/sickroom.txt"}
 CHIBI_MAPS = {"maps/overworld.txt"}    # 24x24 travel chibi, figure <=1 tile tall
@@ -435,7 +439,7 @@ SHEETS = {
     "assets/placeholder/shadow.png": (24, 10),
     "assets/placeholder/blow_dart.png": (12, 4),
     # the Prologue A cast (assets/_gen_prologue_sprites.py)
-    "assets/kid_basil_gen.png": (6 * ZONE_CELL, 4 * ZONE_CELL),
+    "assets/kid_basil_gen.png": (6 * ZONE_CELL, 5 * ZONE_CELL),
     "assets/npc_sage_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/npc_schweinler_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/npc_kitty_gen.png": (6 * ZONE_CELL, ZONE_CELL),
@@ -443,7 +447,11 @@ SHEETS = {
     "assets/npc_owl_gen.png": (4 * ZONE_CELL, ZONE_CELL),
     "assets/npc_goose_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/npc_mouse_gen.png": (4 * ZONE_CELL, ZONE_CELL),
-    "assets/prologue_fx.png": (256, 16),
+    "assets/prologue_fx.png": (256, 32),
+    "assets/accident_kitty_gen.png": (4 * ZONE_CELL, ZONE_CELL),
+    "assets/accident_atv_gen.png": (5 * ZONE_CELL, ZONE_CELL),
+    "assets/accident_bike_down_gen.png": (ZONE_CELL, ZONE_CELL),
+    "assets/accident_bg.png": (384, 216),
     # thesis-day cast (Prologue B) + Mom (the A pacing pass)
     "assets/npc_mom_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/npc_schweinler_adult_gen.png": (6 * ZONE_CELL, ZONE_CELL),

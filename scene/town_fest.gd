@@ -7,16 +7,16 @@ extends TravelScene
 ## downstairs at Basil's home door (the home-start opening) and the town is
 ## FREE — the fountain-square teasing cutscene fires from a proximity zone
 ## when Basil first walks by the square. Then the chapter's wander rhythm
-## (the 2026-07-12 pacing pass): three stinging villager talks → "I want to
-## go home." → MOM's blessing by the cottage opens the south gate. The goose
-## is a chase minigame (it stole Sage's ribbon); returning the ribbon is a
-## warmth beat that counts as a talk.
+## (reworked 2026-07-15): three stinging villager talks → "I want to go
+## home." → back through the FRONT DOOR to Mom downstairs, whose blessing
+## by the hearth opens the south gate (the double-back — Mom stays home, no
+## duplicate festival Mom). The goose steals Sage's ribbon mid-cutscene and
+## hides in the orchard; finding it is a warmth beat that counts as a talk.
 
 const MAP_PATH := "res://assets/maps/town_fest.txt"
 const LAYOUT_PATH := "res://assets/tilesets/town_fest_layout.txt"
 
 const NPCScene := preload("res://entities/npcs/npc.tscn")
-const GooseChaseScene := preload("res://entities/npcs/goose_chase.tscn")
 const FX_SHEET := preload("res://assets/prologue_fx.png")
 
 const SHEET_SAGE := preload("res://assets/npc_sage_gen.png")
@@ -25,17 +25,34 @@ const SHEET_SHEEP := preload("res://assets/npc_sheep_gen.png")
 const SHEET_OWL := preload("res://assets/npc_owl_gen.png")
 const SHEET_GOOSE := preload("res://assets/npc_goose_gen.png")
 const SHEET_MOUSE := preload("res://assets/npc_mouse_gen.png")
-const SHEET_MOM := preload("res://assets/npc_mom_gen.png")
 
-## stings before Basil wants to go home (Mom doesn't count — she's not a sting)
+## stings before Basil wants to go home
 const GATE_TALKS := 3
 
 var _talked := {}
 var _gate_hinted := false
 var _npcs := {}
-var _goose: GooseChase
+## the bobbing square ribbons — the theft snatches one, so keep the refs
+var _ribbons: Array[Sprite2D] = []
+## the home-door re-entry stays disarmed while the from-downstairs arrival
+## stands on it (it lands exactly on the door zone and must not bounce back)
+var _home_armed := true
+
+## Animated Tier-3 building sprites (water + smoke), cycled like the boiler.
+var _anim_t := 0.0
+var _animated: Array[Sprite2D] = []
 
 @onready var theater: Theater = $Theater
+
+
+func _process(delta: float) -> void:
+	if _animated.is_empty():
+		return
+	_anim_t += delta
+	var f := int(_anim_t / 0.18)
+	for i in _animated.size():
+		var s := _animated[i]
+		s.frame = (f + i) % s.hframes
 
 
 func _player_node() -> Node2D:
@@ -61,6 +78,7 @@ func _place_player() -> void:
 	Game.town_spawn = ""
 	if spawn == "home":
 		Party.place(MapData.anchor_px(map, "home") + Vector2(0.0, ARRIVE_DROP))
+		_home_armed = false            # standing on the door zone; arm on exit
 	elif Game.flag("prologue_festival_done"):
 		Party.place(MapData.anchor_px(map, "player_start"))
 	else:
@@ -69,9 +87,13 @@ func _place_player() -> void:
 
 func _extra_setup() -> void:
 	PropSpawner.build("res://assets/tilesets/town_fest_props.txt", map, $World)
+	for c in $World.get_children():
+		if c is Sprite2D and (c as Sprite2D).hframes > 1:
+			_animated.append(c)
 	$ExitSouth.position = MapData.anchor_px(map, "exit_south")
 	$ExitSouth.body_entered.connect(_on_exit_south)
 	_wall_gate_mouth()
+	_spawn_home_door()
 	Party.clamp_cameras(MapData.size_px(map))
 	_spawn_npcs()
 	_spawn_goose()
@@ -94,6 +116,42 @@ func _wall_gate_mouth() -> void:
 	wall.add_child(shape)
 	wall.position = Vector2($ExitSouth.position.x, MapData.size_px(map).y + 4.0)
 	add_child(wall)
+
+
+## Basil's own front door (the blessing double-back, 2026-07-15): while he
+## wants to go home and the gate is still shut, stepping on the home door
+## re-enters the fest downstairs where Mom waits by the hearth. Any other
+## time it's a soft banner. The zone sits where the from-downstairs arrival
+## lands (home + ARRIVE_DROP), so it stays DISARMED until that body steps
+## off it once (_home_armed — else the arrival bounces straight back in).
+func _spawn_home_door() -> void:
+	var door := Area2D.new()
+	door.collision_layer = 0
+	door.collision_mask = 2
+	var shape := CollisionShape2D.new()
+	var rect := RectangleShape2D.new()
+	rect.size = Vector2(24.0, 16.0)
+	shape.shape = rect
+	door.add_child(shape)
+	door.position = MapData.anchor_px(map, "home") + Vector2(0.0, ARRIVE_DROP)
+	add_child(door)
+	door.body_exited.connect(func(body: Node2D) -> void:
+		if body.is_in_group("player"):
+			_home_armed = true)
+	door.body_entered.connect(_on_home_door)
+
+
+func _on_home_door(body: Node2D) -> void:
+	if not body.is_in_group("player") or not _home_armed or _busy:
+		return
+	# once he's wanted home, the door stays open — Mom is inside baking for
+	# the rest of the festival (post-blessing she has scoot-along lines)
+	if Game.flag("prologue_want_home"):
+		_busy = true
+		Game.interior_spawn = "front_door"
+		get_tree().change_scene_to_file.call_deferred("res://scene/downstairs_fest.tscn")
+	else:
+		_show_banner("HOME - MOM'S PIES NEED PEACE. THE FESTIVAL FIRST", BANNER_HOLD)
 
 
 ## The teasing beat fires from proximity, not scene entry (the home-start
@@ -127,11 +185,6 @@ func _spawn_npcs() -> void:
 				"What are YOU looking at, Sparkless?",
 				"My father says magic is BREEDING. And pigs of quality have LOADS of it.",
 			])},
-		{"anchor": "mom_pos", "name": "Mom", "sheet": SHEET_MOM, "cols": 6,
-			"lines": PackedStringArray([
-				"Enjoying the festival, sweetheart?",
-				"Stay where I can hear the fountain, alright? And no climbing the well. Again.",
-			])},
 		{"anchor": "npc_sheep", "name": "Mrs. Flockhart", "sheet": SHEET_SHEEP, "cols": 4,
 			"lines": PackedStringArray([
 				"Basil, dear! Lovely festival, isn't it?",
@@ -159,8 +212,6 @@ func _spawn_npcs() -> void:
 		npc.talked.connect(_on_npc_talked)
 		$World.add_child(npc)
 		_npcs[c["name"]] = npc
-	if _npcs["Mom"] != null:
-		(_npcs["Mom"] as NPC).play_act()   # dusting flour off her paws
 
 
 func _sage_lines() -> PackedStringArray:
@@ -172,32 +223,48 @@ func _sage_lines() -> PackedStringArray:
 	if Game.flag("prologue_festival_done"):
 		return PackedStringArray([
 			"You're not REALLY mad, right? ...Basil?",
-			"Also! That HORRIBLE goose stole my third ribbon. MY ribbon! Get it back and I'll forgive your sulking forever.",
+			"And the GOOSE! You SAW it - it looked me right in the eye and then it took my ribbon. Get it back and I'll forgive your sulking forever.",
 		])
 	return PackedStringArray(["Watch THIS!"])
 
 
+## Three goose states (the theft rework, 2026-07-15): ribbon recovered — a
+## dignified goose back on the lane; hidden — the thief tucked behind the
+## orchard TreeCrown east of the river, just its head over the leaves (the
+## y-sorted crown covers the body; the stolen ribbon floats as the tell);
+## else — the pre-theft goose loitering on the lane, eyeing the ribbons
+## (the theft itself runs inside the festival cutscene).
 func _spawn_goose() -> void:
+	var npc: NPC = NPCScene.instantiate()
+	npc.display_name = "Goose"
+	npc.sheet = SHEET_GOOSE
+	npc.frame_cols = 6
 	if Game.flag("prologue_ribbon"):
-		# already caught — a dignified, stationary goose with a grudge
-		var npc: NPC = NPCScene.instantiate()
-		npc.display_name = "Goose"
-		npc.sheet = SHEET_GOOSE
-		npc.frame_cols = 6
 		npc.lines = PackedStringArray([
 			"HONK.",
 			"(It seems to respect you now. Or it is planning something.)",
 		])
 		npc.position = MapData.anchor_px(map, "npc_goose")
 		npc.talked.connect(_on_npc_talked)
-		$World.add_child(npc)
-		_npcs["Goose"] = npc
-		return
-	_goose = GooseChaseScene.instantiate()
-	_goose.sheet = SHEET_GOOSE
-	_goose.position = MapData.anchor_px(map, "npc_goose")
-	_goose.caught_all.connect(_on_goose_caught)
-	$World.add_child(_goose)
+	elif Game.flag("prologue_goose_hidden"):
+		npc.lines = PackedStringArray([
+			"HONK?! (It nearly jumps out of its feathers.)",
+		])
+		# the anchor sits on the walkable bank cell (the anchor lint); the
+		# goose itself tucks one step east, under the y-sorted crown
+		npc.position = MapData.anchor_px(map, "goose_hide") + Vector2(16.0, 0.0)
+		npc.talked.connect(_goose_startle)
+		var carried := WorldFx.sheet_sprite(FX_SHEET, 0)
+		carried.position = Vector2(7.0, -14.0)
+		npc.add_child(carried)
+		npc.set_meta("ribbon", carried)
+	else:
+		npc.lines = PackedStringArray([
+			"HONK. (It is watching Sage's ribbons very, very closely.)",
+		])
+		npc.position = MapData.anchor_px(map, "npc_goose")
+	$World.add_child(npc)
+	_npcs["Goose"] = npc
 
 
 ## Levitated festival ribbons bobbing over the fountain square — the casual
@@ -217,6 +284,7 @@ func _spawn_ribbons() -> void:
 				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		tw.tween_property(r, "offset:y", r.offset.y, 0.9 + 0.17 * i) \
 				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		_ribbons.append(r)
 
 
 ## Road-ring route around the solid fountain: theater walks tween straight
@@ -272,20 +340,77 @@ func _festival_cutscene() -> void:
 	player.sprite.play("sad")
 	await theater.say("Basil", "...I'm going for a walk.")
 	theater.close_dialog()
+	# ---- the goose theft (2026-07-15, still locked): it has been watching --
+	await _goose_theft()
 	Game.set_flag("prologue_festival_done")
 	_npcs["Sage"].lines = _sage_lines()
 	theater.unlock_party()
+	await _show_banner("THE GOOSE FLED EAST - OVER THE BRIDGE", BANNER_HOLD)
 	_show_banner("TALK TO THE TOWNSFOLK - E TO TALK", BANNER_HOLD)
 
 
-# ---- the wander rhythm: stings -> Mom -> the gate --------------------------------
+## The goose waddles up, snatches one of Sage's floating ribbons, and bolts
+## over the bridge to hide behind the orchard tree. Raw position tweens (the
+## goose sheet has no walk_* clips — emote IS the waddle pair) along the
+## lanes, never through the blocks.
+func _goose_theft() -> void:
+	var goose: NPC = _npcs["Goose"]
+	await theater.wait(0.5)
+	# waddle in: west down the lane, then south around the ring corner
+	await _goose_run(goose, [
+			Vector2(472.0, 312.0),
+			Vector2(472.0, 400.0)], 62.0)
+	await theater.say("", "...the goose. The goose has been WAITING.")
+	await theater.hop(goose, 6.0)
+	# the snatch: the lowest ribbon zips into its beak
+	var rib: Sprite2D = _ribbons[3]
+	var start := rib.global_position + Vector2(0.0, rib.offset.y)
+	rib.queue_free()                      # its bob tween dies with it
+	var zip := WorldFx.sheet_sprite(FX_SHEET, 0)
+	$World.add_child(zip)
+	zip.global_position = start
+	var tw := create_tween()
+	tw.tween_property(zip, "global_position",
+			goose.global_position + Vector2(7.0, -14.0), 0.3)
+	await tw.finished
+	zip.queue_free()
+	var carried := WorldFx.sheet_sprite(FX_SHEET, 0)
+	carried.position = Vector2(7.0, -14.0)
+	goose.add_child(carried)
+	(_npcs["Sage"] as NPC).play_emote()
+	await theater.say("Sage", "HEY!! MY RIBBON! THE GOOSE HAS MY RIBBON!")
+	# the getaway: up the ring, east down the lane, over the bridge, north
+	# along the bank, and into the orchard behind the tree
+	await _goose_run(goose, [
+			Vector2(472.0, 312.0),
+			Vector2(728.0, 312.0),
+			Vector2(760.0, 312.0),
+			Vector2(760.0, 250.0),
+			MapData.anchor_px(map, "goose_hide") + Vector2(16.0, 0.0)], 130.0)
+	await theater.say("Sage", "It went over the BRIDGE! Basil, you're the fast one!")
+	# respawn as the hidden orchard goose (the talkable startle state)
+	Game.set_flag("prologue_goose_hidden")
+	goose.queue_free()
+	_npcs.erase("Goose")
+	_spawn_goose()
+
+
+## Chained straight tweens through lane waypoints, waddling all the way.
+func _goose_run(goose: NPC, pts: Array, speed: float) -> void:
+	goose.play_emote()
+	var tw := create_tween()
+	var from := goose.global_position
+	for p: Vector2 in pts:
+		tw.tween_property(goose, "global_position", p, from.distance_to(p) / speed)
+		from = p
+	await tw.finished
+	goose.play_idle()
+
+
+# ---- the wander rhythm: stings -> home to Mom -> the gate -------------------------
 
 func _on_npc_talked(npc: NPC) -> void:
 	if not Game.flag("prologue_festival_done"):
-		return
-	if npc.display_name == "Mom":
-		if Game.flag("prologue_want_home") and not Game.flag("prologue_gate_open"):
-			_mom_blessing()
 		return
 	if npc.display_name == "Sage" and Game.flag("prologue_ribbon") \
 			and not Game.flag("prologue_ribbon_returned"):
@@ -305,38 +430,32 @@ func _want_home_line() -> void:
 	await theater.say("Basil", "Everyone's very... helpful. I want to go home.")
 	theater.close_dialog()
 	theater.unlock_party()
-	_show_banner("FIND MOM - SHE'S BY THE COTTAGE", BANNER_HOLD)
+	_show_banner("GO HOME - THE FRONT DOOR", BANNER_HOLD)
 
 
-## Her blessing is the gate key: warmth first, permission second.
-func _mom_blessing() -> void:
+# ---- the orchard startle ----------------------------------------------------------
+
+## Found behind the tree, the goose startles, then hands the ribbon over as
+## if returning it was its own idea all along.
+func _goose_startle(goose: NPC) -> void:
+	if Game.flag("prologue_ribbon"):
+		return
 	theater.lock_party()
-	var mom: NPC = _npcs["Mom"]
-	mom.play_idle()
-	await theater.say("Mom", "Oh, sweetheart. I heard about the square.")
-	player.sprite.play("sad")
-	await theater.say("Mom", "Listen to me. Sparks are common as dandelions.")
-	mom.play_emote()
-	await theater.say("Mom", "You? You take things apart to see WHY. You put them back together BETTER. That is rarer than any ribbon trick.")
-	await theater.say("Basil", "...You have to say that. You're my mom.")
-	await theater.say("Mom", "And moms are always right. It's the law.")
-	await theater.say("Mom", "Now scoot. Sulk somewhere sunny - the meadow's good for it. Home before the lamps.")
+	await theater.hop(goose, 7.0)
+	goose.play_act()                       # the honk pair
+	await theater.say("Goose", "HONK!! ...honk. (...oh. It's you.)")
+	await theater.say("Basil", "You. Feathery crime. I believe you have my sister's ribbon.")
+	if goose.has_meta("ribbon"):
+		(goose.get_meta("ribbon") as Sprite2D).queue_free()
+		goose.remove_meta("ribbon")
+	await theater.say("Goose", "(It sets the ribbon down with tremendous dignity, as if returning it was its own idea.)")
+	await theater.say("Goose", "(It was just playing around.)")
 	theater.close_dialog()
-	player.sprite.play("idle_down")
-	Game.set_flag("prologue_gate_open")
-	theater.unlock_party()
-	_show_banner("THE SOUTH GATE IS OPEN", BANNER_HOLD)
-
-
-# ---- the goose chase --------------------------------------------------------------
-
-func _on_goose_caught(goose: GooseChase) -> void:
-	theater.lock_party()
-	await theater.say("Goose", "HONK!! HONK HONK HONK.")
-	await theater.say("Basil", "Gotcha! Hand it over, you feathery crime.")
-	await theater.say("Goose", "(It surrenders the ribbon with tremendous dignity.)")
-	theater.close_dialog()
-	goose.settle()
+	goose.play_idle()
+	goose.lines = PackedStringArray([
+		"HONK.",
+		"(It seems to respect you now. Or it is planning something.)",
+	])
 	Game.set_flag("prologue_ribbon")
 	theater.unlock_party()
 	_show_banner("RETURN THE RIBBON TO SAGE", BANNER_HOLD)

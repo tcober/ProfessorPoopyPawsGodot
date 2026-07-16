@@ -36,7 +36,7 @@ import os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from _core import h2
-from _tilekit import TileScene, T, TIMBER
+from _tilekit import TileScene, T, TIMBER, COPPER
 
 # ---- 8-neighbor direction bits ------------------------------------------------------
 N, NE, E, SE, S, SW, W, NW = 1, 2, 4, 8, 16, 32, 64, 128
@@ -848,34 +848,41 @@ class OverWorld(TileScene):
                 self.bg.put(X + u, Y + v, c)
 
     def _fence_cell(self, X, Y, link):
-        """Zone-scale yard fence on grass: double rails toward each linked
-        neighbor, pickets along straight runs, a squared post at joints."""
-        tm = TIMBER
+        """Zone-scale yard fence on grass: chunky twin wood rails toward each
+        linked neighbor, pickets along straight runs, a squared post with a
+        copper cap at joints and ends — the steampunk garden edge."""
+        tm = TIMBER; cp = COPPER
         for v in range(T):
             for u in range(T):
                 self.bg.put(X + u, Y + v, self._px_grass(u, v))
+
+        def rail(x0, x1):
+            self.bg.rect(x0, Y + 4, x1, Y + 4, tm[0])          # top rail, lit crest
+            self.bg.rect(x0, Y + 5, x1, Y + 6, tm[2])
+            self.bg.rect(x0, Y + 7, x1, Y + 7, tm[4])
+            self.bg.rect(x0, Y + 9, x1, Y + 9, tm[0])          # bottom rail
+            self.bg.rect(x0, Y + 10, x1, Y + 11, tm[2])
+            self.bg.rect(x0, Y + 12, x1, Y + 12, tm[4])
         if link & W:
-            self.bg.rect(X, Y + 6, X + 8, Y + 6, tm[1])
-            self.bg.rect(X, Y + 7, X + 8, Y + 7, tm[3])
-            self.bg.rect(X, Y + 10, X + 8, Y + 10, tm[2])
+            rail(X, X + 8)
         if link & E:
-            self.bg.rect(X + 7, Y + 6, X + T - 1, Y + 6, tm[1])
-            self.bg.rect(X + 7, Y + 7, X + T - 1, Y + 7, tm[3])
-            self.bg.rect(X + 7, Y + 10, X + T - 1, Y + 10, tm[2])
+            rail(X + 7, X + T - 1)
         if link & N:
-            self.bg.rect(X + 7, Y, X + 8, Y + 8, tm[3])
+            self.bg.rect(X + 6, Y, X + 9, Y + 8, tm[2]); self.bg.rect(X + 6, Y, X + 6, Y + 8, tm[1])
         if link & S:
-            self.bg.rect(X + 7, Y + 7, X + 8, Y + T - 1, tm[3])
+            self.bg.rect(X + 6, Y + 7, X + 9, Y + T - 1, tm[2]); self.bg.rect(X + 9, Y + 7, X + 9, Y + T - 1, tm[4])
         if link & (W | E) and not link & (N | S):
-            for u in (3, 12):                              # pickets
-                self.bg.rect(X + u, Y + 4, X + u + 1, Y + 11, tm[2])
-                self.bg.put(X + u, Y + 4, tm[1])
-                self.bg.rect(X + u, Y + 11, X + u + 1, Y + 11, tm[4])
-        else:                                              # post at joints/ends
-            self.bg.rect(X + 6, Y + 3, X + 9, Y + 12, tm[2])
-            self.bg.rect(X + 6, Y + 3, X + 6, Y + 12, tm[1])
-            self.bg.rect(X + 9, Y + 3, X + 9, Y + 12, tm[4])
-            self.bg.rect(X + 6, Y + 12, X + 9, Y + 12, tm[5])
+            for u in (3, 12):                                  # pickets
+                self.bg.rect(X + u, Y + 2, X + u + 1, Y + 13, tm[3])
+                self.bg.rect(X + u, Y + 2, X + u, Y + 13, tm[1])
+                self.bg.put(X + u, Y + 1, tm[0]); self.bg.put(X + u + 1, Y + 13, tm[5])
+        else:                                                  # post + copper cap
+            self.bg.rect(X + 5, Y + 2, X + 10, Y + 13, tm[2])
+            self.bg.rect(X + 5, Y + 2, X + 5, Y + 13, tm[1])
+            self.bg.rect(X + 10, Y + 2, X + 10, Y + 13, tm[4])
+            self.bg.rect(X + 5, Y + 13, X + 10, Y + 13, tm[5])
+            self.bg.rect(X + 4, Y + 1, X + 11, Y + 1, cp[1])   # copper cap
+            self.bg.put(X + 4, Y + 2, cp[3]); self.bg.put(X + 11, Y + 2, cp[3])
 
     # which lattice corner a lone open diagonal touches (px point)
     _CORNER_PT = {NE: (15.5, -0.5), SE: (15.5, 15.5),

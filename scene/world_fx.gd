@@ -29,6 +29,11 @@ static func sheet_sprite(sheet: Texture2D, cell: int, hframes := 16) -> Sprite2D
 	var s := Sprite2D.new()
 	s.texture = sheet
 	s.hframes = hframes
+	# square cells assumed: a sheet taller than one cell row is a multi-row
+	# grid (prologue_fx grew a second row 2026-07-15) — infer vframes so
+	# row-0 frame indices stay valid for every existing caller
+	var cell_px := sheet.get_width() / float(hframes)
+	s.vframes = maxi(1, int(round(sheet.get_height() / cell_px)))
 	s.frame = cell
 	s.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	return s

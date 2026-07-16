@@ -13,7 +13,7 @@ blend_mode = 1
 script = ExtResource("1_sr")
 
 [node name="Dim" type="CanvasModulate" parent="."]
-color = Color(0.7, 0.68, 0.82, 1)
+color = Color(0.66, 0.66, 0.82, 1)
 
 [node name="Tiles" type="TileMapLayer" parent="."]
 texture_filter = 1

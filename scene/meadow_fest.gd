@@ -19,7 +19,9 @@ const NPCScene := preload("res://entities/npcs/npc.tscn")
 const FX_SHEET := preload("res://assets/prologue_fx.png")
 const SHEET_KITTY := preload("res://assets/npc_kitty_gen.png")
 
-## fx strip cells (prologue_fx.png is 16 cells wide since thesis day)
+## fx strip cells (prologue_fx.png is a 16-wide grid, TWO rows since the
+## accident set-piece — always slice it via WorldFx.sheet_sprite, which
+## infers vframes from the sheet height)
 const FX_SPARK0 := 2
 const FX_SPARK1 := 3
 const FX_GEAR := 4
@@ -102,11 +104,9 @@ func _spawn_kitty() -> void:
 
 
 func _spawn_whirligig() -> void:
-	_whirligig = Sprite2D.new()
-	_whirligig.texture = FX_SHEET
-	_whirligig.hframes = 16
-	_whirligig.frame = FX_WHIRL_DROOP
-	_whirligig.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	# sheet_sprite, not a raw hframes=16 Sprite2D: the fx sheet is two rows
+	# now, and a bare hframes slice would cut 16x32 frames (8px off-center)
+	_whirligig = WorldFx.sheet_sprite(FX_SHEET, FX_WHIRL_DROOP)
 	_whirligig.position = MapData.anchor_px(map, "whirligig") + Vector2(0.0, -4.0)
 	$World.add_child(_whirligig)
 
