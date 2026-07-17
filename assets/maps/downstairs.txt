@@ -42,6 +42,10 @@ anchor stair_arrival 11 5
 anchor front_door 11 9
 anchor exit_door 11 11
 anchor exit_up 11 1
+anchor part_gear 18 9
+anchor part_spring 4 5
+anchor part_crank 8 9
+anchor kitty_pos 8 5
 map
 VVVVVVVVVVVVVVVVVVVVVVVV
 VVVVVVVVVV#ss#VVVVVVVVVV

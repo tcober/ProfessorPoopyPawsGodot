@@ -25,6 +25,7 @@ var player: Node2D
 var _anim_t := 0.0
 var _busy := false
 var _mom: NPC
+var _hint_tw: Tween
 
 @onready var theater: Theater = $Theater
 
@@ -154,6 +155,10 @@ func _show_hint(text: String) -> void:
 	var label: Label = $UI/Hint
 	label.text = text
 	label.modulate.a = 1.0
-	var tw := create_tween()
-	tw.tween_interval(2.4)
-	tw.tween_property(label, "modulate:a", 0.0, 0.5)
+	# kill the previous fade or its interval expires mid-hold and yanks
+	# THIS hint early — create_tween() never auto-kills prior tweens
+	if _hint_tw:
+		_hint_tw.kill()
+	_hint_tw = create_tween()
+	_hint_tw.tween_interval(2.4)
+	_hint_tw.tween_property(label, "modulate:a", 0.0, 0.5)

@@ -8,9 +8,10 @@ extends SceneTree
 ##   home start (bedroom -> Mom gates the front door) -> the fountain
 ##   proximity trigger fires the teasing -> 3 villager talks open the gate ->
 ##   meadow -> meeting Kitty -> 3 whirligig parts -> flight finale ->
-##   montage -> Prologue B with its walk-gates (lectern, hall door, the
-##   post, the bedside, the fountain) -> hand-off to house.tscn with the
-##   adult roster.
+##   montage -> the WORKSHOP INTERLUDE (3 watch parts + the gift,
+##   2026-07-16) -> Prologue B with its walk-home and walk-gates (the
+##   doorstep, lectern, hall door, the post, the bedside, the fountain) ->
+##   hand-off to house.tscn with the adult roster.
 ##
 ## Walk-gates are driven by TELEPORTING to the gate anchor; their pollable
 ## end-states are the party unlock (is_physics_processing) or a flag.
@@ -99,6 +100,12 @@ func _player() -> Node2D:
 	return players[0] if players.size() > 0 else null
 
 
+## The pollable "party unlocked" end-state every phase gate shares (one
+## home — four hand-copied lambdas drifted before the 2026-07-17 review).
+func _party_free() -> bool:
+	return _player() != null and _player().is_physics_processing()
+
+
 func _run() -> void:
 	await process_frame
 	# an OCCLUDED macOS window runs UNCAPPED (~2000fps): frame budgets burn
@@ -120,8 +127,7 @@ func _run() -> void:
 	var house_map: Dictionary = MapData.load_map("res://assets/maps/house.txt")
 	# the sunrise wake-up holds the kid locked through the sigh — mash to
 	# the unlock (the pollable end-state, the house_thesis wake idiom)
-	var awake := func() -> bool: return _player() != null and _player().is_physics_processing()
-	var ok: bool = await _mash_until(awake, 3600)
+	var ok: bool = await _mash_until(_party_free, 3600)
 	_check("the sunrise wake-up hands control back", ok)
 	_player().global_position = MapData.anchor_px(house_map, "exit_door")
 	var in_down := func() -> bool: return _scene_is("res://scene/downstairs_fest.tscn")
@@ -229,19 +235,64 @@ func _run() -> void:
 		ok = await _mash_until(box_closed, 1200)
 		await _wait_frames(20)
 
-	# ---- the flight finale + montage -> Prologue B ---------------------------
+	# ---- the flight finale + montage -> the workshop interlude ---------------
 	_player().global_position = MapData.anchor_px(meadow_map, "kitty_pos") + Vector2(0.0, 40.0)
 	var sparkless_done := func() -> bool: return game.flag("prologue_sparkless_done")
 	ok = await _mash_until(sparkless_done, 9000)
 	_check("Prologue A flight finale + montage complete", ok)
-	var in_thesis := func() -> bool: return _scene_is("res://scene/town_thesis.tscn")
-	ok = await _mash_until(in_thesis, 1200)
-	_check("A hands off to thesis-day town (plant)", ok)
+	var in_workshop := func() -> bool: return _scene_is("res://scene/workshop_interlude.tscn")
+	ok = await _mash_until(in_workshop, 1200)
+	_check("A hands off to the workshop interlude", ok)
 	_check("swapped to the student roster", party.roster.size() == 1
 			and party.roster[0] == &"basil_student")
+	await _wait_frames(30)
+
+	# ==== THE WORKSHOP INTERLUDE (2026-07-16) =================================
+	# mash the intro, touch the three parts, then the gift -> thesis day.
+	# The intro's end-state is the party UNLOCK, never dialog-invisible: the
+	# box is also invisible during the opening wait(), which reads as "done"
+	# before the first line ever opens (the 2026-07-16 probe race).
+	ok = await _mash_until(_party_free, 3000)
+	await _wait_frames(20)
+	# parts by ANCHOR, never re-hardcoded pixels: the scene reads the same
+	# anchors, so the probe drives the real coordinates and a map edit
+	# cannot desync the two (the 2026-07-17 review)
+	var shop_map: Dictionary = MapData.load_map("res://assets/maps/downstairs.txt")
+	for part in ["gear", "spring", "crank"]:
+		_player().global_position = MapData.anchor_px(shop_map, "part_" + part)
+		await _wait_frames(12)
+	var parts_ok := func() -> bool: return game.flag("prologue_wpart_gear") \
+			and game.flag("prologue_wpart_spring") and game.flag("prologue_wpart_crank")
+	ok = await _mash_until(parts_ok, 600)
+	_check("workshop parts collected", ok)
+	# the gift: stand at Kitty, press E, mash to the flag — the scene frees
+	# itself at the hand-off, so the end-state preds are the FLAG and the
+	# next scene, never the (soon freed) theater
+	var gift_done := func() -> bool: return game.flag("prologue_watch_given")
+	# stand EAST of her on open row-5 floor — the cell north of the anchor
+	# is the solid counter row; a teleport there only worked by TalkZone
+	# generosity + one-way depenetration (the 2026-07-17 review)
+	_player().global_position = MapData.anchor_px(shop_map, "kitty_pos") + Vector2(16.0, 0.0)
+	await _wait_frames(8)
+	for attempt in 4:
+		Input.action_press("interact")
+		await _wait_frames(3)
+		Input.action_release("interact")
+		ok = await _mash_until(gift_done, 3000)
+		if ok:
+			break
+	_check("the watch gift plays", ok)
+	var in_thesis := func() -> bool: return _scene_is("res://scene/town_thesis.tscn")
+	ok = await _mash_until(in_thesis, 1500)
+	_check("the interlude hands off to thesis-day town (plant)", ok)
+	await _wait_frames(40)
 
 	# ==== PROLOGUE B ==========================================================
-	# plant (auto-cutscene) -> house_thesis
+	# plant: the night-before lines -> the playable walk home -> the doorstep
+	# call -> house_thesis
+	ok = await _mash_until(_party_free, 3000)
+	_check("the night-before hands over the walk home", ok)
+	_player().global_position = MapData.anchor_px(town_map, "home") + Vector2(0.0, 26.0)
 	var in_wake := func() -> bool: return _scene_is("res://scene/house_thesis.tscn")
 	ok = await _mash_until(in_wake, 6000)
 	_check("plant beat -> the 8:57 wake-up", ok)
@@ -276,8 +327,7 @@ func _run() -> void:
 	# shame out the door. Walk-gates unlock the party (the pollable state);
 	# the probe teleports to each gate anchor.
 	var hall_map: Dictionary = MapData.load_map("res://assets/maps/hall.txt")
-	var unlocked := func() -> bool: return _player() != null and _player().is_physics_processing()
-	ok = await _mash_until(unlocked, 2400)
+	ok = await _mash_until(_party_free, 2400)
 	_check("the Dean's welcome hands over the walk-in", ok)
 	# the walk-in gate is the full-width row below the benches (y 136), not
 	# the lectern point — land inside the band
@@ -294,7 +344,7 @@ func _run() -> void:
 
 	# call: two lines -> the walk to the square -> the watch call -> the
 	# SHOWN accident (scene/accident.tscn auto-runs between mashed lines)
-	ok = await _mash_until(unlocked, 4000)
+	ok = await _mash_until(_party_free, 4000)
 	_check("the call phase hands over the walk to the post", ok)
 	_player().global_position = MapData.anchor_px(town_map, "post")
 	var in_sick := func() -> bool: return _scene_is("res://scene/sickroom.tscn")
@@ -305,7 +355,7 @@ func _run() -> void:
 	# sickroom: the doctor's invitation -> the walk to the bedside -> the
 	# verdict -> fountain phase
 	var sick_map: Dictionary = MapData.load_map("res://assets/maps/sickroom.txt")
-	ok = await _mash_until(unlocked, 2400)
+	ok = await _mash_until(_party_free, 2400)
 	_check("the doctor hands over the walk to the bedside", ok)
 	_player().global_position = MapData.anchor_px(sick_map, "bedside")
 	var in_fountain := func() -> bool: return _scene_is("res://scene/town_thesis.tscn")
@@ -316,7 +366,7 @@ func _run() -> void:
 	# fountain: the walk down to the square, then the confession + the
 	# tint-to-night until prologue_scolded (the phase unlocks twice, so
 	# is_physics_processing alone is ambiguous — the flag is the end-state)
-	await _mash_until(unlocked, 2400)
+	await _mash_until(_party_free, 2400)
 	# the gate is the square zone (same as the fest cutscene's); the festival
 	# anchor itself sits south of it, so land on the ring inside the zone
 	_player().global_position = MapData.anchor_px(town_map, "basil_mark") + Vector2(0.0, -16.0)

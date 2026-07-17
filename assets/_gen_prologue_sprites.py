@@ -24,6 +24,10 @@ Sheets written (all 48px cells, feet baseline y=44 = _core.ZONE_FEET):
           red neckerchief; act = POINT, emote = belly laugh
       npc_kitty_gen.png       (288x48) — Kitty Cool: ginger-cream maker girl,
           teal bandana, grease smudge; act = TINKER crouch, emote = beaming
+      npc_kitty_adult_gen.png (288x48) — college-age Kitty (the workshop
+          interlude + her fountain-rim stall): same fur/bandana/smudge grown
+          to the adult body, waxed-canvas work apron; act = TINKER (paws up
+          at the work), emote = the beam-whoop (arms flung)
       npc_sheep_gen.png       (192x48) — wool-cloud matron; act = talk nod
       npc_owl_gen.png         (192x48) — the know-it-all owl; act = lecturing
           wing
@@ -816,6 +820,103 @@ def kitty_bed(s, mood="rest", bob=0):
 RIMLESS = (198, 214, 226, 255)                     # the stork's half-moon specs
 
 
+# ---- college-age Kitty ----------------------------------------------------------------------
+
+APRON = ramp((172, 134, 92), "violet", 4)          # waxed-canvas work apron
+KITADULT_OUTS = outs_for((KIT_FUR, OUT_DARK), (WHITE, OUT_LIGHT),
+                         (KIT_BAND, OUT_DARK), (APRON, OUT_DARK))
+
+
+def kitty_adult(s, mood="idle", bob=0):
+    """Kitty Cool grown into the stall keeper (the workshop interlude + the
+    fountain-rim stall, 2026-07-16): the kid sheet's ginger fur, teal
+    bandana and grease smudge carried onto the adult body (the mom idiom),
+    plus a waxed-canvas work apron with a brass-glint pocket. [idle x2,
+    TINKER act x2 (paws up at the work), BEAM emote x2 (the whoop)]."""
+    hy = 22 + bob
+    # both ears up — she never lost the alert tilt
+    s.tri((CX - 6, hy - 10), hy - 4, CX - 8, CX - 3, KIT_FUR)
+    s.tri((CX + 6, hy - 10), hy - 4, CX + 3, CX + 8, KIT_FUR, sh=0.12)
+    s.tri((CX - 6, hy - 8), hy - 5, CX - 7, CX - 5, EARIN)
+    s.tri((CX + 6, hy - 8), hy - 5, CX + 5, CX + 7, EARIN)
+    s.ball(CX, hy, 7.0, 6.2, KIT_FUR, power=2.4, wrap=0.30, curve=0.26)
+    s.ball(CX, hy + 4.2, 4.6, 2.8, WHITE, power=2.2, wrap=0.10, curve=0.10)
+    s.rect(CX - 1, hy + 2, CX, hy + 2, NOSE)
+    ey = hy - 2
+    if mood == "beam":
+        _closed(s, CX - 5, ey)
+        _closed(s, CX + 3, ey)
+        s.rect(CX - 1, hy + 4, CX, hy + 5, MAW)
+        s.set(CX - 6, hy + 2, BLUSH)
+        s.set(CX + 5, hy + 2, BLUSH)
+    else:
+        _eye(s, CX - 5, ey, KIT_EYE, KIT_EYEL)
+        _eye(s, CX + 3, ey, KIT_EYE, KIT_EYEL)
+        s.line([(CX - 1, hy + 4), (CX, hy + 4)], MOUTH)
+    # the grease smudge — some things do not wash off
+    s.set(CX + 5, hy + 3, SMUDGE)
+    s.set(CX + 6, hy + 2, SMUDGE)
+    # slim maker body under the apron panel (flat bands, mom's recipe)
+    by = 35 + bob
+    s.ball(CX, by, 6.8, 6.6, KIT_FUR, power=2.2, wrap=0.26, curve=0.20)
+    for y in range(by - 4, by + 6):
+        half = 3 + (2 if y > by - 1 else 1)
+        for x in range(CX - half, CX + half + 1):
+            s.set(x, y, APRON[0] if x < CX else APRON[1])
+    s.rect(CX - 3, by - 6, CX - 2, by - 5, APRON[2])              # straps
+    s.rect(CX + 2, by - 6, CX + 3, by - 5, APRON[2])
+    s.rect(CX - 2, by + 2, CX + 2, by + 4, APRON[2])              # pocket
+    s.set(CX + 1, by + 2, BRASSF[0])                # a gear peeking out
+    s.set(CX - 1, by + 2, STEELF[1])                # and a spring end
+    # bandana at the throat — the kid kerchief, worn ever since
+    s.rect(CX - 4, hy + 7, CX + 4, hy + 8, KIT_BAND[1])
+    s.rect(CX + 1, hy + 8, CX + 4, hy + 8, KIT_BAND[2])
+    s.tri((CX, hy + 11), hy + 8, CX - 2, CX + 2, KIT_BAND, sh=0.14)
+    if mood == "tinker":
+        # both paws up at the work, a brass bit pinched mid-air
+        s.capsule(CX - 6.5, by - 4, CX - 3, by - 8, 1.8, 1.6, KIT_FUR, sh=0.06)
+        s.capsule(CX + 6.5, by - 4, CX + 3, by - 8, 1.8, 1.6, KIT_FUR, sh=0.16)
+        s.ball(CX - 3, by - 9, 1.7, 1.5, WHITE, power=2.2, wrap=0.10, curve=0.10)
+        s.ball(CX + 3, by - 9, 1.7, 1.5, WHITE, power=2.2, sh=0.10, wrap=0.10,
+               curve=0.10)
+        # the pinched gear + work glint are drawn AFTER the finishing
+        # passes at the bottom — despeckle eats lone specks (the sage rule)
+    elif mood == "beam":
+        # arms flung up — the whoop
+        s.capsule(CX - 7, by - 4, CX - 9, by - 9, 1.8, 1.6, KIT_FUR, sh=0.06)
+        s.capsule(CX + 7, by - 4, CX + 9, by - 9, 1.8, 1.6, KIT_FUR, sh=0.16)
+        s.ball(CX - 9, by - 10, 1.7, 1.5, WHITE, power=2.2, wrap=0.10,
+               curve=0.10)
+        s.ball(CX + 9, by - 10, 1.7, 1.5, WHITE, power=2.2, sh=0.10, wrap=0.10,
+               curve=0.10)
+    else:
+        s.capsule(CX - 7, by - 4, CX - 8, by + 1, 1.8, 1.6, KIT_FUR, sh=0.06)
+        s.capsule(CX + 7, by - 4, CX + 8, by + 1, 1.8, 1.6, KIT_FUR, sh=0.16)
+        s.ball(CX - 8, by + 2, 1.7, 1.5, WHITE, power=2.2, wrap=0.10,
+               curve=0.10)
+        s.ball(CX + 8, by + 2, 1.7, 1.5, WHITE, power=2.2, sh=0.10, wrap=0.10,
+               curve=0.10)
+    for lx in (CX - 3, CX + 3):                     # paws under the hem
+        s.ball(lx, 43, 2.1, 1.6, KIT_FUR, power=2.2, wrap=0.10, curve=0.10)
+    # tail up in a question-mark curl — the maker's antenna. CAPSULE
+    # strokes, never s.line pixels: line() doesn't interpolate and
+    # despeckle eats disconnected specks (the sibling tails are all
+    # capsules for the same reason)
+    s.capsule(CX + 7, 41 + bob, CX + 10, 37 + bob, 1.5, 1.3, KIT_FUR, sh=0.10)
+    s.capsule(CX + 10, 37 + bob, CX + 9, 33 + bob, 1.3, 1.2, KIT_FUR, sh=0.06)
+    s.ball(CX + 9, 32 + bob, 1.5, 1.4, KIT_FUR, power=2.2, wrap=0.10,
+           curve=0.10)
+    s.despeckle(passes=1)
+    s.outline(KITADULT_OUTS, OUT_DARK)
+    whiskers_kid_down(s, bob - 6)
+    if mood == "tinker":
+        # deliberate specks AFTER despeckle/outline (sage's sparkle rule:
+        # details that break the silhouette draw over the finished art)
+        s.set(CX, by - 10, BRASSF[1])               # the pinched gear
+        s.set(CX + 1, by - 10, BRASSF[0])
+        s.set(CX, by - 12, SPARK)                   # work glint
+
+
 # ---- fx strip -----------------------------------------------------------------------------
 
 def fx_ribbon(s, r):
@@ -1399,6 +1500,17 @@ kitty_bed(kb2[0][3], "vacant", bob=-1)
 kitty_bed(kb2[0][4], "polite")
 kitty_bed(kb2[0][5], "polite", bob=-1)
 write_cells(os.path.join(HERE, "npc_kitty_bed_gen.png"), kb2, CELL)
+
+# College-age Kitty (the workshop interlude + the stall):
+# [idle x2, tinker x2, beam x2]
+ka = [[new() for _ in range(6)]]
+kitty_adult(ka[0][0])
+kitty_adult(ka[0][1], bob=-1)
+kitty_adult(ka[0][2], mood="tinker")
+kitty_adult(ka[0][3], mood="tinker", bob=-1)
+kitty_adult(ka[0][4], mood="beam")
+kitty_adult(ka[0][5], mood="beam", bob=-1)
+write_cells(os.path.join(HERE, "npc_kitty_adult_gen.png"), ka, CELL)
 
 # fx strip — TWO 16-cell rows (256x32). Row 0 is frozen: cells 0-9 Prologue
 # A's, 10-15 thesis day's — its bytes must never change (WorldFx callers

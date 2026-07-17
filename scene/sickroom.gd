@@ -81,6 +81,10 @@ func _verdict_cutscene() -> void:
 	_kitty.sprite.play("emote")           # polite, kind to a stranger
 	await theater.say("Kitty", "...Oh. Hello. You seem very upset. Are you one of my friends? I'm sorry - the nice stork says I've forgotten quite a lot.")
 	await theater.say("Kitty", "You have a kind face. Did we... make something together? I keep thinking about my hands. Isn't that funny.")
+	# the hands remember (2026-07-16 Kitty thread): the present-day "hands
+	# still remembering what her mind lost" is planted HERE, visible, in the
+	# first minute after the verdict
+	await theater.say("", "Her paws keep moving while she talks - folding a pleat into the blanket, smoothing it flat, folding it again. They don't look lost at all.")
 	player.sprite.play("sad")
 	await theater.wait(0.6)
 	await theater.say("Basil", "...No. No, we didn't. I'm sorry. I have the wrong room.")

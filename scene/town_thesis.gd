@@ -3,10 +3,15 @@ extends TravelScene
 ## Alembic Town on THESIS DAY — Prologue B (docs/DESIGN.md Story). One scene,
 ## four flag-driven phases dressed by a CanvasModulate tint (the tint law: one
 ## painting, never a repaint), routed by Game.town_thesis_phase:
-##   plant    (night)   Schweinler leaves the bag at Basil's door -> house_thesis
+##   plant    (night)   SEMI-PLAYABLE: the Academy stair -> the player's own
+##                      walk home past Kitty's shuttered stall -> the doorstep
+##                      bookend watch call -> Schweinler leaves the bag ->
+##                      house_thesis
 ##   dash     (morning) the SQUELCH, the hop-the-puddles run, paw-print trail,
-##                      reach the Academy -> hall
-##   call     (dusk)    the call to Kitty, the accident over black -> sickroom
+##                      Kitty's broken-axle stall cameo, reach the Academy ->
+##                      hall
+##   call     (dusk)    the shuttered stall, the call to Kitty, then the SHOWN
+##                      accident (scene/accident.tscn) -> sickroom
 ##   fountain (dusk)    the classmate's cruelty, then the night leaving -> the
 ##                      closing cards and the hand-off to the adult build
 ## Rides the festival town's map + tiles (same era-frozen village); this is the
@@ -19,6 +24,7 @@ const NPCScene := preload("res://entities/npcs/npc.tscn")
 const FX_SHEET := preload("res://assets/prologue_fx.png")
 const SHEET_SCHW := preload("res://assets/npc_schweinler_adult_gen.png")
 const SHEET_BADGER := preload("res://assets/npc_badger_gen.png")
+const SHEET_KITTY_ADULT := preload("res://assets/npc_kitty_adult_gen.png")
 
 const FX_BAG := 10
 const FX_PRINT := 11
@@ -63,7 +69,10 @@ func _place_player() -> void:
 		"call", "fountain":
 			Party.place(MapData.anchor_px(map, "school") + Vector2(0.0, 24.0))
 		_:
-			Party.place(MapData.anchor_px(map, "player_start"))
+			# plant opens at the Academy stair — Basil's been prepping the
+			# hall; the walk home is the player's own (2026-07-16, the
+			# night-before made playable)
+			Party.place(MapData.anchor_px(map, "school") + Vector2(0.0, 24.0))
 
 
 func _extra_setup() -> void:
@@ -83,10 +92,40 @@ func _extra_setup() -> void:
 func _phase_plant() -> void:
 	tint.color = TINT_NIGHT
 	theater.lock_party()
-	player.visible = false            # Basil's asleep; we watch the yard
-	var schw: NPC = _npc("Schweinler", SHEET_SCHW, 6, MapData.anchor_px(map, "exit_south"))
+	# the night before, PLAYABLE (2026-07-16): Basil has been prepping the
+	# hall all evening; the walk home through the sleeping town is the
+	# player's own, past Kitty's shuttered stall, down to the doorstep call
+	theater.face(player, Vector2.DOWN)
 	await theater.wait(ENTRY_FADE + 0.4)
-	await theater.say("", "The night before the lecture. A shape creeps up to Basil's door.")
+	await theater.say("Basil", "Notes stacked. Chalk lined up. Diagrams pinned STRAIGHT. Nothing left to fuss with.")
+	await theater.say("Basil", "Home. Sleep. Tomorrow I become a professor.")
+	theater.close_dialog()
+	_arm_stall_night()
+	_show_banner("HOME - GET SOME SLEEP", BANNER_HOLD)
+	await theater.walk_gate(MapData.anchor_px(map, "home") + Vector2(0.0, 26.0),
+			Vector2(40.0, 24.0))
+	# the bookend call (2026-07-16 Kitty thread): on his own doorstep, the
+	# watch SHE MADE blinking on his wrist — the same fx and the same
+	# gesture as the dusk call after the naming, opposite emotional poles
+	theater.face(player, Vector2.DOWN)
+	var watch := WorldFx.airborne($World, FX_SHEET, 0,
+			player.global_position + Vector2(10.0, 4.0), 36.0)
+	watch.frame = FX_WATCH
+	await theater.wait(0.5)
+	await theater.say("Kitty", "Say it again. One more time. I want to hear it.")
+	await theater.say("Basil", "...Tomorrow I present my thesis. As the youngest professor the Academy has ever made.")
+	await theater.say("Kitty", "HA! There he is. Stall closes early tomorrow. Front row, center. The whooping is PREPARED.")
+	await theater.say("Basil", "Please don't whoop. ...The watch you made me says it's past midnight, you know.")
+	await theater.say("Kitty", "That watch keeps PERFECT time. It's the cat wearing it who runs late. Bed! You'll be brilliant tomorrow - you always are, once you stop being scared.")
+	await theater.say("Basil", "...Goodnight, Kitty.")
+	theater.close_dialog()
+	watch.queue_free()
+	theater.face(player, Vector2.UP)
+	await theater.walk(player, MapData.anchor_px(map, "home") + Vector2(0.0, 12.0), 40.0)
+	player.visible = false            # inside; the yard goes quiet
+	await theater.wait(0.8)
+	var schw: NPC = _npc("Schweinler", SHEET_SCHW, 6, MapData.anchor_px(map, "exit_south"))
+	await theater.say("", "The town sleeps. A shape creeps up to Basil's door.")
 	# theater walks are straight no-collision tweens — creep the LANES (up
 	# the gate road, around the fountain's west ring, west down the main
 	# lane), never the diagonal through the shop blocks
@@ -133,6 +172,7 @@ func _phase_dash() -> void:
 	bag.queue_free()
 	theater.close_dialog()
 	_spawn_puddles()
+	_spawn_stall_kitty()
 	_dashing = true
 	theater.unlock_party()
 	_show_banner("GET TO THE ACADEMY - K/SHIFT TO HOP THE PUDDLES", BANNER_HOLD)
@@ -245,6 +285,9 @@ func _phase_call() -> void:
 	var basin := MapData.bbox_rect(map, "oO")
 	await theater.walk_gate(basin.get_center(), Vector2(96.0, 96.0))
 	await theater.walk_via(player, _post_route(player.global_position), 50.0)
+	# the stall is two tiles away, shuttered — WHY he calls instead of
+	# walking over, and why she has to take the dusk road to reach him
+	await theater.say("Basil", "Her stall's shut. She never made it to the hall today. ...Good. Good. She didn't see it.")
 	# the watch call (2026-07-15): comms on his wrist — the watch face
 	# blinks awake over him while the connection hunts for her
 	theater.face(player, Vector2.DOWN)
@@ -252,6 +295,8 @@ func _phase_call() -> void:
 			player.global_position + Vector2(10.0, 4.0), 36.0)
 	watch.frame = FX_WATCH
 	await theater.wait(0.5)
+	# the bookend rhyme: "that watch keeps PERFECT time," the night before
+	await theater.say("Basil", "Pick up. Come on. You built this thing and it has never once failed - pick UP.")
 	await theater.say("Basil", "Kitty. It's me. It's bad. The lecture, Schweinler, the whole hall - please pick up.")
 	await theater.say("Kitty", "Oh no... that asshole. I'm coming! Stay where you are!")
 	await theater.say("Basil", "Wait - it's nearly dark, don't take the road - Kitty? ...She's already pedaling.")
@@ -316,10 +361,63 @@ func _on_leave(body: Node) -> void:
 	await theater.card("He took a stick and a knapsack, and he walked east.", 2.4)
 	await theater.card("The laughter followed him to the town line.  He did not go back.", 2.6)
 	await theater.card("He stopped going anywhere at all.", 2.2)
+	await theater.card("He kept the watch.", 1.8)
 	await theater.card("YEARS LATER.", 2.0)
 	Game.set_flag("prologue_done")
 	Party.set_roster([&"basil", &"fuji"], &"basil")
 	get_tree().change_scene_to_file("res://scene/house.tscn")
+
+
+# ---- Kitty's stall (2026-07-16 Kitty thread) ---------------------------------------
+## The fountain-rim stall is canonically HERS in the college era. Night
+## before: shuttered, an optional pass-by line on the walk home. Thesis
+## morning: she's wrestling a broken cart axle as Basil tears past — the
+## mundane, maker-shaped reason the front-row promise breaks (she never
+## sees the naming; the dusk call's "she didn't see it" hangs on this).
+
+func _stall_center() -> Vector2:
+	return MapData.bbox_rect(map, "m").get_center()
+
+
+func _arm_stall_night() -> void:
+	var zone := _stall_zone(40.0)
+	zone.body_entered.connect(func(body: Node2D) -> void:
+		if not body.is_in_group("player") or zone.get_meta("done", false) \
+				or _busy:
+			return
+		zone.set_meta("done", true)
+		theater.lock_party()
+		await theater.say("Basil", "Her stall's shut up for the night. Good. Front row tomorrow, she said - she'd better be asleep too.")
+		theater.close_dialog()
+		theater.unlock_party())
+
+
+func _spawn_stall_kitty() -> void:
+	var kitty := _npc("Kitty", SHEET_KITTY_ADULT, 6,
+			_stall_center() + Vector2(0.0, 20.0))
+	kitty.play_act()                  # hunched over the axle
+	var zone := _stall_zone(48.0)
+	zone.body_entered.connect(func(body: Node2D) -> void:
+		if not body.is_in_group("player") or zone.get_meta("done", false):
+			return
+		zone.set_meta("done", true)
+		kitty.play_emote()
+		_show_banner("KITTY: STUPID AXLE! GO GO GO - YOU'RE LATE!!", BANNER_HOLD))
+
+
+func _stall_zone(radius: float) -> Area2D:
+	var zone := Area2D.new()
+	zone.collision_layer = 0
+	zone.collision_mask = 2
+	var shape := CollisionShape2D.new()
+	var circle := CircleShape2D.new()
+	circle.radius = radius
+	shape.shape = circle
+	zone.add_child(shape)
+	zone.position = _stall_center()
+	zone.set_meta("done", false)
+	add_child(zone)
+	return zone
 
 
 # ---- helpers ----------------------------------------------------------------------

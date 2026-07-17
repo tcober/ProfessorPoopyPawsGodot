@@ -6,7 +6,8 @@ extends TravelScene
 ## girl cat wrestling a hand-cranked whirligig. The fetch-quest (gear on the
 ## beach, spring in the flowers, crank by the boulders) teaches the
 ## explore/interact loop; the flight cutscene ends the chapter and the montage
-## cards hand the game off to the adult build ("YEARS LATER.").
+## cards ("THREE SUMMERS LATER.") hand off to the workshop interlude — the
+## acceptance-letter evening and the watch gift — which then opens thesis day.
 ##
 ## Rides TravelScene for the entry fade / banner / camera plumbing with an
 ## empty Locations set; quest state lives in Game.flags so leaving mid-quest
@@ -327,20 +328,19 @@ func _orbit_whirligig() -> void:
 
 
 func _montage_and_handoff() -> void:
-	# Prologue A closes and B ("Professor Poopy Paws") opens: the montage
-	# skips the intervening years, swaps to the college-age body (basil_student
-	# — no gun, the laser is still years away), and drops into thesis-day town
-	# at its first phase, the night Schweinler plants the bag.
+	# Prologue A closes into the WORKSHOP INTERLUDE (2026-07-16, the Kitty
+	# thread made playable): the cards skip to the college years, the roster
+	# swaps to basil_student (no gun, the laser is still years away), and
+	# the interlude scene plays the acceptance-letter evening — the watch
+	# gift on-screen — before its own cards hand to thesis day.
 	await theater.black(1.0)
 	await theater.card("They built things all summer.", 1.8)
 	await theater.card("Then all the summers after that.", 1.8)
 	await theater.card("A water wheel. A message kite. A potion that fizzed EXACTLY on purpose.", 2.4)
-	await theater.card("The Academy took him for potion-craft.  Kitty kissed him at the gate.", 2.4)
-	await theater.card("YEARS LATER.", 2.0)
+	await theater.card("THREE SUMMERS LATER.", 2.0)
 	Game.set_flag("prologue_sparkless_done")
 	Party.set_roster([&"basil_student"])
-	Game.town_thesis_phase = "plant"
-	get_tree().change_scene_to_file("res://scene/town_thesis.tscn")
+	get_tree().change_scene_to_file("res://scene/workshop_interlude.tscn")
 
 
 # ---- exits -------------------------------------------------------------------------

@@ -73,12 +73,26 @@ that IS the personality, Adventure Time style — never a generic villager.
   Reconciliation is an Act 2 thread.
 - **Kitty Cool** — the maker girl. Meets kid Basil in Whisker Meadow; her
   creed: "anyone can wiggle their fingers — try *making* something."
+  **She made Basil's brass wrist-watch comm** (2026-07-16 canon, the "Kitty
+  thread"): the workshop interlude plays the gift ON-SCREEN (three summers
+  of secret work, "Academy cats cannot be late"), both of Prologue B's
+  calls travel through it (the night-before bookend and the wrecked dusk
+  call), the leaving cards close on "He kept the watch.", and the hermit
+  still wears it. **The fountain-rim stall (map char `m`) is HERS in the
+  college era** — her maker's shop; open with a broken axle on thesis
+  morning (why she misses the lecture), shuttered by the dusk call (why he
+  phones, and why she's on the road).
   Run down by the machine Schweinler was joyriding; lives, but her memories
-  never return (the doctor's verdict stays honest — no miracle recovery).
+  never return (the doctor's verdict stays honest — no miracle recovery);
+  at the bedside her paws already fidget — folding neat pleats into the
+  blanket — the hands-remember thread planted visibly in the first minute
+  after the verdict.
   Present day: **largely left behind** — she lives in a distant town, hands
   still remembering what her mind lost, running a little handmade-goods shop.
   One optional quiet scene: Basil visits, she doesn't know him, he leaves
-  without saying who he was. Closure, not reunion.
+  without saying who he was. Closure, not reunion — and its planned payoff:
+  she admires the craftsmanship of the stranger's watch, with no idea she
+  built it.
 - **Schweinler** — the pig bully (sprites to be designed fresh; the deleted
   generator is not recovered). Rich family, all swagger. Kid bully → Academy rival who plants the bag and
   coins the name → the machine he was joyriding runs Kitty down (a rich kid's
@@ -114,9 +128,23 @@ that IS the personality, Adventure Time style — never a generic villager.
    care that he can't do magic. Find her three parts around the meadow (gear
    by the stream, spring in the flowers, crank by the cairn) — teaches
    interact/explore verbs, no combat. It flies. First friend.
-5. **Montage cards**: seasons pass — building things together, the workshop
-   corner in Basil's cottage, the first potion that actually fizzes. "YEARS
-   LATER." They're dating; he got into the Academy on potion-craft.
+5. **Montage cards → THE WORKSHOP INTERLUDE** *(semi-playable scene,
+   2026-07-16 — the Kitty thread made playable;
+   `scene/workshop_interlude.gd/.tscn`)*: three cards skip the summers
+   (water wheel, message kite, the potion that fizzed on purpose), then
+   "THREE SUMMERS LATER." drops into the great room at lamplit evening —
+   the downstairs map in an evening tint, college rosters (`basil_student`
+   + the new `npc_kitty_adult_gen` sheet). Basil bursts in with the
+   Academy acceptance letter; Kitty, mid-build at the kitchen table, won't
+   hear it until he fetches her three parts — **gear, spring, crank, the
+   whirligig recipe on purpose** ("some recipes don't change") — because
+   the build she's finishing is HIS WATCH. The gift plays on-screen (the
+   watch fx blinks on his wrist for the first time), she plants the
+   front-row promise ("whooping is a promise, professor"), and the outro
+   cards — "He was still late, most days. He never took the watch off." /
+   "She kissed him at the Academy gate on his first day." / "YEARS
+   LATER." — hand to thesis day. Owns `prologue_watch_given` +
+   `prologue_wpart_gear/spring/crank`.
 
 ### PROLOGUE B — "PROFESSOR POOPY PAWS" (college-age Basil · bright era)
 
@@ -124,21 +152,42 @@ Beats 1–5 re-tell the old five-part intro's gags, but **everything is built
 fresh** — the deleted implementation and its art are not recovered (2026-07-12
 decision: the old look is rejected wholesale); only the beats are canon:
 
-1. **Night before** *(cutscene)*: Schweinler plants the bag outside the
-   cottage door. ("A LITTLE 'CONGRATULATIONS' FOR MR.
-   YOUNGEST-PROFESSOR-EVER.")
+1. **Night before** *(SEMI-PLAYABLE, reworked 2026-07-16)*: opens at the
+   Academy stair, night tint — Basil's been prepping the hall ("Notes
+   stacked. Chalk lined up.") — then the walk home through the sleeping
+   town is the player's own (walk-gate on the home doorstep). En route,
+   an optional pass-by beat at **Kitty's shuttered stall** ("front row
+   tomorrow, she said — she'd better be asleep too"). At the doorstep,
+   the **bookend call**: the watch-face fx blinking on his wrist, Kitty
+   makes him say "youngest professor the Academy has ever made" out loud,
+   renews the front-row promise ("the whooping is PREPARED"), and sends
+   him to bed — "That watch keeps PERFECT time. It's the cat wearing it
+   who runs late." He goes in; the yard goes quiet; THEN Schweinler
+   creeps up and plants the bag. ("A LITTLE 'CONGRATULATIONS' FOR MR.
+   YOUNGEST-PROFESSOR-EVER.") Same fx, same doorstep, same gesture as
+   beat 6 — opposite emotional poles.
 2. **8:57 AM** *(cutscene, the loft bedroom in bright dressing)*: Dr.
    Feathers, "FIVE MORE MINUTES", the clock, panic.
 3. **SQUELCH.** *(cutscene, cottage door)*.
 4. **The dash** *(playable)*: sprint through waking Alembic Town to the
    Academy on the cliff — hop-only obstacles (carts, puddles, a goose), a
    fading trail of brown paw prints behind him. The grand stair is the final
-   climb.
+   climb. En route (2026-07-16): **Kitty at her stall wrestling a broken
+   cart axle** — "STUPID AXLE! GO GO GO - YOU'RE LATE!!" (a non-blocking
+   banner). The axle is WHY she never makes the front row: the promise
+   breaks for a mundane, maker-shaped reason, and she isn't in the hall
+   for the naming.
 5. **The lecture** *(cutscene, Academy hall interior — new scene)*: the
    re-enchantment thesis; Schweinler's "WHAT'S THAT SMELL?!"; the naming; the
    laughter. Cards: "THE NAME STUCK."
-6. **The call** *(reworked 2026-07-15)*: Basil, wrecked, calls Kitty on his
-   brass wrist-watch comm (the watch-face fx blinks over him). Her reply:
+6. **The call** *(reworked 2026-07-15)*: Basil walks down to the square —
+   her stall is two tiles from the call stand, SHUTTERED (2026-07-16:
+   "She never made it to the hall today. ...Good. She didn't see it." —
+   the closed stall is why he calls instead of walking over, and why she
+   has to take the dusk road to reach him). Then the watch call on his
+   brass wrist-watch comm (the watch-face fx blinks over him). While the
+   connection hunts, the bookend rhyme (2026-07-16): "You built this thing
+   and it has never once failed - pick UP." Her reply:
    "Oh no... that asshole. I'm coming! Stay where you are!"
 7. **The accident** *(reworked 2026-07-15/16 — SHOWN, side-view set-piece,
    `scene/accident.tscn`, WITH CAUSE)*: dusk roadside — Schweinler shows
@@ -153,7 +202,9 @@ decision: the old look is rejected wholesale); only the beats are canon:
    Schweinler's stunned "...I DIDN'T SEE HER.", Ridley running for the
    doctor — he SAW it, which is why his fountain-scene bluntness lands.
    Non-violent, a little tragic. She lives. The doctor: her memories will
-   never come back. She looks at Basil like a stranger.
+   never come back. She looks at Basil like a stranger — while her paws,
+   unbidden, keep folding neat pleats into the blanket (the hands-remember
+   beat, 2026-07-16).
 8. **The fountain** *(cutscene, the existing fountain square at dusk)*: a
    classmate asks what's wrong; Basil confesses everything; "you're selfish —
    YOU weren't the one who got run over." The worst possible words at the
@@ -161,7 +212,7 @@ decision: the old look is rejected wholesale); only the beats are canon:
 9. **The leaving** *(playable, night)*: stick and knapsack. Walk out through
    the sleeping town — every NPC gone, windows dark — out the south gate into
    the dark overworld, walking east until the fade. Cards: "HE STOPPED GOING
-   ANYWHERE AT ALL." / "YEARS LATER."
+   ANYWHERE AT ALL." / "HE KEPT THE WATCH." / "YEARS LATER."
 
 ### ACT 1 — "THE EBB" (Fuji, present day — ends where the current build begins)
 
@@ -465,16 +516,45 @@ story progresses; the gating tools are terrain plus story keys.
 ## Current Milestone — Prologue A + B + Combat Core
 
 **Prologue B "Professor Poopy Paws" is LIVE (2026-07-12)** — the thesis-day
-chapter, entered straight from A's "YEARS LATER." montage (roster swaps to
-`basil_student`, a kit-less adult body on the existing player sheet — no gun;
-the laser is still years off). The whole chapter, in flow order:
+chapter, entered from the **workshop interlude** (2026-07-16; A's montage
+swaps the roster to `basil_student` — a kit-less adult body on the existing
+player sheet, no gun; the laser is still years off — and hands to the
+interlude, whose outro cards open thesis day). The whole chapter, in flow
+order:
+- **`scene/workshop_interlude.gd/.tscn`** (2026-07-16, the Kitty thread
+  made playable) — the acceptance-letter evening on the downstairs
+  map/tiles/props in a honey-rose evening tint (`DIM_EVENING`; the tint
+  law). College Kitty (`npc_kitty_adult_gen`, the new adult sheet) works
+  behind the KITCHEN TABLE — the counter-walk T row in open floor, NOT the
+  workbench's E row: that lab corner is a one-cell alley (armchair/boiler/
+  bench) and a solid NPC in it wedges anyone who follows — the
+  **room-to-move rule**: never park a solid NPC in a 1-cell corridor.
+  Semi-playable fetch (gear/spring/crank on NAMED ANCHORS in
+  downstairs.txt — the meadow convention; the map is shared with the
+  drained-era downstairs, so positions must ride map edits, never
+  hardcoded pixels — the meadow pickup idiom byte-for-byte: decal icon +
+  sparkle + root Area2D; the probe drives the same anchors), then
+  the talked-handler gift cutscene (AWAITED — the Sage lesson): assembly
+  sparkle, "Done. Paw.", the watch fx's first-ever blink on his wrist, the
+  front-row promise, outro cards → `town_thesis` plant. The exit door
+  refuses with a Basil line; flags `prologue_wpart_*` + the end-state
+  `prologue_watch_given`.
 - **`scene/town_thesis.gd/.tscn`** — ONE scene on the festival town's map +
   tiles, FOUR flag-driven phases dressed only by a `Tint` CanvasModulate (the
   tint law: one painting, never a repaint), routed by
-  `Game.town_thesis_phase`: **plant** (night — Schweinler creeps up and leaves
-  the bag, "a little CONGRATULATIONS", → the wake-up), **dash** (morning — the
-  SQUELCH, the **hop-the-puddles** run with a fading paw-print trail, reach the
-  Academy → the hall), **call** (dusk — the watch call to Kitty at the square,
+  `Game.town_thesis_phase`: **plant** (night, SEMI-PLAYABLE 2026-07-16 —
+  opens at the Academy stair, the walk home is the player's own via a
+  doorstep walk-gate, an optional one-shot line at Kitty's shuttered stall
+  (`_stall_center()` = the `m` bbox at runtime, no map edit), then the
+  doorstep **bookend call**: the same watch fx as the dusk call, Kitty's
+  "that watch keeps PERFECT time"; he walks in and goes invisible, THEN
+  Schweinler creeps up and leaves the bag, "a little CONGRATULATIONS", →
+  the wake-up), **dash** (morning — the
+  SQUELCH, the **hop-the-puddles** run with a fading paw-print trail +
+  **Kitty at her stall with the broken axle** (a non-blocking banner
+  one-shot, `_spawn_stall_kitty`), reach the
+  Academy → the hall), **call** (dusk — the shuttered-stall line at the
+  post, then the watch call to Kitty at the square,
   the fx-sheet watch face blinking over Basil, then black →
   **`scene/accident.tscn`**, the SHOWN side-view accident set-piece, which owns
   `prologue_accident` and hands to the sickroom), **fountain→leaving** (dusk
@@ -505,10 +585,15 @@ the laser is still years off). The whole chapter, in flow order:
   `_gen_tileset_sickroom.py` + the `sickroom` palette (pale lavender walls,
   one warm bedside lamp) — Kitty in the bed (the `npc_kitty_bed` sprite:
   rest/vacant/polite), Dr. Ciconia the stork doctor's permanent-amnesia
-  verdict, Kitty's kind-stranger lines, Basil leaves without saying who he
-  was.
+  verdict, Kitty's kind-stranger lines + the hands-remember narrator beat
+  (2026-07-16: her paws fold pleats into the blanket while she talks — the
+  present-day "hands still remembering" made visible), Basil leaves without
+  saying who he was.
 - Sprites (all in `_gen_prologue_sprites.py`): Mom, adult Schweinler (plum
-  waistcoat), the badger classmate, the stork doctor, Kitty-in-bed, plus the
+  waistcoat), the badger classmate, the stork doctor, Kitty-in-bed, plus
+  **college-age Kitty** (`npc_kitty_adult_gen`, 2026-07-16 — the kid
+  sheet's ginger fur/teal bandana/grease smudge on the adult body, waxed
+  canvas work apron; act = tinker, emote = the beam-whoop), and the
   goose extended to a 6-col waddle. `prologue_fx.png` grew 10→16 cells (+ bag,
   paw-print, bird×2, puddle, zzz) — `meadow_fest.gd` slices it at hframes 16.
 **Prologue A pacing pass (same day):** **Mom** is now load-bearing — three
@@ -779,7 +864,14 @@ Basil's home door in town travels down into the downstairs.
   `_interior_props.boiler_frames`: gauge-needle wiggle, firebox flicker, a
   lazy steam leak), its collision still the map's solid `A` cells, its node
   placed at the player's feet convention (feet = node.y + 20) so y-sort
-  agrees — and a workbench with a half-built gizmo. The loft staircase descends through a top-center
+  agrees — and a workbench with a half-built gizmo. The hearth mantel
+  carries **the whirligig** (2026-07-16 Kitty thread): the prologue's
+  first-friend machine as a runtime relic between the baked candle and
+  trinket box — `WorldFx.sheet_sprite` on the fx sheet's droop/spin frames
+  (`downstairs.gd` `WHIRL_*` consts), the rotor stirred by the fire's draft
+  for a beat every ~7s; a plain `$World` sprite, keyed north of any
+  reachable body so bodies pressed to the hearth face always occlude it,
+  same as the baked mantel clutter. The loft staircase descends through a top-center
   alcove jutting above the cornice (treads brighten as they come down out of
   the dark); the south wall holds the **front door** — an open doorway
   spilling daylight, lintel on the upper layer (Basil ducks under it), stone

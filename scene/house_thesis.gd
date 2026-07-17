@@ -23,6 +23,7 @@ const DIM_AWAKE := Color(0.86, 0.83, 0.96)     # daylight floods in
 var map: Dictionary
 var player: Node2D
 var _bird: Sprite2D
+var _hint_tw: Tween
 
 @onready var theater: Theater = $Theater
 @onready var dim: CanvasModulate = $Dim
@@ -116,6 +117,10 @@ func _show_hint(text: String) -> void:
 	var label: Label = $UI/Hint
 	label.text = text
 	label.modulate.a = 1.0
-	var tw := create_tween()
-	tw.tween_interval(2.2)
-	tw.tween_property(label, "modulate:a", 0.0, 0.5)
+	# kill the previous fade or its interval expires mid-hold and yanks
+	# THIS hint early — create_tween() never auto-kills prior tweens
+	if _hint_tw:
+		_hint_tw.kill()
+	_hint_tw = create_tween()
+	_hint_tw.tween_interval(2.2)
+	_hint_tw.tween_property(label, "modulate:a", 0.0, 0.5)

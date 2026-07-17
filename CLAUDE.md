@@ -132,6 +132,29 @@ Schweinler, badger, stork, Kitty-in-bed), `prologue_fx.png` now TWO 16-cell
 rows (256×32 — row 0 frozen byte-identical, row 1 = watch/poof/motion-lines;
 `WorldFx.sheet_sprite` infers vframes from sheet height so old frame indices
 survive; NEVER widen a row).
+**KITTY THREAD (2026-07-16):** the brass wrist-watch comm is HERS — canon
+threaded through existing beats: the dusk call answers the bookend with
+"never once failed - pick UP", the leaving cards close "He kept the
+watch.", the sickroom verdict gains the hands-remember narrator beat (her
+paws folding pleats while she talks), and the adult downstairs HEARTH
+MANTEL carries the whirligig relic (`downstairs.gd` `WHIRL_*`: fx-sheet
+droop/spin frames, hearth-draft stir every ~7s, plain `$World` sprite
+keyed north of any body). SAME-DAY PLAYABLE PASS: the **WORKSHOP
+INTERLUDE** (`scene/workshop_interlude.gd/.tscn` — downstairs map in a
+honey-rose evening tint between A's montage and B; college Kitty
+`npc_kitty_adult_gen` behind the KITCHEN TABLE — the **room-to-move
+rule**: never park a solid NPC in a 1-cell corridor like the workbench's
+E-row alley; gear/spring/crank fetch on the meadow pickup idiom — the
+whirligig recipe on purpose — then the AWAITED talked-handler gift: the
+watch fx's first blink, the front-row promise, outro cards → thesis day;
+owns `prologue_watch_given` + `prologue_wpart_*`), the **plant phase went
+SEMI-PLAYABLE** (opens at the Academy stair, walk home via doorstep
+walk-gate, optional shuttered-stall line, then the bookend call — "that
+watch keeps PERFECT time" — before Schweinler creeps), and **Kitty's
+stall** (the fountain-rim `m` struct, located at runtime via bbox — no
+map edit) is canonically hers: broken-axle cameo + banner during the
+dash (why she misses the naming), shuttered-stall line before the dusk
+call (why he phones, why she's on the road). Probe: 40 checks.
 GOTCHA: an input-polling coroutine on `process_frame` must LEVEL-detect
 (`is_action_pressed` + a latch), never `is_action_just_pressed` — the frame
 signal can beat the same-frame press (killed the crank mash). Built on the
