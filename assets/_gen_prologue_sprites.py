@@ -358,10 +358,12 @@ def kitty_bandana(s, hy):
 
 def kitty(s, eyes="open", pose="stand", bob=0, sway=0):
     if pose == "tinker":
-        # crouched over the work: everything sinks, arms reach forward-down
-        bob += 4
+        # crouched over the work: body/head sink, arms reach forward-down.
+        # Feet stay PLANTED (legs dy=0) and the crouch is capped at 2 so the
+        # reach-paws' bottom outline stays inside the cell (fill<=45, edge 46).
+        bob += 2
         kid_tail_down(s, KIT_FUR, sway, tip=KIT_FUR[0])
-        kid_legs_down(s, KIT_FUR, WHITE, 0, 0, 2)
+        kid_legs_down(s, KIT_FUR, WHITE, 0, 0, 0)
         kid_body_down(s, KIT_FUR, WHITE, bob, arms="none")
         by = 36 + bob
         s.capsule(CX - 5, by - 2, CX - 4, by + 5, 1.7, 1.5, KIT_FUR, sh=0.06)
