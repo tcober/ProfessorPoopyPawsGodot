@@ -3,14 +3,19 @@
 density (the CT-chunk restart): 48x48 cells, ~33px figure, flat 4-tone shading
 with hard band edges (Sprite jitter=0), every pixel deliberate.
 
-Writes assets/basil_gen.png (288x384, 48x48 cells, 6x8) matching
-entities/player/player_frames.tres (FROZEN region contract):
+Writes assets/basil_gen.png (288x432, 48x48 cells, 6x9) matching
+entities/player/player_frames.tres (FROZEN region contract — rows only ever
+APPEND, never reorder or widen):
 
   row0 walk_down(6)   row1 walk_up(6)   row2 walk_side(6, faces RIGHT — player.gd
                                               sets flip_h only when facing LEFT)
   row3 shoot_down(4)  row4 shoot_up(4)  row5 shoot_side(4)
   row6 hurt(2) + idle_down blink + idle_side tail-flick + happy + sad
   row7 reload(4): he tips a beaker of glow-juice into the gun's open port
+  row8 (2026-07-17, the prologue staging pass): look_watch (wrist raised to
+       Kitty's watch — every call beat plays this instead of a floating fx) +
+       sit (side, the bluff-edge / clinic-steps pose) + bow_head (the slump
+       past sad) + knapsack stand + knapsack trudge x2 (the leaving)
 
 Art contracts consumed by code: feet baseline y=44 (_core.ZONE_FEET); origin
 (24,24); in the leveled shoot frames the gun muzzle TIP sits exactly 16px from
@@ -37,7 +42,7 @@ from _core import write_cells, ZONE_CELL, ZONE_FEET
 from _sprites import Sprite, Rig
 from _palette import BASIL, ramp
 
-CELL, COLS, ROWS = ZONE_CELL, 6, 8
+CELL, COLS, ROWS = ZONE_CELL, 6, 9
 FEET = ZONE_FEET          # 44 — bottom row of the paw FILL (outline sits at 45)
 CX = 24
 HEM = 40                  # near-floor lab-coat hem — only paw TIPS peek below it,
@@ -68,6 +73,13 @@ MAW    = (96, 54, 60, 255)
 TONGUE = (226, 120, 128, 255)
 GLASS  = (214, 232, 244, 255)     # reload beaker
 GLASSD = (152, 178, 204, 255)
+# row-8 prop accents: Kitty's wrist-watch (matches the fx-sheet fx_watch
+# palette) and the leaving bindle
+WCASE  = (240, 188, 98, 255)      # brass watch case
+WFACE  = (150, 246, 190, 255)     # mint ward-glass face
+WSTRAP = (58, 134, 140, 255)      # teal strap
+STICKR = ramp((146, 94, 62), "violet", 4)     # bindle stick
+SACKR  = ramp((196, 140, 90), "violet", 4)    # burlap bindle sack
 
 OUTS = dict(BASIL["OUTS"])
 for _c in GUNPR:
@@ -638,6 +650,114 @@ def reload_down(s, phase):
     _reload_fx(s, phase)
 
 
+# ---- row 8: the prologue staging poses (2026-07-17) -----------------------------------
+
+def look_watch_down(s):
+    """He raises his left forepaw and turns his muzzle to the little brass
+    watch on the wrist — Kitty's watch, the shared comm gesture of every
+    call beat (it replaces the old floating watch fx). Down view: right
+    sleeve hangs, left sleeve folds up so the paw sits before the chin, the
+    watch face drawn post-outline so despeckle can't eat it."""
+    p = RIG.pose()
+    tail_down(s, p, 1)
+    legs_down(s, p)
+    coat_down(s)
+    sx, sy = p["shL"]                                 # hanging screen-left arm
+    hx, hy = p["handL"]
+    s.capsule(sx, sy, hx, hy, 1.9, 1.6, COATR, sh=0.18)
+    s.ball(hx, hy + 1.6, 1.8, 1.5, WHITE, power=2.2, wrap=0.10, curve=0.10)
+    # raised screen-right arm: sleeve folds up, paw before the chin
+    s.capsule(31, 23, 30.5, 27, 1.9, 1.6, COATR, sh=0.32)
+    s.capsule(30.5, 27, 29, 24, 1.7, 1.5, COATR, sh=0.26)
+    s.ball(29, 22.5, 1.9, 1.6, WHITE, power=2.2, wrap=0.10, curve=0.10)
+    head_down(s, 1, 0, "open", "up")                  # muzzle tips toward it
+    finish(s)
+    whiskers_down(s, 1, 0)
+    s.rect(27, 26, 31, 26, WSTRAP)                    # strap across the wrist
+    s.rect(28, 24, 30, 25, WCASE)                     # brass case
+    s.rect(29, 24, 30, 25, WFACE)                     # mint ward-glass face
+    s.set(30, 24, GLINT)                              # lit — the call is live
+
+
+def sit_side(s):
+    """Sitting on the ground facing RIGHT — coat pooled into a mound, knees
+    up in front, paws planted, tail curled on the ground behind. The
+    bluff-edge and clinic-steps pose (flip_h faces it left)."""
+    s.capsule(15, 41, 12, 39, 1.6, 1.3, FUR, sh=0.10)     # curled tail
+    s.set(11, 38, FUR[0])
+    for y in range(30, 43):                                # pooled coat mound
+        vy = (y - 30) / 12.0
+        half = 5.0 + 4.0 * vy
+        x0 = int(round(22 - half))
+        x1 = int(round(22 + half * 0.8))
+        for x in range(x0, x1 + 1):
+            if y >= 41:                                    # hem on the ground
+                c = COATR[3] if x >= x1 - 1 else COATR[2]
+            elif x <= x0 + 2:                              # lit back band
+                c = COATR[0]
+            elif x >= x1 - 1:                              # shaded front edge
+                c = COATR[2]
+            else:
+                c = COATR[1]
+            s.set(x, y, c)
+    s.capsule(27, 34, 28, 39, 2.0, 1.7, PANTR)             # knees up in front
+    s.ball(28.5, 41.5, 2.0, 1.5, WHITE, power=2.2, wrap=0.10, curve=0.10)
+    s.capsule(22, 31, 27, 33, 1.8, 1.5, COATR, sh=0.26)    # arm over the knees
+    s.ball(28, 34, 1.6, 1.4, WHITE, wrap=0.10)
+    head_side(s, 0, 8, "open", "up")                       # head sits low
+    finish(s)
+    whiskers_side(s, 0, 8)
+
+
+def bow_head_down(s):
+    """Head BOWED — the slump past `sad`: the crown turns to the camera, no
+    eyes visible, ears fallen, arms hanging heavy, tail flat. The pose that
+    says the thing he can't."""
+    p = RIG.pose()
+    tail_down(s, p, 0, 1)                                  # drooped flat
+    legs_down(s, p)
+    coat_down(s)
+    arms_down(s, p, 1, 1)                                  # both hang forward
+    hx, hy = CX, 21                                        # dome dropped 3px
+    s.tri((hx - 6, hy - 2), hy + 2, hx - 8, hx - 1, FUR)   # ears fallen wide
+    s.tri((hx + 6, hy - 2), hy + 2, hx + 1, hx + 8, FUR, sh=0.15)
+    s.ball(hx, hy, 7.2, 6.2, FUR, power=2.4, wrap=0.34, curve=0.30)
+    s.rect(hx - 7, hy - 2, hx + 7, hy - 2, GOGRIM[2])      # goggles ride the
+    s.ball(hx - 3, hy - 3.5, 2.4, 1.9, GOGRIM, power=2.0)  # crown-forward dome
+    s.ball(hx + 3, hy - 3.5, 2.4, 1.9, GOGRIM, power=2.0, sh=0.18)
+    s.ball(hx, hy + 5.4, 3.4, 1.6, WHITE, power=2.2, wrap=0.10, curve=0.10)
+    finish(s)                                              # muzzle tip peeks
+
+
+def knapsack_side(s, step=0):
+    """The leaving: bindle stick over the shoulder, sack hanging behind,
+    facing RIGHT. step 0 = planted stand; 1/2 = a weary two-frame trudge
+    (tight stride, head a touch low — nothing jaunty about this walk)."""
+    strides = [((2, 0), (-1, 0), 0),
+               ((-3, 0), (5, 1), -1),
+               ((0, 1), (2, 0), -1)]
+    fA, fB, bob = strides[step]
+    p = RIG_S.pose(skull=(0, bob + 1), coat=(0, bob), tail=(0, bob),
+                   footF=(fA[0], -fA[1]), footB=(fB[0], -fB[1]))
+    tail_side(s, p, 1)                                     # low tail
+    # the sack hangs off the stick's back end, behind the shoulder
+    s.ball(13, 17 + bob, 3.0, 2.6, SACKR, power=2.2, sh=0.10, wrap=0.16)
+    s.set(13, 14 + bob, STICKR[3])                         # neck knot
+    for (hip, foot, sh) in (("hipB", "footB", 0.16), ("hipF", "footF", 0.0)):
+        hx, hy = p[hip]
+        fx, fy = p[foot]
+        s.capsule(hx, hy + bob, fx, fy - 2, 2.1, 1.7, PANTR, sh=sh)
+        s.ball(fx + 0.5, fy + 0.6, 2.2, 1.7, WHITE, power=2.2, sh=sh * 0.4,
+               wrap=0.10, curve=0.10)
+    coat_side(s, bob)
+    # the stick: gripped at the chest, resting over the shoulder to the sack
+    s.capsule(26, 26 + bob, 14, 14 + bob, 1.0, 0.9, STICKR, sh=0.06)
+    s.ball(26.5, 26.5 + bob, 1.7, 1.5, WHITE, power=2.2, wrap=0.10)  # grip paw
+    head_side(s, 0, bob + 1, "open", "up")
+    finish(s)
+    whiskers_side(s, 0, bob + 1)
+
+
 # ---- build the sheet -------------------------------------------------------------------
 cells = [[new() for _ in range(COLS)] for _ in range(ROWS)]
 
@@ -701,5 +821,12 @@ cat_down(cells[6][5], eyes="sad", ears="droop", tail_droop=1)   # heartbroken
 # on the reload action or a dry trigger)
 for i in range(4):
     reload_down(cells[7][i], i)
+
+# row 8: the prologue staging poses — look_watch / sit / bow_head / knapsack
+look_watch_down(cells[8][0])
+sit_side(cells[8][1])
+bow_head_down(cells[8][2])
+for i in range(3):
+    knapsack_side(cells[8][3 + i], i)
 
 write_cells(os.path.join(HERE, "basil_gen.png"), cells, CELL)

@@ -6,7 +6,7 @@ extends Node2D
 ## diorama on the loft-bedroom recipe. Kitty survives the crash but her
 ## memory is gone; the stork doctor delivers the verdict; Basil sits at the
 ## bedside and she looks at him like a kind stranger. Then he leaves, and
-## the town's fountain phase closes the chapter. Interior pattern; Kitty is
+## the town's clinic-steps phase closes the chapter. Interior pattern; Kitty is
 ## the npc_kitty_bed sprite propped at the pillow, the doctor an npc_stork
 ## sprite, both posed by the Theater.
 
@@ -52,7 +52,7 @@ func _spawn_cast() -> void:
 	_doctor = NPCScene.instantiate()
 	_doctor.display_name = "Dr. Ciconia"
 	_doctor.sheet = SHEET_STORK
-	_doctor.frame_cols = 4
+	_doctor.frame_cols = 6
 	_doctor.position = MapData.anchor_px(map, "doctor_spot")
 	$World.add_child(_doctor)
 
@@ -62,7 +62,7 @@ func _verdict_cutscene() -> void:
 	theater.face(player, Vector2.UP)
 	await theater.wait(0.8)
 	_doctor.play_act()
-	await theater.say("Dr. Ciconia", "You're the young cat who sent the ambulance. Basil, yes? Sit, if you like. She's stable.")
+	await theater.say("Dr. Ciconia", "You're Basil. The name engraved on her little glass. Sit, if you like. She's stable.")
 	theater.close_dialog()
 	# the player crosses the room themselves (the pacing pass); the gate is
 	# the full-width open row below the bed — the east floor reaches the bed
@@ -93,6 +93,6 @@ func _verdict_cutscene() -> void:
 	await theater.wait(0.8)
 	await theater.black(1.4)
 	await theater.card("He did not tell her who he was.", 2.2)
-	# out to the fountain, the classmate, the leaving
-	Game.town_thesis_phase = "fountain"
+	# out onto the clinic steps — Ridley, the bowed head, the leaving
+	Game.town_thesis_phase = "steps"
 	get_tree().change_scene_to_file("res://scene/town_thesis.tscn")

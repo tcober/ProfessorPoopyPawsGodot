@@ -5,8 +5,8 @@ extends SceneTree
 ##
 ##   /Applications/Godot.app/Contents/MacOS/Godot --path . \
 ##       --script tools/shot.gd -- res://scene/meadow.tscn /tmp/shot.png \
-##       [frames] [phase:<name>] [roster:<id>[:<id>...]] [flag:<name> ...] \
-##       [pos:<x>:<y>] [action:pressFrame:releaseFrame ...]
+##       [frames] [phase:<name>] [bphase:<name>] [roster:<id>[:<id>...]] \
+##       [flag:<name> ...] [pos:<x>:<y>] [action:pressFrame:releaseFrame ...]
 ##
 ## The optional action args synthesize input mid-run (e.g. move_up:20:45
 ## interact:60:62) so interactive beats can be screenshot end-to-end.
@@ -31,6 +31,7 @@ func _run() -> void:
 	var wait := 30 if args.size() < 3 else int(args[2])
 	var presses: Array = []
 	var phase := ""
+	var bphase := ""
 	var roster: Array[StringName] = []
 	var flags: Array[String] = []
 	var pos := Vector2.INF
@@ -38,6 +39,9 @@ func _run() -> void:
 		var p := args[i].split(":")
 		if p[0] == "phase":
 			phase = p[1]
+			continue
+		if p[0] == "bphase":             # the bluff's phase router
+			bphase = p[1]
 			continue
 		if p[0] == "roster":
 			for id in p.slice(1):
@@ -58,6 +62,8 @@ func _run() -> void:
 	# file before autoloads register
 	if phase != "":
 		root.get_node("Game").set("town_thesis_phase", phase)
+	if bphase != "":
+		root.get_node("Game").set("bluff_phase", bphase)
 	for f in flags:
 		root.get_node("Game").call("set_flag", f)
 	if not roster.is_empty():

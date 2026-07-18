@@ -66,9 +66,6 @@ anchor npc_mouse 33 19
 anchor mom_pos 10 20
 anchor classmate_pos 30 24
 anchor post 25 21
-anchor puddle_1 14 19
-anchor puddle_2 22 19
-anchor puddle_3 27 15
 anchor home 10 18
 anchor cottage_w 9 25
 anchor cottage_e 17 27

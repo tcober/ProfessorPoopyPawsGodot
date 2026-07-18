@@ -40,19 +40,20 @@ func _ready() -> void:
 
 
 func _spawn_cast() -> void:
-	# the judging panel behind the long dais desk — the Dean presides, three
-	# faculty flank him; they stand on the open row behind the desk so the
-	# desktop plane hides their legs (the desk() entity idiom)
-	_dean = _npc("Dean Strix", SHEET_OWL, 4, "judge_1")
+	# the judging panel behind the long stage-west desk — the Dean presides,
+	# three faculty flank him; they stand on the stage row behind the desk so
+	# the desktop plane hides their legs (the desk() entity idiom). All cast
+	# sheets are 6 cols now (idle/act/EMOTE) — the gallery must really laugh.
+	_dean = _npc("Dean Strix", SHEET_OWL, 6, "judge_1")
 	_dean.play_act()                                   # a lecturing wing
 	var jsheets := [SHEET_STORK, SHEET_BADGER, SHEET_SHEEP]
 	for i in jsheets.size():
-		_panel.append(_npc("", jsheets[i], 4, "judge_%d" % (i + 2)))
+		_panel.append(_npc("", jsheets[i], 6, "judge_%d" % (i + 2)))
 	_schw = _npc("Schweinler", SHEET_SCHW, 6, "schweinler_spot")
 	# a PACKED gallery: three to a bench, twelve in all
 	var sheets := [SHEET_SHEEP, SHEET_MOUSE, SHEET_BADGER]
 	for i in 12:
-		_audience.append(_npc("", sheets[i % 3], 4, "aud_%d" % (i + 1)))
+		_audience.append(_npc("", sheets[i % 3], 6, "aud_%d" % (i + 1)))
 
 
 func _npc(nm: String, sheet: Texture2D, cols: int, anchor: String) -> NPC:
@@ -69,40 +70,50 @@ func _naming_cutscene() -> void:
 	theater.lock_party()
 	await theater.wait(0.6)
 	theater.face(player, Vector2.UP)
-	# the Dean's welcome is the summons; the walk to the lectern is the
+	# the Dean's welcome is the summons; the walk to the stage is the
 	# player's own (the pacing pass — control between every beat)
-	await theater.say("Dean Strix", "...and so, the Academy welcomes its youngest presenter in a generation. The floor is yours, Basil.")
+	await theater.say("Dean Strix", "...and so. No spark has ever stood at this podium. The work stood for itself instead - every measured drop of it. The floor is yours, Basil.")
 	theater.close_dialog()
 	# the gate is the full-width open row below the benches — every route
-	# north crosses it (a point-gate at the lectern is walkable around via
-	# the side aisles); the last steps to the dais are staged up the center
-	# aisle so no approach clips a bench
+	# north crosses it (a point-gate at the podium is walkable around via
+	# the side aisles); the last steps MOUNT THE STAGE from the east wing
+	# (the front-center podium's own row is walled by desk + podium, so the
+	# route loops around them — it reads as taking the stage stairs)
 	await theater.walk_gate(Vector2(MapData.size_px(map).x * 0.5, 136.0),
 			Vector2(MapData.size_px(map).x, 20.0))
+	var podium_x := MapData.bbox_rect(map, "L").get_center().x
+	var stage_y := MapData.anchor_px(map, "lectern_spot").y
 	await theater.walk_via(player, [
-			Vector2(184.0, 136.0),
-			MapData.anchor_px(map, "lectern_spot") + Vector2(0.0, 26.0)], 55.0)
+			Vector2(168.0, 136.0),
+			Vector2(168.0, 88.0),
+			Vector2(248.0, 88.0),
+			Vector2(248.0, stage_y),
+			Vector2(podium_x, stage_y)], 55.0)
 	theater.face(player, Vector2.DOWN)
 	await theater.say("Basil", "Th-thank you, Dean. Esteemed faculty.")
 	await theater.say("Basil", "My thesis is simple. Magic is not GONE where it seems absent. It is asleep. And what sleeps can be woken - measured, bottled, RE-KINDLED.")
-	await theater.say("Basil", "Not by a spark. By a method. By SCIENCE.")
+	await theater.say("Basil", "You call my flasks 'potions.' They are chemistry. And chemistry does not need a spark to be TRUE.")
 	await theater.wait(0.4)
 	# Schweinler, from the gallery
 	_schw.play_idle()
 	await theater.say("Schweinler", "Hold on. HOLD ON. Does anyone else... smell that?")
-	theater.face(player, Vector2.RIGHT)
+	theater.face(player, Vector2.DOWN)
 	await theater.say("Basil", "S-Schweinler? Smell wh-")
 	_schw.play_act()
-	await theater.say("Schweinler", "LOOK at his paws! He TRACKED it! All the way up to the lectern!")
+	await theater.say("Schweinler", "LOOK at his paws! He TRACKED it! All the way up onto the STAGE!")
 	await theater.hop(_schw, 5.0)
 	_schw.play_emote()
 	await theater.say("Schweinler", "A brilliant lecture, everyone. From PROFESSOR... POOPY... PAWS!")
-	# the gallery turns — even the panel cracks (that's the sting)
+	# the gallery turns — every sheet has a real laugh pair now, and even
+	# the panel cracks (that's the sting); hop ripples make the hall SHAKE
 	for a in _audience:
 		a.play_emote()
 	for j in _panel:
 		j.play_emote()
-	await theater.wait(0.3)
+	_dean.play_emote()
+	for i in 4:
+		theater.hop(_audience[(i * 5) % _audience.size()], 4.0)
+		await theater.wait(0.12)
 	await theater.say("", "The whole hall laughs. Someone starts a chant.")
 	await theater.say("Gallery", "Poopy Paws! POOPY PAWS! POOPY PAWS!")
 	player.sprite.play("sad")
@@ -110,12 +121,20 @@ func _naming_cutscene() -> void:
 	await theater.say("Basil", "...")
 	theater.close_dialog()
 	Game.set_flag("prologue_named")
-	# the walk of shame: back out through the still-emoting gallery at the
-	# player's own pace (the door is where he came in; the rect overhangs
-	# both door columns so a body can't thread past its east edge)
-	await theater.walk_gate(MapData.anchor_px(map, "door"), Vector2(40.0, 20.0))
+	# the walk of shame is HIS OWN body giving up, not the player's (the
+	# 2026-07-17 restage): he pouts, steps down off the stage and walks the
+	# whole aisle SLOWLY while the gallery keeps laughing around him
+	await theater.wait(0.6)
+	await theater.walk_via(player, [
+			Vector2(248.0, stage_y),
+			Vector2(248.0, 88.0),
+			Vector2(168.0, 88.0),
+			Vector2(168.0, 136.0),
+			MapData.anchor_px(map, "door")], 30.0)
+	player.sprite.play("sad")
+	await theater.wait(0.5)
 	await theater.black(1.2)
 	await theater.card("THE NAME STUCK.", 2.2)
-	# back out to the town, dusk — the call-and-accident phase
-	Game.town_thesis_phase = "call"
-	get_tree().change_scene_to_file("res://scene/town_thesis.tscn")
+	# dusk falls on the bluff — she calls to ask how it went
+	Game.bluff_phase = "call1"
+	get_tree().change_scene_to_file("res://scene/bluff.tscn")

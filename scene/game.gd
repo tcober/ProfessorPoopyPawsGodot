@@ -17,9 +17,15 @@ var interior_spawn: String = ""
 var flags: Dictionary = {}
 
 ## Which phase the thesis-day town scene (scene/town_thesis.gd) plays on entry
-## ("plant" | "dash" | "call" | "fountain" | "leaving"), read-and-cleared like
-## the spawn routers. "" = the scene's default (plant).
+## ("plant" | "dash" | "steps"), read-and-cleared like the spawn routers.
+## "" = the scene's default (plant).
 var town_thesis_phase: String = ""
+
+## Which beat the sunset bluff (scene/bluff.gd) plays on entry — the SAME
+## headland hosts the romance and both thesis-day calls, on purpose (the
+## place their love began is where the bad news finds him). Read-and-cleared;
+## "" = "romance". ("romance" | "call1" | "call2")
+var bluff_phase: String = ""
 
 
 func flag(flag_name: String) -> bool:

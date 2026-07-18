@@ -1,19 +1,21 @@
 ; The Alembic Academy lecture hall — Prologue B "the naming" (24x14 tiles,
 ; 384x224 px; view clamps to 384x216). A 20-tile room in void (2-tile side
-; margins), the plum-panelled / rose-floor Academy palette. FRONT (north):
-; the great CHALKBOARD (Q) with the RE-ENCHANTMENT thesis, tall windows (W)
-; flanking it, the speaker's LECTERN (L, a y-sorted entity) on the dais, and
-; the JUDGING PANEL's long desk (J, a y-sorted entity on a one-row solid
-; footprint — the four professors stand on the open row 3 behind it, the
-; desktop plane hides their legs). GALLERY: two tiered rows of BENCHES
-; (B solid base / E walkable top — the counter-walk read, audience NPCs
-; stand on E so their legs tuck under the seat), packed three to a bench
-; (aud_1..aud_12). The main DOORS (south wall, walkable -) are where Basil
-; enters and is laughed back out of. Feature chars place props in
+; margins), the plum-panelled / rose-floor Academy palette. Restaged
+; 2026-07-17 as a STAGE lecture hall: the speaker's PODIUM (the lectern —
+; L one-row y-sorted entity, walkable l twins under its overhanging top
+; corners) stands front-CENTER on the dais line, dead ahead of the center
+; aisle and the doors, and Basil presents from the tuck row BEHIND it (the
+; desk idiom — the podium plane hides his legs). The JUDGING PANEL's long
+; desk (J, one-row y-sorted entity) flanks stage-west, the four professors
+; on the same row-3 stage line behind it. FRONT (north) wall: the great
+; CHALKBOARD (Q) with the RE-ENCHANTMENT thesis, tall windows (W) flanking.
+; GALLERY: two tiered rows of BENCHES (B solid base / E walkable top — the
+; counter-walk read, audience NPCs stand on E so their legs tuck under the
+; seat), packed three to a bench (aud_1..aud_12), all facing the stage. The
+; main DOORS (south wall, walkable -) are where Basil enters and slowly
+; walks himself back out of. Feature chars place props in
 ; assets/_gen_tileset_hall.py; the same grid is the collision. Anchors put
-; the cast where the cutscene needs them. Silhouette-fit retype (2026-07-12):
-; l = walkable twin of L for the lectern's art-free corner cells (same
-; terrain name, identical paint, collision only — the T3 coverage lint).
+; the cast where the cutscene needs them.
 legend V void solid
 legend # wall solid
 legend W window solid
@@ -29,11 +31,11 @@ legend . floor walk
 legend g rug walk
 legend - door walk
 anchor player_spawn 11 11
-anchor lectern_spot 11 5
-anchor judge_1 12 3
-anchor judge_2 14 3
-anchor judge_3 16 3
-anchor judge_4 17 3
+anchor lectern_spot 11 3
+anchor judge_1 4 3
+anchor judge_2 6 3
+anchor judge_3 8 3
+anchor judge_4 9 3
 anchor schweinler_spot 16 8
 anchor door 11 11
 anchor aud_1 4 7
@@ -52,8 +54,8 @@ map
 VVVVVVVVVVVVVVVVVVVVVVVV
 VV####################VV
 VV#pWWW#QQQQQQ#WWWp##VVV
-VV#....glLLlg......P#VVV
-VV#.........JJJJJJJ.#VVV
+VV#......g....g....P#VVV
+VV#JJJJJJJlLLl......#VVV
 VV#.................#VVV
 VV#.BBBBB...BBBBB...#VVV
 VV#.EEEEE...EEEEE...#VVV

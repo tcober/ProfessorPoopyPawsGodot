@@ -63,8 +63,14 @@ func _ready() -> void:
 	Game.interior_spawn = ""
 	if spawn.is_empty() or not map.anchors.has(spawn):
 		spawn = "front_door"
-	player = Party.spawn($World, MapData.anchor_px(map, spawn))
-	$ExitDoor.position = MapData.anchor_px(map, "exit_door")
+	var spawn_px := MapData.anchor_px(map, spawn)
+	# the doorway is 2 cells wide — center on the arch, not the anchor's
+	# whole-cell column (8px west of it)
+	var door_x := MapData.bbox_rect(map, "-").get_center().x
+	if spawn == "front_door":
+		spawn_px.x = door_x
+	player = Party.spawn($World, spawn_px)
+	$ExitDoor.position = Vector2(door_x, MapData.anchor_px(map, "exit_door").y)
 	$UpStair.position = MapData.anchor_px(map, "exit_up")
 	$Dim.color = DIM
 	Party.clamp_cameras(MapData.view_size())

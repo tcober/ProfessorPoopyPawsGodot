@@ -47,12 +47,18 @@ func _ready() -> void:
 	Game.interior_spawn = ""
 	if spawn.is_empty() or not map.anchors.has(spawn):
 		spawn = "stair_arrival"
-	player = Party.spawn($World, MapData.anchor_px(map, spawn))
+	var spawn_px := MapData.anchor_px(map, spawn)
+	# the doorway is 2 cells wide — center on the arch, not the anchor's
+	# whole-cell column (8px west of it)
+	var door_x := MapData.bbox_rect(map, "-").get_center().x
+	if spawn == "front_door":
+		spawn_px.x = door_x
+	player = Party.spawn($World, spawn_px)
 	Party.clamp_cameras(MapData.view_size())
 	$Fire.position = MapData.bbox_rect(map, "H").position + FIRE_OFFSET
 	if _mom_home():
 		_spawn_mom()
-	$ExitDoor.position = MapData.anchor_px(map, "exit_door")
+	$ExitDoor.position = Vector2(door_x, MapData.anchor_px(map, "exit_door").y)
 	$ExitDoor.body_entered.connect(_on_exit_door)
 	if not Game.flag("prologue_saw_mom"):
 		_show_hint("SAY GOOD MORNING TO MOM - E TO TALK")

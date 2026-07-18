@@ -11,9 +11,6 @@ extends TravelScene
 const MAP_PATH := "res://assets/maps/town.txt"
 const LAYOUT_PATH := "res://assets/tilesets/town_layout.txt"
 
-## Return-spawn drop below the home door: a tile and a half for the 48px
-## player, so leaving the cottage lands him clear of the door marker.
-const ARRIVE_DROP := 24.0
 
 ## Animated Tier-3 props (multi-frame sheets — e.g. the home's water + smoke);
 ## cycled in _process the way downstairs cycles its boiler.
@@ -37,7 +34,11 @@ func _place_player() -> void:
 	var spawn := Game.town_spawn
 	Game.town_spawn = ""
 	if spawn == "home":
-		Party.place(MapData.anchor_px(map, "home") + Vector2(0.0, ARRIVE_DROP))
+		# Land ON the door marker — feet on the lane right under the arch
+		# (the old tile-and-a-half drop read as appearing nowhere near the
+		# door). _standing suppresses the marker until he steps off it once.
+		Party.place(MapData.anchor_px(map, "home"))
+		_standing["home"] = true
 	else:
 		Party.place(MapData.anchor_px(map, "player_start"))
 

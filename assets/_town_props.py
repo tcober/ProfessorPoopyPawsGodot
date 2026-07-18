@@ -68,36 +68,54 @@ def _clone(sp):
     return c
 
 
+## Clear-sky rows added ABOVE every animated building sheet: the plume's
+## headroom. prop_spawner bottom-anchors the art at the footprint's south
+## edge, so a taller sheet just extends upward — no map or manifest change.
+SMOKE_PAD = 10
+
+
+def _pad_top(sp, pad):
+    """A pixel-copy with `pad` clear rows added above (the canvas grows by
+    pad): sky the chimney smoke can rise into without clipping at y=0."""
+    c = S(sp.n + pad, salt=sp.salt)
+    for y, row in enumerate(sp.px):
+        c.px[y + pad] = list(row) + [None] * pad
+    return c
+
+
 def _anim_building(facade, canopy, f, flues=(), streams=(), basins=(),
-                   barrels=(), drips=()):
+                   barrels=(), drips=(), dy=0):
     """Frame-f animated water + smoke for ANY building. `facade` takes the
     water, `canopy` the smoke — they are the same image when compositing one
-    frame, or (lo, up) when baking frame 0. Positions are sprite-local."""
-    for mx, my in flues:                                  # wind-swept chimney smoke:
-        for p in range(3):                                # puffs drift SIDEWAYS off the
-            ph = (f - p) % 4                              # cap (the sprite top has no
-            pr = 0.9 + 0.45 * ph                          # headroom for a tall plume —
-            canopy.blob(mx + 3.0 + ph * 3.0,              # rising puffs clipped flat)
-                        my + 1.0 + (0.5 if ph % 2 else -0.2),
-                        pr, pr * 0.8, PAPER if ph == 0 else STEAM)
+    frame, or (lo, up) when baking frame 0. Positions are sprite-local to the
+    UNPADDED art; `dy` is the _pad_top shift of a padded frame (every
+    coordinate rides down with the art; the smoke needs the freed sky)."""
+    for mx, my in flues:                                  # chimney smoke: puffs
+        for p in range(3):                                # RISE off the cap and
+            ph = (f - p) % 4                              # swell, wafting a px
+            pr = 0.8 + 0.35 * ph                          # (needs SMOKE_PAD of
+            canopy.blob(mx + 3.0 + (0.8 if ph % 2 else -0.4) + ph * 0.5,
+                        my + dy - 1.5 - ph * 2.6,         # sky above the cap)
+                        pr, pr * 0.9, PAPER if ph == 0 else STEAM)
     for sx, sy, slen in streams:                          # falling water columns
         for i in range(slen):
             lit = (i + f) % 2 == 0
-            facade.set(sx, sy + i, WATERL if lit else WATER)
-            facade.set(sx + 1, sy + i, WATER if lit else WATERL)
+            facade.set(sx, sy + dy + i, WATERL if lit else WATER)
+            facade.set(sx + 1, sy + dy + i, WATER if lit else WATERL)
     for x0, x1, y in basins:                              # rippling surfaces
         for k in range(3):
-            facade.set(x0 + (f * 4 + k * 5) % max(1, x1 - x0), y, WATERL)
+            facade.set(x0 + (f * 4 + k * 5) % max(1, x1 - x0), y + dy, WATERL)
     for x0, x1, y in barrels:
-        facade.set(x0 + (f * 3) % max(1, x1 - x0), y, WATERL)
+        facade.set(x0 + (f * 3) % max(1, x1 - x0), y + dy, WATERL)
     for nx, ny in drips:                                  # falling drips
-        facade.set(nx, ny + (f % 4), WATER)
+        facade.set(nx, ny + dy + (f % 4), WATER)
 
 
 def _finish(lo, up, w, fy, h, composite, frames, anim):
-    """Shared building tail. Split mode (town_fest) returns (lo, up) with frame
-    0 baked. Composite (alembic_town) returns one Img, or a horizontal
-    frame-sheet if frames>1 and an anim(facade, canopy, f) is supplied."""
+    """Shared building tail. Split mode (legacy) returns (lo, up) with frame
+    0 baked. Composite (both towns) returns a horizontal frame-sheet padded
+    SMOKE_PAD taller (clear sky for the rising plumes) if frames>1 and an
+    anim(facade, canopy, f, dy) is supplied, else one Img."""
     animate = composite and frames > 1 and anim is not None
     if not animate:
         if anim is not None:
@@ -107,16 +125,16 @@ def _finish(lo, up, w, fy, h, composite, frames, anim):
             return lo, up
         return sprite_img(_flat(lo, up), w, h)
     base = _flat(lo, up)
-    sheet = Img(w * frames, h)
+    sheet = Img(w * frames, h + SMOKE_PAD)
     for f in range(frames):
-        frm = _clone(base)
-        anim(frm, frm, f)
+        frm = _pad_top(base, SMOKE_PAD)
+        anim(frm, frm, f, SMOKE_PAD)
         sheet.blit_cell(frm, f * w, 0)
     return sheet
 
 
-def _home_anim(facade, canopy, f):
-    _anim_building(facade, canopy, f,
+def _home_anim(facade, canopy, f, dy=0):
+    _anim_building(facade, canopy, f, dy=dy,
                    flues=((27, 2), (66, 2)),              # = _canopy flue_xs, caps at y=2
                    streams=((39, 67, 6),),                # h-13
                    basins=((31, 44, 74),),                # h-6
@@ -124,23 +142,24 @@ def _home_anim(facade, canopy, f):
                    drips=((12, 73), (22, 73), (36, 73), (70, 73), (84, 73)))
 
 
-def _cottage_anim(facade, canopy, f):
-    _anim_building(facade, canopy, f, flues=((53, 2),),
+def _cottage_anim(facade, canopy, f, dy=0):
+    _anim_building(facade, canopy, f, dy=dy, flues=((53, 2),),
                    barrels=((62, 73, 55),), drips=((10, 58),))
 
 
-def _shop_anim(facade, canopy, f):
-    _anim_building(facade, canopy, f, flues=((66, 2),), barrels=((78, 89, 55),))
+def _shop_anim(facade, canopy, f, dy=0):
+    _anim_building(facade, canopy, f, dy=dy, flues=((66, 2),),
+                   barrels=((78, 89, 55),))
 
 
-def _inn_anim(facade, canopy, f):
-    _anim_building(facade, canopy, f, flues=((28, 2), (72, 2), (116, 2)),
+def _inn_anim(facade, canopy, f, dy=0):
+    _anim_building(facade, canopy, f, dy=dy, flues=((28, 2), (72, 2), (116, 2)),
                    basins=((45, 59, 73),), barrels=((120, 134, 69),),
                    drips=((10, 73),))
 
 
-def _academy_anim(facade, canopy, f):
-    _anim_building(facade, canopy, f, flues=((56, 2), (104, 2)),
+def _academy_anim(facade, canopy, f, dy=0):
+    _anim_building(facade, canopy, f, dy=dy, flues=((56, 2), (104, 2)),
                    streams=((42, 104, 3),),               # riser spout -> the basin
                    basins=((41, 59, 105),),
                    drips=((104, 100), (118, 100)))        # nubs over the planters

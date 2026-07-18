@@ -298,6 +298,34 @@ class Room(TileScene):
             ov.rect(x0 + bx, y0 + 6, x0 + bx + 1, y0 + 13, TIMBER[3])
             ov.rect(x0 + bx + 1, y0 + 6, x0 + bx + 1, y0 + 13, TIMBER[4])
 
+    def south_lift(self, band=12):
+        """Mirror the top pixels of body-pressable south wall cells onto the
+        UPPER canvas (pixel-identical composite) — the interior twin of
+        _town_props._eave_lift. A body pressed south into the wall halts its
+        physics box at the wall's north edge but its visual feet sink ~10px
+        past the box over the lower-layer art (the "standing on the bottom
+        wall" read); the lifted band swallows that sliver. Applies to every
+        '#' cell at/below FLOOR_ROW whose NORTH neighbor is walkable — the
+        only wall cells a body can press from above. Legal by the z-order
+        doctrine's mask-band rule: nothing ever stands south of a diorama's
+        south wall (void below), so the band can never occlude a body that
+        should read in front. Call after paint_terrain + props, before
+        finish() (the band copies the finished lower art)."""
+        m = self.m
+        for ty in range(m.rows_n):
+            for tx in range(m.cols):
+                if m.at(tx, ty) != "#" or ty < self.FLOOR_ROW:
+                    continue
+                north = m.at(tx, ty - 1)
+                if north is None or m.legend[north]["solid"]:
+                    continue
+                x0, y0 = tx * T, ty * T
+                for y in range(y0, y0 + band):
+                    for x in range(x0, x0 + T):
+                        p = self.bg.get(x, y)
+                        if p[3]:
+                            self.ov.put(x, y, p)
+
     # -- compose ------------------------------------------------------------------------
     def paint_terrain(self, wall_rules=None, special=None):
         """Paint every cell: void stays canvas fill; floor chars get fabric with

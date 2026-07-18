@@ -7,12 +7,13 @@ extends TravelScene
 ##                      walk home past Kitty's shuttered stall -> the doorstep
 ##                      bookend watch call -> Schweinler leaves the bag ->
 ##                      house_thesis
-##   dash     (morning) the SQUELCH, the hop-the-puddles run, paw-print trail,
+##   dash     (morning) the SQUELCH, the paw-print dash across town,
 ##                      Kitty's broken-axle stall cameo, reach the Academy ->
-##                      hall
-##   call     (dusk)    the shuttered stall, the call to Kitty, then the SHOWN
-##                      accident (scene/accident.tscn) -> sickroom
-##   fountain (dusk)    the classmate's cruelty, then the night leaving -> the
+##                      hall (the dusk calls now play on the BLUFF —
+##                      scene/bluff.gd "call1"/"call2" bracket the accident)
+##   steps    (dusk)    out of the doctor's door onto the clinic steps —
+##                      Ridley's blunt "perspective," the bowed head, then
+##                      the night leaving (stick + knapsack, east) -> the
 ##                      closing cards and the hand-off to the adult build
 ## Rides the festival town's map + tiles (same era-frozen village); this is the
 ## same day the festival palette shows, just tinted by hour.
@@ -28,18 +29,14 @@ const SHEET_KITTY_ADULT := preload("res://assets/npc_kitty_adult_gen.png")
 
 const FX_BAG := 10
 const FX_PRINT := 11
-const FX_WATCH := 16               # row 2 of the fx sheet (the watch call)
 
 const TINT_NIGHT := Color(0.42, 0.40, 0.66)
 const TINT_MORNING := Color(0.98, 0.93, 0.86)
 const TINT_DUSK := Color(0.74, 0.56, 0.66)
 
-const PUDDLES := ["puddle_1", "puddle_2", "puddle_3"]
-
 var phase := "plant"
 var _print_accum := 0.0
 var _last_print := Vector2.ZERO
-var _puddles_cleared := 0
 var _dashing := false
 
 @onready var theater: Theater = $Theater
@@ -66,8 +63,8 @@ func _place_player() -> void:
 	match phase:
 		"dash":
 			Party.place(MapData.anchor_px(map, "home") + Vector2(0.0, 24.0))
-		"call", "fountain":
-			Party.place(MapData.anchor_px(map, "school") + Vector2(0.0, 24.0))
+		"steps":
+			Party.place(MapData.anchor_px(map, "cottage_e"))
 		_:
 			# plant opens at the Academy stair — Basil's been prepping the
 			# hall; the walk home is the player's own (2026-07-16, the
@@ -83,8 +80,7 @@ func _extra_setup() -> void:
 	match phase:
 		"plant": _phase_plant()
 		"dash": _phase_dash()
-		"call": _phase_call()
-		"fountain": _phase_fountain()
+		"steps": _phase_steps()
 
 
 # ---- plant (night) ----------------------------------------------------------------
@@ -105,21 +101,21 @@ func _phase_plant() -> void:
 	await theater.walk_gate(MapData.anchor_px(map, "home") + Vector2(0.0, 26.0),
 			Vector2(40.0, 24.0))
 	# the bookend call (2026-07-16 Kitty thread): on his own doorstep, the
-	# watch SHE MADE blinking on his wrist — the same fx and the same
-	# gesture as the dusk call after the naming, opposite emotional poles
+	# watch SHE MADE raised to his muzzle — the same look_watch gesture as
+	# the bluff's first blink and the dusk calls, opposite emotional poles
 	theater.face(player, Vector2.DOWN)
-	var watch := WorldFx.airborne($World, FX_SHEET, 0,
-			player.global_position + Vector2(10.0, 4.0), 36.0)
-	watch.frame = FX_WATCH
+	player.sprite.play("look_watch")
 	await theater.wait(0.5)
 	await theater.say("Kitty", "Say it again. One more time. I want to hear it.")
-	await theater.say("Basil", "...Tomorrow I present my thesis. As the youngest professor the Academy has ever made.")
-	await theater.say("Kitty", "HA! There he is. Stall closes early tomorrow. Front row, center. The whooping is PREPARED.")
+	await theater.say("Basil", "...Tomorrow I present my thesis. Not one spark to my name, and they still have to hand me the robes.")
+	await theater.say("Kitty", "Because you EARNED them. Every wiggle-fingers in that hall calls your work 'potions.' Let them. You and I know what it really is.")
+	await theater.say("Basil", "Chemistry. Measured, repeatable, REAL. ...Say THAT part again tomorrow if I wobble.")
+	await theater.say("Kitty", "Front row, center. Stall closes early. The whooping is PREPARED.")
 	await theater.say("Basil", "Please don't whoop. ...The watch you made me says it's past midnight, you know.")
 	await theater.say("Kitty", "That watch keeps PERFECT time. It's the cat wearing it who runs late. Bed! You'll be brilliant tomorrow - you always are, once you stop being scared.")
 	await theater.say("Basil", "...Goodnight, Kitty.")
 	theater.close_dialog()
-	watch.queue_free()
+	player.sprite.play("idle_down")
 	theater.face(player, Vector2.UP)
 	await theater.walk(player, MapData.anchor_px(map, "home") + Vector2(0.0, 12.0), 40.0)
 	player.visible = false            # inside; the yard goes quiet
@@ -138,7 +134,7 @@ func _phase_plant() -> void:
 	schw.play_idle()
 	# the bag
 	var bag := _fx_at(FX_BAG, MapData.anchor_px(map, "home") + Vector2(0.0, 18.0))
-	await theater.say("Schweinler", "Heh heh heh. A little CONGRATULATIONS for Mr. Youngest-Professor-Ever.")
+	await theater.say("Schweinler", "Heh heh heh. A little CONGRATULATIONS for the sparkless wonder and his little POTIONS.")
 	schw.play_emote()
 	await theater.say("Schweinler", "Enjoy your big lecture tomorrow, Basil. Oink - hahaha!")
 	await theater.walk_via(schw, [
@@ -154,7 +150,7 @@ func _phase_plant() -> void:
 	get_tree().change_scene_to_file("res://scene/house_thesis.tscn")
 
 
-# ---- dash (morning): the squelch, puddles, paw-prints, reach the school ------------
+# ---- dash (morning): the squelch, paw-prints, reach the school ---------------------
 
 func _phase_dash() -> void:
 	tint.color = TINT_MORNING
@@ -171,11 +167,10 @@ func _phase_dash() -> void:
 	await theater.say("Basil", "Gotta go gotta go GOTTA GO!")
 	bag.queue_free()
 	theater.close_dialog()
-	_spawn_puddles()
 	_spawn_stall_kitty()
 	_dashing = true
 	theater.unlock_party()
-	_show_banner("GET TO THE ACADEMY - K/SHIFT TO HOP THE PUDDLES", BANNER_HOLD)
+	_show_banner("GET TO THE ACADEMY", BANNER_HOLD)
 	# the Academy stair is the finish
 	var goal := Area2D.new()
 	goal.collision_layer = 0
@@ -188,54 +183,6 @@ func _phase_dash() -> void:
 	goal.position = MapData.anchor_px(map, "school") + Vector2(0.0, 40.0)
 	add_child(goal)
 	goal.body_entered.connect(_on_reach_school)
-
-
-func _spawn_puddles() -> void:
-	for name in PUDDLES:
-		var area := Area2D.new()
-		area.collision_layer = 0
-		area.collision_mask = 2
-		area.position = MapData.anchor_px(map, name)
-		var shape := CollisionShape2D.new()
-		var circle := CircleShape2D.new()
-		circle.radius = 11.0
-		shape.shape = circle
-		area.add_child(shape)
-		# the splash icon depth-sorts with bodies; the Area2D itself is
-		# collision-only and can stay on the root
-		var icon := WorldFx.decal($World, FX_SHEET, 14, area.position)
-		area.set_meta("icon", icon)
-		area.set_meta("cleared", false)
-		add_child(area)
-		area.body_entered.connect(_on_puddle.bind(area))
-
-
-func _on_puddle(body: Node2D, area: Area2D) -> void:
-	if not body.is_in_group("player") or area.get_meta("cleared"):
-		return
-	if body.is_airborne():
-		area.set_meta("cleared", true)
-		_puddles_cleared += 1
-		var icon := area.get_meta("icon") as Sprite2D
-		icon.modulate.a = 0.35        # a hopped-over splash mark
-	else:
-		# stepped in it — a brief stumble
-		area.set_meta("cleared", true)
-		_puddles_cleared += 1
-		_stumble()
-
-
-func _stumble() -> void:
-	if not _dashing:
-		return
-	_dashing = false
-	theater.lock_party()
-	player.sprite.play("hurt")
-	await theater.say("Basil", "GAH - cold cold cold! My good lecture socks!")
-	theater.close_dialog()
-	player.sprite.play("idle_down")
-	theater.unlock_party()
-	_dashing = true
 
 
 func _on_reach_school(body: Node2D) -> void:
@@ -266,99 +213,75 @@ func _drop_print(pos: Vector2) -> void:
 	tw.tween_callback(p.queue_free)
 
 
-# ---- call (dusk): the call to Kitty, the accident over black ----------------------
+# ---- steps (dusk) + the leaving (night) --------------------------------------------
+## The clinic-steps ending (2026-07-17): Basil gets six steps out of the
+## doctor's door and folds onto the stoop. Ridley finds him there, says the
+## blunt thing, and leaves — Basil barely speaks; the bowed head says it.
+## Then the cut: the town's east lane at night, a stick and a knapsack, and
+## he walks out of the story. Fully scripted on purpose — the user's agency
+## spent itself at the sickroom door; this part just happens TO him.
 
-func _phase_call() -> void:
+func _phase_steps() -> void:
 	tint.color = TINT_DUSK
 	theater.lock_party()
-	theater.face(player, Vector2.DOWN)
+	# out the doctor's door — the east neighbor cottage; he lands on the
+	# door mouth, feet on the lane below the arch
+	Party.place(MapData.anchor_px(map, "cottage_e"))
 	player.sprite.play("sad")
 	await theater.wait(ENTRY_FADE + 0.4)
-	await theater.say("Basil", "Poopy Paws. They're all still laughing. I can hear it from here.")
-	await theater.say("Basil", "...Kitty. I need to hear Kitty. She always knows what to say.")
+	await theater.say("", "He makes it exactly six steps past the door.")
 	theater.close_dialog()
-	# down the grand stair to the square, at the player's pace — the gate is
-	# the square itself (the fest cutscene's zone: the ring roads on every
-	# side; a point-gate is walkable around), then the last steps to the old
-	# post stand-mark are staged around the basin's west ring
-	_show_banner("THE FOUNTAIN SQUARE - SOMEWHERE QUIET TO CALL HER", BANNER_HOLD)
-	var basin := MapData.bbox_rect(map, "oO")
-	await theater.walk_gate(basin.get_center(), Vector2(96.0, 96.0))
-	await theater.walk_via(player, _post_route(player.global_position), 50.0)
-	# the stall is two tiles away, shuttered — WHY he calls instead of
-	# walking over, and why she has to take the dusk road to reach him
-	await theater.say("Basil", "Her stall's shut. She never made it to the hall today. ...Good. Good. She didn't see it.")
-	# the watch call (2026-07-15): comms on his wrist — the watch face
-	# blinks awake over him while the connection hunts for her
-	theater.face(player, Vector2.DOWN)
-	var watch := WorldFx.airborne($World, FX_SHEET, 0,
-			player.global_position + Vector2(10.0, 4.0), 36.0)
-	watch.frame = FX_WATCH
-	await theater.wait(0.5)
-	# the bookend rhyme: "that watch keeps PERFECT time," the night before
-	await theater.say("Basil", "Pick up. Come on. You built this thing and it has never once failed - pick UP.")
-	await theater.say("Basil", "Kitty. It's me. It's bad. The lecture, Schweinler, the whole hall - please pick up.")
-	await theater.say("Kitty", "Oh no... that asshole. I'm coming! Stay where you are!")
-	await theater.say("Basil", "Wait - it's nearly dark, don't take the road - Kitty? ...She's already pedaling.")
-	theater.close_dialog()
-	watch.queue_free()
-	await theater.black(1.0)
-	# the accident is SHOWN now — the side-view set-piece owns the flag
-	get_tree().change_scene_to_file("res://scene/accident.tscn")
-
-
-# ---- fountain (dusk) + the leaving (night) ----------------------------------------
-
-func _phase_fountain() -> void:
-	tint.color = TINT_DUSK
-	theater.lock_party()
-	player.sprite.play("sad")
-	var badger: NPC = _npc("Ridley", SHEET_BADGER, 4,
-			MapData.anchor_px(map, "classmate_pos"))
-	await theater.wait(ENTRY_FADE + 0.4)
-	# the long walk down to the square is the player's own (the pacing pass);
-	# the gate is the square itself, then the last steps to the rim are
-	# staged around the basin
-	_show_banner("THE FOUNTAIN SQUARE", BANNER_HOLD)
-	await theater.walk_gate(MapData.bbox_rect(map, "oO").get_center(), Vector2(96.0, 96.0))
-	await theater.walk_via(player, _square_route(player.global_position,
-			MapData.anchor_px(map, "festival")), 46.0)
-	await theater.say("", "Basil sits at the fountain until the sky goes violet. A classmate finds him.")
-	await theater.say("Ridley", "Hey. Basil, right? Rough day, huh. Heard about the lecture. AND the... y'know.")
-	await theater.say("Ridley", "So what's eating you? You've been staring at that water for an hour.")
-	await theater.say("Basil", "She doesn't know me. Kitty. She woke up and she looked right through me. The doctor says it's permanent.")
-	await theater.say("Basil", "And they're STILL laughing about the name. I lost everything today. In one day.")
-	await theater.wait(0.5)
-	await theater.say("Ridley", "Wow. You know what? That's pretty selfish.")
+	await theater.walk(player, MapData.anchor_px(map, "cottage_e") + Vector2(4.0, 14.0), 26.0)
+	player.sprite.play("sit")             # down onto the clinic steps
+	player.sprite.flip_h = false          # profile east, where the lane runs
+	await theater.wait(1.6)
+	# Ridley comes up the lane — the witness, still carrying it
+	var badger: NPC = _npc("Ridley", SHEET_BADGER, 6, Vector2(430.0, 456.0))
+	await theater.walk(badger, MapData.anchor_px(map, "cottage_e") + Vector2(38.0, 14.0), 44.0)
+	await theater.say("Ridley", "Hey. Basil, right? I was there. On the road. I saw the whole thing.")
+	await theater.say("Ridley", "The doctor won't say it plain, so: how is she?")
+	await theater.say("Basil", "...")
+	await theater.wait(0.6)
+	await theater.say("Ridley", "That bad. ...You know what? Sitting out here like the sky fell on YOU - that's pretty selfish.")
 	player.sprite.play("hurt")
+	await theater.wait(0.4)
+	player.sprite.play("sit")
 	await theater.say("Ridley", "YOU weren't the one who got run over. SHE'S the one in the bed. And you're over here feeling sorry for YOURSELF?")
 	await theater.say("Ridley", "...I'm just saying. Perspective. Anyway. Feel better!")
+	theater.close_dialog()
+	# he says his piece and walks off — nobody stops him
+	await theater.walk(badger, Vector2(430.0, 456.0), 52.0)
 	badger.queue_free()
 	await theater.wait(0.8)
 	await theater.say("Basil", "...")
 	theater.close_dialog()
-	# night falls; the leaving
+	player.sprite.play("bow_head")        # the slump past sad — no more words
+	# night falls on him sitting there
 	var tw := create_tween()
-	tw.tween_property(tint, "color", TINT_NIGHT, 2.0)
+	tw.tween_property(tint, "color", TINT_NIGHT, 2.4)
 	await tw.finished
-	await theater.say("Basil", "...He's right. What kind of person makes this about himself.")
-	await theater.say("Basil", "I can't be here. I can't be ANYWHERE people are.")
-	theater.close_dialog()
-	_show_banner("LEAVE TOWN - THE SOUTH GATE", BANNER_HOLD)
-	$ExitSouth.body_entered.connect(_on_leave)
-	# the pollable end-state for the probe: this phase unlocks twice (the
-	# walk-gate and here), so is_physics_processing() alone is ambiguous
+	await theater.wait(1.2)
+	# the pollable end-state for the probe (kept from the fountain phase)
 	Game.set_flag("prologue_scolded")
-	theater.unlock_party()
+	await theater.black(1.4)
+	_leaving()
 
 
-func _on_leave(body: Node) -> void:
-	if not body.is_in_group("player") or _busy:
-		return
-	_busy = true
-	theater.lock_party()
-	await theater.black(1.5)
-	await theater.card("He took a stick and a knapsack, and he walked east.", 2.4)
+## The cut: the east lane at night. A stick, a knapsack, and out of town.
+func _leaving() -> void:
+	Party.place(Vector2(520.0, 312.0))    # the east lane, before the bridge
+	player.sprite.play("knapsack")
+	player.sprite.flip_h = false          # facing east — the way he'll walk
+	await theater.clear(1.2)
+	await theater.wait(1.8)               # the tableau holds: hitchhiker Basil
+	player.sprite.play("knapsack_walk")
+	var walk := create_tween()
+	walk.tween_property(player, "global_position",
+			Vector2(770.0, 312.0), 5.0)   # east, over the bridge, gone
+	await theater.wait(3.4)
+	await theater.black(1.6)
+	if walk.is_running():
+		walk.kill()
 	await theater.card("The laughter followed him to the town line.  He did not go back.", 2.6)
 	await theater.card("He stopped going anywhere at all.", 2.2)
 	await theater.card("He kept the watch.", 1.8)
@@ -435,43 +358,6 @@ func _wall_gate_mouth() -> void:
 	wall.add_child(shape)
 	wall.position = Vector2($ExitSouth.position.x, MapData.size_px(map).y + 4.0)
 	add_child(wall)
-
-
-## Road-ring route around the solid fountain (same rule as town_fest's:
-## theater walks are straight no-collision tweens; dog-leg the ring).
-func _square_route(from: Vector2, to: Vector2) -> Array:
-	var basin := MapData.bbox_rect(map, "oO")
-	var west := from.x < basin.get_center().x
-	var ring_x := basin.position.x - 8.0 if west else basin.end.x + 8.0
-	var pts := []
-	if from.y < basin.position.y + 16.0:
-		pts.append(Vector2(ring_x, basin.position.y - 8.0))
-		pts.append(Vector2(ring_x, basin.end.y + 8.0))
-	elif from.y < basin.end.y + 8.0:
-		pts.append(Vector2(ring_x, basin.end.y + 8.0))
-	pts.append(to)
-	return pts
-
-
-## Ring route to the watch-call stand mark (the old `post` anchor) on the
-## basin's WEST ring: unlike the south-side targets _square_route serves,
-## east/south arrivals must loop under the basin to the west road first.
-func _post_route(from: Vector2) -> Array:
-	var basin := MapData.bbox_rect(map, "oO")
-	var w := basin.position.x - 8.0
-	var e := basin.end.x + 8.0
-	var n := basin.position.y - 8.0
-	var s := basin.end.y + 8.0
-	var pts := []
-	if from.x > basin.get_center().x and from.y >= basin.position.y + 16.0:
-		pts.append(Vector2(e, s))
-		pts.append(Vector2(w, s))
-	elif from.y >= s:
-		pts.append(Vector2(w, s))
-	elif from.y < basin.position.y + 16.0:
-		pts.append(Vector2(w, n))
-	pts.append(MapData.anchor_px(map, "post"))
-	return pts
 
 
 func _npc(nm: String, sheet: Texture2D, cols: int, pos: Vector2) -> NPC:

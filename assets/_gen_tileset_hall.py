@@ -105,4 +105,5 @@ def _glow(img):
 
 
 room.write_glow(_glow)
+room.south_lift()          # mask the south wall's feet-sink sliver (upper band)
 room.finish()

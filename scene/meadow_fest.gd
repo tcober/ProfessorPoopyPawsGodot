@@ -328,11 +328,11 @@ func _orbit_whirligig() -> void:
 
 
 func _montage_and_handoff() -> void:
-	# Prologue A closes into the WORKSHOP INTERLUDE (2026-07-16, the Kitty
-	# thread made playable): the cards skip to the college years, the roster
-	# swaps to basil_student (no gun, the laser is still years away), and
-	# the interlude scene plays the acceptance-letter evening — the watch
-	# gift on-screen — before its own cards hand to thesis day.
+	# Prologue A closes onto the SUNSET BLUFF (2026-07-17, the romance made
+	# playable): the cards skip to the college years, the roster swaps to
+	# basil_student (no gun, the laser is still years away), and the bluff
+	# plays the acceptance-letter sunset — the watch gift that EXPLODES, the
+	# refit, the kiss — before its own cards hand to thesis day.
 	await theater.black(1.0)
 	await theater.card("They built things all summer.", 1.8)
 	await theater.card("Then all the summers after that.", 1.8)
@@ -340,7 +340,8 @@ func _montage_and_handoff() -> void:
 	await theater.card("THREE SUMMERS LATER.", 2.0)
 	Game.set_flag("prologue_sparkless_done")
 	Party.set_roster([&"basil_student"])
-	get_tree().change_scene_to_file("res://scene/workshop_interlude.tscn")
+	Game.bluff_phase = "romance"
+	get_tree().change_scene_to_file("res://scene/bluff.tscn")
 
 
 # ---- exits -------------------------------------------------------------------------

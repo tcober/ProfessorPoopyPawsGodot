@@ -167,4 +167,5 @@ def _anim_sheets():
 
 
 _anim_sheets()
+room.south_lift()          # mask the south wall's feet-sink sliver (upper band)
 room.finish()

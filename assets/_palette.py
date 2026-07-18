@@ -237,6 +237,32 @@ SCENES = {
             "plaster": (236, 210, 182, 255),
         },
     },
+    "bluff": {          # the sunset bluff over the water (Prologue B: the
+        "shadow": "violet",                     # watch romance + both calls) —
+        "accent": (255, 168, 112, 255),         # amber-rose hour, violet darks
+        # Same hand-tuned warm walk as the meadow's (derived ramps turn warm
+        # dirt salmon under violet shadows) — serves any path scuffs + the
+        # driver's mandatory sand ramp.
+        "ramps": {
+            "road": [(248, 224, 178, 255), (240, 200, 148, 255), (226, 176, 128, 255),
+                     (198, 138, 108, 255), (156, 92, 96, 255), (110, 58, 78, 255)],
+            "sand": [(248, 224, 178, 255), (240, 200, 148, 255), (226, 176, 128, 255),
+                     (198, 138, 108, 255), (156, 92, 96, 255), (110, 58, 78, 255)],
+        },
+        # Duotone cast: one gilded-grass field against one deep evening sea,
+        # rose-lit cliff stone between them, dusk-violet windbreak.
+        "mats": {
+            "grass": (150, 128, 62, 255),       # sun-gilded dry headland
+            "grass2": (174, 144, 72, 255),      # warmer crest drift
+            "forest": (74, 56, 92, 255),        # dusk-violet windbreak
+            "trunk": (52, 40, 84, 255),
+            "rock": (164, 108, 106, 255),       # rose-lit cliff face
+            "sea": (56, 64, 138, 255),          # deep evening indigo water
+            "waste": (188, 112, 178, 255),      # ride-along, unused
+            "snow": (234, 242, 252, 255),
+            "bridge": (150, 88, 112, 255),
+        },
+    },
     "meadow": {         # minty teal greens, candy hot-pink flowers — the
         "shadow": "teal",                       # overworld's mossy register
         "accent": (255, 116, 176, 255),         # walked into, cooler; hot pink

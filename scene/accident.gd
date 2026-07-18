@@ -1,15 +1,19 @@
 extends Node2D
 
-## The accident, SHOWN (Prologue B; setup rework 2026-07-16) — a side-view
-## set-piece cut between the watch call and the sickroom, now with CAUSE:
-## Schweinler is roadside showing off the brand-new machine to Ridley the
-## badger, Ridley warns him it looks dangerous, Schweinler climbs on anyway
-## — and loses control the moment the engine catches, exactly as Kitty
-## happens to pedal around the bend. Wobble, motion lines, the drift across
-## the centerline, a hard cut on the moment itself (poof + a white screen
-## flash, never a contact frame), then the quiet aftermath under a darker
-## sky — Ridley standing helpless by the wreck he predicted. (He carries
-## what he saw into the fountain scene's blunt "perspective" speech.)
+## The accident, SHOWN (Prologue B; setup rework 2026-07-16, the impact
+## rework 2026-07-17) — a side-view set-piece bracketed by the bluff's two
+## calls, with CAUSE: Schweinler is roadside showing off the brand-new
+## machine to Ridley the badger, Ridley warns him it looks dangerous,
+## Schweinler climbs on anyway — and loses control the moment the engine
+## catches, exactly as Kitty happens to pedal around the bend. Wobble,
+## motion lines, the drift across the centerline — then the LOOP: a soft
+## flash, and she launches up-and-over in one cartoon arc (the spinning
+## `tumble` curl), the bike thrown down, landing into the still frame on
+## the road while the machine grinds past. Stylized motion, never a held
+## contact frame — the flip reads as impact, not as harm. Ridley RUNS to
+## the wreck as the sun goes; her watch makes the call2 that reaches
+## Basil's bluff. (Ridley carries what he saw into the clinic-steps
+## "perspective" speech.)
 ##
 ## No party, no map: plain sprites and its own Theater. Every beat either
 ## auto-runs on tweens/waits or advances on attack (probe-passable — the
@@ -23,6 +27,7 @@ const FX_POOF := 17
 const FX_LINES := 18
 
 const ATV_PARKED := 4                # the rider-less frame (stack cold)
+const KITTY_TUMBLE := 4              # the mid-air curl the arc spins
 
 ## The lane (must match accident_bg's road band, y 154-200): Kitty rides the
 ## NEAR side, the machine bolts down the FAR side and drifts into hers.
@@ -127,41 +132,61 @@ func _run() -> void:
 	await tw3.finished
 	wobble.kill()
 	lines.queue_free()
-	# the cut: one toned beat of light, then black — never a contact frame
+	# ---- the LOOP: a soft flash on the clip, and she goes up-and-OVER —
+	# the spinning tumble curl arcing east past the machine, the bike
+	# dropped where she left it, landing into the still frame on the road.
+	# One cartoon beat, never a held contact frame.
 	$Poof.position = Vector2(IMPACT_X, LANE_KITTY - 8.0)
 	$Poof.visible = true
-	$Flash.modulate.a = 0.9
+	$Flash.modulate.a = 0.7
 	var flash_tw := create_tween()
-	flash_tw.tween_property($Flash, "modulate:a", 0.0, 0.14)
-	await theater.wait(0.09)
-	await theater.black(0.06)
-	$Poof.visible = false
-	kitty.visible = false
-	atv.visible = false
-	ridley.visible = false
-	await theater.wait(1.6)              # the silence holds
-	# the aftermath, held for weight — later, darker, quieter. Ridley has
-	# run to the wreck; Schweinler stays frozen on the stopped machine
-	# (he's baked into the skid frame) — the line comes from there
-	$Dim.color = DIM_AFTERMATH
-	atv.rotation = 0.0
+	flash_tw.tween_property($Flash, "modulate:a", 0.0, 0.22)
+	kitty.frame = KITTY_TUMBLE
 	$BikeDown.position = Vector2(IMPACT_X - 40.0, LANE_KITTY + 10.0)
 	$BikeDown.visible = true
-	kitty.frame = 3                      # still, on the road
-	kitty.position = Vector2(IMPACT_X + 8.0, LANE_KITTY + 12.0)
-	kitty.visible = true
-	atv.frame = 3
-	atv.position = Vector2(IMPACT_X + 70.0, LANE_KITTY + 2.0)
-	atv.visible = true
+	var land := Vector2(IMPACT_X + 8.0, LANE_KITTY + 12.0)
+	var arc := create_tween().set_parallel()
+	arc.tween_property(kitty, "position:x", land.x, 0.62)
+	arc.tween_property(kitty, "rotation", TAU, 0.62)
+	var up := create_tween()
+	up.tween_property(kitty, "position:y", LANE_KITTY - 34.0, 0.30) \
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	up.tween_property(kitty, "position:y", land.y, 0.32) \
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	# the machine shoots past under her and grinds to a stop
+	atv.rotation = 0.0
+	atv.frame = 3                        # the skid, dust flying
+	var skid := create_tween()
+	skid.tween_property(atv, "position:x", IMPACT_X + 70.0, 0.55) \
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	skid.parallel().tween_property(atv, "position:y", LANE_KITTY + 2.0, 0.55)
+	await theater.wait(0.12)
+	$Poof.visible = false
+	await up.finished
+	kitty.rotation = 0.0
+	kitty.frame = 3                      # down — still, on the road
+	if skid.is_running():
+		await skid.finished
+	await theater.wait(1.6)              # the silence holds
+	# the sun goes while Ridley RUNS to the wreck; Schweinler stays frozen
+	# on the stopped machine (he's baked into the skid frame) — the line
+	# comes from there
+	var dusk := create_tween()
+	dusk.tween_property($Dim, "color", DIM_AFTERMATH, 1.6)
+	var run := create_tween()
+	run.tween_property(ridley, "position",
+			Vector2(IMPACT_X + 106.0, 152.0), 0.9)
+	await run.finished
 	ridley.frame = 0
-	ridley.position = Vector2(IMPACT_X + 106.0, 152.0)
-	ridley.visible = true
-	await theater.clear(1.6)
 	await theater.wait(1.0)
 	await theater.say("Schweinler", "...I didn't see her. I swear I - the machine just - I didn't SEE her!")
 	await theater.say("Ridley", "...I'll get the doctor. Don't touch her. Don't touch ANYTHING.")
+	await theater.say("Ridley", "...Her little glass is blinking. Someone's name on it. ...Basil?")
 	theater.close_dialog()
 	await theater.wait(1.4)
 	await theater.black(1.4)
 	Game.set_flag("prologue_accident")
-	get_tree().change_scene_to_file("res://scene/sickroom.tscn")
+	# the news travels the way everything travels between these two:
+	# through her watch — back on the bluff, his wrist lights up
+	Game.bluff_phase = "call2"
+	get_tree().change_scene_to_file("res://scene/bluff.tscn")

@@ -99,6 +99,7 @@ MAPS = [
     "maps/downstairs.txt",
     "maps/hall.txt",
     "maps/sickroom.txt",
+    "maps/bluff.txt",
 ]
 
 print("maps:")
@@ -425,7 +426,7 @@ for rel, map_rel in PLACEMENTS.items():
 
 # ---- sheet dimensions -----------------------------------------------------------------
 SHEETS = {
-    "assets/basil_gen.png": (6 * ZONE_CELL, 8 * ZONE_CELL),
+    "assets/basil_gen.png": (6 * ZONE_CELL, 9 * ZONE_CELL),
     "assets/fuji_gen.png": (6 * ZONE_CELL, 10 * ZONE_CELL),
     "assets/slime_gen.png": (6 * 24, 4 * 24),
     "assets/overworld_basil.png": (4 * OW_CELL, 3 * OW_CELL),
@@ -443,20 +444,20 @@ SHEETS = {
     "assets/npc_sage_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/npc_schweinler_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/npc_kitty_gen.png": (6 * ZONE_CELL, ZONE_CELL),
-    "assets/npc_sheep_gen.png": (4 * ZONE_CELL, ZONE_CELL),
-    "assets/npc_owl_gen.png": (4 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_sheep_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_owl_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/npc_goose_gen.png": (6 * ZONE_CELL, ZONE_CELL),
-    "assets/npc_mouse_gen.png": (4 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_mouse_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/prologue_fx.png": (256, 32),
-    "assets/accident_kitty_gen.png": (4 * ZONE_CELL, ZONE_CELL),
+    "assets/accident_kitty_gen.png": (5 * ZONE_CELL, ZONE_CELL),
     "assets/accident_atv_gen.png": (5 * ZONE_CELL, ZONE_CELL),
     "assets/accident_bike_down_gen.png": (ZONE_CELL, ZONE_CELL),
     "assets/accident_bg.png": (384, 216),
     # thesis-day cast (Prologue B) + Mom (the A pacing pass)
     "assets/npc_mom_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/npc_schweinler_adult_gen.png": (6 * ZONE_CELL, ZONE_CELL),
-    "assets/npc_badger_gen.png": (4 * ZONE_CELL, ZONE_CELL),
-    "assets/npc_stork_gen.png": (4 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_badger_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_stork_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/npc_kitty_bed_gen.png": (6 * ZONE_CELL, ZONE_CELL),
 }
 

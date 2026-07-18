@@ -1,0 +1,41 @@
+; The sunset bluff — 32x18 tiles (512x288 px). A gilded headland over deep
+; evening water: forest windbreak N/W, grass crest with flower drifts, a
+; 2-row cliff band (C, the town's 16x32 face columns) dropping straight
+; into the sea across the south, the sea wrapping the east point. Shared
+; source of truth: tiled by assets/_gen_tileset_bluff.py (the OverWorld
+; driver), collision/logic by scene/bluff.gd — Prologue B's romance beat
+; (the watch: explode -> gather -> fix -> the kiss) and both phone calls
+; play here, so the place their love began is where the bad news finds him.
+; part_* anchors catch the exploded watch pieces; sit_spot is the lip cell
+; Basil sits on for the calls; kitty_pos faces the water beside it.
+legend . grass walk
+legend f flowers walk
+legend # forest solid
+legend o sea solid
+legend C cliff solid
+anchor player_spawn 5 3
+anchor kitty_pos 15 11
+anchor basil_mark 13 11
+anchor sit_spot 16 11
+anchor part_gear 8 5
+anchor part_spring 24 4
+anchor part_crank 6 9
+map
+################################
+####......................######
+##...........................###
+##.............ff.............##
+#..............ff.............##
+#..............................#
+#.............................##
+##............................##
+##..........................oooo
+#.......ff.................ooooo
+#...........................oooo
+##.........................ooooo
+##CCCCCCCCCCCCCCCCCCCCCCCooooooo
+##CCCCCCCCCCCCCCCCCCCCCCCooooooo
+oooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooo

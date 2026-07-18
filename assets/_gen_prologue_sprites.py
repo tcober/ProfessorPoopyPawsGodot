@@ -16,7 +16,9 @@ Sheets written (all 48px cells, feet baseline y=44 = _core.ZONE_FEET):
       adults' sheets)
 
   ONE-ROW NPC sheets (entities/npcs/npc.gd builds SpriteFrames at runtime:
-  [idle0, idle1, act0, act1, emote0, emote1] — villagers stop at 4 cols):
+  [idle0, idle1, act0, act1, emote0, emote1] — ALL cast sheets carry the
+  emote pair since 2026-07-17, so the hall gallery can laugh; spawn them
+  with frame_cols = 6):
       npc_sage_gen.png        (288x48) — Basil's little sister: slate-lavender
           kitten, white socks, sage-green hair bow; act = ribbon-CAST (arms
           up), emote = smug giggle
@@ -703,7 +705,7 @@ BADGER_OUTS = outs_for((BADGER, OUT_DARK), (WHITE, OUT_LIGHT), (FUR, OUT_DARK))
 
 def badger(s, mood="idle", bob=0):
     """The classmate: a blunt young badger — white face, twin dark stripes,
-    stocky. His honesty is a blunt instrument. [idle, shrug]."""
+    stocky. His honesty is a blunt instrument. [idle, shrug, belly laugh]."""
     hy = 23 + bob
     s.tri((CX - 6, hy - 8), hy - 4, CX - 8, CX - 3, BADGER)
     s.tri((CX + 6, hy - 8), hy - 4, CX + 3, CX + 8, BADGER, sh=0.12)
@@ -714,10 +716,15 @@ def badger(s, mood="idle", bob=0):
             s.set(CX + sx + (1 if sx > 0 else -1), y, FUR[2])
     s.ball(CX, hy + 4, 3.6, 2.2, WHITE, power=2.0, wrap=0.10, curve=0.10)
     s.rect(CX - 1, hy + 2, CX, hy + 3, NOSE)
-    for ex in (CX - 6, CX + 4):
-        s.rect(ex, hy - 2, ex + 1, hy - 1, PUPIL)
-        s.set(ex + 1, hy - 2, GLINT)
-    s.line([(CX - 1, hy + 5), (CX + 1, hy + 5)], MOUTH)         # flat mouth
+    if mood == "emote":                             # the belly laugh
+        for ex in (CX - 6, CX + 4):
+            s.line([(ex, hy - 1), (ex + 1, hy - 2), (ex + 2, hy - 1)], PUPIL)
+        s.rect(CX - 1, hy + 4, CX + 1, hy + 6, MAW)             # open laugh
+    else:
+        for ex in (CX - 6, CX + 4):
+            s.rect(ex, hy - 2, ex + 1, hy - 1, PUPIL)
+            s.set(ex + 1, hy - 2, GLINT)
+        s.line([(CX - 1, hy + 5), (CX + 1, hy + 5)], MOUTH)     # flat mouth
     by = 36 + bob
     s.ball(CX, by, 6.6, 5.6, BADGER, power=2.2, wrap=0.28, curve=0.22)
     s.ball(CX, by + 1, 3.6, 3.2, WHITE, power=2.2, wrap=0.10, curve=0.10)
@@ -726,6 +733,9 @@ def badger(s, mood="idle", bob=0):
         s.capsule(CX + 6, by - 3, CX + 9, by - 6, 1.8, 1.5, BADGER, sh=0.16)
         s.ball(CX - 9, by - 7, 1.6, 1.4, WHITE, power=2.2, wrap=0.10, curve=0.10)
         s.ball(CX + 9, by - 7, 1.6, 1.4, WHITE, power=2.2, sh=0.10, wrap=0.10, curve=0.10)
+    elif mood == "emote":                           # paws hugging the shake
+        s.capsule(CX - 6, by - 3, CX - 4, by + 1, 1.8, 1.5, BADGER, sh=0.06)
+        s.capsule(CX + 6, by - 3, CX + 4, by + 1, 1.8, 1.5, BADGER, sh=0.16)
     else:
         s.capsule(CX - 6, by - 3, CX - 7, by + 2, 1.8, 1.5, BADGER, sh=0.06)
         s.capsule(CX + 6, by - 3, CX + 7, by + 2, 1.8, 1.5, BADGER, sh=0.16)
@@ -741,19 +751,26 @@ STORK_OUTS = outs_for((STORK, OUT_LIGHT), (BILL, OUT_DARK), (FUR, OUT_DARK))
 
 def stork(s, mood="idle", bob=0):
     """Doctor Ciconia: a tall clinical stork — long orange bill, half-moon
-    spectacles perched on it, black flight-feather tips. [idle, consult]."""
+    spectacles perched on it, black flight-feather tips. [idle, consult,
+    dry chuckle (the panel cracking at the naming)]."""
     hy = 16 + bob
     s.ball(CX + 2, hy, 3.6, 3.2, STORK, power=2.2, wrap=0.22, curve=0.18)  # head
-    # the long bill, angled down-left; spectacles ride it
-    s.capsule(CX + 1, hy + 1, CX - 8, hy + 4, 1.2, 0.7, BILL, sh=0.06)
-    s.rect(CX - 2, hy + 1, CX, hy + 1, RIMLESS)     # half-moon specs
-    s.set(CX - 3, hy + 2, RIMLESS)
-    s.set(CX + 3, hy - 1, PUPIL)                    # calm eye
+    if mood == "emote":                             # bill tips UP, eye shut
+        s.capsule(CX + 1, hy + 1, CX - 8, hy - 2, 1.2, 0.7, BILL, sh=0.06)
+        s.rect(CX - 2, hy, CX, hy, RIMLESS)         # specs ride the lift
+        s.set(CX - 3, hy - 1, RIMLESS)
+        s.line([(CX + 2, hy - 1), (CX + 3, hy - 2), (CX + 4, hy - 1)], PUPIL)
+    else:
+        # the long bill, angled down-left; spectacles ride it
+        s.capsule(CX + 1, hy + 1, CX - 8, hy + 4, 1.2, 0.7, BILL, sh=0.06)
+        s.rect(CX - 2, hy + 1, CX, hy + 1, RIMLESS) # half-moon specs
+        s.set(CX - 3, hy + 2, RIMLESS)
+        s.set(CX + 3, hy - 1, PUPIL)                # calm eye
     s.capsule(CX + 3, hy + 2, CX + 2, 26 + bob, 1.8, 2.2, STORK, sh=0.04)  # neck
     s.ball(CX, 33 + bob, 6.4, 7.8, STORK, power=2.2, wrap=0.28, curve=0.22)  # body
-    if mood == "act":                               # consulting wing raised
+    if mood in ("act", "emote"):                    # wing raised (consult /
         s.capsule(CX - 5.5, 30 + bob, CX - 10, 24 + bob, 2.0, 1.4, STORK, sh=0.12)
-        s.rect(CX - 11, 23 + bob, CX - 9, 24 + bob, FUR[1])       # dark tip
+        s.rect(CX - 11, 23 + bob, CX - 9, 24 + bob, FUR[1])       # at the bill)
     else:
         s.capsule(CX - 5.5, 30 + bob, CX - 6.5, 38 + bob, 2.0, 1.5, STORK, sh=0.12)
         s.rect(CX - 7, 38 + bob, CX - 5, 39 + bob, FUR[1])
@@ -1155,6 +1172,39 @@ def kitty_bike(s, pose="pedal0"):
         s.set(wx, wy, WHISK)                         # cheek whiskers
 
 
+def kitty_tumble(s):
+    """Kitty thrown — a compact mid-air CURL the accident scene spins
+    through its arc (the Sprite2D rotates; the pose only has to stay
+    round): knees hugged, tail wrapped over, bandana knot streaming, eyes
+    squeezed shut. Cartoon-stylized on purpose — the loop reads as motion,
+    never as harm; she lands into the sleeping `down` frame."""
+    # curled body under the big head
+    s.ball(21.0, 29.0, 5.2, 4.6, KIT_FUR, power=2.2, wrap=0.26, curve=0.22)
+    s.ball(22.5, 31.0, 2.8, 2.2, WHITE, power=2.2, wrap=0.08, curve=0.08)
+    s.capsule(17, 32, 14, 28, 1.7, 1.4, KIT_FUR, sh=0.14)     # tucked legs
+    s.capsule(25, 33, 28, 30, 1.7, 1.4, KIT_FUR, sh=0.10)
+    s.capsule(14, 25, 19, 20, 1.3, 1.0, KIT_FUR, sh=0.12)     # tail wraps the curl
+    s.set(20, 19, KIT_FUR[0])
+    # the big head tipped INTO the roll
+    hx, hy = 27.0, 20.0
+    s.tri((int(hx) - 5, int(hy) - 9), int(hy) - 4, int(hx) - 8, int(hx) - 2, KIT_FUR)
+    s.tri((int(hx) + 3, int(hy) - 9), int(hy) - 4, int(hx), int(hx) + 6,
+          KIT_FUR, sh=0.12)
+    s.ball(hx, hy, 7.0, 6.4, KIT_FUR, power=2.4, wrap=0.30, curve=0.26)
+    s.ball(hx + 4.4, hy + 2.6, 2.8, 2.2, WHITE, power=2.2, wrap=0.08, curve=0.08)
+    s.set(int(hx) + 6, int(hy) + 1, NOSE)
+    # bandana band + the knot STREAMING with the spin
+    s.rect(int(hx) - 6, int(hy) - 5, int(hx) + 5, int(hy) - 4, KIT_BAND[1])
+    s.capsule(hx - 7, hy - 4, hx - 13, hy - 8, 1.3, 1.0, KIT_BAND, sh=0.14)
+    # eyes squeezed shut, little o mouth
+    s.line([(int(hx) + 1, int(hy) - 2), (int(hx) + 2, int(hy) - 3),
+            (int(hx) + 3, int(hy) - 2)], MOUTH)
+    s.set(int(hx) + 5, int(hy) + 4, MAW)
+    s.despeckle(passes=1)
+    s.outline(outs_for((KIT_FUR, OUT_DARK), (WHITE, OUT_LIGHT),
+                       (KIT_BAND, OUT_DARK)), OUT_DARK)
+
+
 def kitty_down(s):
     """Kitty still on the road (the aftermath) — lying on her side, eyes
     closed, bandana fanned out. Chibi head, soft and non-violent: a
@@ -1296,6 +1346,22 @@ def fx_lines(s):
     s.rect(2, 4, 12, 4, SPARK_D)
     s.rect(4, 8, 14, 8, SPARK_D)
     s.rect(1, 12, 10, 12, SPARK_D)
+
+
+HEART = (226, 76, 120, 255)                        # festival-magenta kin
+HEART_L = (255, 150, 180, 255)
+
+
+def fx_heart(s):
+    """A blooming heart — the bluff kiss (frame 19)."""
+    for (x0, x1, y) in ((4, 6, 3), (9, 11, 3), (3, 7, 4), (8, 12, 4),
+                        (3, 12, 5), (3, 12, 6), (4, 11, 7), (5, 10, 8),
+                        (6, 9, 9), (7, 8, 10)):
+        s.rect(x0, y, x1, y, HEART)
+    s.rect(4, 4, 5, 5, HEART_L)                    # lit lobe
+    s.set(5, 4, (255, 255, 255, 255))              # glint
+    s.outline({HEART: (120, 26, 60, 255), HEART_L: (120, 26, 60, 255)},
+              (120, 26, 60, 255))
 
 
 def accident_bg():
@@ -1440,14 +1506,19 @@ kitty(kt[0][4], eyes="happy", pose="cheer", sway=2)
 kitty(kt[0][5], eyes="happy", pose="cheer", bob=-1, sway=-2)
 write_cells(os.path.join(HERE, "npc_kitty_gen.png"), kt, CELL)
 
-# villagers: [idle x2, act x2]
+# villagers: [idle x2, act x2, laugh-emote x2] — 6 cols since 2026-07-17:
+# the hall gallery must visibly LAUGH at the naming; on the old 4-col
+# sheets play_emote() was a silent no-op (npc.gd only builds clips whose
+# columns exist). Every spawner of these sheets passes frame_cols = 6.
 for fname, fn in (("npc_sheep_gen.png", sheep), ("npc_owl_gen.png", owl),
                   ("npc_mouse_gen.png", mouse)):
-    vg = [[new() for _ in range(4)]]
+    vg = [[new() for _ in range(6)]]
     fn(vg[0][0])
     fn(vg[0][1], bob=-1)
     fn(vg[0][2], mood="act" if fn is not sheep else "talk")
     fn(vg[0][3], mood="act" if fn is not sheep else "talk", bob=-1)
+    fn(vg[0][4], mood="emote")
+    fn(vg[0][5], mood="emote", bob=-1)
     write_cells(os.path.join(HERE, fname), vg, CELL)
 
 # the goose: [idle x2, honk x2, WADDLE x2] — the ribbon chase needs a gait
@@ -1480,18 +1551,22 @@ schweinler_adult(sa[0][4], mood="laugh")
 schweinler_adult(sa[0][5], mood="laugh", bob=-2)
 write_cells(os.path.join(HERE, "npc_schweinler_adult_gen.png"), sa, CELL)
 
-bd = [[new() for _ in range(4)]]
+bd = [[new() for _ in range(6)]]
 badger(bd[0][0])
 badger(bd[0][1], bob=-1)
 badger(bd[0][2], mood="act")
 badger(bd[0][3], mood="act", bob=-1)
+badger(bd[0][4], mood="emote")
+badger(bd[0][5], mood="emote", bob=-2)
 write_cells(os.path.join(HERE, "npc_badger_gen.png"), bd, CELL)
 
-st = [[new() for _ in range(4)]]
+st = [[new() for _ in range(6)]]
 stork(st[0][0])
 stork(st[0][1], bob=-1)
 stork(st[0][2], mood="act")
 stork(st[0][3], mood="act", bob=-1)
+stork(st[0][4], mood="emote")
+stork(st[0][5], mood="emote", bob=-1)
 write_cells(os.path.join(HERE, "npc_stork_gen.png"), st, CELL)
 
 kb2 = [[new() for _ in range(6)]]
@@ -1540,14 +1615,18 @@ fx_zzz(fx[0][15])
 fx_watch(fx[1][0])                  # frame 16
 fx_poof(fx[1][1])                   # frame 17
 fx_lines(fx[1][2])                  # frame 18
+fx_heart(fx[1][3])                  # frame 19 — the bluff kiss
 write_cells(os.path.join(HERE, "prologue_fx.png"), fx, 16)
 
 # the accident set-piece: side-view sheets + the dusk road backdrop
-ak = [[new() for _ in range(4)]]
+# (5 cols since 2026-07-17: `tumble` is the loop-and-land arc frame —
+# accident.tscn's Kitty hframes must stay 5)
+ak = [[new() for _ in range(5)]]
 kitty_bike(ak[0][0], "pedal0")
 kitty_bike(ak[0][1], "pedal1")
 kitty_bike(ak[0][2], "brace")
 kitty_down(ak[0][3])
+kitty_tumble(ak[0][4])
 write_cells(os.path.join(HERE, "accident_kitty_gen.png"), ak, CELL)
 
 av = [[new() for _ in range(5)]]
