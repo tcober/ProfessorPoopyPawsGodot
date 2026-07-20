@@ -11,6 +11,10 @@ extends StaticBody2D
 ## a new villager is a PNG plus exports: no .tres authoring. Anim names:
 ## idle_down (the Theater helpers' single-facing fallback), act (the NPC's
 ## business pose: casting, pointing, tinkering), emote (its big feeling).
+## Cols 6-9 are OPTIONAL facings (2026-07-17, the bluff's from-behind
+## staging): back x2 (frame_cols >= 8) and side x2 drawn facing LEFT
+## (frame_cols >= 10; play_side(false) flips it right) — sheets without
+## them are untouched, the play_* helpers no-op.
 ## The body is solid on the world layer and y-sorts in World at the party's
 ## feet convention (48-cell art, feet y=44 = node.y + 20).
 
@@ -38,7 +42,8 @@ func _ready() -> void:
 func _build_frames() -> void:
 	assert(sheet != null, display_name + " NPC has no sheet")
 	var f := SpriteFrames.new()
-	var defs := {"idle_down": [0, 1], "act": [2, 3], "emote": [4, 5]}
+	var defs := {"idle_down": [0, 1], "act": [2, 3], "emote": [4, 5],
+			"back": [6, 7], "side": [8, 9]}
 	for anim: String in defs:
 		var cols: Array = defs[anim]
 		if cols[0] >= frame_cols:
@@ -101,4 +106,19 @@ func play_emote() -> void:
 
 
 func play_idle() -> void:
+	sprite.flip_h = false
 	sprite.play("idle_down")
+
+
+## Back to the camera (the bluff's facing-the-water staging).
+func play_back() -> void:
+	if sprite.sprite_frames.has_animation("back"):
+		sprite.flip_h = false
+		sprite.play("back")
+
+
+## Profile. The cells face LEFT; right = false keeps that, true flips.
+func play_side(right := false) -> void:
+	if sprite.sprite_frames.has_animation("side"):
+		sprite.flip_h = right
+		sprite.play("side")

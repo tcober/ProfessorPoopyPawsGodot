@@ -31,6 +31,9 @@ VERDD = (54, 122, 116, 255)
 FOLIAGE = ramp((94, 162, 76), "violet", 6)        # a living leaf canopy / plants
 CEMENT = ramp((186, 190, 178), "violet", 6)       # light grey cement wall
 WATERL = (196, 232, 226, 255)                     # lit water
+SMOKEG = (198, 200, 212, 255)                     # winter woodsmoke, grey
+SMOKEGD = (162, 164, 180, 255)
+WGLINT = (255, 236, 170, 255)                     # window-flicker glint
 
 
 def _leaf_dab(sp, x, y):
@@ -84,7 +87,7 @@ def _pad_top(sp, pad):
 
 
 def _anim_building(facade, canopy, f, flues=(), streams=(), basins=(),
-                   barrels=(), drips=(), dy=0):
+                   barrels=(), drips=(), windows=(), wood_flues=(), dy=0):
     """Frame-f animated water + smoke for ANY building. `facade` takes the
     water, `canopy` the smoke — they are the same image when compositing one
     frame, or (lo, up) when baking frame 0. Positions are sprite-local to the
@@ -109,9 +112,33 @@ def _anim_building(facade, canopy, f, flues=(), streams=(), basins=(),
         facade.set(x0 + (f * 3) % max(1, x1 - x0), y + dy, WATERL)
     for nx, ny in drips:                                  # falling drips
         facade.set(nx, ny + dy + (f % 4), WATER)
+    for i, (wx, wy, ww, hh) in enumerate(windows):        # fire-lit windows:
+        st = (f + 2 * i) % 4                              # a subtle 4-beat
+        if st == 0:                                       # flicker; the baked
+            continue                                      # frame stays put
+        for y in range(wy + dy, wy + dy + hh):
+            for x in range(wx, wx + ww):
+                c = facade.get(x, y)
+                if c == WARM and st == 2:
+                    facade.set(x, y, WARMD)               # the dim beat
+                elif c == WARMD and st == 3:
+                    facade.set(x, y, WARM)                # the flare beat
+        gx = wx + (0 if st == 1 else ww - 1)              # a wandering glint
+        gy = wy + dy + (0 if st < 2 else hh - 1)
+        if facade.get(gx, gy) in (WARM, WARMD):
+            facade.set(gx, gy, WGLINT)
+    for mx, my in wood_flues:                             # winter woodsmoke:
+        for p in range(5):                                # taller, lazier and
+            ph = (f - p) % 4                              # greyer than steam —
+            lift = ph + 4 * (p // 4)                      # the 5th puff rides
+            pr = 0.80 + 0.24 * lift                       # a cycle higher and
+            canopy.blob(mx + 1.5 + (0.9 if (p + ph) % 2 else -0.7)
+                        + lift * 0.12,                    # swells as it goes
+                        my + dy - 1.5 - lift * 1.9,
+                        pr, pr * 0.95, SMOKEG if ph % 2 else SMOKEGD)
 
 
-def _finish(lo, up, w, fy, h, composite, frames, anim):
+def _finish(lo, up, w, fy, h, composite, frames, anim, pad=SMOKE_PAD):
     """Shared building tail. Split mode (legacy) returns (lo, up) with frame
     0 baked. Composite (both towns) returns a horizontal frame-sheet padded
     SMOKE_PAD taller (clear sky for the rising plumes) if frames>1 and an
@@ -125,10 +152,10 @@ def _finish(lo, up, w, fy, h, composite, frames, anim):
             return lo, up
         return sprite_img(_flat(lo, up), w, h)
     base = _flat(lo, up)
-    sheet = Img(w * frames, h + SMOKE_PAD)
+    sheet = Img(w * frames, h + pad)
     for f in range(frames):
-        frm = _pad_top(base, SMOKE_PAD)
-        anim(frm, frm, f, SMOKE_PAD)
+        frm = _pad_top(base, pad)
+        anim(frm, frm, f, pad)
         sheet.blit_cell(frm, f * w, 0)
     return sheet
 
@@ -575,7 +602,7 @@ def town_well(stone, salt=231):
     return sp
 
 
-def town_lamp(salt=233):
+def town_lamp(salt=233, mantle=MINT):
     """Brass-caged street lamp at zone scale (16x32, a 1x2 solid column);
     the halo rides the additive glow overlay."""
     sp = S(16, 32, salt)
@@ -585,7 +612,7 @@ def town_lamp(salt=233):
     sp.rect(7, 8, 7, 27, IRON[1])
     sp.rect(4, 0, 11, 0, BRASS[1])                         # cap
     sp.rect(4, 1, 11, 7, BRASS[3])
-    sp.rect(5, 1, 10, 6, MINT)                             # the mantle
+    sp.rect(5, 1, 10, 6, mantle)                           # the mantle
     sp.set(6, 2, SPEC)
     sp.set(3, 2, BRASS[2])
     sp.set(12, 2, BRASS[2])                                # cage arms
@@ -619,6 +646,32 @@ def town_stall(salt=241):
     sp.rect(5, 26, 7, 31, TIMBER[4])                       # legs
     sp.rect(w - 8, 26, w - 6, 31, TIMBER[4])
     edge(sp, h)
+    return sp
+
+
+def town_fence(cells, salt=247):
+    """The yard fence as a Tier-3 y-sorted RUN (2026-07-19): the old baked
+    `_fence_cell` rails lived on the lower canvas and drew UNDER every body —
+    but a fence is standable both north and south, the doctrine's textbook
+    Tier 3. Art matches the bake exactly (twin rails stopping 7px shy of the
+    run ends, two pickets per 16px cell, no outline — it never had one);
+    `cells` = horizontal run length in map cells, image cells*16 x 16."""
+    w = cells * 16
+    sp = S(w, 16, salt)
+    tm = TIMBER
+    x0, x1 = 7, w - 8
+    sp.rect(x0, 4, x1, 4, tm[0])                           # top rail, lit crest
+    sp.rect(x0, 5, x1, 6, tm[2])
+    sp.rect(x0, 7, x1, 7, tm[4])
+    sp.rect(x0, 9, x1, 9, tm[0])                           # bottom rail
+    sp.rect(x0, 10, x1, 11, tm[2])
+    sp.rect(x0, 12, x1, 12, tm[4])
+    for c in range(cells):
+        for u in (c * 16 + 3, c * 16 + 12):                # pickets
+            sp.rect(u, 2, u + 1, 13, tm[3])
+            sp.rect(u, 2, u, 13, tm[1])
+            sp.set(u, 1, tm[0])
+            sp.set(u + 1, 13, tm[5])
     return sp
 
 
@@ -718,11 +771,35 @@ def town_inn(roof, plaster, salt=261, composite=False, frames=1):
     return _finish(lo, up, w, fy, h, composite, frames, _inn_anim)
 
 
-def town_fountain(stone, salt=271):
+_FOUNTAIN_STREAMS = ((19, 12, 24), (28, 14, 25))          # pour columns x, y0, y1
+_FOUNTAIN_ARCS = ((14, 20, 31), (27, 34, 29), (18, 24, 34))
+
+
+def _fountain_anim(sp, f):
+    """Frame-f water inside town_fountain's FIXED silhouette (the outline
+    is already baked — only recolor, never move a silhouette pixel): pour
+    dashes fall 1px/frame (4-period: seamless loop), the pool's ripple
+    arcs wobble a px, splash glints and pool sparkles blink."""
+    for x, y0, y1 in _FOUNTAIN_STREAMS:                    # falling dashes
+        for y in range(y0, y1 + 1):
+            sp.set(x, y, GLASS if (y - f) % 4 < 2 else WATER)
+    for k, (rx0, rx1, ry) in enumerate(_FOUNTAIN_ARCS):    # ripple arcs: only
+        dx = ((f + k) % 4) // 2                            # over open pool, so
+        for x in range(rx0 + dx, rx1 + dx + 1):            # the pedestal foot
+            if sp.px[ry][x] == WATER:                      # keeps its layering
+                sp.set(x, ry, GLASS)
+    sp.set(19, 25, MINT if f % 2 == 0 else WATERL)         # splash glints
+    sp.set(28, 26, MINT if f % 2 == 1 else WATERL)
+    sp.set(15, 30, SPEC if f % 2 == 0 else WATER)          # pool sparkles
+    sp.set(33, 33, SPEC if f % 2 == 1 else WATER)
+
+
+def town_fountain(stone, salt=271, frames=1):
     """The square's fountain (48x48, 3x3 solid): a coursed stone basin,
     rippled pool, and a pedestal crowned by a brass alembic bulb — the
     town's little monument to the drained craft. Corners stay transparent
-    so the plaza paving shows through."""
+    so the plaza paving shows through. With frames>1 returns a horizontal
+    frame-sheet Img (pouring, rippling, glinting — see _fountain_anim)."""
     sp = S(48, 48, salt)
     # the basin: stacked ellipses, sunlit N rim to shaded S wall
     sp.blob(24, 30, 21.5, 12.5, stone[3])                  # S wall shade base
@@ -733,10 +810,6 @@ def town_fountain(stone, salt=271):
     for jx, jy in ((8, 24), (14, 19), (24, 17), (34, 19),  # rim course joints
                    (40, 24), (11, 33), (37, 33), (24, 38)):
         sp.set(jx, jy, stone[3])
-    for rx0, rx1, ry in ((14, 20, 31), (27, 34, 29), (18, 24, 34)):
-        sp.rect(rx0, ry, rx1, ry, GLASS)                   # ripple arcs
-    sp.set(15, 30, SPEC)
-    sp.set(33, 33, SPEC)
     # the pedestal and its brass alembic-bulb finial
     sp.rect(21, 12, 26, 27, stone[1])                      # column
     sp.rect(21, 12, 21, 27, stone[0])                      # lit W edge
@@ -748,13 +821,21 @@ def town_fountain(stone, salt=271):
     sp.rect(22, 7, 25, 9, BRASS[3])                        # the alembic neck
     sp.ball(23.5, 4, 3.8, 3.4, BRASS, power=2.0)           # the bulb
     sp.set(22, 2, SPEC)
-    for py in (13, 17, 21):                                # pour streams
-        sp.set(19, py, GLASS)
-        sp.set(28, py + 2, GLASS)
-    sp.set(19, 25, MINT)                                   # splash glints
-    sp.set(28, 26, MINT)
+    for x, y0, y1 in _FOUNTAIN_STREAMS:                    # pour streams: solid
+        sp.rect(x, y0, x, y1, WATER)                       # columns IN the base
+                                                           # silhouette, so the
+                                                           # baked outline never
+                                                           # ghosts a moved px
     edge(sp, 48)
-    return sp
+    if frames == 1:
+        _fountain_anim(sp, 0)
+        return sp
+    sheet = Img(48 * frames, 48)
+    for f in range(frames):
+        frm = _clone(sp)
+        _fountain_anim(frm, f)
+        sheet.blit_cell(frm, f * 48, 0)
+    return sheet
 
 
 def town_stairs(stone, salt=281):
@@ -879,3 +960,174 @@ def town_tree(f, trunk, grass, salt=301):
         for x in range(w, up.n):                           # into the footprint
             up.px[y][x] = None
     return lo, up
+
+
+# ---- Lanternwood: the winter cabin kit (Fuji's hometown zone) -----------------------
+
+def _log_wall(lo, w, h, fy, snow):
+    """Stacked-log cabin facade: lit log crowns, dark grooves with pale
+    chinking dashes, end-grain corner notches, a drifted snow footing."""
+    for y in range(fy + 1, h):
+        r = (y - fy - 1) % 4
+        c = TIMBER[1] if r == 0 else TIMBER[2] if r in (1, 2) else TIMBER[4]
+        lo.rect(0, y, w - 1, y, c)
+        if r == 3:
+            for x in range(2, w - 2, 3):
+                lo.set(x, y, PAPERD)                       # chinking dashes
+    for x in (0, 1, w - 2, w - 1):                         # end-grain corners
+        for y in range(fy + 1, h, 4):
+            lo.set(x, y, TIMBER[3] if (x + y) % 2 else TIMBER[1])
+    lo.rect(0, h - 2, w - 1, h - 1, snow[1])               # drifted footing
+    for x in range(3, w - 2, 7):
+        lo.set(x, h - 3, snow[0])
+
+
+def _lit_window(lo, x0, y0, ww, hh):
+    """A fire-lit cabin window: WARM/WARMD glass the _anim_building windows
+    flicker recolors per frame (TIMBER mullions survive the recolor).
+    Returns its (x, y, w, h) rect for the flicker list."""
+    lo.rect(x0 - 1, y0 - 1, x0 + ww, y0 + hh, TIMBER[4])
+    lo.rect(x0, y0, x0 + ww - 1, y0 + hh - 1, WARMD)
+    lo.rect(x0 + 1, y0 + 1, x0 + ww - 2, y0 + 2, WARM)     # the fire's throw
+    lo.rect(x0 + ww // 2, y0, x0 + ww // 2, y0 + hh - 1, TIMBER[4])
+    lo.rect(x0, y0 + hh // 2, x0 + ww - 1, y0 + hh // 2, TIMBER[4])
+    lo.rect(x0 - 2, y0 + hh, x0 + ww + 1, y0 + hh + 1, TIMBER[3])   # sill
+    lo.set(x0 - 2, y0 + hh, TIMBER[1])
+    return (x0, y0, ww, hh)
+
+
+def _snow_roof(up, w, fy, roof, snow):
+    """A steep side-gable roof under a deep snow blanket: the pitched slope
+    is drawn, then all but its lowest rows recolor to drifted snow with sag
+    lines; icicle teeth hang under the eave."""
+    _hip_roof(up, 0, w - 1, 0, fy - 1, max(4, w // 2 - 10), roof)
+    for y in range(0, fy - 3):                             # the snow blanket
+        for x in range(w):
+            if up.get(x, y) is None:
+                continue
+            t = 0.16 + 0.50 * (y / max(1.0, fy - 3.0))
+            if y % 6 == 5 and (x + y) % 3:
+                t += 0.30                                  # sag lines
+            up.set(x, y, up.tone(snow, t, x, y, jitter=0.5))
+    for x in range(2, w - 2, 5):                           # icicle teeth
+        up.set(x, fy, snow[1])
+        if x % 2:
+            up.set(x, fy + 1, snow[2])
+
+
+def _stone_chimney(up, x, y0, y1, snow):
+    """A squat fieldstone chimney through the snow roof (Alembic keeps its
+    copper flues; Lanternwood burns wood in stone) — snow-capped."""
+    for y in range(y0, y1 + 1):
+        for x_ in range(x, x + 5):
+            t = 0.28 + 0.40 * ((x_ - x) / 4.0)
+            if (y - y0) % 3 == 2:
+                t += 0.24                                  # course seams
+            up.set(x_, y, up.tone(STONER, t, x_, y, jitter=0.4))
+    up.rect(x, y0, x + 4, y0, STONER[4])                   # sooty crown
+    up.rect(x - 1, y0 - 1, x + 5, y0 - 1, snow[0])         # the snow cap
+    up.set(x - 1, y0, snow[1])
+    up.set(x + 5, y0, snow[1])
+
+
+def town_cabin(roof, snow, salt=311, composite=True, frames=4, wide=False):
+    """A Lanternwood log cabin — 80x64 over 5x4 (or 96x80 over 6x5 with
+    `wide`, the library hall): stacked-log walls, a deep snow-blanketed
+    gable roof, fire-lit windows (the 4-frame sheet flickers them via
+    _anim_building's `windows`), a plank door spilling lamplight, a hooded
+    stoop lantern, and a snow-capped stone chimney breathing lazy grey
+    WOODSMOKE (`wood_flues`, pad=18 headroom)."""
+    w, h, fy = (96, 80, 40) if wide else (80, 64, 30)
+    lo, up = S(w, h, salt), S(w, h, salt + 1)
+    _snow_roof(up, w, fy, roof, snow)
+    mx = w - 22                                            # the chimney: a
+    _stone_chimney(up, mx, 3, 13, snow)                    # squat stack poking
+                                                           # through the snow
+    edge(up, fy + 2)                                       # keep the icicles
+    _log_wall(lo, w, h, fy, snow)
+    cx = w // 2
+    wins = [_lit_window(lo, 9, fy + 8, 10, 10),
+            _lit_window(lo, w - 20, fy + 8, 10, 10)]
+    if wide:
+        wins.append(_lit_window(lo, 30, fy + 8, 10, 10))
+    lo.rect(cx - 6, fy + 6, cx + 6, h - 2, TIMBER[4])      # the plank door
+    lo.rect(cx - 5, fy + 7, cx + 5, h - 2, TIMBER[2])
+    for gy in range(fy + 10, h - 2, 4):
+        lo.rect(cx - 5, gy, cx + 5, gy, TIMBER[4])
+    lo.rect(cx - 5, fy + 7, cx + 5, fy + 7, TIMBER[1])     # lit lintel
+    lo.set(cx + 3, fy + 15, BRASS[0])                      # the latch
+    lo.rect(cx - 4, h - 3, cx + 4, h - 2, WARMD)           # lamplight spill
+    lo.set(cx, h - 3, WARM)
+    lo.rect(cx - 10, fy + 9, cx - 9, fy + 12, BRASS[2])    # stoop lantern
+    lo.rect(cx - 10, fy + 9, cx - 9, fy + 9, BRASS[1])
+    lo.set(cx - 10, fy + 10, WARM)
+    edge(lo, h)
+    anim = (lambda fa, ca, f2, dy=0: _anim_building(
+        fa, ca, f2, wood_flues=((mx + 1, 3),), windows=tuple(wins), dy=dy))
+    return _finish(lo, up, w, fy, h, composite, frames, anim, pad=18)
+
+
+def _conifer_snowload(sp, snow, limit):
+    """Snow along the current topmost silhouette (run per tier, before the
+    next overlaps): every exposed bough shoulder keeps its load."""
+    for x in range(sp.n):
+        for y in range(min(limit, sp.n)):
+            if sp.get(x, y) is None:
+                continue
+            sp.set(x, y, snow[0])
+            if sp.get(x, y + 1) is not None and x % 2:
+                sp.set(x, y + 1, snow[1])
+            break
+
+
+def town_conifer(f, trunk, snow, salt=321):
+    """A zone-scale snow-laden spruce (32x64 over a 2x4 FULLY SOLID
+    footprint — the small-prop rule): four stacked shaded tiers, each
+    snow-loaded before the next overlaps it, over a grooved trunk on
+    shadowed snow. Returns (lower, upper) split at px 44 for the
+    ConiferTrunk / ConiferCrown T3 pair (crown baseline pushed south via
+    base_inset, the town_tree idiom)."""
+    sp = S(32, 64, salt)
+    sp.blob(16, 58, 12, 3.5, snow[2])                      # ground shadow
+    sp.blob(16, 58, 8, 2.5, snow[3])
+    sp.rect(14, 42, 17, 57, trunk[2])                      # the trunk
+    sp.rect(14, 42, 14, 57, trunk[1])
+    sp.rect(17, 42, 17, 57, trunk[4])
+    for (ax, ay), by, hw, sh in (((16, 28), 46, 14, 0.10),
+                                 ((16, 16), 36, 11, 0.02),
+                                 ((16, 7), 26, 8, -0.06),
+                                 ((16, 1), 15, 5, -0.12)):
+        sp.tri((ax, ay), by, 16 - hw, 16 + hw, f, sh=sh)
+        _conifer_snowload(sp, snow, 48)
+    edge(sp, 64)
+    from _propkit import split_rows
+    return split_rows(sp, 44)
+
+
+def frozen_pond(snow, salt=331):
+    """The skating pond (64x48 over 4x3 WALKABLE pond cells — flat Tier-1
+    ground art baked via place(), never sea/river: those classes ANIMATE):
+    a pale ice sheet, long pressure cracks, swept glints, a drifted rim."""
+    ICE = ((222, 238, 248, 255), (196, 220, 240, 255), (168, 196, 228, 255),
+           (136, 162, 204, 255), (104, 126, 172, 255))
+    sp = S(64, 48, salt)
+    for y in range(48):
+        for x in range(64):
+            dx, dy = (x - 32) / 31.0, (y - 24) / 23.0
+            q = dx * dx + dy * dy
+            if q > 1.0:
+                continue
+            if q > 0.82:                                   # drifted rim
+                sp.set(x, y, snow[0] if (x + y) % 3 else snow[1])
+                continue
+            t = 0.18 + 0.5 * q
+            i = min(3, int(t * 4 + ((x * 7 + y * 13) % 5 - 2) * 0.12))
+            sp.set(x, y, ICE[max(0, i)])
+    for pts in (((14, 30), (30, 22), (44, 26)),            # pressure cracks
+                ((26, 14), (34, 24)), ((40, 34), (50, 28))):
+        for (xa, ya), (xb, yb) in zip(pts, pts[1:]):
+            ln(sp, xa, ya, xb, yb, ICE[4])
+    for x, y in ((20, 18), (38, 16), (46, 32), (24, 34)):
+        sp.set(x, y, SPEC)                                 # swept glints
+    edge(sp, 48)
+    return sp

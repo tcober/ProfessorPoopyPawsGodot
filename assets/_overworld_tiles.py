@@ -36,7 +36,7 @@ import os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from _core import h2
-from _tilekit import TileScene, T, TIMBER, COPPER
+from _tilekit import Canvas, TileScene, T, TIMBER, COPPER
 
 # ---- 8-neighbor direction bits ------------------------------------------------------
 N, NE, E, SE, S, SW, W, NW = 1, 2, 4, 8, 16, 32, 64, 128
@@ -163,6 +163,22 @@ TERRAIN_CLS = {
     "grass": "grass", "hills": "hills", "flowers": "flowers",
     "forest": "forest", "mountain": "mountain", "waste": "waste",
     "road": "road", "door": "road",
+    # the far-land biomes (2026-07 five-lands continent): snow field, purple
+    # desert, volcanic crust + its molten pools (animated), and the ice
+    # land's snow-dusted conifer mass (its own class — one palette per map,
+    # so winter spruce can't ride the forest ramp)
+    "snow": "snow", "desert": "desert", "basalt": "basalt", "lava": "lava",
+    "pines": "pines",
+    # Lanternwood: the cluster icon + its gate mouth on the overworld, and
+    # the zone map's cabins/conifers/lamps/pond riding snow underlays
+    "lanternwood": "snow", "snowdoor": "snow", "bigmountain": "mountain",
+    "snowridge": "snow", "snowlamp": "snow", "pond": "snow",
+    "conifer": "snow", "conifer2": "snow",
+    "fujibody": "snow", "fujiroof": "snow",
+    "librarybody": "snow", "libraryroof": "snow",
+    "cabAbody": "snow", "cabAroof": "snow",
+    "cabBbody": "snow", "cabBroof": "snow",
+    "cabCbody": "snow", "cabCroof": "snow",
     "well": "grass", "lamp": "grass", "stall": "grass",
     "town": "grass", "tree": "grass", "boulder": "grass",
     # landmark props render their region's fabric as underlay: the castle
@@ -172,9 +188,11 @@ TERRAIN_CLS = {
     "peak": "mountain", "giant_tree": "grass",
     # Alembic Town at zone scale (assets/maps/town.txt rides this same
     # driver): solid facade rows + WALKABLE roof rows the player passes
-    # behind (roof art goes to the upper canvas via place_split), a fence
-    # class, and grass underlays for the full-scale props.
-    "fence": "fence",
+    # behind (roof art goes to the upper canvas via place_split), and grass
+    # underlays for the full-scale props. The fence renders grass too —
+    # its rails are a Tier-3 y-sorted prop since 2026-07-19 (baked rails
+    # drew UNDER every body; a fence is standable both north and south).
+    "fence": "grass",
     "homebody": "grass", "homeroof": "grass",
     "cotWbody": "grass", "cotWroof": "grass",
     "cotEbody": "grass", "cotEroof": "grass",
@@ -197,17 +215,30 @@ STRUCT_TERRAIN = {"well", "lamp", "stall", "fence", "town", "tree", "boulder",
                   "obelisk", "crystal", "castle", "peak", "giant_tree",
                   "homebody", "cotWbody", "cotEbody", "academybody",
                   "weaponbody", "itembody", "innbody",
-                  "cliff", "fountain", "treetrunk"}
+                  "cliff", "fountain", "treetrunk",
+                  "lanternwood", "bigmountain", "snowlamp",
+                  "conifer", "conifer2",
+                  "fujibody", "librarybody", "cabAbody", "cabBbody", "cabCbody"}
 
 WATERC = {"sea", "river", "bridge"}     # no coastline forms inside this family
 GRASSY = {"grass", "hills", "flowers"}
 ROADY = {"road"}
-GROUND = {"grass", "hills", "flowers", "beach", "waste", "road", "fence"}
-MOUNT_OWN = GROUND | {"forest"}         # what a massif rim opens onto
-LANDC = {"grass", "hills", "flowers", "beach", "waste", "road",
-         "forest", "mountain"}          # what a water cell shores against
+PLAINC = {"snow", "desert", "basalt"}   # grassy-style pure-fabric non-owners
+GROUND = {"grass", "hills", "flowers", "beach", "waste", "road"} | PLAINC
+MOUNT_OWN = GROUND | {"forest", "pines"}   # what a massif rim opens onto
+LANDC = GROUND | {"forest", "mountain", "pines"}   # what a water cell shores
+                                                   # against (never lava: every
+                                                   # pool is ringed by basalt)
 FAMILY = {c: (GRASSY if c in GRASSY else WATERC if c in WATERC else {c})
           for c in set(TERRAIN_CLS.values())}
+
+WATER_FRAMES = 4                        # sea/river tile-animation frames; every
+                                        # frame-dependent term below must be
+                                        # periodic in this (seamless loop)
+_FROLL = (0, 2, 1, 3)                   # per-quadrant time roll: swells travel
+                                        # across the 32-space instead of
+                                        # blinking in unison (free — phase is
+                                        # already in the dedupe signature)
 
 
 class OverWorld(TileScene):
@@ -227,6 +258,14 @@ class OverWorld(TileScene):
         self.WASTE = self.mat("waste", shadow="violet")
         self.SNOW = self.mat("snow")
         self.BRIDGE = self.mat("bridge", shadow="violet", spread=0.85)
+        self.DESERT = self.mat("desert")                   # pale dusty lavender
+        self.BASALT = self.mat("basalt", spread=0.9)       # violet-charcoal crust
+        self.LAVA = self.mat("lava")                       # HAND ramp: derived
+                                                           # darks would kill the
+                                                           # incandescence
+        self.PINES = self.mat("pines", spread=1.2)         # winter blue-spruce
+        self.road_verge = "grass"       # what a trail's shoulders render — the
+                                        # Lanternwood generator sets "snow"
         self.PINK = (255, 116, 176, 255)                   # meadow flower hot-pink
         self.SPARK = (214, 246, 248, 255)
         self.DEAD = ((96, 74, 128, 255), (68, 50, 96, 255), (44, 32, 66, 255))
@@ -248,7 +287,22 @@ class OverWorld(TileScene):
             self._cls[ch] = TERRAIN_CLS[d["terrain"]]
             if d["terrain"] in STRUCT_TERRAIN:
                 self._struct.add(ch)
+        # the lava-ring law: molten pools own exactly ONE boundary (basalt),
+        # so every lava cell's neighbors must be lava or basalt — an
+        # un-lintable authoring rule turned into a build failure here
+        for y in range(self.m.rows_n):
+            for x in range(self.m.cols):
+                if self._cls[self.m.at(x, y)] != "lava":
+                    continue
+                for dx, dy, _ in DIRS:
+                    nch = self.m.at(x + dx, y + dy)
+                    ncls = self._cls[nch] if nch else "lava"
+                    assert ncls in ("lava", "basalt"), \
+                        f"lava at ({x},{y}) touches {ncls}: ring every pool " \
+                        f"with basalt"
         self._dland = self._water_distance()
+        self.frame = 0                  # water animation frame (0..WATER_FRAMES-1);
+                                        # _lower_frames() repaints water at each
 
     # -- geography helpers -------------------------------------------------------------
     def cls_at(self, tx, ty):
@@ -306,18 +360,24 @@ class OverWorld(TileScene):
         """Open water: a continuous shallow->deep grade (bilinear corner
         depth through the grain dither, so tone steps break into organic
         clumps instead of quantizing per 16px tile) under staggered swell
-        crests whose dash phase drifts with the 32-space quadrant."""
+        crests whose dash phase drifts with the 32-space quadrant — and
+        4px per animation frame (16/4: seamless loop), time-rolled per
+        quadrant so the swells travel. Sparse single-px twinkles light 1
+        frame in 4."""
         s = self.SEA
         w, z = u + 16 * (phase & 1), v + 16 * (phase >> 1)
         t = max(0.0, min(1.0, (depth - 0.4) / 2.6))
         i = 1 + _dither_i(4, t, w, z, 71, grain=2, jitter=1.0)
-        dash = 7 * (phase & 1) + 3 * (phase >> 1)
+        fe = (self.frame + _FROLL[phase]) % WATER_FRAMES
+        dash = 7 * (phase & 1) + 3 * (phase >> 1) + 4 * fe
         if v in (3, 11):                                   # staggered swell crests
             if (u + dash + (0 if v == 3 else 8)) % 16 < 6:
                 return s[max(0, i - 1)]
         if v in (4, 12):                                   # their trough shadow
             if 1 <= (u + dash + (0 if v == 4 else 8)) % 16 < 6:
                 return s[min(5, i + 1)]
+        if h2(w, z, 101) % 97 == 0 and (h2(w, z, 103) + fe) % 4 == 0:
+            return s[0]                                    # specular twinkle
         return s[i]
 
     # 32-space grass texture (phase = which 16px quadrant a tile renders):
@@ -417,6 +477,48 @@ class OverWorld(TileScene):
             return s[3]
         return s[1]
 
+    # 32-space snow texture: wind-scour drift dashes (a lit crest over a lee
+    # shadow) scattered like the grass tufts, plus rare single-px frost glints
+    _SCOUR32 = ((5, 9), (18, 4), (27, 15), (9, 22), (22, 27), (14, 13))
+
+    def _px_snow(self, u, v, phase=0):
+        s = self.SNOW
+        w, z = u + 16 * (phase & 1), v + 16 * (phase >> 1)
+        for cx, cy in self._SCOUR32:
+            if (w, z) in ((cx, cy), (cx + 1, cy), (cx + 2, cy)):
+                return s[0]                                # lit drift crest
+            if (w, z) in ((cx + 1, cy + 1), (cx + 2, cy + 1), (cx + 3, cy + 1)):
+                return s[2]                                # its lee shadow
+        if h2(w, z, 85) % 91 == 0:
+            return self.SPARK                              # a frost glint
+        # a bright field: mostly the base tone, sparse pale patches, rare dips
+        return _grain_dither((s[0], s[1], s[1], s[2]), 0.42, w, z, 86,
+                             grain=3, jitter=0.9)
+
+    # 32-space desert pebbles (catchlight over shadow, like the waste's)
+    _DPEBBLES32 = ((6, 7), (19, 2), (29, 20), (11, 29), (24, 13))
+
+    def _px_desert(self, u, v, phase=0):
+        """Purple dune field: the sea's staggered swell-crest geometry with
+        every frame term removed — static ripple dunes reading as wind-combed
+        sand at CT zoom, over a grain-dithered lavender pan."""
+        d = self.DESERT
+        w, z = u + 16 * (phase & 1), v + 16 * (phase >> 1)
+        off = 7 * (phase & 1) + 3 * (phase >> 1)
+        if v in (3, 11) and (u + off + (0 if v == 3 else 8)) % 16 < 6:
+            return d[0]                                    # lit dune crest
+        if v in (4, 12) and 1 <= (u + off + (0 if v == 4 else 8)) % 16 < 6:
+            return d[3]                                    # its lee shadow
+        for px_, py_ in self._DPEBBLES32:
+            if (w, z) == (px_, py_):
+                return d[0]                                # pebble catchlight
+            if (w, z) == (px_, py_ + 1):
+                return d[4]                                # its shadow
+        # a QUIET midtone pan (narrow slice, low jitter) so the crest/shadow
+        # rows and pebbles read against it instead of drowning in grain
+        return _grain_dither((d[1], d[2], d[2]), 0.5, w, z, 87,
+                             grain=3, jitter=0.7)
+
     # 16-periodic canopy GEOMETRY: two staggered rows of chunky crowns per
     # tile (row pitch 8), painter-sorted south-over-north so each row's lit
     # tops overlap the row above's dark bottoms — CT's scalloped stacked
@@ -464,6 +566,33 @@ class OverWorld(TileScene):
             return self.FOREST[5]                          # understory hole
         return self._crown_px(win[0], win[1], win[2],
                               u + 16 * (phase & 1), v + 16 * (phase >> 1))
+
+    def _pine_px(self, nx, ny, q, w, z):
+        """One conifer-mass pixel: the crown lobe shaded as stacked BOUGHS —
+        concentric ring steps darken toward the skirt so each lobe reads as
+        a tiered spruce top, with snow dusted along the upper shoulders (the
+        massif snowcap idiom) and a hard under-rim like the forest's."""
+        p = self.PINES
+        if ny < -0.45 and q > 0.30:                        # snow-dusted shoulder
+            s = self.SNOW
+            return s[1] if nx < 0.10 else s[2]
+        if q > 0.80 and ny > 0.15:
+            return p[5] if ny > 0.55 else p[4]             # under-rim shadow
+        ring = int(q * 3.0)                                # tiered bough bands
+        lit = -ny * 0.70 - nx * 0.35 - ring * 0.18
+        if lit > 0.55:
+            return p[1]                                    # lit tip band
+        t = max(0.0, min(1.0, (0.60 - lit) / 1.5))
+        return p[1 + _dither_i(4, t, w, z, 68, grain=2, jitter=0.55)]
+
+    def _px_pines(self, u, v, phase=0):
+        """Interior winter conifer mass: same lobe lattice as the forest,
+        pine-shaded; gaps are cold understory."""
+        win = self._lobe_win(u, v)
+        if win is None:
+            return self.PINES[5]
+        return self._pine_px(win[0], win[1], win[2],
+                             u + 16 * (phase & 1), v + 16 * (phase >> 1))
 
     def _rock_px(self, nx, ny, q, w, z, snow=False):
         """One massif pixel: the lobe shaded as a stylized PEAK — a hard
@@ -513,6 +642,18 @@ class OverWorld(TileScene):
         ((6, 27), (3, 36)), ((28, 29), (25, 38)))
     _WPEBBLES32 = ((4, 6), (17, 3), (29, 19), (9, 30), (24, 30))
 
+    def _crack_d(self, w, z):
+        """Distance to the nearest crack-graph segment at a 32-space point —
+        shared geology: the waste pan's parched plates and the basalt/lava
+        crust render the SAME seamless web in different clothes."""
+        d = 99.0
+        for x0, y0, x1, y1, bx0, by0, bx1, by1 in self._crack_segs:
+            if bx0 <= w <= bx1 and by0 <= z <= by1:
+                dd = _seg_pdist(w, z, x0, y0, x1, y1)
+                if dd < d:
+                    d = dd
+        return d
+
     def _px_waste(self, u, v, phase=0):
         w_ = self.WASTE
         w, z = u + 16 * (phase & 1), v + 16 * (phase >> 1)
@@ -521,18 +662,53 @@ class OverWorld(TileScene):
                 return w_[1]                               # pebble catchlight
             if (w, z) == (px_, py_ + 1):
                 return w_[3]                               # its shadow
-        d = 99.0
-        for x0, y0, x1, y1, bx0, by0, bx1, by1 in self._crack_segs:
-            if bx0 <= w <= bx1 and by0 <= z <= by1:
-                dd = _seg_pdist(w, z, x0, y0, x1, y1)
-                if dd < d:
-                    d = dd
+        d = self._crack_d(w, z)
         if d < 0.7:
             return w_[4]                                   # the crack itself
         if d < 1.6:                                        # parched plate lip
             return _grain_dither((w_[2], w_[3]), 0.7, w, z, 89,
                                  grain=2, jitter=0.9)
         return _grain_dither(w_, 0.36, w, z, 88, grain=3, jitter=0.8)
+
+    def _px_basalt(self, u, v, phase=0):
+        """Cooled volcanic crust: the crack graph as dark fissures dividing
+        hatched plates — strata linework over a charcoal-violet field."""
+        b = self.BASALT
+        w, z = u + 16 * (phase & 1), v + 16 * (phase >> 1)
+        d = self._crack_d(w, z)
+        if d < 0.7:
+            return b[5]                                    # cooled fissure
+        if d < 1.6:                                        # plate lip
+            return _grain_dither((b[3], b[4]), 0.6, w, z, 84,
+                                 grain=2, jitter=0.9)
+        if d > 2.5 and _hatch(w, z, 6, 2, -1):
+            return b[3]                                    # sparse strata, held
+                                                           # off the cracks so
+                                                           # the fissures read
+        return _grain_dither((b[1], b[2], b[2]), 0.45, w, z, 83,
+                             grain=3, jitter=0.7)
+
+    def _px_lava(self, u, v, phase=0):
+        """Molten pool interior, ANIMATED: the crack graph INVERTED — the
+        cracks are incandescent channels through dark floating crust plates.
+        Per frame the channel cores blink hot and an ember dash row drifts
+        across the crust (4px/frame — seamless in WATER_FRAMES)."""
+        l = self.LAVA
+        w, z = u + 16 * (phase & 1), v + 16 * (phase >> 1)
+        fe = (self.frame + _FROLL[phase]) % WATER_FRAMES
+        d = self._crack_d(w, z)
+        if d < 0.8:                                        # the molten channel
+            return l[0] if (h2(w, z, 61) + fe) % 4 < 2 else l[1]
+        if d < 1.8:                                        # channel-edge glow
+            return l[1] if (h2(w, z, 62) + fe) % 4 < 3 else l[2]
+        if d < 2.8:                                        # heat-tinged crust lip
+            return _grain_dither((l[2], l[3]), 0.55, w, z, 63,
+                                 grain=2, jitter=0.8)
+        dash = 7 * (phase & 1) + 3 * (phase >> 1) + 4 * fe
+        if v in (5, 13) and (u + dash + (0 if v == 5 else 8)) % 16 < 3:
+            return l[2]                                    # drifting ember dash
+        return _grain_dither((l[4], l[5]), 0.5, w, z, 64,
+                             grain=3, jitter=0.8)          # dark floating crust
 
     def _px_road(self, u, v):
         rd = self.ROAD
@@ -557,6 +733,13 @@ class OverWorld(TileScene):
     # neighbors — line, lip, and (on a corner cut) the neighbor-fabric wedge.
     # The neighbor cell paints pure fabric to its edge. One owner per boundary
     # is what makes the 45-degree cuts chain seamlessly down a stair-step.
+    def _px_verge(self, u, v, phase=0):
+        """The fabric a trail's shoulders (and its _fab wedge) render —
+        grass everywhere but the winter maps (road_verge = "snow")."""
+        if self.road_verge == "snow":
+            return self._px_snow(u, v, phase)
+        return self._px_grass(u, v, phase)
+
     def _fab(self, cls, u, v):
         """A neighbor class's fabric, for cut wedges (always phase 0)."""
         if cls == "hills":
@@ -568,11 +751,19 @@ class OverWorld(TileScene):
         if cls == "waste":
             return self._px_waste(u, v)
         if cls == "road":
-            return self._px_grass(u, v)                    # trails sit on grass
+            return self._px_verge(u, v)                    # trails sit on verge
         if cls == "forest":
             return self._px_forest(u, v)
         if cls == "mountain":
             return self._px_mountain(u, v)
+        if cls == "snow":
+            return self._px_snow(u, v)
+        if cls == "desert":
+            return self._px_desert(u, v)
+        if cls == "basalt":
+            return self._px_basalt(u, v)
+        if cls == "pines":
+            return self._px_pines(u, v)
         return self._px_grass(u, v)
 
     def _lip_band(self, cls, s2, u, v):
@@ -582,7 +773,11 @@ class OverWorld(TileScene):
         near, far = {"beach": (self.SAND[2], self.SAND[3]),
                      "waste": (self.WASTE[3], self.WASTE[4]),
                      "forest": (self.FOREST[3], self.FOREST[4]),
-                     "mountain": (self.ROCK[3], self.ROCK[4])}.get(
+                     "mountain": (self.ROCK[3], self.ROCK[4]),
+                     "snow": (self.SNOW[2], self.SNOW[3]),      # ice-shelf lip
+                     "desert": (self.DESERT[2], self.DESERT[3]),
+                     "basalt": (self.BASALT[2], self.BASALT[3]),
+                     "pines": (self.PINES[3], self.PINES[4])}.get(
                          cls, (self.GRASS[4], self.GRASS[5]))
         t = max(0.0, min(1.0, (s2 + 2) / 3.0))
         return _grain_dither((near, far), t, u, v, 92, grain=1, jitter=1.1)
@@ -683,11 +878,17 @@ class OverWorld(TileScene):
                 elif s2 <= 1:
                     c = self._lip_band(D, s2, u, v)        # graded land lip
                 elif s2 <= 4:
-                    c = self.SEA[5]                        # waterline
-                elif s2 <= 8 and h2(u + 3 * kA, v + 5 * kB, 73) % 5 < 3:
-                    c = self.SEA[0]                        # inner foam arc
-                elif 11 <= s2 <= 13 and h2(u + 5 * kB, v + 3 * kA, 74) % 5 < 2:
-                    c = self.SEA[1]                        # outer broken arc
+                    c = self.SEA[5]                        # waterline (static —
+                                                           # geometry never moves)
+                elif s2 <= 8 and h2(u + 3 * kA, v + 5 * kB,
+                                    73 + 10 * (self.frame // 2)) % 5 < 3:
+                    c = self.SEA[0]                        # inner foam arc: 2-beat
+                                                           # churn (salt swap AABB
+                                                           # keeps density steady)
+                elif 11 <= s2 <= 13 and h2(u + 5 * kB, v + 3 * kA,
+                                           74 + 10 * (((self.frame + 1) % 4) // 2)
+                                           ) % 5 < 2:
+                    c = self.SEA[1]                        # outer arc, off-beat ABBA
                 else:
                     fx, fy = (u + 0.5) / T, (v + 0.5) / T
                     depth = (cd[0] * (1 - fx) * (1 - fy) + cd[1] * fx * (1 - fy)
@@ -703,15 +904,20 @@ class OverWorld(TileScene):
         """Channel water: the sea's swell language at brook scale — a
         two-tone dithered body (never a flat asphalt field) under tight
         staggered ripple dashes with their trough shadows, plus rare
-        single-px glints. 32-space like every other fabric."""
+        single-px glints. 32-space like every other fabric. Per animation
+        frame the 8-periodic row selector slides 2px downstream (8/4:
+        seamless loop) — the dash offset stays keyed on absolute z//8 so
+        ripples pick up each band's stagger as they cross it; glints
+        blink lit-3-of-4 on per-glint beats."""
         s = self.SEA
         w, z = u + 16 * (phase & 1), v + 16 * (phase >> 1)
         off = (w + 5 * ((z // 8) % 4)) % 12
-        if z % 8 == 2 and off < 5:
+        zz = (z - 2 * self.frame) % 8
+        if zz == 2 and off < 5:
             return s[1]                                    # ripple crest
-        if z % 8 == 3 and 1 <= off < 5:
+        if zz == 3 and 1 <= off < 5:
             return s[3]                                    # its trough shadow
-        if h2(w, z, 96) % 89 == 0:
+        if h2(w, z, 96) % 89 == 0 and (h2(w, z, 97) + self.frame) % 4 < 3:
             return s[0]                                    # stray glint
         return _grain_dither((s[2], s[3]), 0.3, w, z, 95,
                              grain=3, jitter=0.7)          # calm mid-tone body:
@@ -735,8 +941,9 @@ class OverWorld(TileScene):
                 elif s2 <= 3:
                     c = self.SEA[5]                        # bank line
                 elif s2 <= 5:                              # broken foam lapping
-                    c = self.SEA[0] if h2(u + 3 * kA, v + 5 * kB, 73) % 5 < 2 \
-                        else self.SEA[2]                   # the bank
+                    c = self.SEA[0] if h2(u + 3 * kA, v + 5 * kB,
+                                          73 + 10 * (self.frame // 2)) % 5 < 2 \
+                        else self.SEA[2]                   # the bank (2-beat churn)
                 else:
                     c = self._px_river(u, v, phase)
                 if deck and edge_dist(deck, u, v) <= 1:
@@ -785,10 +992,49 @@ class OverWorld(TileScene):
 
     def _grassy_cell(self, X, Y, cls, phase):
         px = {"grass": self._px_grass, "hills": self._px_hills,
-              "flowers": self._px_flowers}[cls]
+              "flowers": self._px_flowers, "snow": self._px_snow,
+              "desert": self._px_desert, "basalt": self._px_basalt}[cls]
         for v in range(T):                                 # pure fabric: every
             for u in range(T):                             # boundary has an owner
                 self.bg.put(X + u, Y + v, px(u, v, phase))
+
+    def _lava_cell(self, X, Y, masks, tx, ty, phase):
+        """A molten pool's rim on the coast machinery: lava owns its ONE
+        boundary (the mandatory basalt ring) — scorched lip, incandescent
+        flickering shoreline, off-beat ember arcs, then crust fabric."""
+        segs = self._shore_prep(masks, {"basalt"}, tx, ty, multi=True)
+        b = self.BASALT
+        for v in range(T):
+            for u in range(T):
+                s2, D, (kA, kB) = self._shore_s(segs, u, v)
+                if s2 <= -3:
+                    c = self._fab("basalt", u, v)          # cut-off crust wedge
+                elif s2 <= 1:                              # scorched basalt lip
+                    t = max(0.0, min(1.0, (s2 + 2) / 3.0))
+                    c = _grain_dither((b[3], b[4]), t, u, v, 65,
+                                      grain=1, jitter=1.0)
+                elif s2 <= 3:                              # incandescent rim:
+                    c = self.LAVA[1] if h2(u + 3 * kA, v + 5 * kB,   # 2-beat
+                                           59 + 10 * (self.frame // 2)) % 5 < 3 \
+                        else self.LAVA[2]                  # churn (AABB)
+                elif s2 <= 6 and h2(u + 5 * kB, v + 3 * kA,
+                                    58 + 10 * (((self.frame + 1) % 4) // 2)
+                                    ) % 5 < 2:
+                    c = self.LAVA[1]                       # ember arc, off-beat
+                else:
+                    c = self._px_lava(u, v, phase)
+                self.bg.put(X + u, Y + v, c)
+
+    def _pines_cell(self, X, Y, masks, phase):
+        """Winter conifer rim on the forest's silhouette machinery — the
+        boundary IS the snow-shouldered pine lobes."""
+        shade = (lambda w, z, win, kept:
+                 self._pine_px(win[0], win[1], win[2], w, z))
+        if not self._arc_cell(X, Y, masks, phase, GROUND, shade,
+                              self.PINES[5]):
+            for v in range(T):                             # interior mass
+                for u in range(T):
+                    self.bg.put(X + u, Y + v, self._px_pines(u, v, phase))
 
     def _waste_cell(self, X, Y, masks, tx, ty, phase):
         """The drained pan's rim on the COAST machinery — lattice-keyed
@@ -844,45 +1090,8 @@ class OverWorld(TileScene):
                 elif d <= hw + 1.6 and h2(u, v, 77) % 3 == 0:
                     c = self.ROAD[2]                       # crumbs into the verge
                 else:
-                    c = self._px_grass(u, v)               # the verge itself
+                    c = self._px_verge(u, v)               # the verge itself
                 self.bg.put(X + u, Y + v, c)
-
-    def _fence_cell(self, X, Y, link):
-        """Zone-scale yard fence on grass: chunky twin wood rails toward each
-        linked neighbor, pickets along straight runs, a squared post with a
-        copper cap at joints and ends — the steampunk garden edge."""
-        tm = TIMBER; cp = COPPER
-        for v in range(T):
-            for u in range(T):
-                self.bg.put(X + u, Y + v, self._px_grass(u, v))
-
-        def rail(x0, x1):
-            self.bg.rect(x0, Y + 4, x1, Y + 4, tm[0])          # top rail, lit crest
-            self.bg.rect(x0, Y + 5, x1, Y + 6, tm[2])
-            self.bg.rect(x0, Y + 7, x1, Y + 7, tm[4])
-            self.bg.rect(x0, Y + 9, x1, Y + 9, tm[0])          # bottom rail
-            self.bg.rect(x0, Y + 10, x1, Y + 11, tm[2])
-            self.bg.rect(x0, Y + 12, x1, Y + 12, tm[4])
-        if link & W:
-            rail(X, X + 8)
-        if link & E:
-            rail(X + 7, X + T - 1)
-        if link & N:
-            self.bg.rect(X + 6, Y, X + 9, Y + 8, tm[2]); self.bg.rect(X + 6, Y, X + 6, Y + 8, tm[1])
-        if link & S:
-            self.bg.rect(X + 6, Y + 7, X + 9, Y + T - 1, tm[2]); self.bg.rect(X + 9, Y + 7, X + 9, Y + T - 1, tm[4])
-        if link & (W | E) and not link & (N | S):
-            for u in (3, 12):                                  # pickets
-                self.bg.rect(X + u, Y + 2, X + u + 1, Y + 13, tm[3])
-                self.bg.rect(X + u, Y + 2, X + u, Y + 13, tm[1])
-                self.bg.put(X + u, Y + 1, tm[0]); self.bg.put(X + u + 1, Y + 13, tm[5])
-        else:                                                  # post + copper cap
-            self.bg.rect(X + 5, Y + 2, X + 10, Y + 13, tm[2])
-            self.bg.rect(X + 5, Y + 2, X + 5, Y + 13, tm[1])
-            self.bg.rect(X + 10, Y + 2, X + 10, Y + 13, tm[4])
-            self.bg.rect(X + 5, Y + 13, X + 10, Y + 13, tm[5])
-            self.bg.rect(X + 4, Y + 1, X + 11, Y + 1, cp[1])   # copper cap
-            self.bg.put(X + 4, Y + 2, cp[3]); self.bg.put(X + 11, Y + 2, cp[3])
 
     # which lattice corner a lone open diagonal touches (px point)
     _CORNER_PT = {NE: (15.5, -0.5), SE: (15.5, 15.5),
@@ -985,10 +1194,15 @@ class OverWorld(TileScene):
         wherever the cell fronts open ground to the north — a scalloped
         white crest instead of the old straight bands."""
         open_ = 0
-        for c2, bits in masks.items():
-            if not c2.startswith("__") and c2 in MOUNT_OWN:
+        hot = False                                        # a massif fronting
+        for c2, bits in masks.items():                     # basalt or desert
+            if c2.startswith("__"):                        # is a volcano/mesa:
+                continue                                   # no snowcap
+            if c2 in ("basalt", "desert"):
+                hot = True
+            if c2 in MOUNT_OWN:
                 open_ |= bits
-        snow = bool(open_ & (N | NE | NW))
+        snow = bool(open_ & (N | NE | NW)) and not hot
         shade = (lambda w, z, win, kept:
                  self._rock_px(win[0], win[1], win[2], w, z, snow))
         if not self._arc_cell(X, Y, masks, phase, MOUNT_OWN, shade,
@@ -1006,7 +1220,7 @@ class OverWorld(TileScene):
         recede into their own cells, so any band stamped on the neighbor
         floats disconnected (and reads as a z glitch on the chibi)."""
         struct_n = masks.get("__struct__", 0) & (N | NE | NW)
-        if struct_n & N and cls != "waste":
+        if struct_n & N and cls not in ("waste", "snow", "desert"):
             for v, a in ((0, 0.32), (1, 0.20), (2, 0.10)):
                 for u in range(T):
                     self.bg.mix(X + u, Y + v, (26, 20, 52, 255), a)
@@ -1015,12 +1229,20 @@ class OverWorld(TileScene):
     def _variant(self, tx, ty, cls, X, Y, band):
         k = h2(tx, ty, 81)
         if cls == "sea" and band >= 2:
+            # 4-frame twinkles: the repaint order (_sea_cell wipes the cell,
+            # then _variant redraws) makes the "off" frames come out right
+            fe = self.frame
             if k % 11 == 0:
-                for dx, dy in ((0, 0), (-1, 0), (1, 0), (0, -1)):
-                    self.bg.put(X + 7 + dx, Y + 6 + dy, self.SPARK)
-            elif k % 17 == 9:
-                self.bg.put(X + 11, Y + 12, self.SPARK)
-                self.bg.put(X + 12, Y + 12, self.SPARK)
+                if fe == 0:                                # the full plus
+                    for dx, dy in ((0, 0), (-1, 0), (1, 0), (0, -1)):
+                        self.bg.put(X + 7 + dx, Y + 6 + dy, self.SPARK)
+                elif fe in (1, 3):                         # dimmed to the core
+                    self.bg.put(X + 7, Y + 6, self.SPARK)
+            elif k % 17 == 9:                              # a 2-px slide
+                if fe != 2:
+                    self.bg.put(X + 11, Y + 12, self.SPARK)
+                if fe != 3:
+                    self.bg.put(X + 12, Y + 12, self.SPARK)
         elif cls == "grass":
             if k % 5 == 0:
                 for u, v in ((5, 6), (6, 6), (5, 7), (12, 3), (3, 12)):
@@ -1076,6 +1298,66 @@ class OverWorld(TileScene):
             elif k % 7 == 0:                               # a dark cave nick
                 self.bg.rect(X + 6, Y + 9, X + 9, Y + 10, self.ROCK[5])
                 self.bg.rect(X + 7, Y + 8, X + 8, Y + 8, self.ROCK[5])
+        elif cls == "snow":
+            if k % 7 == 2:                                 # a drift hummock
+                s = self.SNOW
+                for v in range(4, 12):
+                    for u in range(3, 13):
+                        dx, dy = (u - 7.5) / 5.0, (v - 7.5) / 3.4
+                        q = dx * dx + dy * dy
+                        if q > 1.0:
+                            continue
+                        if dy < -0.30 and q > 0.45:
+                            self.bg.put(X + u, Y + v, s[0])   # sunlit brow
+                        elif q > 0.72 and dy > 0.25:
+                            self.bg.put(X + u, Y + v, s[3])   # base shadow
+                        else:
+                            self.bg.put(X + u, Y + v, s[1])
+            elif k % 11 == 4:                              # half-buried stone
+                r = self.ROCK
+                self.bg.rect(X + 6, Y + 9, X + 10, Y + 12, r[2])
+                self.bg.rect(X + 7, Y + 8, X + 9, Y + 8, self.SNOW[0])
+                self.bg.put(X + 6, Y + 9, r[3])
+                self.bg.put(X + 10, Y + 9, r[3])
+                self.bg.rect(X + 6, Y + 12, X + 10, Y + 12, r[4])
+                for u in range(6, 11):
+                    self.bg.put(X + u, Y + 13, self.SNOW[3])
+            elif k % 13 == 6:                              # frost sparkle cluster
+                for u, v in ((5, 5), (11, 8), (8, 12)):
+                    self.bg.put(X + u, Y + v, self.SPARK)
+        elif cls == "desert":
+            if k % 7 == 1:                                 # a crescent dune
+                d = self.DESERT
+                for i, (u, v) in enumerate(((4, 9), (5, 8), (6, 7), (8, 6),
+                                            (10, 7), (11, 8), (12, 9))):
+                    self.bg.put(X + u, Y + v, d[1])
+                    self.bg.put(X + u, Y + v + 1, d[3])
+            elif k % 11 == 5:                              # pebble pair
+                d = self.DESERT
+                for u, v in ((6, 10), (10, 5)):
+                    self.bg.put(X + u, Y + v, d[0])
+                    self.bg.put(X + u, Y + v + 1, d[4])
+        elif cls == "basalt":
+            if k % 7 == 3:                                 # gas-bubble ring
+                b = self.BASALT
+                for u, v in ((7, 6), (8, 6), (6, 7), (9, 7), (6, 8), (9, 8),
+                             (7, 9), (8, 9)):
+                    self.bg.put(X + u, Y + v, b[4])
+                self.bg.put(X + 7, Y + 7, b[5])
+                self.bg.put(X + 8, Y + 8, b[5])
+            elif k % 13 == 2:                              # a dark fissure nick
+                b = self.BASALT
+                for u, v in ((5, 11), (6, 10), (7, 10), (8, 9), (9, 9)):
+                    self.bg.put(X + u, Y + v, b[5])
+        elif cls == "lava":
+            if k % 5 == 1:                                 # blinking ember cluster
+                l = self.LAVA                              # (frame-keyed: lava
+                fe = self.frame                            # cells repaint per
+                if (k + fe) % 4 < 3:                       # frame like the sea)
+                    self.bg.put(X + 6, Y + 7, l[0])
+                if (k + fe) % 4 != 1:
+                    self.bg.put(X + 7, Y + 8, l[1])
+                    self.bg.put(X + 10, Y + 5, l[1])
         elif cls == "waste":
             if k % 13 == 5:                                # glowing crystal shard
                 self.crystal_cells.append((tx, ty))
@@ -1100,29 +1382,35 @@ class OverWorld(TileScene):
                 self.bg.put(X + 9, Y + 13, d2)
 
     # -- compose --------------------------------------------------------------------------
+    def _cell_env(self, tx, ty):
+        """Neighbor-keyed cell environment: per-class boundary masks, the
+        interior flag (no out-of-family neighbor), trail/deck links.
+        Pure function of the map — the water repaint replays it per frame."""
+        m = self.m
+        cls = self.cls_at(tx, ty)
+        masks = {"__struct__": 0}
+        interior = True
+        conn = 0                                           # trail/deck links
+        for dx, dy, bit in DIRS:
+            nch = m.at(tx + dx, ty + dy)
+            ncls = self._cls[nch] if nch else cls
+            if ncls != cls:
+                masks[ncls] = masks.get(ncls, 0) | bit
+                if ncls not in FAMILY[cls]:
+                    interior = False
+            if ncls in ROADY or ncls == "bridge":
+                conn |= bit
+            if nch and nch in self._struct:
+                masks["__struct__"] |= bit
+        return masks, interior, conn
+
     def paint_terrain(self):
         m = self.m
         for ty in range(m.rows_n):
             for tx in range(m.cols):
                 cls = self.cls_at(tx, ty)
                 X, Y = tx * T, ty * T
-                masks = {"__struct__": 0}
-                interior = True
-                conn = 0                                   # trail/deck links
-                fconn = 0                                  # fence links
-                for dx, dy, bit in DIRS:
-                    nch = m.at(tx + dx, ty + dy)
-                    ncls = self._cls[nch] if nch else cls
-                    if ncls != cls:
-                        masks[ncls] = masks.get(ncls, 0) | bit
-                        if ncls not in FAMILY[cls]:
-                            interior = False
-                    if ncls in ROADY or ncls == "bridge":
-                        conn |= bit
-                    if ncls == "fence":
-                        fconn |= bit
-                    if nch and nch in self._struct:
-                        masks["__struct__"] |= bit
+                masks, interior, conn = self._cell_env(tx, ty)
                 band = min(self._dland[ty][tx], 4) - 1
                 phase = ((tx & 1) | ((ty & 1) << 1)) if interior else 0
                 if cls == "sea":
@@ -1138,16 +1426,18 @@ class OverWorld(TileScene):
                     self._bridge_cell(X, Y, water, land)
                 elif cls == "beach":
                     self._beach_cell(X, Y, masks)
-                elif cls in GRASSY:
+                elif cls in GRASSY or cls in PLAINC:
                     self._grassy_cell(X, Y, cls, phase)
                 elif cls == "waste":
                     self._waste_cell(X, Y, masks, tx, ty, phase)
+                elif cls == "lava":
+                    self._lava_cell(X, Y, masks, tx, ty, phase)
                 elif cls in ROADY:
                     self._roady_cell(X, Y, cls, conn, tx, ty)
-                elif cls == "fence":
-                    self._fence_cell(X, Y, fconn & (N | E | S | W))
                 elif cls == "forest":
                     self._forest_cell(X, Y, masks, phase)
+                elif cls == "pines":
+                    self._pines_cell(X, Y, masks, phase)
                 elif cls == "mountain":
                     self._mountain_cell(X, Y, masks, phase)
                 # spills + walk-behind canopy on anything that reads as ground
@@ -1155,8 +1445,53 @@ class OverWorld(TileScene):
                 # of another struct cell would band the prop's own underlay)
                 if cls in GROUND and m.at(tx, ty) not in self._struct:
                     self._ground_overlays(X, Y, masks, cls)
-                if interior and cls in ("sea", "grass", "forest", "mountain", "waste") \
+                if interior and cls in ("sea", "grass", "forest", "mountain",
+                                        "waste", "snow", "desert", "basalt",
+                                        "lava") \
                         and m.at(tx, ty) not in self._struct:
                     # (prop cells skip variants: no snow crest / crystal shard
                     # peeking through a landmark's transparent gaps)
                     self._variant(tx, ty, cls, X, Y, band)
+
+    def _lower_frames(self):
+        """The water/lava animation frames (the SNES tile cycle): clone the
+        FINISHED lower canvas per frame and repaint only sea/river/lava cells —
+        their painters overwrite every pixel of their 16px cell as a pure
+        function of the cell environment + self.frame, and nothing else
+        ever writes into a water cell (props are footprint-bounded, water
+        is not in GROUND, water chars are never structs). Frame 0's
+        repaint must reproduce the composed canvas byte-for-byte; the
+        assert guards that contract against future generators."""
+        m = self.m
+        cells = [(tx, ty) for ty in range(m.rows_n) for tx in range(m.cols)
+                 if self.cls_at(tx, ty) in ("sea", "river", "lava")]
+        base, out = self.bg, [self.bg]
+        for f in range(WATER_FRAMES):
+            clone = Canvas(self.W, self.H)
+            clone.buf[:] = base.buf
+            self.bg, self.frame = clone, f
+            for tx, ty in cells:
+                cls = self.cls_at(tx, ty)
+                masks, interior, _ = self._cell_env(tx, ty)
+                X, Y = tx * T, ty * T
+                phase = ((tx & 1) | ((ty & 1) << 1)) if interior else 0
+                if cls == "sea":
+                    self._sea_cell(X, Y, masks, tx, ty, phase)
+                    if interior and m.at(tx, ty) not in self._struct:
+                        self._variant(tx, ty, "sea", X, Y,
+                                      min(self._dland[ty][tx], 4) - 1)
+                elif cls == "lava":
+                    self._lava_cell(X, Y, masks, tx, ty, phase)
+                    if interior and m.at(tx, ty) not in self._struct:
+                        self._variant(tx, ty, "lava", X, Y,
+                                      min(self._dland[ty][tx], 4) - 1)
+                else:
+                    self._river_cell(X, Y, masks, tx, ty)
+            if f == 0:
+                assert clone.buf == base.buf, \
+                    "water repaint impure: something painted a sea/river cell " \
+                    "after paint_terrain — exclude it or keep water pure"
+            else:
+                out.append(clone)
+        self.bg, self.frame = base, 0
+        return out

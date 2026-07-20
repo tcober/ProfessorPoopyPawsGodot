@@ -26,7 +26,8 @@ sys.path.insert(0, HERE)
 from _core import lerp, Img, ZONE_TILE
 from _maps import MapData
 from _palette import SCENES, ramp
-from _tiles import slice_atlas, write_atlas, write_tileset_tres, write_layout
+from _tiles import slice_atlas, pack_tiles, write_atlas, write_tileset_tres, \
+    write_layout
 
 T = ZONE_TILE
 OUTDIR = os.path.join(HERE, "tilesets")
@@ -235,16 +236,23 @@ class TileScene:
                     img.put(int(cx) + dx, int(cy) + dy,
                             color + (int(a * (1.0 - q)),))
 
+    def _lower_frames(self):
+        """Lower-canvas animation frames. Scenes with animated fabric
+        (OverWorld's water) override; default is static — cells identical
+        across every frame dedupe to plain static tiles either way."""
+        return [self.bg]
+
     def finish(self):
         os.makedirs(OUTDIR, exist_ok=True)
         tiles, seen = [], {}
-        _, lower = slice_atlas(self.bg, tiles, seen)
+        _, lower = slice_atlas(self._lower_frames(), tiles, seen)
         _, upper = slice_atlas(self.ov, tiles, seen, skip_empty=True)
-        write_atlas(os.path.join(OUTDIR, f"{self.name}_tiles.png"), tiles)
+        cells, coords = pack_tiles(tiles)
+        write_atlas(os.path.join(OUTDIR, f"{self.name}_tiles.png"), cells)
         write_tileset_tres(os.path.join(OUTDIR, f"{self.name}_tiles.tres"),
-                           f"res://assets/tilesets/{self.name}_tiles.png", len(tiles))
+                           f"res://assets/tilesets/{self.name}_tiles.png", coords)
         write_layout(os.path.join(OUTDIR, f"{self.name}_layout.txt"),
-                     {"lower": lower, "upper": upper},
+                     {"lower": lower, "upper": upper}, coords,
                      f"from assets/maps/{self.name}.txt")
         if self._props:
             with open(os.path.join(OUTDIR, f"{self.name}_props.txt"), "w") as f:

@@ -26,15 +26,19 @@ Sheets written (all 48px cells, feet baseline y=44 = _core.ZONE_FEET):
           red neckerchief; act = POINT, emote = belly laugh
       npc_kitty_gen.png       (288x48) — Kitty Cool: ginger-cream maker girl,
           teal bandana, grease smudge; act = TINKER crouch, emote = beaming
-      npc_kitty_adult_gen.png (288x48) — college-age Kitty (the workshop
-          interlude + her fountain-rim stall): same fur/bandana/smudge grown
+      npc_kitty_adult_gen.png (480x48) — college-age Kitty (the bluff
+          romance + her fountain-rim stall): same fur/bandana/smudge grown
           to the adult body, waxed-canvas work apron; act = TINKER (paws up
-          at the work), emote = the beam-whoop (arms flung)
-      npc_sheep_gen.png       (192x48) — wool-cloud matron; act = talk nod
-      npc_owl_gen.png         (192x48) — the know-it-all owl; act = lecturing
+          at the work), emote = the beam-whoop (arms flung); cols 6-9 =
+          BACK x2 + SIDE x2 (the bluff's from-behind staging — npc.gd
+          builds them only when frame_cols >= 8/10)
+      npc_sheep_gen.png       (384x48) — wool-cloud matron; act = talk nod;
+          cols 6-7 = BACK x2 (the hall's tiered gallery, 2026-07-18)
+      npc_owl_gen.png         (288x48) — the know-it-all owl; act = lecturing
           wing
-      npc_goose_gen.png       (192x48) — the chaos goose; act = honk
-      npc_mouse_gen.png       (192x48) — the mouse kid; act = wave
+      npc_goose_gen.png       (288x48) — the chaos goose; act = honk
+      npc_mouse_gen.png       (384x48) — the mouse kid; act = wave; cols
+          6-7 = BACK x2
 
   prologue_fx.png (160x16, 16px cells) — [ribbon_magenta, ribbon_gold,
       sparkle_small, sparkle_big, gear, spring, crank, whirligig_droop,
@@ -49,6 +53,7 @@ import os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from _core import write_cells, Img, ZONE_CELL
+from _propkit import ln
 from _sprites import Sprite
 from _palette import BASIL, ramp
 
@@ -462,18 +467,23 @@ def sheep(s, mood="idle", bob=0):
     s.capsule(CX - 8, hy - 1, CX - 10, hy + 2, 1.6, 1.3, SHEEP_FACE, sh=0.10)
     s.capsule(CX + 8, hy - 1, CX + 10, hy + 2, 1.6, 1.3, SHEEP_FACE, sh=0.20)
     s.ball(CX, hy, 5.0, 4.6, SHEEP_FACE, power=2.2, wrap=0.30, curve=0.24)
-    s.ball(CX, hy - 4, 4.6, 2.6, WOOL, power=2.0, wrap=0.16, curve=0.12)  # wool cap
-    if mood == "emote":
-        _closed(s, CX - 4, hy - 1)
-        _closed(s, CX + 2, hy - 1)
+    if mood == "back":
+        # the gallery-from-behind cell (hall tiers, 2026-07-18): the wool
+        # cloud wraps right over the head — ears peek, no face
+        s.ball(CX, hy - 1, 5.0, 4.4, WOOL, power=2.0, wrap=0.18, curve=0.14)
     else:
-        for ex in (CX - 4, CX + 2):
-            s.rect(ex, hy - 1, ex + 1, hy, (24, 18, 30, 255))
-            s.set(ex + 1, hy - 1, GLINT)
-    if mood == "talk":
-        s.rect(CX - 1, hy + 3, CX, hy + 4, MAW)
-    else:
-        s.line([(CX - 1, hy + 3), (CX, hy + 3)], (52, 40, 56, 255))
+        s.ball(CX, hy - 4, 4.6, 2.6, WOOL, power=2.0, wrap=0.16, curve=0.12)  # wool cap
+        if mood == "emote":
+            _closed(s, CX - 4, hy - 1)
+            _closed(s, CX + 2, hy - 1)
+        else:
+            for ex in (CX - 4, CX + 2):
+                s.rect(ex, hy - 1, ex + 1, hy, (24, 18, 30, 255))
+                s.set(ex + 1, hy - 1, GLINT)
+        if mood == "talk":
+            s.rect(CX - 1, hy + 3, CX, hy + 4, MAW)
+        else:
+            s.line([(CX - 1, hy + 3), (CX, hy + 3)], (52, 40, 56, 255))
     s.despeckle(passes=1)
     s.outline(SHEEP_OUTS, OUT_LIGHT)
 
@@ -516,7 +526,28 @@ GOOSE_OUTS = outs_for((GOOSE, OUT_LIGHT), (BILL, OUT_DARK))
 
 def goose(s, mood="idle", bob=0, step=0):
     """Tall white chaos: plump hull, periscope neck, orange bill. `waddle`
-    mode alternates the legs and rolls the hull (the ribbon-chase gait)."""
+    mode alternates the legs and rolls the hull (the ribbon-chase gait).
+    `fly` mode is the AIRBORNE side profile (facing LEFT, the side-cell
+    convention — the scene flips it east): hull centered ~y26, NOT the feet
+    register y44 — the scene's tween owns the altitude, so art drawn at the
+    ground register would swoop 12px low. `step` picks the wingbeat."""
+    if mood == "fly":
+        # stretched-out glide: neck level with the hull, legs tucked
+        s.ball(CX + 2, 26, 7.4, 4.4, GOOSE, power=2.2, wrap=0.28, curve=0.22)
+        s.capsule(CX + 8, 25, CX + 12, 23, 2.0, 1.4, GOOSE, sh=0.20)  # tail
+        s.capsule(CX - 3, 25, CX - 10, 24, 2.2, 1.9, GOOSE, sh=0.06)  # neck
+        s.ball(CX - 11, 24, 3.1, 2.7, GOOSE, power=2.2, wrap=0.20, curve=0.16)
+        s.rect(CX - 15, 23, CX - 13, 24, BILL[1])
+        s.set(CX - 15, 24, BILL[2])
+        s.set(CX - 11, 23, PUPIL)
+        if step == 0:                               # wings UP
+            s.capsule(CX + 2, 24, CX + 5, 14, 2.8, 1.8, GOOSE, sh=0.12)
+        else:                                       # wings swept DOWN
+            s.capsule(CX + 2, 28, CX + 6, 35, 2.8, 1.8, GOOSE, sh=0.24)
+        s.rect(CX + 3, 30, CX + 5, 31, BILL[1])     # tucked legs
+        s.despeckle(passes=1)
+        s.outline(GOOSE_OUTS, OUT_LIGHT)
+        return
     roll = (1 if step == 0 else -1) if mood == "waddle" else 0
     s.ball(CX + 1 + roll, 37 + bob, 7.6, 5.4, GOOSE, power=2.2, wrap=0.28, curve=0.22)
     s.capsule(CX + 6 + roll, 36 + bob, CX + 9 + roll, 33 + bob - step, 2.0, 1.4,
@@ -603,6 +634,80 @@ def mom(s, mood="idle", bob=0):
     whiskers_kid_down(s, bob - 6)
 
 
+# ---- Kitty's mother (2026-07-18 sickroom banishment beat) ------------------------------
+
+KMOM_FUR = ramp((222, 150, 92), "violet", 4)       # older ginger — Kitty's mother
+KMOM_SHAWL = ramp((170, 86, 110), "violet", 4)     # berry-wine shawl (NOT Basil-mom's sage)
+KMOM_OUTS = outs_for((KMOM_FUR, OUT_DARK), (WHITE, OUT_LIGHT), (KMOM_SHAWL, OUT_DARK))
+
+
+def kittymom(s, mood="idle", bob=0):
+    """Kitty's mother: an older ginger cat matron — Kitty's ginger gone a touch
+    muted, a berry shawl over the crown, and Kitty's OWN blue eyes so the
+    mother/daughter reads at a glance. idle = arms down; act = the horrified
+    hands-to-cheeks gasp ('Oh no, Kitty!'); emote = the accusing point + a
+    hard shouting face (the banishment). Built on the Mom matron rig, but her
+    own function so Basil's mother is untouched."""
+    hy = 22 + bob
+    # ears peek from under the shawl
+    s.tri((CX - 6, hy - 9), hy - 4, CX - 8, CX - 3, KMOM_FUR)
+    s.tri((CX + 6, hy - 9), hy - 4, CX + 3, CX + 8, KMOM_FUR, sh=0.12)
+    s.ball(CX, hy, 7.0, 6.2, KMOM_FUR, power=2.4, wrap=0.34, curve=0.30)
+    # shawl: a band across the crown with a side knot
+    s.rect(CX - 6, hy - 6, CX + 6, hy - 4, KMOM_SHAWL[1])
+    s.rect(CX - 6, hy - 4, CX + 6, hy - 4, KMOM_SHAWL[2])
+    s.rect(CX + 6, hy - 5, CX + 8, hy - 3, KMOM_SHAWL[0])          # the knot
+    s.ball(CX, hy + 4.2, 4.6, 2.8, WHITE, power=2.2, wrap=0.10, curve=0.10)
+    s.rect(CX - 1, hy + 2, CX, hy + 2, NOSE)
+    ey = hy - 2
+    if mood == "emote":                             # the hard, accusing look
+        s.rect(CX - 5, ey + 1, CX - 3, ey + 2, KIT_EYE)
+        s.rect(CX + 3, ey + 1, CX + 5, ey + 2, KIT_EYE)
+        s.line([(CX - 5, ey), (CX - 3, ey)], OUT_DARK)            # brows drawn down
+        s.line([(CX + 3, ey), (CX + 5, ey)], OUT_DARK)
+        s.rect(CX - 2, hy + 4, CX + 1, hy + 5, MAW)               # open, shouting
+    else:
+        _eye(s, CX - 5, ey, KIT_EYE, KIT_EYEL)      # Kitty's blue — mother & daughter
+        _eye(s, CX + 3, ey, KIT_EYE, KIT_EYEL)
+        if mood == "act":
+            s.rect(CX - 1, hy + 4, CX, hy + 5, MAW)               # a gasp — mouth open
+        else:
+            s.line([(CX - 1, hy + 4), (CX, hy + 4)], MOUTH)
+    # matronly pear body + apron
+    by = 35 + bob
+    s.ball(CX, by, 7.4, 7.0, KMOM_FUR, power=2.2, wrap=0.28, curve=0.22)
+    for y in range(by - 5, by + 6):                 # apron panel, flat bands
+        half = 4 + (2 if y > by - 1 else 1)
+        for x in range(CX - half, CX + half + 1):
+            s.set(x, y, WHITE[0] if x < CX else WHITE[1])
+    s.rect(CX - 4, by - 6, CX - 3, by - 5, WHITE[2])              # straps
+    s.rect(CX + 3, by - 6, CX + 4, by - 5, WHITE[2])
+    s.rect(CX - 8, by - 6, CX - 6, by - 3, KMOM_SHAWL[1])         # shawl drape, both shoulders
+    s.rect(CX + 6, by - 6, CX + 8, by - 3, KMOM_SHAWL[1])
+    if mood == "act":                               # hands flown up to her cheeks
+        s.capsule(CX - 7, by - 3, CX - 5, hy + 3, 1.8, 1.5, KMOM_FUR, sh=0.06)
+        s.capsule(CX + 7, by - 3, CX + 5, hy + 3, 1.8, 1.5, KMOM_FUR, sh=0.16)
+        s.ball(CX - 5, hy + 3, 1.9, 1.6, KMOM_FUR, power=2.2, wrap=0.10, curve=0.10)
+        s.ball(CX + 5, hy + 3, 1.9, 1.6, KMOM_FUR, power=2.2, sh=0.10, wrap=0.10, curve=0.10)
+    elif mood == "emote":                           # the accusing arm, thrust out west
+        s.capsule(CX - 6, by - 4, CX - 14, by - 7, 2.0, 1.5, KMOM_FUR, sh=0.06)
+        s.ball(CX - 15, by - 7, 2.2, 1.5, KMOM_FUR, power=2.2, wrap=0.10, curve=0.10)
+        s.capsule(CX + 7, by - 4, CX + 8, by + 1, 1.8, 1.6, KMOM_FUR, sh=0.16)
+        s.ball(CX + 8, by + 2, 1.7, 1.5, KMOM_FUR, power=2.2, sh=0.10, wrap=0.10, curve=0.10)
+    else:
+        s.capsule(CX - 7, by - 4, CX - 8, by + 1, 1.8, 1.6, KMOM_FUR, sh=0.06)
+        s.capsule(CX + 7, by - 4, CX + 8, by + 1, 1.8, 1.6, KMOM_FUR, sh=0.16)
+        s.ball(CX - 8, by + 2, 1.7, 1.5, KMOM_FUR, power=2.2, wrap=0.10, curve=0.10)
+        s.ball(CX + 8, by + 2, 1.7, 1.5, KMOM_FUR, power=2.2, sh=0.10, wrap=0.10, curve=0.10)
+    for lx in (CX - 3, CX + 3):                     # paws under the hem
+        s.ball(lx, 43, 2.1, 1.6, KMOM_FUR, power=2.2, wrap=0.10, curve=0.10)
+    # tail curled around her feet
+    s.capsule(CX + 7, 41 + bob, CX + 10, 42 + bob, 1.5, 1.2, KMOM_FUR, sh=0.10)
+    s.despeckle(passes=1)
+    s.outline(KMOM_OUTS, OUT_DARK)
+    whiskers_kid_down(s, bob - 6)
+
+
 MOUSE_OUTS = outs_for((MOUSE, OUT_DARK), (MPINK, OUT_DARK), (WHITE, OUT_LIGHT))
 
 
@@ -611,10 +716,12 @@ def mouse(s, mood="idle", bob=0):
     hy = 30 + bob
     for (ex, sh) in ((CX - 6, 0.0), (CX + 6, 0.12)):    # dish ears
         s.ball(ex, hy - 7, 4.4, 4.2, MOUSE, power=2.0, sh=sh, wrap=0.24, curve=0.18)
-        s.ball(ex, hy - 7, 2.4, 2.2, MPINK, power=2.0, sh=sh, wrap=0.10, curve=0.10)
+        if mood != "back":                              # pink dish: front only
+            s.ball(ex, hy - 7, 2.4, 2.2, MPINK, power=2.0, sh=sh, wrap=0.10, curve=0.10)
     s.ball(CX, hy, 5.6, 4.8, MOUSE, power=2.4, wrap=0.32, curve=0.26)
     s.ball(CX, 38 + bob, 4.6, 4.0, MOUSE, power=2.2, wrap=0.28, curve=0.20)
-    s.ball(CX, 39 + bob, 2.6, 2.4, WHITE, power=2.2, wrap=0.10, curve=0.10)
+    if mood != "back":                                  # white belly: front only
+        s.ball(CX, 39 + bob, 2.6, 2.4, WHITE, power=2.2, wrap=0.10, curve=0.10)
     if mood == "act":                               # a big wave
         s.capsule(CX + 4.5, 36 + bob, CX + 8, 31 + bob, 1.4, 1.2, MOUSE, sh=0.14)
     else:
@@ -624,17 +731,18 @@ def mouse(s, mood="idle", bob=0):
         s.capsule(lx, 41 + bob, lx, 43, 1.2, 1.0, MOUSE, sh=0.08)
         s.ball(lx, 43.4, 1.4, 1.0, MPINK, power=2.0, wrap=0.10, curve=0.10)
     s.line([(CX + 5, 41), (CX + 7, 40), (CX + 9, 41), (CX + 10, 43)], MPINK[1])  # tail
-    s.ball(CX, hy + 3, 2.8, 1.8, WHITE, power=2.0, wrap=0.10, curve=0.10)  # muzzle
-    s.set(CX, hy + 2, MPINK[0])                     # pink nose
-    if mood == "emote":
-        _closed(s, CX - 4, hy - 2)
-        _closed(s, CX + 2, hy - 2)
-        s.rect(CX - 1, hy + 4, CX, hy + 5, MAW)
-    else:
-        for ex in (CX - 4, CX + 2):
-            s.rect(ex, hy - 2, ex + 1, hy - 1, PUPIL)
-            s.set(ex + 1, hy - 2, GLINT)
-        s.line([(CX - 1, hy + 4), (CX, hy + 4)], MOUTH)
+    if mood != "back":                              # the face: front only
+        s.ball(CX, hy + 3, 2.8, 1.8, WHITE, power=2.0, wrap=0.10, curve=0.10)  # muzzle
+        s.set(CX, hy + 2, MPINK[0])                 # pink nose
+        if mood == "emote":
+            _closed(s, CX - 4, hy - 2)
+            _closed(s, CX + 2, hy - 2)
+            s.rect(CX - 1, hy + 4, CX, hy + 5, MAW)
+        else:
+            for ex in (CX - 4, CX + 2):
+                s.rect(ex, hy - 2, ex + 1, hy - 1, PUPIL)
+                s.set(ex + 1, hy - 2, GLINT)
+            s.line([(CX - 1, hy + 4), (CX, hy + 4)], MOUTH)
     s.despeckle(passes=1)
     s.outline(MOUSE_OUTS, OUT_DARK)
 
@@ -709,25 +817,30 @@ def badger(s, mood="idle", bob=0):
     hy = 23 + bob
     s.tri((CX - 6, hy - 8), hy - 4, CX - 8, CX - 3, BADGER)
     s.tri((CX + 6, hy - 8), hy - 4, CX + 3, CX + 8, BADGER, sh=0.12)
-    s.ball(CX, hy, 7.0, 6.2, WHITE, power=2.4, wrap=0.26, curve=0.24)   # white face
+    # from behind (hall tiers, 2026-07-18) the head is gray fur — the twin
+    # stripes run right over the crown, so they still read; no face
+    s.ball(CX, hy, 7.0, 6.2, BADGER if mood == "back" else WHITE,
+           power=2.4, wrap=0.26, curve=0.24)
     for sx in (-4, 4):                              # the badger stripes
         for y in range(hy - 6, hy + 3):
             s.set(CX + sx, y, FUR[1])
             s.set(CX + sx + (1 if sx > 0 else -1), y, FUR[2])
-    s.ball(CX, hy + 4, 3.6, 2.2, WHITE, power=2.0, wrap=0.10, curve=0.10)
-    s.rect(CX - 1, hy + 2, CX, hy + 3, NOSE)
-    if mood == "emote":                             # the belly laugh
-        for ex in (CX - 6, CX + 4):
-            s.line([(ex, hy - 1), (ex + 1, hy - 2), (ex + 2, hy - 1)], PUPIL)
-        s.rect(CX - 1, hy + 4, CX + 1, hy + 6, MAW)             # open laugh
-    else:
-        for ex in (CX - 6, CX + 4):
-            s.rect(ex, hy - 2, ex + 1, hy - 1, PUPIL)
-            s.set(ex + 1, hy - 2, GLINT)
-        s.line([(CX - 1, hy + 5), (CX + 1, hy + 5)], MOUTH)     # flat mouth
+    if mood != "back":
+        s.ball(CX, hy + 4, 3.6, 2.2, WHITE, power=2.0, wrap=0.10, curve=0.10)
+        s.rect(CX - 1, hy + 2, CX, hy + 3, NOSE)
+        if mood == "emote":                         # the belly laugh
+            for ex in (CX - 6, CX + 4):
+                s.line([(ex, hy - 1), (ex + 1, hy - 2), (ex + 2, hy - 1)], PUPIL)
+            s.rect(CX - 1, hy + 4, CX + 1, hy + 6, MAW)         # open laugh
+        else:
+            for ex in (CX - 6, CX + 4):
+                s.rect(ex, hy - 2, ex + 1, hy - 1, PUPIL)
+                s.set(ex + 1, hy - 2, GLINT)
+            s.line([(CX - 1, hy + 5), (CX + 1, hy + 5)], MOUTH)  # flat mouth
     by = 36 + bob
     s.ball(CX, by, 6.6, 5.6, BADGER, power=2.2, wrap=0.28, curve=0.22)
-    s.ball(CX, by + 1, 3.6, 3.2, WHITE, power=2.2, wrap=0.10, curve=0.10)
+    if mood != "back":                              # white belly: front only
+        s.ball(CX, by + 1, 3.6, 3.2, WHITE, power=2.2, wrap=0.10, curve=0.10)
     if mood == "act":                               # the shrug — palms up
         s.capsule(CX - 6, by - 3, CX - 9, by - 6, 1.8, 1.5, BADGER, sh=0.06)
         s.capsule(CX + 6, by - 3, CX + 9, by - 6, 1.8, 1.5, BADGER, sh=0.16)
@@ -934,6 +1047,328 @@ def kitty_adult(s, mood="idle", bob=0):
         s.set(CX, by - 10, BRASSF[1])               # the pinched gear
         s.set(CX + 1, by - 10, BRASSF[0])
         s.set(CX, by - 12, SPARK)                   # work glint
+
+
+# ---- Kitty adult BACK + SIDE views (2026-07-17, the bluff from-behind
+# restage): the sunset scene stages its cast facing the water — up-screen,
+# backs to the camera — turning to profile only to look at each other. The
+# cores are parameterized on an (ox, oy) blit offset + head tilt so the kiss
+# composition below reuses the exact same body. --------------------------------------
+
+def _kitty_back_core(s, ox=0, oy=0, bob=0, head_dx=0, head_dy=0):
+    """Kitty from behind: ear backs, the bandana KNOT at the nape, apron
+    straps crossed over her back with the waist bow, question-curl tail."""
+    hx, hy = CX + ox + head_dx, 22 + oy + bob + head_dy
+    # ears from behind: fur backs, no inner
+    s.tri((hx - 6, hy - 10), hy - 4, hx - 8, hx - 3, KIT_FUR)
+    s.tri((hx + 6, hy - 10), hy - 4, hx + 3, hx + 8, KIT_FUR, sh=0.20)
+    s.tri((hx - 6, hy - 8), hy - 5, hx - 7, hx - 5, KIT_FUR, sh=0.34)
+    s.tri((hx + 6, hy - 8), hy - 5, hx + 5, hx + 7, KIT_FUR, sh=0.42)
+    bx, by = CX + ox, 35 + oy + bob
+    # body + hanging arms (drawn under the skull so the nape reads)
+    s.ball(bx, by, 6.8, 6.6, KIT_FUR, power=2.2, wrap=0.26, curve=0.20)
+    s.capsule(bx - 7, by - 4, bx - 8, by + 1, 1.8, 1.6, KIT_FUR, sh=0.06)
+    s.capsule(bx + 7, by - 4, bx + 8, by + 1, 1.8, 1.6, KIT_FUR, sh=0.16)
+    s.ball(bx - 8, by + 2, 1.7, 1.5, KIT_FUR, power=2.2, wrap=0.10, curve=0.10)
+    s.ball(bx + 8, by + 2, 1.7, 1.5, KIT_FUR, power=2.2, sh=0.10, wrap=0.10,
+           curve=0.10)
+    # apron straps crossed over the back + the tie bow
+    ln(s, bx - 3, by - 5, bx + 2, by + 1, APRON[2])
+    ln(s, bx + 3, by - 5, bx - 2, by + 1, APRON[2])
+    s.rect(bx - 1, by + 1, bx + 1, by + 2, APRON[1])       # the bow knot
+    s.set(bx - 2, by + 3, APRON[2])                        # bow tails
+    s.set(bx + 2, by + 3, APRON[2])
+    for lx in (bx - 3, bx + 3):                            # paws under the hem
+        s.ball(lx, 43 + oy, 2.1, 1.6, KIT_FUR, power=2.2, wrap=0.10, curve=0.10)
+    # the skull over the nape, then the bandana band + knot at the nape
+    s.ball(hx, hy, 7.0, 6.2, KIT_FUR, power=2.4, wrap=0.30, curve=0.26)
+    s.line([(hx - 2, hy + 5), (hx - 1, hy + 6), (hx, hy + 6),
+            (hx + 1, hy + 6), (hx + 2, hy + 5)], KIT_FUR[3])   # neck part
+    s.rect(hx - 4, hy + 7, hx + 4, hy + 8, KIT_BAND[1])
+    s.rect(hx - 4, hy + 8, hx - 1, hy + 8, KIT_BAND[2])
+    s.rect(hx - 1, hy + 8, hx + 1, hy + 9, KIT_BAND[2])    # the knot
+    s.set(hx - 2, hy + 10, KIT_BAND[3])                    # knot tails
+    s.set(hx + 2, hy + 10, KIT_BAND[3])
+
+
+def _kitty_tail_curl(s, bx, oy, bob, west=False):
+    """The maker's-antenna question curl, east by default (her down-view
+    tail); west mirrors it toward a partner standing screen-left."""
+    d = -1 if west else 1
+    s.capsule(bx + 7 * d, 41 + oy + bob, bx + 10 * d, 37 + oy + bob,
+              1.5, 1.3, KIT_FUR, sh=0.10)
+    s.capsule(bx + 10 * d, 37 + oy + bob, bx + 9 * d, 33 + oy + bob,
+              1.3, 1.2, KIT_FUR, sh=0.06)
+    s.ball(bx + 9 * d, 32 + oy + bob, 1.5, 1.4, KIT_FUR, power=2.2,
+           wrap=0.10, curve=0.10)
+
+
+def kitty_adult_back(s, bob=0):
+    _kitty_back_core(s, bob=bob)
+    _kitty_tail_curl(s, CX, 0, bob)
+    s.despeckle(passes=1)
+    s.outline(KITADULT_OUTS, OUT_DARK)
+
+
+def _kitty_side_core(s, ox=0, oy=0, bob=0, lean=0, eyes="open", arm=True):
+    """Kitty in LEFT profile (the bluff stages her east of Basil, so her
+    turn-to-him is a left profile — the NPC kit's flip_h serves the other
+    side). White cheek forward, smudge behind it, kerchief triangle at the
+    throat, apron panel on the front half, tail curling behind (east).
+    A negative `bob` reads as TIPTOE: the body lifts, leg stubs stretch,
+    the paws stay planted (the kiss frame). `arm=False` skips the hanging
+    near arm so a composer can pose its own reach."""
+    hx, hy = 25 - lean + ox, 21 + oy + bob
+    # ears: near ear tall, far ear peeking front
+    s.tri((hx - 3, hy - 10), hy - 5, hx - 5, hx - 1, KIT_FUR, sh=0.28)
+    s.tri((hx + 1, hy - 11), hy - 5, hx - 1, hx + 3, KIT_FUR)
+    s.tri((hx + 1, hy - 9), hy - 6, hx, hx + 2, EARIN)
+    bx, by = 26 + ox, 35 + oy + bob
+    _kitty_tail_curl(s, bx, oy, bob)
+    # leg stubs bridge body to the planted paws (visible on tiptoe)
+    for (lx, sh) in ((bx - 3, 0.0), (bx + 2, 0.12)):
+        s.capsule(lx, by + 4, lx, 42 + oy, 1.9, 1.6, KIT_FUR, sh=sh)
+    # slim body, apron panel on the front (west) half + shoulder strap
+    s.ball(bx, by, 5.8, 6.4, KIT_FUR, power=2.2, wrap=0.26, curve=0.20)
+    for y in range(by - 4, by + 6):
+        half = 3 + (2 if y > by - 1 else 1)
+        for x in range(bx - half, bx + 1):
+            s.set(x, y, APRON[0] if x < bx - 2 else APRON[1])
+    s.rect(bx - half, by + 5, bx, by + 5, APRON[2])        # hem shade
+    ln(s, bx - 2, by - 6, bx - 1, by - 4, APRON[2])        # shoulder strap
+    if arm:
+        # near arm hanging over the panel
+        s.capsule(bx - 1, by - 4, bx - 3, by + 1, 1.8, 1.6, KIT_FUR, sh=0.10)
+        s.ball(bx - 3, by + 2, 1.7, 1.5, KIT_FUR, power=2.2, wrap=0.10, curve=0.10)
+    for lx in (bx - 3, bx + 2):                            # planted paws
+        s.ball(lx, 43 + oy, 2.1, 1.6, KIT_FUR, power=2.2, wrap=0.10, curve=0.10)
+    # skull + the plump white cheek forward
+    s.ball(hx, hy, 6.4, 5.8, KIT_FUR, power=2.4, wrap=0.30, curve=0.26)
+    s.ball(hx - 4, hy + 2.5, 3.0, 2.6, KIT_FUR, power=2.0, wrap=0.30)
+    s.ball(hx - 4.5, hy + 3.2, 3.0, 2.4, WHITE, power=2.0, wrap=0.10, curve=0.10)
+    s.rect(hx - 7, hy + 2, hx - 6, hy + 2, NOSE)
+    s.line([(hx - 6, hy + 4), (hx - 5, hy + 4)], MOUTH)
+    if eyes == "open":
+        s.rect(hx - 4, hy - 3, hx - 2, hy - 1, KIT_EYE)
+        s.rect(hx - 4, hy - 3, hx - 2, hy - 3, KIT_EYEL)
+        s.rect(hx - 3, hy - 2, hx - 3, hy - 1, PUPIL)
+        s.set(hx - 4, hy - 3, GLINT)
+    else:                                                  # closed ^ (the kiss)
+        s.line([(hx - 4, hy - 1), (hx - 3, hy - 2), (hx - 2, hy - 1)], LID)
+    s.set(hx + 1, hy + 3, SMUDGE)                          # some things don't wash off
+    s.set(hx + 2, hy + 2, SMUDGE)
+    # bandana at the throat, kerchief triangle hanging front
+    s.rect(hx - 4, hy + 7, hx + 3, hy + 8, KIT_BAND[1])
+    s.rect(hx + 1, hy + 8, hx + 3, hy + 8, KIT_BAND[2])
+    s.tri((hx - 4, hy + 11), hy + 8, hx - 6, hx - 2, KIT_BAND, sh=0.14)
+
+
+def _kitty_side_whiskers(s, hx, hy):
+    """Profile whiskers off the white cheek, drawn post-outline."""
+    for (x, y) in ((hx - 9, hy + 1), (hx - 10, hy + 2), (hx - 9, hy + 4)):
+        s.set(x, y, WHISK)
+
+
+def kitty_adult_side(s, bob=0):
+    _kitty_side_core(s, bob=bob)
+    s.despeckle(passes=1)
+    s.outline(KITADULT_OUTS, OUT_DARK)
+    _kitty_side_whiskers(s, 25, 21 + bob)
+
+
+# ---- the bluff kiss (2026-07-17): a composed two-cat sheet, because two
+# 48px bodies standing near each other never read as a kiss. Three 96x96
+# frames (bluff_kiss_gen.png, 288x96 — scene/bluff.gd swaps it in over the
+# hidden bodies, hframes=3): lean-in with the paw-hold, the KISS (muzzle
+# contact, closed eyes, her paw on his chest, his tail curling up), and the
+# after — both from BEHIND at the lip, her head on his shoulder, watching
+# the sun lane. Feet baseline y=92 (the 48-cell contract + 48). ----------------------
+
+COATR = BASIL["COATR"]
+PANTR = BASIL["PANTR"]
+GOGRIM = BASIL["GOGRIM"]
+GOGLEN = BASIL["GOGLEN"]
+KISS_OUTS = outs_for((FUR, OUT_DARK), (WHITE, OUT_LIGHT), (COATR, OUT_DARK),
+                     (PANTR, OUT_DARK), (GOGRIM, OUT_DARK), (KIT_FUR, OUT_DARK),
+                     (KIT_BAND, OUT_DARK), (APRON, OUT_DARK))
+
+
+def _basil_profile(s, ox, oy, lean=0, kiss=False):
+    """Adult-sheet Basil in RIGHT profile (coat, goggles, no gun), feet fill
+    at 44+oy. `lean` tips the shoulders toward her; `kiss` closes the eyes,
+    tips the chin up and raises the tail."""
+    hx, hy = 23 + lean + ox, 18 + oy - (1 if kiss else 0)
+    # tail: raised happy curl on the kiss, low sweep otherwise
+    if kiss:
+        s.capsule(16 + ox, 30 + oy, 14 + ox, 25 + oy, 1.7, 1.4, FUR, sh=0.10)
+        s.capsule(14 + ox, 25 + oy, 15 + ox, 20 + oy, 1.4, 1.1, FUR, sh=0.13)
+        s.set(15 + ox, 19 + oy, FUR[0])
+    else:
+        s.capsule(16 + ox, 30 + oy, 13 + ox, 28 + oy, 1.7, 1.4, FUR, sh=0.10)
+        s.capsule(13 + ox, 28 + oy, 10 + ox, 26 + oy, 1.4, 1.1, FUR, sh=0.13)
+        s.set(9 + ox, 25 + oy, FUR[0])
+    for (fx, sh) in ((20, 0.16), (25, 0.0)):               # legs under the hem
+        s.capsule(fx + ox, 33 + oy, fx + ox, 40 + oy, 2.1, 1.7, PANTR, sh=sh)
+        s.ball(fx + 0.5 + ox, 42.6 + oy, 2.2, 1.7, WHITE, power=2.2,
+               sh=sh * 0.4, wrap=0.10, curve=0.10)
+    # the near-floor coat in profile (the adult sheet's flat-band recipe)
+    top, hem = 22 + oy, 40 + oy
+    h = hem - top
+    for y in range(top, hem + 1):
+        vy = (y - top) / h
+        x_off = int(round(lean * (1.0 - vy)))
+        x0 = int(round(17 - vy * 3.0)) + x_off + ox
+        x1 = 29 + x_off + ox
+        if y == top:
+            x0 += 2
+            x1 -= 1
+        elif y == top + 1:
+            x0 += 1
+        fold = x0 + 3
+        for x in range(x0, x1 + 1):
+            if y >= hem - 1:
+                c = COATR[3] if x >= x1 - 1 else COATR[2]
+            elif x == x1:
+                c = COATR[3] if y >= top + 2 else COATR[2]
+            elif x == x1 - 1:
+                c = COATR[2]
+            elif x == fold and y >= top + 4:
+                c = COATR[2]
+            elif x <= x0 + 2:
+                c = COATR[0]
+            else:
+                c = COATR[1]
+            s.set(x, y, c)
+    s.rect(16 + lean + ox, hem + 1, 27 + lean + ox, hem + 1, COATR[3])
+    # head profile: short-nosed, big white cheek, goggles up
+    s.tri((hx + 3, hy - 10), hy - 5, hx + 1, hx + 5, FUR, sh=0.30)
+    s.tri((hx - 1, hy - 11), hy - 5, hx - 3, hx + 1, FUR)
+    s.tri((hx - 1, hy - 9), hy - 6, hx - 2, hx, EARIN)
+    s.ball(hx, hy, 6.8, 5.6, FUR, power=2.4, wrap=0.34, curve=0.30)
+    s.ball(hx + 4, hy + 2.5, 3.2, 2.7, FUR, power=2.0, wrap=0.30)
+    s.ball(hx + 4.5, hy + 3.2, 3.2, 2.5, WHITE, power=2.0, wrap=0.10, curve=0.10)
+    s.rect(hx + 6, hy + 2, hx + 7, hy + 2, NOSE)
+    s.line([(hx + 5, hy + 4), (hx + 6, hy + 4)], MOUTH)
+    if kiss:
+        s.line([(hx + 2, hy - 2), (hx + 3, hy - 3), (hx + 4, hy - 2)], LID)
+        s.set(hx + 1, hy + 1, BLUSH)
+    else:
+        _eye(s, hx + 2, hy - 3, EYE_Y, EYE_YL)
+    s.rect(hx - 6, hy - 5, hx + 3, hy - 5, GOGRIM[2])      # goggle strap
+    s.set(hx - 2, hy - 6, GOGRIM[1])
+    s.ball(hx + 3, hy - 6.5, 2.3, 1.8, GOGRIM, power=2.0)
+    s.blob(hx + 3, hy - 6.5, 1.3, 1.0, GOGLEN[1])
+    s.set(hx + 2, hy - 7, GOGLEN[0])
+
+
+def _basil_back(s, ox, oy, head_dx=0, tail_up=True):
+    """Adult-sheet Basil from behind (the up-view recipe): dome + ear backs,
+    goggle strap and cups over the crown, coat back, hanging sleeves, tail
+    raised east — or resting on the ground west (`tail_up=False`, the
+    after-kiss frame: her head occupies where the raised tail would go)."""
+    hx, hy = 24 + ox + head_dx, 18 + oy
+    s.tri((hx - 4, hy - 10), hy - 4, hx - 7, hx - 1, FUR)
+    s.tri((hx + 4, hy - 10), hy - 4, hx + 1, hx + 7, FUR, sh=0.15)
+    s.tri((hx - 4, hy - 8), hy - 5, hx - 6, hx - 2, FUR, sh=0.38)
+    s.tri((hx + 4, hy - 8), hy - 5, hx + 2, hx + 6, FUR, sh=0.46)
+    for (fx, sh) in ((21, 0.0), (27, 0.10)):               # trouser stubs + paws
+        s.capsule(fx + ox, 33 + oy, fx + ox, 40 + oy, 2.2, 1.7, PANTR, sh=sh)
+        s.ball(fx + ox, 42.6 + oy, 2.2, 1.7, WHITE, power=2.2, sh=sh * 0.5,
+               wrap=0.10, curve=0.10)
+    top, hem = 22 + oy, 40 + oy                            # coat back, flat bands
+    cx = 24 + ox
+    for y in range(top, hem + 1):
+        vy = (y - top) / (hem - top)
+        half = 5.6 + 2.0 * vy
+        x0 = int(round(cx - half))
+        x1 = int(round(cx + half))
+        if y == top:
+            x0 += 2
+            x1 -= 2
+        elif y == top + 1:
+            x0 += 1
+            x1 -= 1
+        for x in range(x0, x1 + 1):
+            if y >= hem - 1:
+                c = COATR[3] if x >= x1 - 1 else COATR[2]
+            elif x >= x1 - 1:
+                c = COATR[2]
+            elif x < cx:
+                c = COATR[0]
+            else:
+                c = COATR[1]
+            s.set(x, y, c)
+    s.rect(cx - 5, hem + 1, cx + 5, hem + 1, COATR[3])
+    s.rect(cx - 5, top, cx + 5, top + 1, COATR[1])         # collar band
+    s.rect(cx - 4, top + 6, cx + 4, top + 6, COATR[2])     # back belt
+    for y in range(top + 8, hem - 1):                      # vent seam
+        s.set(cx, y, COATR[2])
+    for (sx, hxx, sh) in ((cx - 6, cx - 8, 0.18), (cx + 6, cx + 8, 0.32)):
+        s.capsule(sx, top + 1, hxx, top + 7, 1.9, 1.6, COATR, sh=sh)
+        s.ball(hxx, top + 9, 1.8, 1.5, WHITE, power=2.2, wrap=0.10, curve=0.10)
+    if tail_up:
+        s.capsule(29 + ox, 31 + oy, 32 + ox, 27 + oy, 1.7, 1.4, FUR, sh=0.10)
+        s.capsule(32 + ox, 27 + oy, 33 + ox, 23 + oy, 1.4, 1.1, FUR, sh=0.14)
+        s.set(33 + ox, 22 + oy, FUR[0])
+    else:
+        s.capsule(19 + ox, 40 + oy, 14 + ox, 43 + oy, 1.6, 1.3, FUR, sh=0.10)
+        s.set(13 + ox, 43 + oy, FUR[0])
+    s.ball(hx, hy, 7.2, 6.0, FUR, power=2.4, wrap=0.34, curve=0.30)
+    s.rect(hx - 6, hy - 4, hx + 6, hy - 4, GOGRIM[2])      # strap + buckle
+    s.rect(hx - 1, hy - 4, hx + 1, hy - 4, GOGRIM[1])
+    s.ball(hx - 3, hy - 5.5, 2.0, 1.4, GOGRIM, power=2.0)
+    s.ball(hx + 3, hy - 5.5, 2.0, 1.4, GOGRIM, power=2.0, sh=0.15)
+    s.line([(hx - 2, hy + 5), (hx - 1, hy + 6), (hx, hy + 6),
+            (hx + 1, hy + 6), (hx + 2, hy + 5)], FUR[3])
+
+
+def kiss_lean(s):
+    """Frame 0: turned to each other in profile, the paw-hold between them,
+    muzzles a breath apart."""
+    _basil_profile(s, ox=14, oy=48, lean=1)
+    _kitty_side_core(s, ox=34, oy=48, lean=1, arm=False)
+    # the paw-hold: his sleeve reaches east, her arm west, paws meeting
+    s.capsule(37, 71, 43, 75, 1.8, 1.5, COATR, sh=0.24)
+    s.ball(45, 76.5, 1.8, 1.5, WHITE, power=2.2, wrap=0.10, curve=0.10)
+    s.capsule(57, 79, 51, 77, 1.7, 1.5, KIT_FUR, sh=0.08)
+    s.ball(48.5, 76.5, 1.7, 1.5, KIT_FUR, power=2.2, wrap=0.10, curve=0.10)
+    s.despeckle(passes=1)
+    s.outline(KISS_OUTS, OUT_DARK)
+    for (x, y) in ((47, 67), (48, 66), (47, 71)):          # his whiskers
+        s.set(x, y, WHISK)
+    _kitty_side_whiskers(s, 58, 69)
+
+
+def kiss_kiss(s):
+    """Frame 1: THE KISS — chins tipped up, muzzles touching at the center,
+    closed ^ eyes, her paw up on his chest, his tail curled high. The heart
+    fx blooms above at runtime (prologue_fx cell 19)."""
+    _basil_profile(s, ox=16, oy=48, lean=2, kiss=True)
+    # bob=-2 tips her onto TIPTOE: body lifts, paws stay planted — the
+    # 3px head-height difference closes and the muzzles actually meet
+    _kitty_side_core(s, ox=32, oy=48, bob=-2, lean=2, eyes="closed", arm=False)
+    s.set(54, 68, BLUSH)                                   # her blush
+    # his paw finds her back; hers lands on his chest
+    s.capsule(39, 71, 47, 76, 1.8, 1.5, COATR, sh=0.24)
+    s.ball(56, 76, 1.8, 1.5, WHITE, power=2.2, wrap=0.10, curve=0.10)
+    s.capsule(55, 78, 49, 73, 1.7, 1.5, KIT_FUR, sh=0.08)
+    s.ball(47.5, 72, 1.7, 1.5, KIT_FUR, power=2.2, wrap=0.10, curve=0.10)
+    s.despeckle(passes=1)
+    s.outline(KISS_OUTS, OUT_DARK)
+    for (x, y) in ((44, 62), (43, 61)):                    # whisker breaks
+        s.set(x, y, WHISK)
+    s.set(59, 63, WHISK)
+
+
+def kiss_after(s):
+    """Frame 2: the after — both from BEHIND at the lip, close, her head
+    resting on his shoulder, tails curling toward each other. Held on the
+    sun lane before the fade."""
+    _basil_back(s, ox=17, oy=48, head_dx=1, tail_up=False)
+    _kitty_back_core(s, ox=33, oy=48, head_dx=-4, head_dy=3)
+    _kitty_tail_curl(s, 57, 48, 0, west=True)
+    s.despeckle(passes=1)
+    s.outline(KISS_OUTS, OUT_DARK)
 
 
 # ---- fx strip -----------------------------------------------------------------------------
@@ -1509,26 +1944,43 @@ write_cells(os.path.join(HERE, "npc_kitty_gen.png"), kt, CELL)
 # villagers: [idle x2, act x2, laugh-emote x2] — 6 cols since 2026-07-17:
 # the hall gallery must visibly LAUGH at the naming; on the old 4-col
 # sheets play_emote() was a silent no-op (npc.gd only builds clips whose
-# columns exist). Every spawner of these sheets passes frame_cols = 6.
-for fname, fn in (("npc_sheep_gen.png", sheep), ("npc_owl_gen.png", owl),
-                  ("npc_mouse_gen.png", mouse)):
-    vg = [[new() for _ in range(6)]]
+# columns exist). Sheep + mouse (and badger below) carry BACK cells at
+# cols 6-7 since 2026-07-18 — the restaged hall's tiered gallery sits with
+# its backs to the camera (npc.gd builds `back` when frame_cols >= 8). The
+# owl stays 6 cols: the Dean always faces the house.
+vg = [[new() for _ in range(6)]]
+owl(vg[0][0])
+owl(vg[0][1], bob=-1)
+owl(vg[0][2], mood="act")
+owl(vg[0][3], mood="act", bob=-1)
+owl(vg[0][4], mood="emote")
+owl(vg[0][5], mood="emote", bob=-1)
+write_cells(os.path.join(HERE, "npc_owl_gen.png"), vg, CELL)
+
+for fname, fn in (("npc_sheep_gen.png", sheep), ("npc_mouse_gen.png", mouse)):
+    vg = [[new() for _ in range(8)]]
     fn(vg[0][0])
     fn(vg[0][1], bob=-1)
     fn(vg[0][2], mood="act" if fn is not sheep else "talk")
     fn(vg[0][3], mood="act" if fn is not sheep else "talk", bob=-1)
     fn(vg[0][4], mood="emote")
     fn(vg[0][5], mood="emote", bob=-1)
+    fn(vg[0][6], mood="back")
+    fn(vg[0][7], mood="back", bob=-1)
     write_cells(os.path.join(HERE, fname), vg, CELL)
 
-# the goose: [idle x2, honk x2, WADDLE x2] — the ribbon chase needs a gait
-gg = [[new() for _ in range(6)]]
+# the goose: [idle x2, honk x2, WADDLE x2, FLY x2] — the fest theft is a
+# fly-by, so cells 6-7 are the airborne side profile (npc.gd never sees
+# them: frame_cols stays 6 there; town_fest.gd appends its own "fly" clip)
+gg = [[new() for _ in range(8)]]
 goose(gg[0][0])
 goose(gg[0][1], bob=-1)
 goose(gg[0][2], mood="act")
 goose(gg[0][3], mood="act", bob=-1)
 goose(gg[0][4], mood="waddle", step=0)
 goose(gg[0][5], mood="waddle", step=1)
+goose(gg[0][6], mood="fly", step=0)
+goose(gg[0][7], mood="fly", step=1)
 write_cells(os.path.join(HERE, "npc_goose_gen.png"), gg, CELL)
 
 # Mom: [idle x2, flour-dust act x2, warm emote x2]
@@ -1541,6 +1993,16 @@ mom(mm[0][4], mood="emote")
 mom(mm[0][5], mood="emote", bob=-1)
 write_cells(os.path.join(HERE, "npc_mom_gen.png"), mm, CELL)
 
+# Kitty's mother: [idle x2, hands-to-cheeks gasp x2, accusing emote x2]
+km = [[new() for _ in range(6)]]
+kittymom(km[0][0])
+kittymom(km[0][1], bob=-1)
+kittymom(km[0][2], mood="act")
+kittymom(km[0][3], mood="act", bob=-1)
+kittymom(km[0][4], mood="emote")
+kittymom(km[0][5], mood="emote", bob=-1)
+write_cells(os.path.join(HERE, "npc_kittymom_gen.png"), km, CELL)
+
 # Prologue B cast
 sa = [[new() for _ in range(6)]]
 schweinler_adult(sa[0][0])
@@ -1551,13 +2013,15 @@ schweinler_adult(sa[0][4], mood="laugh")
 schweinler_adult(sa[0][5], mood="laugh", bob=-2)
 write_cells(os.path.join(HERE, "npc_schweinler_adult_gen.png"), sa, CELL)
 
-bd = [[new() for _ in range(6)]]
+bd = [[new() for _ in range(8)]]
 badger(bd[0][0])
 badger(bd[0][1], bob=-1)
 badger(bd[0][2], mood="act")
 badger(bd[0][3], mood="act", bob=-1)
 badger(bd[0][4], mood="emote")
 badger(bd[0][5], mood="emote", bob=-2)
+badger(bd[0][6], mood="back")
+badger(bd[0][7], mood="back", bob=-1)
 write_cells(os.path.join(HERE, "npc_badger_gen.png"), bd, CELL)
 
 st = [[new() for _ in range(6)]]
@@ -1578,16 +2042,28 @@ kitty_bed(kb2[0][4], "polite")
 kitty_bed(kb2[0][5], "polite", bob=-1)
 write_cells(os.path.join(HERE, "npc_kitty_bed_gen.png"), kb2, CELL)
 
-# College-age Kitty (the workshop interlude + the stall):
-# [idle x2, tinker x2, beam x2]
-ka = [[new() for _ in range(6)]]
+# College-age Kitty (the bluff romance + her fountain-rim stall):
+# [idle x2, tinker x2, beam x2, BACK x2, SIDE x2] — the back/side pair is
+# the bluff's from-behind staging (npc.gd cols 6-9; 6-col spawns unaffected)
+ka = [[new() for _ in range(10)]]
 kitty_adult(ka[0][0])
 kitty_adult(ka[0][1], bob=-1)
 kitty_adult(ka[0][2], mood="tinker")
 kitty_adult(ka[0][3], mood="tinker", bob=-1)
 kitty_adult(ka[0][4], mood="beam")
 kitty_adult(ka[0][5], mood="beam", bob=-1)
+kitty_adult_back(ka[0][6])
+kitty_adult_back(ka[0][7], bob=-1)
+kitty_adult_side(ka[0][8])
+kitty_adult_side(ka[0][9], bob=-1)
 write_cells(os.path.join(HERE, "npc_kitty_adult_gen.png"), ka, CELL)
+
+# the bluff kiss composition: three 96px frames (lean / KISS / the after)
+kc = [[Sprite(96, grain=1, salt=13, jitter=0.0) for _ in range(3)]]
+kiss_lean(kc[0][0])
+kiss_kiss(kc[0][1])
+kiss_after(kc[0][2])
+write_cells(os.path.join(HERE, "bluff_kiss_gen.png"), kc, 96)
 
 # fx strip — TWO 16-cell rows (256x32). Row 0 is frozen: cells 0-9 Prologue
 # A's, 10-15 thesis day's — its bytes must never change (WorldFx callers
@@ -1641,4 +2117,4 @@ write_cells(os.path.join(HERE, "accident_bike_down_gen.png"), bdn, CELL)
 accident_bg()
 
 print("prologue cast written: kid_basil (6x5) + 12 NPC sheets + fx strip 16x2"
-      " + the accident set")
+      " + the accident set + the bluff kiss (96px x3)")

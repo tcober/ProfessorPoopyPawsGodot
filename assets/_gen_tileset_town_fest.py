@@ -21,7 +21,8 @@ from _overworld_tiles import OverWorld, T
 from _tilekit import COPPER, GLOW_WARM as WARM, GLOW_MINT as MINTG, sprite_img
 from _town_props import (town_home, town_cottage, town_academy, town_well,
                          town_lamp, town_stall, town_shop, town_inn,
-                         town_fountain, town_stairs, town_cliff, town_tree)
+                         town_fountain, town_stairs, town_cliff, town_tree,
+                         town_fence)
 
 tn = OverWorld("town_fest", "town_fest")
 _blob = OverWorld.glow_blob
@@ -54,10 +55,14 @@ tn.emit_prop("Inn", "nN9",
              town_inn(ROOFR, PLAST, salt=261, composite=True, frames=4), hframes=4)
 tn.place("S", town_stairs(STONE))
 tn.bake_shadow("oO", 3)
-tn.emit_prop("Fountain", "oO", sprite_img(town_fountain(STONE), 48, 48))
+tn.emit_prop("Fountain", "oO", town_fountain(STONE, frames=4), hframes=4)
 tn.emit_prop("Well", "uU", sprite_img(town_well(STONE), 32, 32))
 tn.emit_prop("Lamp", "lL", sprite_img(town_lamp(), 16, 32), each=True)
 tn.emit_prop("Stall", "m", sprite_img(town_stall(), 48, 32))
+# the fences y-sort like everything a body can stand both sides of
+# (2026-07-19): F = the two 3-cell gate runs, G = the 5-cell orchard run
+tn.emit_prop("Fence", "F", sprite_img(town_fence(3), 48, 16), each=True)
+tn.emit_prop("FenceLong", "G", sprite_img(town_fence(5), 80, 16))
 
 # ---- terrace cliff band + walk-behind trees (identical stamping) --------------------
 cliffs = [town_cliff(tn.ROCK, tn.GRASS, salt=s) for s in (291, 293, 297)]

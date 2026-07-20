@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=48 format=3]
+[gd_resource type="SpriteFrames" load_steps=54 format=3]
 
 [ext_resource type="Texture2D" path="res://assets/basil_gen.png" id="1_tex"]
 
@@ -186,6 +186,30 @@ region = Rect2(192, 384, 48, 48)
 atlas = ExtResource("1_tex")
 region = Rect2(240, 384, 48, 48)
 
+[sub_resource type="AtlasTexture" id="atlas_46"]
+atlas = ExtResource("1_tex")
+region = Rect2(0, 432, 48, 48)
+
+[sub_resource type="AtlasTexture" id="atlas_47"]
+atlas = ExtResource("1_tex")
+region = Rect2(48, 432, 48, 48)
+
+[sub_resource type="AtlasTexture" id="atlas_48"]
+atlas = ExtResource("1_tex")
+region = Rect2(96, 432, 48, 48)
+
+[sub_resource type="AtlasTexture" id="atlas_49"]
+atlas = ExtResource("1_tex")
+region = Rect2(144, 432, 48, 48)
+
+[sub_resource type="AtlasTexture" id="atlas_50"]
+atlas = ExtResource("1_tex")
+region = Rect2(192, 432, 48, 48)
+
+[sub_resource type="AtlasTexture" id="atlas_51"]
+atlas = ExtResource("1_tex")
+region = Rect2(240, 432, 48, 48)
+
 [resource]
 animations = [
 {
@@ -277,6 +301,26 @@ animations = [
 "frames": [{"duration": 1.0, "texture": SubResource("atlas_44")}, {"duration": 1.0, "texture": SubResource("atlas_45")}],
 "loop": true,
 "name": &"knapsack_walk",
+"speed": 5.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("atlas_46")}],
+"loop": true,
+"name": &"knapsack_back",
+"speed": 1.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("atlas_47")}, {"duration": 1.0, "texture": SubResource("atlas_48")}],
+"loop": true,
+"name": &"defeat_walk",
+"speed": 5.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("atlas_49")}],
+"loop": true,
+"name": &"knapsack_down",
+"speed": 1.0
+}, {
+"frames": [{"duration": 1.0, "texture": SubResource("atlas_50")}, {"duration": 1.0, "texture": SubResource("atlas_51")}],
+"loop": true,
+"name": &"knapsack_walk_down",
 "speed": 5.0
 }
 ]

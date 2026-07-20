@@ -1,0 +1,9 @@
+; y-sorted World props from assets/maps/lanternwood.txt — see scene/prop_spawner.gd
+prop Library kK lanternwood_library.png hframes=4
+prop FujiHome qQ lanternwood_fujihome.png hframes=4
+prop CabinA wW lanternwood_cabina.png hframes=4
+prop CabinB eE lanternwood_cabinb.png hframes=4
+prop CabinC zZ lanternwood_cabinc.png hframes=4
+prop ConiferTrunk Yy lanternwood_conifertrunk.png each
+prop ConiferCrown Yy lanternwood_conifercrown.png anchor=top:0 base_inset=-16 each
+prop Lamp lL lanternwood_lamp.png each

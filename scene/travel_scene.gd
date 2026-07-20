@@ -95,9 +95,8 @@ func _announce(loc: OverworldLocation) -> void:
 func _show_banner(text: String, hold: float) -> void:
 	banner.text = text
 	# kill the previous banner's tween or its fade-out yanks THIS text
-	# mid-hold (two fire-and-forget callers can overlap: the dash's
-	# objective banner vs the stall cameo — create_tween() never
-	# auto-kills). A killed tween never emits finished, so the superseded
+	# mid-hold (two fire-and-forget callers can overlap — create_tween()
+	# never auto-kills). A killed tween never emits finished, so the superseded
 	# caller's await just ends with its coroutine — fine for the
 	# fire-and-forget call sites; _announce's awaited banners are
 	# serialized by _busy and can't be superseded.

@@ -1,0 +1,2 @@
+; y-sorted World props from assets/maps/bluff.txt — see scene/prop_spawner.gd
+prop BluffTree t bluff_blufftree.png

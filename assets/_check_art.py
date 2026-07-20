@@ -93,8 +93,10 @@ def png_alpha(rel):
 MAPS = [
     "maps/meadow.txt",
     "maps/overworld.txt",
+    "maps/overworld_bright.txt",
     "maps/town.txt",
     "maps/town_fest.txt",
+    "maps/lanternwood.txt",
     "maps/house.txt",
     "maps/downstairs.txt",
     "maps/hall.txt",
@@ -131,9 +133,15 @@ TILED = {
     "maps/overworld.txt": ("tilesets/overworld_layout.txt",
                            "tilesets/overworld_tiles.png",
                            "tilesets/overworld_tiles.tres"),
+    "maps/overworld_bright.txt": ("tilesets/overworld_bright_layout.txt",
+                                  "tilesets/overworld_bright_tiles.png",
+                                  "tilesets/overworld_bright_tiles.tres"),
     "maps/town.txt": ("tilesets/town_layout.txt",
                       "tilesets/town_tiles.png",
                       "tilesets/town_tiles.tres"),
+    "maps/lanternwood.txt": ("tilesets/lanternwood_layout.txt",
+                             "tilesets/lanternwood_tiles.png",
+                             "tilesets/lanternwood_tiles.tres"),
     "maps/town_fest.txt": ("tilesets/town_fest_layout.txt",
                            "tilesets/town_fest_tiles.png",
                            "tilesets/town_fest_tiles.tres"),
@@ -193,10 +201,11 @@ print("z-order:")
 # y-sorted World sprites (not upper-layer tiles), so its upper layer is empty
 # and the z-order checks below short-circuit for it (the invisible-wall +
 # T3-coverage lint carry the load). town_fest still bakes them, so it stays.
-UPPER_REQUIRED = {"maps/overworld.txt",
+UPPER_REQUIRED = {"maps/overworld.txt", "maps/overworld_bright.txt",
                   "maps/house.txt", "maps/downstairs.txt", "maps/hall.txt",
                   "maps/sickroom.txt"}
-CHIBI_MAPS = {"maps/overworld.txt"}    # 24x24 travel chibi, figure <=1 tile tall
+# 24x24 travel chibi, figure <=1 tile tall
+CHIBI_MAPS = {"maps/overworld.txt", "maps/overworld_bright.txt"}
 for map_rel, layers in LAYERS.items():
     mm = maps[map_rel]
     upper = {(x, y) for y, row in enumerate(layers["upper"])
@@ -249,6 +258,7 @@ PROPS = {
     "maps/downstairs.txt": "tilesets/downstairs_props.txt",
     "maps/town.txt": "tilesets/town_props.txt",
     "maps/town_fest.txt": "tilesets/town_fest_props.txt",
+    "maps/lanternwood.txt": "tilesets/lanternwood_props.txt",
     "maps/hall.txt": "tilesets/hall_props.txt",
     "maps/sickroom.txt": "tilesets/sickroom_props.txt",
 }
@@ -401,10 +411,10 @@ check("collision_tile.png", png_size("assets/collision_tile.png") == (ZONE_TILE,
 # ---- entity placement -----------------------------------------------------------------
 PLACEMENTS = {
     "scene/meadow.tscn": "maps/meadow.txt",
-    "scene/meadow_fest.tscn": "maps/meadow.txt",
     "scene/house.tscn": "maps/house.txt",
     "scene/downstairs.tscn": "maps/downstairs.txt",
     "scene/alembic_town.tscn": "maps/town.txt",
+    "scene/lanternwood.tscn": "maps/lanternwood.txt",
     "scene/town_fest.tscn": "maps/town_fest.txt",
     "scene/town_thesis.tscn": "maps/town_fest.txt",
     "scene/house_thesis.tscn": "maps/house.txt",
@@ -426,7 +436,7 @@ for rel, map_rel in PLACEMENTS.items():
 
 # ---- sheet dimensions -----------------------------------------------------------------
 SHEETS = {
-    "assets/basil_gen.png": (6 * ZONE_CELL, 9 * ZONE_CELL),
+    "assets/basil_gen.png": (6 * ZONE_CELL, 10 * ZONE_CELL),
     "assets/fuji_gen.png": (6 * ZONE_CELL, 10 * ZONE_CELL),
     "assets/slime_gen.png": (6 * 24, 4 * 24),
     "assets/overworld_basil.png": (4 * OW_CELL, 3 * OW_CELL),
@@ -444,10 +454,10 @@ SHEETS = {
     "assets/npc_sage_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/npc_schweinler_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/npc_kitty_gen.png": (6 * ZONE_CELL, ZONE_CELL),
-    "assets/npc_sheep_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_sheep_gen.png": (8 * ZONE_CELL, ZONE_CELL),
     "assets/npc_owl_gen.png": (6 * ZONE_CELL, ZONE_CELL),
-    "assets/npc_goose_gen.png": (6 * ZONE_CELL, ZONE_CELL),
-    "assets/npc_mouse_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_goose_gen.png": (8 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_mouse_gen.png": (8 * ZONE_CELL, ZONE_CELL),
     "assets/prologue_fx.png": (256, 32),
     "assets/accident_kitty_gen.png": (5 * ZONE_CELL, ZONE_CELL),
     "assets/accident_atv_gen.png": (5 * ZONE_CELL, ZONE_CELL),
@@ -456,9 +466,10 @@ SHEETS = {
     # thesis-day cast (Prologue B) + Mom (the A pacing pass)
     "assets/npc_mom_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/npc_schweinler_adult_gen.png": (6 * ZONE_CELL, ZONE_CELL),
-    "assets/npc_badger_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_badger_gen.png": (8 * ZONE_CELL, ZONE_CELL),
     "assets/npc_stork_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/npc_kitty_bed_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_kittymom_gen.png": (6 * ZONE_CELL, ZONE_CELL),
 }
 
 print("sheets:")

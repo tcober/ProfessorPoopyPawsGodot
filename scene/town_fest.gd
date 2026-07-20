@@ -1,9 +1,9 @@
 extends TravelScene
 
-## Alembic Town, FESTIVAL ERA — Prologue A "Sparkless" (docs/DESIGN.md Story).
-## The same village grid as the drained present, decades younger: the Founding
-## Festival fills the square, magic is casually everywhere, and kid Basil is
-## the one cat who can't raise a spark. First entry arrives from the fest
+## Alembic Town, FESTIVAL ERA — Prologue A "The Whirligig" (docs/DESIGN.md
+## Story). The same village grid as the drained present, decades younger: the
+## Founding Festival fills the square, magic is casually everywhere, and kid
+## Basil is the one cat who can't do magic. First entry arrives from the fest
 ## downstairs at Basil's home door (the home-start opening) and the town is
 ## FREE — the fountain-square teasing cutscene fires from a proximity zone
 ## when Basil first walks by the square. Then the chapter's wander rhythm
@@ -93,6 +93,10 @@ func _extra_setup() -> void:
 	$ExitSouth.body_entered.connect(_on_exit_south)
 	_wall_gate_mouth()
 	_spawn_home_door()
+	# a reloaded town restores the location node — re-drop it if the beat
+	# already happened (the flag persists across the blessing round-trip)
+	if Game.flag("prologue_want_home"):
+		_free_home_location()
 	Party.clamp_cameras(MapData.size_px(map))
 	_spawn_npcs()
 	_spawn_goose()
@@ -181,13 +185,13 @@ func _spawn_npcs() -> void:
 			"lines": sage_lines},
 		{"anchor": "schw_pos", "name": "Schweinler", "sheet": SHEET_SCHW, "cols": 6,
 			"lines": PackedStringArray([
-				"What are YOU looking at, Sparkless?",
+				"What are YOU looking at? You can't even do magic.",
 				"My father says magic is BREEDING. And pigs of quality have LOADS of it.",
 			])},
 		{"anchor": "npc_sheep", "name": "Mrs. Flockhart", "sheet": SHEET_SHEEP, "cols": 6,
 			"lines": PackedStringArray([
 				"Basil, dear! Lovely festival, isn't it?",
-				"Don't fret about the sparks. Everyone blooms eventually. My Wooliam didn't float his first ribbon till he was six.",
+				"Don't fret about the magic. Everyone blooms eventually. My Wooliam didn't float his first ribbon till he was six.",
 				"...You're ten? Oh. Oh dear. Well - wool over it, love!",
 			])},
 		{"anchor": "npc_owl", "name": "Professor Strix", "sheet": SHEET_OWL, "cols": 6,
@@ -197,7 +201,7 @@ func _spawn_npcs() -> void:
 			])},
 		{"anchor": "npc_mouse", "name": "Pip", "sheet": SHEET_MOUSE, "cols": 6,
 			"lines": PackedStringArray([
-				"Basil! Wanna see MY spark? I learned it YESTERDAY and I'm only five!",
+				"Basil! Wanna see MY magic? I learned it YESTERDAY and I'm only five!",
 				"Oh... wait. Papa says I shouldn't show off in front of... um... I gotta go find Papa!",
 			])},
 	]
@@ -222,7 +226,7 @@ func _sage_lines() -> PackedStringArray:
 	if Game.flag("prologue_festival_done"):
 		return PackedStringArray([
 			"You're not REALLY mad, right? ...Basil?",
-			"And the GOOSE! You SAW it - it looked me right in the eye and then it took my ribbon. Get it back and I'll forgive your sulking forever.",
+			"And the GOOSE! You SAW it - it didn't even LAND! One swoop and my ribbon's gone. Get it back and I'll forgive your sulking forever.",
 		])
 	return PackedStringArray(["Watch THIS!"])
 
@@ -325,7 +329,7 @@ func _festival_cutscene() -> void:
 	theater.face(player, Vector2.LEFT)
 	await theater.say("Sage", "Look-look-LOOK! Three ribbons at once! Basil, count them. THREE.")
 	await theater.say("Basil", "I'm counting. Three. Incredible. The whole town is very impressed.")
-	await theater.say("Sage", "Now YOU do one! Just a teensy spark. Ribbons basically float THEMSELVES.")
+	await theater.say("Sage", "Now YOU do one! Just a teensy bit of magic. Ribbons basically float THEMSELVES.")
 	await theater.wait(0.8)
 	player.sprite.play("sad")
 	await theater.wait(0.5)
@@ -337,16 +341,16 @@ func _festival_cutscene() -> void:
 	await theater.say("Schweinler", "HA! Did everyone hear? The BABY floats three, and big brother can't wiggle ONE.")
 	schw.play_emote()
 	await theater.hop(schw, 5.0)
-	await theater.say("Schweinler", "Sparkless! SPARKLESS BASIL! Oink-hahaha!")
+	await theater.say("Schweinler", "No magic! BASIL'S GOT NO MAGIC! Oink-hahaha!")
 	sage.play_idle()
 	await theater.say("Sage", "HEY. Only I get to tease him, mud-snout!")
-	await theater.say("Schweinler", "See you at the recital, Sparkless. Oh wait - they don't LET you in.")
+	await theater.say("Schweinler", "See you at the recital, Basil. Oh wait - no magic, no recital. They don't LET you in.")
 	schw.play_idle()
 	await theater.wait(0.6)
 	player.sprite.play("sad")
 	await theater.say("Basil", "...I'm going for a walk.")
 	theater.close_dialog()
-	# ---- the goose theft (2026-07-15, still locked): it has been watching --
+	# ---- the goose theft (the fly-by restage 2026-07-18, still locked) -----
 	await _goose_theft()
 	Game.set_flag("prologue_festival_done")
 	_npcs["Sage"].lines = _sage_lines()
@@ -355,53 +359,37 @@ func _festival_cutscene() -> void:
 	_show_banner("TALK TO THE TOWNSFOLK - E TO TALK", BANNER_HOLD)
 
 
-## The goose waddles up to SAGE'S side, snatches the lowest of HER floating
-## ribbons, and bolts over the bridge to hide behind the orchard tree. Raw
-## position tweens (the goose sheet has no walk_* clips — emote IS the
-## waddle pair) along the lanes, never through the blocks. Staging order is
-## the readability pass (2026-07-17): announce the goose FIRST, walk it to
-## the ribbon owner, one innocent beat, snatch, and Sage yells on sight —
-## every step points at whose ribbon this is.
+## The goose FLIES BY (the sneak restage, 2026-07-18: the old announced
+## waddle-to-her-elbow read as anything but a theft): no narration, a swoop
+## in from off-screen WEST at ribbon height, the lowest of Sage's ribbons
+## snatched mid-glide — the SAME fx cell rides the beak and the orchard
+## hide-out — and out past the east edge toward the bridge before anyone
+## has finished blinking. Sage's reaction lands AFTER it's gone. Both
+## flight endpoints are outside the locked view (left edge ~x248, right
+## ~x632), so the teleport in and the hidden respawn are invisible.
 func _goose_theft() -> void:
 	var goose: NPC = _npcs["Goose"]
-	await theater.wait(0.5)
-	await theater.say("", "...the goose. The goose has been WAITING.")
-	theater.close_dialog()
-	# waddle in: west down the lane, then south around the ring's WEST
-	# corner, right up to Sage's elbow — hers are the ribbons it cased
-	await _goose_run(goose, [
-			Vector2(408.0, 312.0),
-			Vector2(408.0, 392.0)], 62.0)
-	await theater.wait(0.4)                # one innocent beat beside her
-	await theater.hop(goose, 6.0)
-	# the snatch: the lowest of Sage's ribbons zips into its beak — the SAME
-	# fx cell rides the zip, the beak and the orchard hide-out (it used to
-	# swap gold for magenta mid-flight)
-	var rib: Sprite2D = _ribbons[0]
-	var start := rib.global_position + Vector2(0.0, rib.offset.y)
+	await theater.wait(0.6)               # the sulk hangs one beat
+	_goose_fly_clip(goose)
+	goose.global_position = Vector2(200.0, 306.0)
+	goose.sprite.play("fly")
+	goose.sprite.flip_h = true            # fly cells face LEFT; east = flipped
+	var rib: Sprite2D = _ribbons[0]       # the LOWEST ribbon — visual ~(378,318)
 	var cell := rib.frame
-	rib.queue_free()                      # its bob tween dies with it
-	var zip := WorldFx.sheet_sprite(FX_SHEET, cell)
-	$World.add_child(zip)
-	zip.global_position = start
 	var tw := create_tween()
-	tw.tween_property(zip, "global_position",
-			goose.global_position + Vector2(7.0, -14.0), 0.3)
+	# glide in on a shallow dip so the beak crosses the ribbon's spot...
+	tw.tween_property(goose, "global_position", Vector2(369.0, 316.0), 0.75)
+	tw.tween_callback(func() -> void:
+		rib.queue_free()                  # its bob tween dies with it
+		var carried := WorldFx.sheet_sprite(FX_SHEET, cell)
+		carried.position = Vector2(12.0, 2.0)   # the flying beak height
+		goose.add_child(carried))
+	# ...and climbs out east past the frame, ribbon trailing
+	tw.tween_property(goose, "global_position", Vector2(700.0, 292.0), 1.5)
 	await tw.finished
-	zip.queue_free()
-	var carried := WorldFx.sheet_sprite(FX_SHEET, cell)
-	carried.position = Vector2(7.0, -14.0)
-	goose.add_child(carried)
+	await theater.wait(0.8)               # a beat; it is very gone
 	(_npcs["Sage"] as NPC).play_emote()
-	await theater.say("Sage", "HEY!! MY RIBBON! THE GOOSE HAS MY RIBBON!")
-	# the getaway: up the west ring, east down the lane, over the bridge,
-	# north along the bank, and into the orchard behind the tree
-	await _goose_run(goose, [
-			Vector2(408.0, 312.0),
-			Vector2(728.0, 312.0),
-			Vector2(760.0, 312.0),
-			Vector2(760.0, 250.0),
-			MapData.anchor_px(map, "goose_hide") + Vector2(16.0, 0.0)], 130.0)
+	await theater.say("Sage", "...did that goose just steal my RIBBON!?")
 	await theater.say("Sage", "It went over the BRIDGE! Basil, you're the fast one!")
 	# respawn as the hidden orchard goose (the talkable startle state)
 	Game.set_flag("prologue_goose_hidden")
@@ -410,16 +398,21 @@ func _goose_theft() -> void:
 	_spawn_goose()
 
 
-## Chained straight tweens through lane waypoints, waddling all the way.
-func _goose_run(goose: NPC, pts: Array, speed: float) -> void:
-	goose.play_emote()
-	var tw := create_tween()
-	var from := goose.global_position
-	for p: Vector2 in pts:
-		tw.tween_property(goose, "global_position", p, from.distance_to(p) / speed)
-		from = p
-	await tw.finished
-	goose.play_idle()
+## The fly clip lives only in this scene: the sheet's cells 6-7, appended
+## to the runtime SpriteFrames npc.gd built from the first 6 (frame_cols
+## stays 6 so npc.gd never mints a bogus "back" clip from the fly art).
+func _goose_fly_clip(goose: NPC) -> void:
+	var frames := goose.sprite.sprite_frames
+	if frames.has_animation("fly"):
+		return
+	frames.add_animation("fly")
+	frames.set_animation_speed("fly", 7.0)  # wingbeats, not the lazy idle rate
+	frames.set_animation_loop("fly", true)
+	for i in [6, 7]:
+		var at := AtlasTexture.new()
+		at.atlas = SHEET_GOOSE
+		at.region = Rect2(i * 48.0, 0.0, 48.0, 48.0)
+		frames.add_frame("fly", at)
 
 
 # ---- the wander rhythm: stings -> home to Mom -> the gate -------------------------
@@ -446,6 +439,20 @@ func _want_home_line() -> void:
 	theater.close_dialog()
 	theater.unlock_party()
 	_show_banner("GO HOME - THE FRONT DOOR", BANNER_HOLD)
+	_free_home_location()
+
+
+## Once he wants home, his own door TRAVELS (the blessing double-back), so
+## the announce-only "BASIL'S HOUSE / MOM SAYS: OUT FROM UNDERFOOT" location
+## sharing the anchor must GO: the two zones overlap, a body can enter both
+## in one physics flush (teleports always do), and if the location's
+## callback wins the flush its awaited _announce holds _busy through the
+## door zone's body_entered — the refused body then stands inside the zone
+## and never re-fires (the 2026-07-18 probe softlock).
+func _free_home_location() -> void:
+	var loc := $Locations.get_node_or_null("Home")
+	if loc:
+		loc.queue_free()
 
 
 # ---- the orchard startle ----------------------------------------------------------
@@ -483,7 +490,7 @@ func _ribbon_return() -> void:
 	await theater.say("Sage", "MY RIBBON! You caught the goose?! Nobody catches the goose!")
 	player.sprite.play("happy")
 	await theater.say("Basil", "Nobody had my motivation.")
-	await theater.say("Sage", "Okay. New rule. Anyone who calls you Sparkless answers to ME.")
+	await theater.say("Sage", "Okay. New rule. Anyone who picks on you about magic answers to ME.")
 	theater.close_dialog()
 	player.sprite.play("idle_down")
 	Game.set_flag("prologue_ribbon_returned")
@@ -503,7 +510,10 @@ func _on_exit_south(body: Node) -> void:
 		return
 	_busy = true
 	await fade_out()
-	get_tree().change_scene_to_file("res://scene/meadow_fest.tscn")
+	# the south road climbs the headland (2026-07-18: the meet moved onto
+	# the bluff; the fest meadow scene was cut)
+	Game.bluff_phase = "meet"
+	get_tree().change_scene_to_file("res://scene/bluff.tscn")
 
 
 func _gate_hint() -> void:

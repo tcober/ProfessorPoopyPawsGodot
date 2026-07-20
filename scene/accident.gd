@@ -90,7 +90,9 @@ func _run() -> void:
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	await mount_tw.finished
 	_atv_driving = true
-	await theater.say("", "The engine catches on the first try. Nobody expects that. Including the machine.")
+	# the engine catches — HE tells us, mid-brag, and loses the machine
+	# inside his own sentence (the narration purge: cause stays on screen)
+	await theater.say("Schweinler", "HA! FIRST try! You hear that purr, Ridley? It already respects m- wait. Wait, why is it-")
 	theater.close_dialog()
 	# ---- and IMMEDIATELY loses control — as Kitty rounds the bend
 	_atv_driving = false

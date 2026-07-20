@@ -1005,6 +1005,61 @@ def lectern(w, h, salt=5):
     return sp
 
 
+def stage_front(w, h, salt=77):
+    """The stage apron: one long low riser closing a raised dais's south
+    edge, drawn for life as a one-row y-sorted entity (the desk plane idiom
+    at stage width). The upper band is the stage boards' lit south lip — it
+    overlaps the dais row behind, so a performer's feet read as ON the
+    platform edge; below it a panelled riser face drops to a dark contact
+    lip. Kept fully opaque across its footprint row on purpose: the solid D
+    cells must never dedupe to open floor (the T3 coverage rule)."""
+    sp = S(w, h, salt)
+    sp.rect(0, h - 26, w - 1, h - 26, TIMBER[0])              # lit stage lip
+    sp.rect(0, h - 25, w - 1, h - 21, TIMBER[1])              # board ends
+    for gx in range(6, w - 2, 12):
+        sp.rect(gx, h - 25, gx, h - 21, TIMBER[2])            # board seams
+    sp.rect(0, h - 20, w - 1, h - 20, TIMBER[2])              # nosing shadow
+    sp.rect(0, h - 19, w - 1, h - 4, TIMBER[3])               # riser field
+    sp.rect(0, h - 19, w - 1, h - 19, TIMBER[2])              # top rail
+    for px2 in range(6, w - 20, 22):                          # beveled panels
+        sp.rect(px2, h - 16, px2 + 14, h - 7, TIMBER[2])
+        sp.rect(px2, h - 16, px2 + 14, h - 16, TIMBER[4])     # inset shadow
+        sp.rect(px2, h - 7, px2 + 14, h - 7, TIMBER[1])       # catch-light
+    sp.rect(0, h - 3, w - 1, h - 1, TIMBER[4])                # contact lip
+    edge(sp)
+    return sp
+
+
+def curtain_leg(w, h, red, salt=83):
+    """A theater-red gathered stage drape: one proscenium-height curtain leg
+    hanging from a brass rail nub down past the stage floor to a puddled
+    hem. Vertical fold bands (lit crests / violet-law valleys, hard CT
+    edges) with a mid-height sway crease. Emitted as a Tier-3 y-sorted
+    entity on its one solid map cell: the cell's south edge is the feet
+    line, so every body on the stage tuck row (node y below the leg's
+    origin) draws BEHIND it — the walk-on "appears from behind the
+    curtain," and the flee is swallowed back behind it."""
+    sp = S(w, h, salt)
+    # art inset 1px each side: sprite_img crops to (w, h), so the outline
+    # must land INSIDE the footprint or the east rim is cut off
+    # brass rail nub peeking over the gather
+    sp.rect(2, 0, w - 3, 1, BRASS[2])
+    sp.rect(2, 0, w - 3, 0, BRASS[1])
+    # gathered folds: narrow vertical bands — lit crests, violet valleys
+    fold = (0, 1, 2, 1, 3, 1, 0, 2, 1, 3, 2, 1)
+    for x in range(1, w - 1):
+        sp.rect(x, 2, x, h - 5, red[fold[(x * 3 // 4) % len(fold)]])
+    # the drape bellies at mid-height: one soft sway crease per third
+    for cx_ in (w // 4, w // 2, 3 * w // 4):
+        sp.rect(cx_, h // 2 - 5, cx_, h // 2 + 7, red[3])
+    # puddled hem: the fabric pools past the floor contact
+    sp.rect(1, h - 5, w - 2, h - 4, red[1])
+    sp.rect(1, h - 3, w - 2, h - 2, red[2])
+    sp.rect(1, h - 1, w - 2, h - 1, red[4])
+    edge(sp, h)
+    return sp
+
+
 def bench(w, h, salt=71):
     """A tiered lecture bench (the workbench counter-walk pattern): a plank
     seat + back on stout legs. Audience NPCs stand on the walkable row behind

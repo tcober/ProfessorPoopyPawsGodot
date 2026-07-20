@@ -3,7 +3,7 @@
 density (the CT-chunk restart): 48x48 cells, ~33px figure, flat 4-tone shading
 with hard band edges (Sprite jitter=0), every pixel deliberate.
 
-Writes assets/basil_gen.png (288x432, 48x48 cells, 6x9) matching
+Writes assets/basil_gen.png (288x480, 48x48 cells, 6x10) matching
 entities/player/player_frames.tres (FROZEN region contract — rows only ever
 APPEND, never reorder or widen):
 
@@ -15,7 +15,11 @@ APPEND, never reorder or widen):
   row8 (2026-07-17, the prologue staging pass): look_watch (wrist raised to
        Kitty's watch — every call beat plays this instead of a floating fx) +
        sit (side, the bluff-edge / clinic-steps pose) + bow_head (the slump
-       past sad) + knapsack stand + knapsack trudge x2 (the leaving)
+       past sad) + knapsack stand + knapsack trudge x2 (the leaving — a true
+       BINDLE on a stick since 2026-07-19)
+  row9 knapsack_back (the look-back) + defeat_walk x2 (the hall flee) +
+       knapsack_down stand + trudge x2 (2026-07-19 — the south-gate walk-out
+       faces the camera; the profile tweened south read as a sideways glide)
 
 Art contracts consumed by code: feet baseline y=44 (_core.ZONE_FEET); origin
 (24,24); in the leveled shoot frames the gun muzzle TIP sits exactly 16px from
@@ -42,7 +46,7 @@ from _core import write_cells, ZONE_CELL, ZONE_FEET
 from _sprites import Sprite, Rig
 from _palette import BASIL, ramp
 
-CELL, COLS, ROWS = ZONE_CELL, 6, 9
+CELL, COLS, ROWS = ZONE_CELL, 6, 10
 FEET = ZONE_FEET          # 44 — bottom row of the paw FILL (outline sits at 45)
 CX = 24
 HEM = 40                  # near-floor lab-coat hem — only paw TIPS peek below it,
@@ -78,8 +82,13 @@ GLASSD = (152, 178, 204, 255)
 WCASE  = (240, 188, 98, 255)      # brass watch case
 WFACE  = (150, 246, 190, 255)     # mint ward-glass face
 WSTRAP = (58, 134, 140, 255)      # teal strap
-STICKR = ramp((146, 94, 62), "violet", 4)     # bindle stick
-SACKR  = ramp((196, 140, 90), "violet", 4)    # burlap bindle sack
+# the leaving bundle: a hand-tuned burlap ramp. ramp()'s violet shadow law
+# swung this orange seed's darks into red/magenta (wrong for canvas), so the
+# tones are pinned warm tan->brown with only a faint cool lean in the core.
+SACKR = [(214, 188, 148, 255), (190, 150, 104, 255), (142, 100, 68, 255), (96, 62, 60, 255)]
+# the bindle STICK (2026-07-19): plain warm wood, darker than the burlap so
+# the pole separates from the sack it carries. Hand-pinned like SACKR.
+STICKR = [(186, 140, 92, 255), (152, 108, 66, 255), (114, 74, 48, 255), (80, 50, 38, 255)]
 
 OUTS = dict(BASIL["OUTS"])
 for _c in GUNPR:
@@ -730,9 +739,14 @@ def bow_head_down(s):
 
 
 def knapsack_side(s, step=0):
-    """The leaving: bindle stick over the shoulder, sack hanging behind,
-    facing RIGHT. step 0 = planted stand; 1/2 = a weary two-frame trudge
-    (tight stride, head a touch low — nothing jaunty about this walk)."""
+    """The leaving: a classic BINDLE — the tied bundle hung off a wood stick
+    carried over the back shoulder (2026-07-19: the stickless bundle read as
+    a lumpy raised ARM; the pole silhouette is the icon that says LEAVING).
+    The stick runs tip-to-grip in one line — the skull hides its middle (the
+    classic behind-the-head pass), the front end is redrawn over the coat
+    with the gripping paw below the chin. Facing RIGHT. step 0 = planted
+    stand; 1/2 = a weary two-frame trudge (tight stride, head a touch low —
+    nothing jaunty about this walk)."""
     strides = [((2, 0), (-1, 0), 0),
                ((-3, 0), (5, 1), -1),
                ((0, 1), (2, 0), -1)]
@@ -740,9 +754,14 @@ def knapsack_side(s, step=0):
     p = RIG_S.pose(skull=(0, bob + 1), coat=(0, bob), tail=(0, bob),
                    footF=(fA[0], -fA[1]), footB=(fB[0], -fB[1]))
     tail_side(s, p, 1)                                     # low tail
-    # the sack hangs off the stick's back end, behind the shoulder
-    s.ball(13, 17 + bob, 3.0, 2.6, SACKR, power=2.2, sh=0.10, wrap=0.16)
-    s.set(13, 14 + bob, STICKR[3])                         # neck knot
+    # the bundle swings HIGH off the stick's rear tip — above the head-top
+    # line, so the steep stick gets a long unbroken run against the sky
+    s.ball(9, 12 + bob, 3.6, 3.2, SACKR, power=2.2, sh=0.12, wrap=0.18)
+    # the full stick, tip to grip (body + head drawn later cover its middle)
+    s.capsule(6, 6 + bob, 30, 28 + bob, 1.1, 1.0, STICKR, sh=0.10)
+    # the gather ties the sack AROUND the stick — cloth wrapping wood
+    s.rect(7, 9 + bob, 11, 10 + bob, SACKR[2])             # cinch band
+    s.rect(8, 8 + bob, 10, 8 + bob, SACKR[1])              # gathered neck
     for (hip, foot, sh) in (("hipB", "footB", 0.16), ("hipF", "footF", 0.0)):
         hx, hy = p[hip]
         fx, fy = p[foot]
@@ -750,12 +769,106 @@ def knapsack_side(s, step=0):
         s.ball(fx + 0.5, fy + 0.6, 2.2, 1.7, WHITE, power=2.2, sh=sh * 0.4,
                wrap=0.10, curve=0.10)
     coat_side(s, bob)
-    # the stick: gripped at the chest, resting over the shoulder to the sack
-    s.capsule(26, 26 + bob, 14, 14 + bob, 1.0, 0.9, STICKR, sh=0.06)
-    s.ball(26.5, 26.5 + bob, 1.7, 1.5, WHITE, power=2.2, wrap=0.10)  # grip paw
+    # the arm holding it FIRST, then the stick's front end redrawn OVER the
+    # fist — the pole crossing the paw is what reads as a grip
+    s.capsule(23, 23 + bob, 26.5, 25 + bob, 1.7, 1.4, COATR, sh=0.12)  # sleeve forward
+    s.ball(27.5, 26 + bob, 1.6, 1.4, WHITE, power=2.2, sh=0.12, wrap=0.10)
+    s.capsule(25.5, 24 + bob, 30, 28 + bob, 1.1, 1.0, STICKR, sh=0.10)
     head_side(s, 0, bob + 1, "open", "up")
     finish(s)
-    whiskers_side(s, 0, bob + 1)
+    s.set(5, 5 + bob, STICKR[1])                           # tip pokes past the tie,
+    s.set(31, 29 + bob, STICKR[2])                         # butt pokes past the fist —
+    whiskers_side(s, 0, bob + 1)                           # post-finish pokes
+
+
+def knapsack_back(s):
+    """The look-back: Basil from BEHIND, the tied bundle on his back, turned to
+    face the town for the south-gate goodbye (2026-07-18). Static single frame —
+    the pack stays visible while he faces away up the road. 2026-07-19: the
+    bindle STICK tip pokes up past the shoulder beside the left ear (its length
+    hides behind the pack + head — the grip is on his far side)."""
+    p = RIG.pose(coat=(0, 0), shL=(0, 0), shR=(0, 0), handL=(0, 0), handR=(0, 0))
+    legs_down(s, p, heels=True)
+    coat_down(s, 0, back=True)
+    arms_down(s, p, 0, 0)
+    tail_up(s, 0)
+    # the stick first — pack + head cover all but the emerging tip
+    s.capsule(15.5, 9, 21, 26, 1.1, 1.0, STICKR, sh=0.10)
+    # the pack bulges on his back below the wide head (the head hides its top —
+    # the gather peeks out as a pinched pucker right under the nape)
+    s.ball(CX, 27, 5.2, 4.4, SACKR, power=2.2, sh=0.12, wrap=0.20)
+    head_up(s, 0)
+    finish(s)
+    s.rect(CX - 2, 25, CX + 2, 25, SACKR[2])              # the cinch pucker under the
+    s.set(CX, 26, SACKR[3])                               # nape, post-finish so
+    s.set(CX - 1, 26, SACKR[2])                           # despeckle keeps the pinch
+
+
+def knapsack_down(s, step=0):
+    """The south-gate walk-out FACING the camera (2026-07-19 — the leaving
+    used to tween south while playing the side profile and read as a sideways
+    GLIDE). The bindle stick rides his right shoulder: one continuous line
+    from the tip past the ear down along the coat shoulder to the grip paw at
+    the chest, the bundle hanging off the tie beside his head. step 0 = the
+    planted turn pose; 1/2 = the weary trudge pair — sad eyes, drooped ears:
+    the face the town finally doesn't see."""
+    lifts = [(0, 0, 0), (1, 0, -1), (0, 1, -1)]
+    liftL, liftR, bob = lifts[step]
+    p = RIG.pose(coat=(0, bob), tail=(0, bob), shL=(0, bob), shR=(0, bob),
+                 handL=(0, bob), handR=(0, bob))
+    # the bundle hangs behind his right shoulder (screen-left), tied to the
+    # stick where it crosses the silhouette into open sky
+    s.ball(11.5, 18 + bob, 3.4, 3.0, SACKR, power=2.2, sh=0.12, wrap=0.18)
+    tail_down(s, p, 0, 1)                                  # drooped flat
+    legs_down(s, p, liftL, liftR)
+    coat_down(s, bob)
+    # far (his left) sleeve hangs; the near arm folds up under the grip
+    sxr, syr = p["shR"]
+    hxr, hyr = p["handR"]
+    s.capsule(sxr, syr, hxr, hyr, 1.9, 1.6, COATR, sh=0.32)
+    s.ball(hxr, hyr + 1.6, 1.8, 1.5, WHITE, power=2.2, sh=0.16,
+           wrap=0.10, curve=0.10)
+    s.capsule(18, 23 + bob, 18.5, 24.5 + bob, 1.8, 1.5, COATR, sh=0.18)
+    s.ball(18.5, 25.5 + bob, 1.6, 1.4, WHITE, power=2.2, sh=0.12, wrap=0.10)
+    # ONE stick line drawn OVER the fist, tip to butt — sky-visible past the
+    # shoulder, crossing the paw at the chest (the pole through the hand is
+    # what reads as a grip; the head drawn later never reaches it)
+    s.capsule(11.5, 11 + bob, 20, 29 + bob, 1.1, 1.0, STICKR, sh=0.10)
+    s.rect(11, 14 + bob, 14, 15 + bob, SACKR[2])           # the gather at the tie
+    s.set(12, 13 + bob, SACKR[1])
+    head_down(s, 0, bob + 1, "sad", "droop")               # head a touch low
+    finish(s)
+    whiskers_down(s, 0, bob + 1)
+
+
+def defeat_side(s, step=1):
+    """The hall flee (2026-07-18): the knapsack trudge's weary stride,
+    empty-pawed and BOWED — head dropped onto the chest, ears swept back,
+    eyes shut, the near arm hanging dead down the coat front. Facing RIGHT
+    (flip_h trudges it west off the stage). Steps 1/2 pair into the 2-frame
+    `defeat_walk` clip, same cadence as knapsack_walk."""
+    strides = [((2, 0), (-1, 0), 0),
+               ((-3, 0), (5, 1), -1),
+               ((0, 1), (2, 0), -1)]
+    fA, fB, bob = strides[step]
+    p = RIG_S.pose(skull=(0, bob + 3), coat=(0, bob), tail=(0, bob),
+                   sh=(0, bob), hand=(0, bob),
+                   footF=(fA[0], -fA[1]), footB=(fB[0], -fB[1]))
+    tail_side(s, p, 1)                                     # dragging low
+    for (hip, foot, sh) in (("hipB", "footB", 0.16), ("hipF", "footF", 0.0)):
+        hx, hy = p[hip]
+        fx, fy = p[foot]
+        s.capsule(hx, hy + bob, fx, fy - 2, 2.1, 1.7, PANTR, sh=sh)
+        s.ball(fx + 0.5, fy + 0.6, 2.2, 1.7, WHITE, power=2.2, sh=sh * 0.4,
+               wrap=0.10, curve=0.10)
+    coat_side(s, bob)
+    sx, sy = p["sh"]                                       # dead-hanging sleeve
+    hxx, hyy = p["hand"]
+    s.capsule(sx, sy, hxx, hyy + 1, 1.8, 1.6, COATR, sh=0.28)
+    s.ball(hxx, hyy + 2.6, 1.8, 1.5, WHITE, power=2.2, wrap=0.10, curve=0.10)
+    head_side(s, 0, bob + 3, "closed", "back")             # bowed into the collar
+    finish(s)
+    whiskers_side(s, 0, bob + 3)
 
 
 # ---- build the sheet -------------------------------------------------------------------
@@ -828,5 +941,16 @@ sit_side(cells[8][1])
 bow_head_down(cells[8][2])
 for i in range(3):
     knapsack_side(cells[8][3 + i], i)
+
+# row 9 (2026-07-18): the south-gate look-back — Basil facing the town, pack
+# on his back, for the leaving goodbye. Single frame in col 0. Cols 1-2: the
+# hall-flee DEFEAT TRUDGE (head bowed, empty-pawed) — the `defeat_walk` pair.
+# Cols 3-5 (2026-07-19): knapsack_down turn pose + trudge pair — the gate
+# exit now walks TOWARD the camera instead of gliding south in profile.
+knapsack_back(cells[9][0])
+for i in (1, 2):
+    defeat_side(cells[9][i], i)
+for i in range(3):
+    knapsack_down(cells[9][3 + i], i)
 
 write_cells(os.path.join(HERE, "basil_gen.png"), cells, CELL)

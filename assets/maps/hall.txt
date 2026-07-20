@@ -1,19 +1,30 @@
-; The Alembic Academy lecture hall — Prologue B "the naming" (24x14 tiles,
-; 384x224 px; view clamps to 384x216). A 20-tile room in void (2-tile side
-; margins), the plum-panelled / rose-floor Academy palette. Restaged
-; 2026-07-17 as a STAGE lecture hall: the speaker's PODIUM (the lectern —
-; L one-row y-sorted entity, walkable l twins under its overhanging top
-; corners) stands front-CENTER on the dais line, dead ahead of the center
-; aisle and the doors, and Basil presents from the tuck row BEHIND it (the
-; desk idiom — the podium plane hides his legs). The JUDGING PANEL's long
-; desk (J, one-row y-sorted entity) flanks stage-west, the four professors
-; on the same row-3 stage line behind it. FRONT (north) wall: the great
-; CHALKBOARD (Q) with the RE-ENCHANTMENT thesis, tall windows (W) flanking.
-; GALLERY: two tiered rows of BENCHES (B solid base / E walkable top — the
-; counter-walk read, audience NPCs stand on E so their legs tuck under the
-; seat), packed three to a bench (aud_1..aud_12), all facing the stage. The
-; main DOORS (south wall, walkable -) are where Basil enters and slowly
-; walks himself back out of. Feature chars place props in
+; The Alembic Academy lecture hall — Prologue B "the naming" (24x18 tiles,
+; 384x288 px; the camera pans the 72px overflow, clamped to the map). A
+; 20-tile room in void (2-tile side margins), the plum-panelled / rose-floor
+; Academy palette. Restaged 2026-07-18 as a COLLEGE lecture hall with a
+; full STAGE: the whole north band (rows 3-4) is a raised platform closed
+; off by the STAGE APRON riser (D — a one-row y-sorted StageFront entity,
+; fully opaque across its footprint), so the stage is its own region: the
+; only ways on or off are the WINGS at its west end — Basil enters from
+; STAGE RIGHT (player_spawn, the west wing) and flees back out the same
+; wing when the laughing starts (wing_exit). The speaker's PODIUM (lectern
+; L, walkable l twins under its overhanging top corners) stands
+; front-CENTER, Basil presenting from the tuck row BEHIND it (the desk
+; idiom — the podium plane hides his legs). The JUDGING PANEL's desk (J,
+; one-row y-sorted entity) flanks stage-LEFT (east), the professors on the
+; tuck row behind it. FRONT (north) wall: the great CHALKBOARD (Q) with
+; the RE-ENCHANTMENT thesis, tall windows (W) flanking. THE HOUSE: three
+; TIERED rows of benches (B solid base / E walkable top — the counter-walk
+; read, audience NPCs stand on E so their legs tuck under the seat), three
+; to a bench, six benches, ALL FACING THE STAGE — the audience is rows of
+; BACKS (npc back cells, sheet cols 6-7). The south doors (-) are the
+; house's own; Basil never uses them now. STAGE DRESSING (2026-07-18, the
+; curtain pass): a theater-red WEST CURTAIN LEG (c — a y-sorted entity on
+; its one solid cell beside the wing, so a body on the tuck row is hidden
+; BEHIND it: Basil "appears from behind the curtain" walking on, and the
+; flee swallows him back behind it) + a scalloped VALANCE and a slim east
+; drape baked into the front-wall art (Tier 1 — the chalkboard stays
+; legible under the lobes). Feature chars place props in
 ; assets/_gen_tileset_hall.py; the same grid is the collision. Anchors put
 ; the cast where the cutscene needs them.
 legend V void solid
@@ -24,38 +35,51 @@ legend L lectern solid
 legend l lectern walk
 legend p picture solid
 legend P plant solid
+legend D dais solid
 legend B bench solid
 legend E benchtop walk
 legend J paneldesk solid
+legend c curtain solid
 legend . floor walk
 legend g rug walk
 legend - door walk
-anchor player_spawn 11 11
+anchor player_spawn 4 3
+anchor wing_exit 3 3
 anchor lectern_spot 11 3
-anchor judge_1 4 3
-anchor judge_2 6 3
-anchor judge_3 8 3
-anchor judge_4 9 3
-anchor schweinler_spot 16 8
-anchor door 11 11
-anchor aud_1 4 7
-anchor aud_2 6 7
-anchor aud_3 8 7
-anchor aud_4 12 7
-anchor aud_5 14 7
-anchor aud_6 16 7
-anchor aud_7 4 10
-anchor aud_8 6 10
-anchor aud_9 8 10
-anchor aud_10 12 10
-anchor aud_11 14 10
-anchor aud_12 16 10
+anchor judge_1 14 3
+anchor judge_2 16 3
+anchor judge_3 17 3
+anchor judge_4 18 3
+anchor schweinler_spot 18 8
+anchor door 11 15
+anchor aud_1 4 8
+anchor aud_2 6 8
+anchor aud_3 8 8
+anchor aud_4 12 8
+anchor aud_5 14 8
+anchor aud_6 16 8
+anchor aud_7 4 11
+anchor aud_8 6 11
+anchor aud_9 8 11
+anchor aud_10 12 11
+anchor aud_11 14 11
+anchor aud_12 16 11
+anchor aud_13 4 14
+anchor aud_14 6 14
+anchor aud_15 8 14
+anchor aud_16 12 14
+anchor aud_17 14 14
+anchor aud_18 16 14
 map
 VVVVVVVVVVVVVVVVVVVVVVVV
 VV####################VV
 VV#pWWW#QQQQQQ#WWWp##VVV
-VV#......g....g....P#VVV
-VV#JJJJJJJlLLl......#VVV
+VV#......g....g.....#VVV
+VV#c......lLLlJJJJJJ#VVV
+VV#DDDDDDDDDDDDDDDDD#VVV
+VV#................P#VVV
+VV#.BBBBB...BBBBB...#VVV
+VV#.EEEEE...EEEEE...#VVV
 VV#.................#VVV
 VV#.BBBBB...BBBBB...#VVV
 VV#.EEEEE...EEEEE...#VVV

@@ -111,7 +111,7 @@ func _mom_blessing() -> void:
 	_mom.play_idle()
 	await theater.say("Mom", "Oh, sweetheart. I heard about the square.")
 	player.sprite.play("sad")
-	await theater.say("Mom", "Listen to me. Sparks are common as dandelions.")
+	await theater.say("Mom", "Listen to me. Magic is common as dandelions.")
 	_mom.play_emote()
 	await theater.say("Mom", "You? You take things apart to see WHY. You put them back together BETTER. That is rarer than any ribbon trick.")
 	await theater.say("Basil", "...You have to say that. You're my mom.")

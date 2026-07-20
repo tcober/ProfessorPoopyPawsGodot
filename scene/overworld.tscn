@@ -62,6 +62,16 @@ target_scene = "res://scene/alembic_town.tscn"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Town"]
 shape = SubResource("RectangleShape2D_door")
 
+[node name="Lanternwood" type="Area2D" parent="Locations"]
+position = Vector2(312, 312)
+script = ExtResource("3_loc")
+id = "lanternwood"
+display_name = "LANTERNWOOD"
+target_scene = "res://scene/lanternwood.tscn"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Lanternwood"]
+shape = SubResource("RectangleShape2D_door")
+
 [node name="OverworldPlayer" parent="." instance=ExtResource("5_player")]
 
 [node name="TilesUpper" type="TileMapLayer" parent="."]

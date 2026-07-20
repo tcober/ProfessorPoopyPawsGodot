@@ -1,0 +1,68 @@
+; LANTERNWOOD - 44x28 tiles (704x448 px): Fuji's hometown, the winter
+; pine-forest town on the ice land - quaint log cabins with fire-lit
+; flickering windows and woodsmoke chimneys, nestled in deep blue-spruce
+; woods on a snow field. Shared source of truth: tiled by
+; assets/_gen_tileset_lanternwood.py on the shared OverWorld driver (pines
+; border = the new pines class, lanes = the trail painter with road_verge
+; "snow", pond = WALKABLE pond cells under a baked Tier-1 ice prop - never
+; sea/river, those animate), collision/markers by scene/lanternwood.gd.
+; Cabins span roof+body char pairs (all solid, footprint bbox + collision
+; only - the whole cabin is a Tier-3 y-sorted 4-frame sheet). Standalone
+; conifers alternate Y/y so adjacent 2x4 blocks stay separate components.
+; The south gate lane exits to the overworld at Lanternwood's icon marker.
+
+legend # pines solid
+legend . snow walk
+legend - road walk
+legend D door walk
+legend o pond walk
+legend k libraryroof solid
+legend K librarybody solid
+legend q fujiroof solid
+legend Q fujibody solid
+legend w cabAroof solid
+legend W cabAbody solid
+legend e cabBroof solid
+legend E cabBbody solid
+legend z cabCroof solid
+legend Z cabCbody solid
+legend Y conifer solid
+legend y conifer2 solid
+legend l snowlamp solid
+legend L snowlamp walk
+anchor player_start 21 24
+anchor exit_south 21 26
+anchor library 20 9
+anchor fuji_home 10 15
+anchor cabin_a 31 13
+anchor cabin_b 32 20
+anchor cabin_c 15 22
+map
+############################################
+############################################
+##########################yy################
+#######.....#...........#.yy########YY######
+####YY............kkkkkk..yy#.######YY######
+###.YY............kkkkkk.#yy##......YY..####
+####YY###.........kkkkkk..###.......YY..####
+####YY####........KKKKKK................####
+####.#####........KKKKKK...............#####
+####.#####..........D........wwwww..###.####
+####..###...........-........wwwww.#########
+###.....qqqqq.......-........WWWWW.#########
+###.....qqqqq.....L.-........WWWWW.#####.###
+###yy...QQQQQ.....l.-oooo......D....###..###
+###yy...QQQQQ.......-oooo-------.......YY###
+###yy.....D.........-oooo..............YY###
+###yy.....-------...-.--..L...eeeee....YY###
+####............-------...l...eeeee....YY###
+####..#......zzzzz.---........EEEEE....#####
+#########....zzzzz..--........EEEEE..#######
+###.#####....ZZZZZ...-..........D...########
+###.#####....ZZZZZ...------------...########
+#.....#........D.--..-...yy.........########
+####.YY........---.L.-..Lyy.........yy######
+#####YY............l.-..lyy.........yy######
+#####YY########......-...yy.########yy######
+#####YY##########.#..-....##########yy######
+############################################

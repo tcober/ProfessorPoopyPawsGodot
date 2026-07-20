@@ -4,16 +4,19 @@ extends TravelScene
 ## four flag-driven phases dressed by a CanvasModulate tint (the tint law: one
 ## painting, never a repaint), routed by Game.town_thesis_phase:
 ##   plant    (night)   SEMI-PLAYABLE: the Academy stair -> the player's own
-##                      walk home past Kitty's shuttered stall -> the doorstep
+##                      walk home through the sleeping town -> the doorstep
 ##                      bookend watch call -> Schweinler leaves the bag ->
 ##                      house_thesis
-##   dash     (morning) the SQUELCH, the paw-print dash across town,
-##                      Kitty's broken-axle stall cameo, reach the Academy ->
+##   dash     (morning) the step ONTO the bag is SHOWN, then the SQUELCH and
+##                      the paw-print dash across town to the Academy ->
 ##                      hall (the dusk calls now play on the BLUFF —
-##                      scene/bluff.gd "call1"/"call2" bracket the accident)
+##                      scene/bluff.gd "call1"/"call2" bracket the accident;
+##                      Kitty is absent: her wheel workshop is off-screen,
+##                      the busted-axle excuse lands in the bluff's call1)
 ##   steps    (dusk)    out of the doctor's door onto the clinic steps —
 ##                      Ridley's blunt "perspective," the bowed head, then
-##                      the night leaving (stick + knapsack, east) -> the
+##                      the night leaving (the bindle tableau, the look-back,
+##                      the south trudge out the gate) -> the
 ##                      closing cards and the hand-off to the adult build
 ## Rides the festival town's map + tiles (same era-frozen village); this is the
 ## same day the festival palette shows, just tinted by hour.
@@ -25,10 +28,13 @@ const NPCScene := preload("res://entities/npcs/npc.tscn")
 const FX_SHEET := preload("res://assets/prologue_fx.png")
 const SHEET_SCHW := preload("res://assets/npc_schweinler_adult_gen.png")
 const SHEET_BADGER := preload("res://assets/npc_badger_gen.png")
-const SHEET_KITTY_ADULT := preload("res://assets/npc_kitty_adult_gen.png")
 
 const FX_BAG := 10
 const FX_PRINT := 11
+## Where Schweinler leaves the bag and where Basil steps on it — ONE spot
+## (the doorstep lane, just south of the door arch), relative to the "home"
+## anchor: the morning bag must sit exactly where the night phase left it.
+const BAG_OFF := Vector2(0.0, 38.0)
 
 const TINT_NIGHT := Color(0.42, 0.40, 0.66)
 const TINT_MORNING := Color(0.98, 0.93, 0.86)
@@ -62,7 +68,9 @@ func _place_player() -> void:
 		phase = "plant"
 	match phase:
 		"dash":
-			Party.place(MapData.anchor_px(map, "home") + Vector2(0.0, 24.0))
+			# ON the door marker (the door-mouth convention) — the walk onto
+			# the bag below needs the step south to be visible
+			Party.place(MapData.anchor_px(map, "home"))
 		"steps":
 			Party.place(MapData.anchor_px(map, "cottage_e"))
 		_:
@@ -90,13 +98,12 @@ func _phase_plant() -> void:
 	theater.lock_party()
 	# the night before, PLAYABLE (2026-07-16): Basil has been prepping the
 	# hall all evening; the walk home through the sleeping town is the
-	# player's own, past Kitty's shuttered stall, down to the doorstep call
+	# player's own, down to the doorstep call
 	theater.face(player, Vector2.DOWN)
 	await theater.wait(ENTRY_FADE + 0.4)
 	await theater.say("Basil", "Notes stacked. Chalk lined up. Diagrams pinned STRAIGHT. Nothing left to fuss with.")
 	await theater.say("Basil", "Home. Sleep. Tomorrow I become a professor.")
 	theater.close_dialog()
-	_arm_stall_night()
 	_show_banner("HOME - GET SOME SLEEP", BANNER_HOLD)
 	await theater.walk_gate(MapData.anchor_px(map, "home") + Vector2(0.0, 26.0),
 			Vector2(40.0, 24.0))
@@ -107,10 +114,10 @@ func _phase_plant() -> void:
 	player.sprite.play("look_watch")
 	await theater.wait(0.5)
 	await theater.say("Kitty", "Say it again. One more time. I want to hear it.")
-	await theater.say("Basil", "...Tomorrow I present my thesis. Not one spark to my name, and they still have to hand me the robes.")
+	await theater.say("Basil", "...Tomorrow I present my thesis. Not one drop of magic to my name, and they still have to hand me the robes.")
 	await theater.say("Kitty", "Because you EARNED them. Every wiggle-fingers in that hall calls your work 'potions.' Let them. You and I know what it really is.")
 	await theater.say("Basil", "Chemistry. Measured, repeatable, REAL. ...Say THAT part again tomorrow if I wobble.")
-	await theater.say("Kitty", "Front row, center. Stall closes early. The whooping is PREPARED.")
+	await theater.say("Kitty", "Front row, center. I'll shut the workshop early. The whooping is PREPARED.")
 	await theater.say("Basil", "Please don't whoop. ...The watch you made me says it's past midnight, you know.")
 	await theater.say("Kitty", "That watch keeps PERFECT time. It's the cat wearing it who runs late. Bed! You'll be brilliant tomorrow - you always are, once you stop being scared.")
 	await theater.say("Basil", "...Goodnight, Kitty.")
@@ -121,7 +128,9 @@ func _phase_plant() -> void:
 	player.visible = false            # inside; the yard goes quiet
 	await theater.wait(0.8)
 	var schw: NPC = _npc("Schweinler", SHEET_SCHW, 6, MapData.anchor_px(map, "exit_south"))
-	await theater.say("", "The town sleeps. A shape creeps up to Basil's door.")
+	# no narrator over the creep (the 2026-07-18 purge): the sleeping town
+	# holds a quiet beat, then the shape slinks the lanes on its own
+	await theater.wait(1.0)
 	# theater walks are straight no-collision tweens — creep the LANES (up
 	# the gate road, around the fountain's west ring, west down the main
 	# lane), never the diagonal through the shop blocks
@@ -132,9 +141,9 @@ func _phase_plant() -> void:
 			Vector2(168.0, 312.0),
 			MapData.anchor_px(map, "home") + Vector2(0.0, 26.0)], 44.0)
 	schw.play_idle()
-	# the bag
-	var bag := _fx_at(FX_BAG, MapData.anchor_px(map, "home") + Vector2(0.0, 18.0))
-	await theater.say("Schweinler", "Heh heh heh. A little CONGRATULATIONS for the sparkless wonder and his little POTIONS.")
+	# the bag — dropped at BAG_OFF, right where the morning step will land
+	var bag := _fx_at(FX_BAG, MapData.anchor_px(map, "home") + BAG_OFF)
+	await theater.say("Schweinler", "Heh heh heh. A little CONGRATULATIONS for the no-magic wonder and his little POTIONS.")
 	schw.play_emote()
 	await theater.say("Schweinler", "Enjoy your big lecture tomorrow, Basil. Oink - hahaha!")
 	await theater.walk_via(schw, [
@@ -156,18 +165,26 @@ func _phase_dash() -> void:
 	tint.color = TINT_MORNING
 	theater.lock_party()
 	theater.face(player, Vector2.DOWN)
+	# the bag is already THERE — planted last night, waiting through the line
+	var bag := _fx_at(FX_BAG, MapData.anchor_px(map, "home") + BAG_OFF)
 	await theater.wait(ENTRY_FADE + 0.3)
 	await theater.say("Basil", "The lecture! I OVERSLEPT! First lecture as a professor and I overslept!")
-	# the squelch
-	var bag := _fx_at(FX_BAG, player.global_position + Vector2(0.0, 10.0))
-	await theater.wait(0.3)
-	await theater.say("", "*SQUELCH.*")
+	# the step is SHOWN: he bolts south, straight onto it (the box stays OPEN
+	# across the walk — the probe's dialog-closed predicate must not flip
+	# before the squelch)
+	await theater.walk(player, MapData.anchor_px(map, "home") + Vector2(0.0, 22.0), 72.0)
+	# the squelch is PLAYED, not narrated (2026-07-18): the landing hop is
+	# the flinch off the bag, and his own line names what his paw just learned
 	await theater.hop(player, 6.0)
+	await theater.say("Basil", "Ew. EW. Squishy. Why was that SQUISHY?!")
 	await theater.say("Basil", "...I do not have time to think about what that was.")
 	await theater.say("Basil", "Gotta go gotta go GOTTA GO!")
-	bag.queue_free()
 	theater.close_dialog()
-	_spawn_stall_kitty()
+	# the bag lingers a beat underfoot and fades, instead of blinking away
+	var btw := bag.create_tween()
+	btw.tween_interval(0.4)
+	btw.tween_property(bag, "modulate:a", 0.0, 0.9)
+	btw.tween_callback(bag.queue_free)
 	_dashing = true
 	theater.unlock_party()
 	_show_banner("GET TO THE ACADEMY", BANNER_HOLD)
@@ -217,9 +234,10 @@ func _drop_print(pos: Vector2) -> void:
 ## The clinic-steps ending (2026-07-17): Basil gets six steps out of the
 ## doctor's door and folds onto the stoop. Ridley finds him there, says the
 ## blunt thing, and leaves — Basil barely speaks; the bowed head says it.
-## Then the cut: the town's east lane at night, a stick and a knapsack, and
-## he walks out of the story. Fully scripted on purpose — the user's agency
-## spent itself at the sickroom door; this part just happens TO him.
+## Then the cut: the south gate at night — the knapsack, one look back at the
+## town, the goodbye he owes nobody, and he walks out of the story. Fully
+## scripted on purpose — the user's agency spent itself at the sickroom door;
+## this part just happens TO him.
 
 func _phase_steps() -> void:
 	tint.color = TINT_DUSK
@@ -229,8 +247,8 @@ func _phase_steps() -> void:
 	Party.place(MapData.anchor_px(map, "cottage_e"))
 	player.sprite.play("sad")
 	await theater.wait(ENTRY_FADE + 0.4)
-	await theater.say("", "He makes it exactly six steps past the door.")
-	theater.close_dialog()
+	# no "six steps" narrator (2026-07-18) — the six steps are just WALKED,
+	# slow, and then his legs quit
 	await theater.walk(player, MapData.anchor_px(map, "cottage_e") + Vector2(4.0, 14.0), 26.0)
 	player.sprite.play("sit")             # down onto the clinic steps
 	player.sprite.flip_h = false          # profile east, where the lane runs
@@ -267,80 +285,44 @@ func _phase_steps() -> void:
 	_leaving()
 
 
-## The cut: the east lane at night. A stick, a knapsack, and out of town.
+## The cut: the south gate at night. A knapsack over his shoulder, one look
+## back at the town (2026-07-18 — restaged from the east lane), and out.
 func _leaving() -> void:
-	Party.place(Vector2(520.0, 312.0))    # the east lane, before the bridge
+	Party.place(Vector2(440.0, 460.0))    # the central road, just inside the gate
 	player.sprite.play("knapsack")
-	player.sprite.flip_h = false          # facing east — the way he'll walk
+	player.sprite.flip_h = false          # profile: the held tableau
 	await theater.clear(1.2)
-	await theater.wait(1.8)               # the tableau holds: hitchhiker Basil
-	player.sprite.play("knapsack_walk")
+	await theater.wait(1.8)               # the tableau holds: knapsack Basil
+	# the look back: he turns to face the town he's leaving
+	player.sprite.play("knapsack_back")
+	player.sprite.flip_h = false
+	await theater.wait(1.2)
+	await theater.say("Basil", "...Goodbye.")
+	await theater.say("Basil", "I would have loved being yours. Your chemist. Your neighbor. Anything.")
+	await theater.say("Basil", "I wish I could have been welcome here.")
+	theater.close_dialog()
+	await theater.wait(1.0)
+	# then he turns away and trudges out the lamp-flanked gate — the turn is a
+	# beat of profile, then the SOUTH-facing trudge (2026-07-19: the walk used
+	# to play the side clip while tweening south and read as a sideways glide)
+	player.sprite.play("knapsack")
+	player.sprite.flip_h = false
+	await theater.wait(0.5)               # the turn: a profile flash...
+	player.sprite.play("knapsack_walk_down")   # ...then face down the road
 	var walk := create_tween()
 	walk.tween_property(player, "global_position",
-			Vector2(770.0, 312.0), 5.0)   # east, over the bridge, gone
-	await theater.wait(3.4)
+			Vector2(440.0, 545.0), 4.6)   # south, through the gate mouth, gone
+	await theater.wait(2.8)
 	await theater.black(1.6)
 	if walk.is_running():
 		walk.kill()
-	await theater.card("The laughter followed him to the town line.  He did not go back.", 2.6)
-	await theater.card("He stopped going anywhere at all.", 2.2)
-	await theater.card("He kept the watch.", 1.8)
+	# one TIME card only (the 2026-07-18 card purge — the hermit years and
+	# the kept watch are shown by the adult build itself: the shut-in house,
+	# the mantel whirligig, look_watch)
 	await theater.card("YEARS LATER.", 2.0)
 	Game.set_flag("prologue_done")
 	Party.set_roster([&"basil", &"fuji"], &"basil")
 	get_tree().change_scene_to_file("res://scene/house.tscn")
-
-
-# ---- Kitty's stall (2026-07-16 Kitty thread) ---------------------------------------
-## The fountain-rim stall is canonically HERS in the college era. Night
-## before: shuttered, an optional pass-by line on the walk home. Thesis
-## morning: she's wrestling a broken cart axle as Basil tears past — the
-## mundane, maker-shaped reason the front-row promise breaks (she never
-## sees the naming; the dusk call's "she didn't see it" hangs on this).
-
-func _stall_center() -> Vector2:
-	return MapData.bbox_rect(map, "m").get_center()
-
-
-func _arm_stall_night() -> void:
-	var zone := _stall_zone(40.0)
-	zone.body_entered.connect(func(body: Node2D) -> void:
-		if not body.is_in_group("player") or zone.get_meta("done", false) \
-				or _busy:
-			return
-		zone.set_meta("done", true)
-		theater.lock_party()
-		await theater.say("Basil", "Her stall's shut up for the night. Good. Front row tomorrow, she said - she'd better be asleep too.")
-		theater.close_dialog()
-		theater.unlock_party())
-
-
-func _spawn_stall_kitty() -> void:
-	var kitty := _npc("Kitty", SHEET_KITTY_ADULT, 6,
-			_stall_center() + Vector2(0.0, 20.0))
-	kitty.play_act()                  # hunched over the axle
-	var zone := _stall_zone(48.0)
-	zone.body_entered.connect(func(body: Node2D) -> void:
-		if not body.is_in_group("player") or zone.get_meta("done", false):
-			return
-		zone.set_meta("done", true)
-		kitty.play_emote()
-		_show_banner("KITTY: STUPID AXLE! GO GO GO - YOU'RE LATE!!", BANNER_HOLD))
-
-
-func _stall_zone(radius: float) -> Area2D:
-	var zone := Area2D.new()
-	zone.collision_layer = 0
-	zone.collision_mask = 2
-	var shape := CollisionShape2D.new()
-	var circle := CircleShape2D.new()
-	circle.radius = radius
-	shape.shape = circle
-	zone.add_child(shape)
-	zone.position = _stall_center()
-	zone.set_meta("done", false)
-	add_child(zone)
-	return zone
 
 
 # ---- helpers ----------------------------------------------------------------------

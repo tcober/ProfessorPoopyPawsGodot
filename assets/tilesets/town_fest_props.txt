@@ -6,9 +6,11 @@ prop Academy kK6 town_fest_academy.png hframes=4
 prop Weapons xX7 town_fest_weapons.png hframes=4
 prop Items pP8 town_fest_items.png hframes=4
 prop Inn nN9 town_fest_inn.png hframes=4
-prop Fountain oO town_fest_fountain.png
+prop Fountain oO town_fest_fountain.png hframes=4
 prop Well uU town_fest_well.png
 prop Lamp lL town_fest_lamp.png each
 prop Stall m town_fest_stall.png
+prop Fence F town_fest_fence.png each
+prop FenceLong G town_fest_fencelong.png
 prop TreeTrunk Tt^ town_fest_treetrunk.png each
 prop TreeCrown Tt^ town_fest_treecrown.png anchor=top:0 base_inset=-16 each

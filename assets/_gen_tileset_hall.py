@@ -18,7 +18,8 @@ from _palette import ramp
 from _tilekit import sprite_img
 from _interior import Room, weave_px, TIMBER, BRASS, T
 from _interior_props import (window, rug, framed_picture, potted_plant,
-                             chalkboard, lectern, bench, desk)
+                             chalkboard, lectern, bench, desk, stage_front,
+                             curtain_leg)
 
 # rose floor lit toward a soft chalk-mint (the board's ward-light spills onto
 # the front of the hall)
@@ -28,6 +29,7 @@ room = Room("hall", "hall", weave_px, (150, 240, 214), floor_chars=".g",
 CHALK = [(214, 246, 236, 255), (150, 240, 214, 255),
          (96, 196, 176, 255), (60, 140, 128, 255)]     # chalk-mint ramp
 RUGB = ramp((92, 52, 108), "violet", 6)                # deep plum dais runner
+CURT = ramp((152, 38, 54), "violet", 5)                # theater-red curtain
 GLASSD = [(206, 232, 240, 255), (170, 206, 224, 255), (150, 176, 206, 255),
           (120, 140, 178, 255), (86, 100, 148, 255)]   # cool daylit glass
 
@@ -35,10 +37,11 @@ BOARD = room.bbox("Q")
 LECT = room.bbox("Ll")                 # the full footprint incl. walkable corners
 FR = room.FLOOR_ROW
 
-# whole-tile light: a lit dais row under the board (the fringe dither reads as
-# a harsh checkerboard on the dark rose floor at this palette, so skip it —
-# the additive glow carries the soft edge instead)
-room.lit_cells = {(c, FR) for c in range(LECT[0] - 1, LECT[2] + 2)}
+# whole-tile light: the STAGE's whole tuck row is lit (the 2026-07-18 college
+# restage — the raised platform reads brighter than the house; the fringe
+# dither reads as a harsh checkerboard on the dark rose floor at this
+# palette, so skip it — the additive glow carries the soft edge instead)
+room.lit_cells = {(c, FR) for c in range(4, 19)}
 room.fringe_cells = set()
 room.shadow_rows = (room.bbox("#")[3] - 1,)
 
@@ -79,12 +82,64 @@ room.bake_shadow("Ll", 3)
 room.emit_prop("Lectern", "Ll", sprite_img(lectern(64, 32), 64, 32))
 room.bake_shadow("BE", 3, each=True)   # four benches — never the merged bbox
 room.emit_prop("Bench", "BE", sprite_img(bench(80, 32), 80, 32), each=True)
-# the judging panel's long desk on the dais east flank: a one-row solid
-# footprint, the desktop plane rising into open row 3 where the four
+# the judging panel's long desk on the stage's EAST flank (stage left —
+# the west wing stays clear for Basil's stage-right entrance): a one-row
+# solid footprint, the desktop plane rising into open row 3 where the four
 # professors stand — their legs tuck behind it (the desk() entity idiom);
 # the lamp flame burns chalk-mint, the Academy's ward-light
 room.bake_shadow("J", 3)
-room.emit_prop("PanelDesk", "J", sprite_img(desk(112, 32, CHALK), 112, 32))
+room.emit_prop("PanelDesk", "J", sprite_img(desk(96, 32, CHALK), 96, 32))
+# the stage apron: the riser face closing the platform's south edge (the
+# college restage) — one full-width y-sorted entity over the solid D row,
+# opaque across its footprint (the T3 coverage rule)
+room.bake_shadow("D", 3)
+room.emit_prop("StageFront", "D", sprite_img(stage_front(272, 32), 272, 32))
+# the WEST CURTAIN LEG (the 2026-07-18 curtain pass): a proscenium-height
+# drape on its one solid c cell beside the wing — y-sorted, so a body on
+# the tuck row hides BEHIND it (the walk-on/flee "behind the curtain"
+# read). No bake_shadow: its contact row is covered by the opaque
+# StageFront entity, so a baked band would only split dais tiles for
+# pixels nobody ever sees.
+room.emit_prop("CurtainWest", "c", sprite_img(curtain_leg(24, 64, CURT), 24, 64))
+
+
+def _stage_dressing():
+    """Proscenium dressing baked into the FRONT-WALL art (Tier 1: every
+    painted pixel sits over solid wall rows a body can never cross, so the
+    lower layer is correct — and unlike upper-layer art it can never occlude
+    a head on the tuck row). A scalloped theater-red VALANCE runs the full
+    stage opening with a brass fringe tracing the lobes — drawn AFTER the
+    place() calls so it hangs over the chalkboard/window top frames (the
+    board's title, y>=38, stays legible) — and a slim gathered EAST DRAPE
+    drops down the east wall column (the judges' desk runs to the wall, so
+    no floor cell is free for a real leg there; the west leg is the
+    y-sorted CurtainWest entity instead)."""
+    bg = room.bg
+    x0, x1 = 3 * T, 20 * T - 1                       # the stage opening
+    bg.rect(x0, 16, x1, 26, CURT[1])                 # the straight band
+    bg.rect(x0, 16, x1, 17, CURT[0])                 # lit top roll
+    bg.rect(x0, 26, x1, 26, CURT[3])
+    for fx in range(x0 + 4, x1, 8):                  # gather ticks
+        bg.rect(fx, 19, fx, 25, CURT[3 if (fx // 8) % 2 else 2])
+    lobe = (1, 3, 5, 6, 7, 7, 8, 8, 8, 8, 7, 7, 6, 5, 3, 1)
+    for sx in range(x0, x1, 16):                     # scallop lobes + fringe
+        for dx in range(16):
+            x = sx + dx
+            if x > x1:
+                break
+            bg.rect(x, 27, x, 27 + lobe[dx], CURT[2])
+            bg.put(x, 27 + lobe[dx], CURT[4])        # shaded under-curl
+            bg.put(x, 28 + lobe[dx], BRASS[2])       # the fringe line
+    ex0, ex1 = 20 * T + 1, 20 * T + 13               # the east drape strip
+    fold = (1, 2, 1, 3, 2, 1, 2, 3, 1, 2, 1, 3, 2)
+    for x in range(ex0, ex1 + 1):
+        bg.rect(x, 18, x, 71, CURT[fold[(x - ex0) % len(fold)]])
+    bg.rect(ex0, 16, ex1, 17, CURT[0])               # lit top roll
+    bg.rect(ex0, 72, ex1, 73, CURT[3])               # hem
+    bg.rect(ex0, 74, ex1, 75, CURT[4])
+
+
+_stage_dressing()
 
 
 def _glow(img):

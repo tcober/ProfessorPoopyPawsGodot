@@ -1,19 +1,20 @@
 extends SceneTree
 
 ## Prologue A end-to-end probe (2026-07-12), in the party_probe tradition:
-## drives the whole "Sparkless" chapter with synthesized POLLED input
+## drives the whole "Whirligig" chapter with synthesized POLLED input
 ## (actions only exist in the polled state — the shot.gd gotcha) and asserts
 ## the story flags flip in order:
 ##
 ##   home start (bedroom -> Mom gates the front door) -> the fountain
 ##   proximity trigger fires the teasing -> 3 villager talks open the gate ->
-##   meadow -> meeting Kitty -> 3 whirligig parts -> flight finale ->
-##   montage -> the SUNSET BLUFF romance (the watch explodes, 3 pieces, the
-##   refit + the kiss, 2026-07-17) -> Prologue B: plant's walk home ->
-##   the dash -> the hall naming (auto walk-of-shame) -> bluff call1 ->
-##   the accident (loop-and-land) -> bluff call2 -> the sickroom verdict ->
-##   the clinic-steps scolding + the scripted leaving -> hand-off to
-##   house.tscn with the adult roster.
+##   the BLUFF meet (2026-07-18: the meadow scene was cut — kid Basil meets
+##   Kitty on the headland) -> 3 whirligig parts -> flight finale ->
+##   montage -> the same bluff reloads as the SUNSET ROMANCE (the watch
+##   explodes, 3 pieces, the refit + the kiss) -> Prologue B: plant's walk
+##   home -> the dash -> the hall naming (auto walk-of-shame) -> bluff
+##   call1 -> the accident (loop-and-land) -> bluff call2 -> the sickroom
+##   verdict -> the clinic-steps scolding + the scripted leaving -> hand-off
+##   to house.tscn with the adult roster.
 ##
 ## Walk-gates are driven by TELEPORTING to the gate anchor; their pollable
 ## end-states are the party unlock (is_physics_processing) or a flag.
@@ -211,41 +212,40 @@ func _run() -> void:
 	_check("the front door returns to town, gate open", ok)
 	await _wait_frames(40)
 
-	# ---- south to the meadow ----------------------------------------------
+	# ---- south to the bluff meet (2026-07-18: the meadow was cut) -----------
 	_player().global_position = MapData.anchor_px(town_map, "exit_south")
-	var in_meadow := func() -> bool: return _scene_is("res://scene/meadow_fest.tscn")
-	ok = await _mash_until(in_meadow, 1200)
-	_check("south gate travels to the prologue meadow", ok)
-	await _wait_frames(60)                # entry fade + lock
+	var in_bluff := func() -> bool: return _scene_is("res://scene/bluff.tscn")
+	ok = await _mash_until(in_bluff, 1200)
+	_check("south gate travels to the bluff meet", ok)
+	await _wait_frames(60)                # fade + lock
 
 	# ---- meeting Kitty ------------------------------------------------------
-	var meadow := current_scene
-	var meadow_map: Dictionary = MapData.load_map("res://assets/maps/meadow.txt")
-	_player().global_position = MapData.anchor_px(meadow_map, "kitty_pos") + Vector2(0.0, 40.0)
+	var bluff1 := current_scene
+	var bluff_map: Dictionary = MapData.load_map("res://assets/maps/bluff.txt")
+	_player().global_position = MapData.anchor_px(bluff_map, "kitty_pos") + Vector2(0.0, 40.0)
 	var met_kitty := func() -> bool: return game.flag("prologue_met_kitty")
 	ok = await _mash_until(met_kitty, 4000)
 	_check("meeting Kitty starts the quest", ok)
-	var box_closed := func() -> bool: return not meadow.theater.dialog.visible
+	var box_closed := func() -> bool: return not bluff1.theater.dialog.visible
 	ok = await _mash_until(box_closed, 1200)
 	await _wait_frames(30)
 
 	# ---- the three parts ----------------------------------------------------
 	for part in ["gear", "spring", "crank"]:
-		_player().global_position = MapData.anchor_px(meadow_map, "part_" + part)
+		_player().global_position = MapData.anchor_px(bluff_map, "part_" + part)
 		var found := func() -> bool: return game.flag("prologue_part_" + part)
 		ok = await _mash_until(found, 900)
 		_check("part found: " + part, ok)
 		ok = await _mash_until(box_closed, 1200)
 		await _wait_frames(20)
 
-	# ---- the flight finale + montage -> the sunset bluff ---------------------
-	_player().global_position = MapData.anchor_px(meadow_map, "kitty_pos") + Vector2(0.0, 40.0)
-	var sparkless_done := func() -> bool: return game.flag("prologue_sparkless_done")
-	ok = await _mash_until(sparkless_done, 9000)
+	# ---- the flight finale + montage -> the same bluff, years later ----------
+	_player().global_position = MapData.anchor_px(bluff_map, "kitty_pos") + Vector2(0.0, 40.0)
+	var whirligig_done := func() -> bool: return game.flag("prologue_whirligig_done")
+	ok = await _mash_until(whirligig_done, 9000)
 	_check("Prologue A flight finale + montage complete", ok)
-	var in_bluff := func() -> bool: return _scene_is("res://scene/bluff.tscn")
 	ok = await _mash_until(in_bluff, 1200)
-	_check("A hands off to the sunset bluff", ok)
+	_check("A hands off to the sunset romance", ok)
 	_check("swapped to the student roster", party.roster.size() == 1
 			and party.roster[0] == &"basil_student")
 	await _wait_frames(30)
@@ -260,7 +260,6 @@ func _run() -> void:
 	_check("the exploded watch hands over the hunt", ok)
 	await _wait_frames(20)
 	# pieces by ANCHOR, never re-hardcoded pixels (the 2026-07-17 review)
-	var bluff_map: Dictionary = MapData.load_map("res://assets/maps/bluff.txt")
 	for part in ["gear", "spring", "crank"]:
 		_player().global_position = MapData.anchor_px(bluff_map, "part_" + part)
 		await _wait_frames(12)
@@ -311,13 +310,16 @@ func _run() -> void:
 	_check("wake-up -> the dash", ok)
 	await _wait_frames(40)
 
-	# dash: mash the squelch, then run to the school -> hall
-	# (town_map was loaded earlier for the wander gate — reuse it)
+	# dash: mash the squelch beat, then run to the school -> hall
+	# (town_map was loaded earlier for the wander gate — reuse it).
+	# End-state is _dashing, never dialog-invisible: the box is also hidden
+	# through the opening entry-fade wait, which read as "done" before the
+	# beat began — the teleport then raced the 2026-07-18 walk-onto-the-bag
+	# tween, which dragged the body back off the late-spawned school goal.
 	var dash := current_scene
-	var dash_closed := func() -> bool: return not dash.theater.dialog.visible
-	ok = await _mash_until(dash_closed, 4000)     # squelch beat
+	var dashing := func() -> bool: return dash._dashing
+	ok = await _mash_until(dashing, 4000)         # squelch beat
 	await _wait_frames(20)
-	# cross the puddles (stepping in clears them too) up to the school
 	_player().global_position = MapData.anchor_px(town_map, "school") + Vector2(0.0, 40.0)
 	var in_hall := func() -> bool: return _scene_is("res://scene/hall.tscn")
 	ok = await _mash_until(in_hall, 5000)
@@ -329,9 +331,13 @@ func _run() -> void:
 	# call1. The walk-in gate unlocks the party (the pollable state).
 	ok = await _mash_until(_party_free, 2400)
 	_check("the Dean's welcome hands over the walk-in", ok)
-	# the walk-in gate is the full-width row below the benches (y 136), not
-	# the podium point — land inside the band
-	_player().global_position = Vector2(192.0, 136.0)
+	# the walk-in gate is the band across the stage rows just west of the
+	# podium (2026-07-18: the wing corridor is the only route onto the
+	# stage) — land inside it, derived from the map, never re-hardcoded
+	var hall_map: Dictionary = MapData.load_map("res://assets/maps/hall.txt")
+	_player().global_position = Vector2(
+			MapData.bbox_rect(hall_map, "L").position.x - 24.0,
+			MapData.anchor_px(hall_map, "lectern_spot").y + 8.0)
 	var named := func() -> bool: return game.flag("prologue_named")
 	ok = await _mash_until(named, 6000)
 	_check("the naming beat completes", ok)
@@ -364,8 +370,9 @@ func _run() -> void:
 	await _wait_frames(40)
 
 	# steps: fully scripted (the agency spent itself at the sickroom door) —
-	# sit, Ridley's blunt speech, the bowed head, night, then the leaving
-	# tableau (stick + knapsack, east) and the cards. Just mash the flags.
+	# sit, Ridley's blunt speech, the bowed head, night, then the leaving at
+	# the south gate (the knapsack tableau, the look-back goodbye, the trudge
+	# out the gate mouth) and the cards. Just mash the flags.
 	var scolded := func() -> bool: return game.flag("prologue_scolded")
 	ok = await _mash_until(scolded, 12000)
 	_check("the scolding beat completes", ok)

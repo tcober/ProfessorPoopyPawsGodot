@@ -1,4 +1,4 @@
-; Alembic Town, FESTIVAL ERA (Prologue A "Sparkless", 2026-07-12) — the same
+; Alembic Town, FESTIVAL ERA (Prologue A "The Whirligig", 2026-07-12) — the same
 ; 56x34 village grid as maps/town.txt, decades younger and ALIVE: tiled by
 ; assets/_gen_tileset_town_fest.py in the bright town_fest palette (spring
 ; grass, cream plaster, festival magenta), collision/markers/NPCs by
@@ -16,6 +16,7 @@ legend , flowers walk
 legend - road walk
 legend D door walk
 legend F fence solid
+legend G fence solid
 legend C cliff solid
 legend S stairs walk
 legend T treecanopy solid
@@ -89,13 +90,13 @@ map
 ######CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCC######
 ######CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCC######
 #####.......,,.........,,L.-..L,,.......^^...r.,,,,#####
-#####...3333.............l.-..l.........TT...r.FFFFF####
+#####...3333.............l.-..l.........TT...r.GGGGG####
 #####..hhhhhh....x7777x....-.....p8888p.tt...r,,^^,,####
 #####..hhhhhh....xxxxxx.,,.-..,,.pppppp......r,,TT,,####
 #####..HHHHHH....XXXXXX....-.....PPPPPP......r..tt..####
-#####..HHHDHH....XXXDXX....-.....PPPDPP......r,,..,,####
+#####..HHHDHH....XXXDXX....-.....PPPDPP......=,,..,,####
 #####.---------------------------------------=--....####
-####..,,............mmm..-OoO-.........,,....r.,,..#####
+####..,,............mmm..-OoO-.........,,....=.,,..#####
 ####^^..............mmm..-ooo-.,,..999999n...r.,,...####
 ####TT.q444q..,,....,,,..-ooo-....9nnnnnnn9..r......####
 ####tt.qqqqq.............-----....NNNNNNNNN..r..,,..####
