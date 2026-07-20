@@ -10,11 +10,10 @@
 ; every 'l' cell's 8 neighbors must be 'l' or 'a' (asserted at build).
 ; CENTRAL MOUNTAIN LAND: the Kingdom - grass fringe, massif, the Capital's
 ; CASTLE ('C') on the east slope, the HORN ('V'), and THE BIG MOUNTAIN
-; ('B' 8x6): pre-Ebb a proud summit, post-Ebb the GIANT CRYSTAL the world's
+; ('B' 14x10): pre-Ebb a proud summit, post-Ebb the GIANT CRYSTAL the world's
 ; magic drained into. SW FOREST LAND: the playable core - ALEMBIC TOWN icon
 ; ('T', its 'D' gate -> scene/alembic_town.tscn) on the coast, the trail NE
-; past Whisker Meadow, bridge over the river, the drained waste pocket with
-; the obelisk monument ('O') + 'K' outcrops, and the HOME TREE ('g' trunk /
+; past Whisker Meadow, bridge over the river, and the HOME TREE ('g' trunk /
 ; 'G' walk-behind canopy) - Basil's hermitage - leaning over the SE coast.
 ; MYSTERIOUS ISLANDS off the south coast, unreachable. Region edges are
 ; drawn in 1-cell stair-steps ON PURPOSE - the autotile renders them as
@@ -95,7 +94,7 @@ map
 ~~~s.......pp.,,,....r...........~~~~~~~~~~....MMMMMMMMMMMMMMMMMMMCCCCCC...~~~~~~~~~~~~MMMMMMMMMMMMMMMMMMM~~~~~~
 ~~~s........pppp,,...r..........~~~~~~~~~~~~.....MMMMMMMMMMMMMMMMMCCCCCC....~~~~~~~~~MMMMMMMMMMMMMMMMMMMM~~~~~~~
 ~~~s..........,pp....r..........~~~~~~~~~~~~~~......MMMMMMMMMMMMMMCCCCCC...~~~~~~~~~aaaMMMMMMMMMMMMMMMMMa~~~~~~~
-~~~~s...........pppppr=p.........~~~~~~~~~~~~~~~.hhhhhhhhhhhhhhhhhCCCCCC...~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaa~~~~~~
+~~~~s...........ppppp=pp.........~~~~~~~~~~~~~~~.hhhhhhhhhhhhhhhhhCCCCCC...~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaa~~~~~~
 ~~~~s.........t.......rpppp.......~~~~~~~~~~~~~~~~~hhhhhhhhhhhhhhhhh......~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaa~~~~~
 ~~~~~s....t..........,r,,,pGGGGGG..~~~~~~~~~~~~~~~~~~~~~~~h~hhhhhh.......~~~~~~~~aaaaaaalllaaaaaaaaaaaaaaaaa~~~~
 ~~~~~~s............t..r,,t.GGGGGG.s~~~~~~~~~~~~~~~~~~~~~~~~~~~.........~~~~~~~~~~aaaaaalllllaaaaaaaaaaaaaaaa~~~~

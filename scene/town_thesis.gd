@@ -322,7 +322,9 @@ func _leaving() -> void:
 	await theater.card("YEARS LATER.", 2.0)
 	Game.set_flag("prologue_done")
 	Party.set_roster([&"basil", &"fuji"], &"basil")
-	get_tree().change_scene_to_file("res://scene/house.tscn")
+	# ... and the years end on the night the magic does: the Ebb sequence
+	# (scene/ebb.gd -> scene/library.gd) plays before the adult build wakes
+	get_tree().change_scene_to_file("res://scene/ebb.tscn")
 
 
 # ---- helpers ----------------------------------------------------------------------

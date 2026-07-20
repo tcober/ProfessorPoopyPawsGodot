@@ -69,13 +69,23 @@ func _run() -> void:
 	if not roster.is_empty():
 		root.get_node("Party").call("set_roster", roster)
 	change_scene_to_file(args[0])
-	if pos != Vector2.INF:
-		for i in 5:
-			await process_frame
-		var players := get_nodes_in_group("player")
-		if players.size() > 0:
-			(players[0] as Node2D).global_position = pos
 	for i in wait:
+		# pos: HOLD the leader at the target through the whole wait — a
+		# scene's own _place_player runs after its entry fade and used to
+		# stomp a one-shot frame-5 teleport back onto the spawn marker
+		if pos != Vector2.INF and i >= 5:
+			# zone scenes: the leader rides the "player" group; the OVERWORLD
+			# chibi has no group (markers gate on identity there) — fall back
+			# to the scene's own `player` reference
+			var players := get_nodes_in_group("player")
+			var body := players[0] as Node2D if players.size() > 0 \
+					else current_scene.get("player") as Node2D
+			if body != null:
+				body.global_position = pos
+				if i == 10:              # one clean camera snap, no glide
+					for c in body.get_children():
+						if c is Camera2D:
+							(c as Camera2D).reset_smoothing()
 		for pr in presses:
 			if i == pr[1]:
 				Input.action_press(pr[0])

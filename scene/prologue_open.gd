@@ -28,5 +28,6 @@ func _process(_delta: float) -> void:
 	# Polled, like everything (the shot.gd gotcha).
 	if Input.is_action_just_pressed("ui_cancel"):
 		Game.set_flag("prologue_done")
+		Game.set_flag("ebb_done")     # the skip jumps past the Ebb night too
 		Party.set_roster([&"basil", &"fuji"], &"basil")
 		get_tree().change_scene_to_file("res://scene/house.tscn")

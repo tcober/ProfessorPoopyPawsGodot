@@ -5,7 +5,9 @@ extends Node
 ## `town_spawn` and `interior_spawn` are the zone analogs: the map anchor the next
 ## town/interior scene should spawn at. Both are READ AND CLEARED ("" = use the
 ## scene's default), so a stale value can never teleport a later entry.
-## (`town_spawn`: "home" = below Basil's door, "" = the town's south gate.)
+## (`town_spawn`: "home" = below Basil's door in Alembic Town, "library" =
+## Fuji's library door in Lanternwood (the Ebb-night arrival), "" = the
+## town's south gate.)
 
 var overworld_spawn: String = "town"
 var town_spawn: String = ""
@@ -26,6 +28,12 @@ var town_thesis_phase: String = ""
 ## place their love began is where the bad news finds him). Read-and-cleared;
 ## "" = "romance". ("romance" | "call1" | "call2")
 var bluff_phase: String = ""
+
+## Which beat the Lanternwood library (scene/library.gd) plays on entry —
+## Fuji's little reading room in her snow-town. "ebb" (the default for now)
+## = the Ebb-night wand-coffee beat, her first appearance; Act 1's playable
+## research phase will reuse the same room. Read-and-cleared.
+var library_phase: String = ""
 
 
 func flag(flag_name: String) -> bool:

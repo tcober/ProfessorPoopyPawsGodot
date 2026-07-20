@@ -101,6 +101,7 @@ MAPS = [
     "maps/downstairs.txt",
     "maps/hall.txt",
     "maps/sickroom.txt",
+    "maps/library.txt",
     "maps/bluff.txt",
 ]
 
@@ -150,6 +151,9 @@ TILED = {
     "maps/sickroom.txt": ("tilesets/sickroom_layout.txt",
                           "tilesets/sickroom_tiles.png",
                           "tilesets/sickroom_tiles.tres"),
+    "maps/library.txt": ("tilesets/library_layout.txt",
+                         "tilesets/library_tiles.png",
+                         "tilesets/library_tiles.tres"),
 }
 
 print("tiled scenes:")
@@ -203,7 +207,7 @@ print("z-order:")
 # T3-coverage lint carry the load). town_fest still bakes them, so it stays.
 UPPER_REQUIRED = {"maps/overworld.txt", "maps/overworld_bright.txt",
                   "maps/house.txt", "maps/downstairs.txt", "maps/hall.txt",
-                  "maps/sickroom.txt"}
+                  "maps/sickroom.txt", "maps/library.txt"}
 # 24x24 travel chibi, figure <=1 tile tall
 CHIBI_MAPS = {"maps/overworld.txt", "maps/overworld_bright.txt"}
 for map_rel, layers in LAYERS.items():
@@ -261,6 +265,7 @@ PROPS = {
     "maps/lanternwood.txt": "tilesets/lanternwood_props.txt",
     "maps/hall.txt": "tilesets/hall_props.txt",
     "maps/sickroom.txt": "tilesets/sickroom_props.txt",
+    "maps/library.txt": "tilesets/library_props.txt",
 }
 T3_CHARS = {}                          # map_rel -> chars whose art is y-sorted
 T3_PROPS = {}                          # map_rel -> parsed rows (coverage lint)
@@ -420,6 +425,7 @@ PLACEMENTS = {
     "scene/house_thesis.tscn": "maps/house.txt",
     "scene/hall.tscn": "maps/hall.txt",
     "scene/sickroom.tscn": "maps/sickroom.txt",
+    "scene/library.tscn": "maps/library.txt",
 }
 
 print("placements:")
@@ -438,6 +444,12 @@ for rel, map_rel in PLACEMENTS.items():
 SHEETS = {
     "assets/basil_gen.png": (6 * ZONE_CELL, 10 * ZONE_CELL),
     "assets/fuji_gen.png": (6 * ZONE_CELL, 10 * ZONE_CELL),
+    # the Ebb-night npc cast: a layout change here must fail the build, or
+    # scene frame_cols would slice AtlasTexture regions off the sheet edge
+    "assets/npc_fuji_gen.png": (10 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_hare_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_beaver_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_foxkid_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/slime_gen.png": (6 * 24, 4 * 24),
     "assets/overworld_basil.png": (4 * OW_CELL, 3 * OW_CELL),
     "assets/overworld_fuji.png": (4 * OW_CELL, 3 * OW_CELL),

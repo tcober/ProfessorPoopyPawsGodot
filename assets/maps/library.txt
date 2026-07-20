@@ -1,0 +1,59 @@
+; THE LANTERNWOOD LIBRARY — Fuji's small library, the night of the Ebb
+; (24x14 tiles, 384x224 px; the view clamps to 384x216). The loft-diorama
+; recipe: a SMALL dense timber reading room floating in void (10-tile
+; interior, 6-tile margins), every wall stretch occupied. NORTH WALL, west
+; to east: the stone HEARTH (H, 48x48 — the room's hot light source; the
+; scene stamps the animated library_fire.png over the cold firebox, the
+; downstairs idiom), a tall BOOKSHELF (K, 32x48), the WINDOW (W, high
+; 32x32 — cold snow-blue night glass over wainscot), a second BOOKSHELF,
+; the wall CLOCK (o). FLOOR: the coffee COUNTER (c/C — the counter-walk
+; table pattern: top row c is the walkable TUCK row, the brass kettle +
+; waiting cup ride the countertop art, bottom row C stays solid; a
+; y-sorted entity from library_props.txt), the reading DESK (d — one-row
+; footprint, stand on the row behind and it hides your legs), the rust
+; ARMCHAIR (r) reading nook by the east wall, a plum rug before the south
+; DOOR. This file is BOTH the collision grid and the room layout:
+; assets/_gen_tileset_library.py places its props from the feature chars,
+; so moving a feature here moves it in the game.
+; ANCHORS the shipped "ebb" phase consumes: kettle (the counter's walkable
+; tuck-row cell — the kettle art lives on that cell; Fuji stands ON the
+; cell one east of it, so moving the kettle anchor moves HER and the spark
+; target together) and mess_a / mess_b (open floor cells flanking the
+; counter, for splash decals). The scene also derives the fire overlay from
+; the H bbox. RESERVED for the Act 1 research phase (declared, not yet read
+; by any code): fuji_spot, desk_spot, door, player_spawn.
+legend V void solid
+legend # wall solid
+legend H hearth solid
+legend K bookshelf solid
+legend W window solid
+legend o clock solid
+legend d desk solid
+legend r armchair solid
+legend C counter solid
+legend c countertop walk
+legend . floor walk
+legend g rug walk
+legend - door walk
+anchor player_spawn 11 8
+anchor door 11 9
+anchor fuji_spot 8 8
+anchor kettle 8 6
+anchor desk_spot 14 6
+anchor mess_a 7 7
+anchor mess_b 10 7
+map
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVV#HHHKKWWKK##VVVVVV
+VVVVVV#HHHKKWWKKo#VVVVVV
+VVVVVV#HHHKK##KK##VVVVVV
+VVVVVV#..........#VVVVVV
+VVVVVV#.cc.ddd.rr#VVVVVV
+VVVVVV#.CC.ggg.rr#VVVVVV
+VVVVVV#....ggg...#VVVVVV
+VVVVVV#####--#####VVVVVV
+VVVVVVVVVV#--#VVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV

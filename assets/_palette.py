@@ -148,6 +148,16 @@ SCENES = {
             "floor": (150, 158, 190, 255),      # cool slate-blue boards
         },
     },
+    "library": {        # Fuji's Lanternwood library, the night of the Ebb:
+        "shadow": "violet",                 # a candle-lit timber-and-plum den —
+        "accent": (255, 188, 102, 255),     # firelight amber, the one warmth
+        # against the cold snow-blue night in the window glass (the glass
+        # ramp is hand data in the generator; glass is a light, not a mat).
+        "mats": {
+            "wall": (158, 104, 88, 255),    # rosewood planks (violet darks)
+            "floor": (112, 72, 118, 255),   # deep plum weave
+        },
+    },
     "overworld": {      # hot teal sea + minty continent, hot violet wastes
         "shadow": "teal",
         "accent": (196, 120, 255, 255),         # wastes crystal violet

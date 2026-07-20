@@ -39,10 +39,29 @@ Sheets written (all 48px cells, feet baseline y=44 = _core.ZONE_FEET):
       npc_goose_gen.png       (288x48) — the chaos goose; act = honk
       npc_mouse_gen.png       (384x48) — the mouse kid; act = wave; cols
           6-7 = BACK x2
+      npc_fuji_gen.png        (480x48) — Fuji, the librarian (the Ebb night):
+          canonical tortoiseshell design from _gen_fuji_sprites.py redrawn on
+          the NPC contract; act = WAND CAST (slim brass wand, glass bead tip),
+          emote = STARTLED (ears pinned, shoulders up); cols 6-7 = BACK x2,
+          cols 8-9 = SIDE x2 (left profile — play_side(true) faces her east);
+          spawn with frame_cols = 10
+      npc_hare_gen.png        (288x48) — Bramble, the flustered snow hare
+          (Lanternwood, the Ebb night): blue-white fur, long upright ears,
+          russet knit scarf; act = the dead warming-wand held up to one long
+          ear, emote = paws thrown up, ears crossed back
+      npc_beaver_gen.png      (288x48) — Alder, the elderly beaver
+          woodworker: quilted steel-blue coat, amber knit cap, paddle tail;
+          act = peering at the dead charm-stone at arm's length, emote =
+          scratching under the cap, tail pressed flat
+      npc_foxkid_gen.png      (288x48) — Pip, the fox kid: rust fur, cream
+          muzzle/tail-tip, frost-blue bobble hat + mittens; act = shaking
+          the dark glow-marble, emote = thrilled-AND-scared, tail bristled
 
-  prologue_fx.png (160x16, 16px cells) — [ribbon_magenta, ribbon_gold,
-      sparkle_small, sparkle_big, gear, spring, crank, whirligig_droop,
-      whirligig_spin0, whirligig_spin1]
+  prologue_fx.png (256x32, TWO 16-cell rows of 16px cells) — row 0 FROZEN
+      [ribbon_magenta, ribbon_gold, sparkle_small, sparkle_big, gear, spring,
+      crank, whirligig_droop, whirligig_spin0, whirligig_spin1, bag, pawprint,
+      bird, bird_wing_up, puddle, zzz]; row 1 [watch(16), poof(17), lines(18),
+      kiss heart(19), magic spark(20), magic spark dim(21)]
 
 Palette: derived 4-tone ramps via _palette.ramp() (violet shadow law), with
 Basil's own identity ramps reused for the kid so he IS visibly the same cat.
@@ -55,7 +74,7 @@ sys.path.insert(0, HERE)
 from _core import write_cells, Img, ZONE_CELL
 from _propkit import ln
 from _sprites import Sprite
-from _palette import BASIL, ramp
+from _palette import BASIL, FUJI, ramp
 
 CELL = ZONE_CELL
 CX = 24
@@ -101,6 +120,9 @@ RIBBON_M = ramp((240, 96, 170), "violet", 4)       # festival magenta
 RIBBON_G = ramp((244, 196, 88), "violet", 4)       # festival gold
 SPARK = (255, 252, 220, 255)
 SPARK_D = (238, 202, 120, 255)
+MSPARK_W = (255, 255, 255, 255)                    # magic spark: white-hot heart
+MSPARK = (214, 246, 248, 255)                      # mint-white body (the Ebb night)
+MSPARK_V = (156, 112, 220, 255)                    # violet fringe (the violet law)
 
 OUT_DARK = (10, 7, 16, 255)
 OUT_LIGHT = (66, 58, 78, 255)
@@ -1371,6 +1393,688 @@ def kiss_after(s):
     s.outline(KISS_OUTS, OUT_DARK)
 
 
+# ---- Fuji, the librarian (the Ebb night, 2026-07-19) ---------------------------------------
+# npc_fuji_gen.png on the NPC-kit contract (npc.gd builds SpriteFrames at
+# runtime; spawn with frame_cols = 10):
+#   cols 0-1  idle_down — planted / bob+step: the pair doubles as the 2-frame
+#             walk (idle_down is the Theater helpers' single-facing fallback)
+#   cols 2-3  act   — the WAND CAST: a slim BRASS wand raised mid-cast with a
+#             tiny glass BEAD tip (brass-and-flask, never a fairy wand);
+#             frame 3 (the bob cell) adds the cast flicker at the bead
+#   cols 4-5  emote — STARTLED: ears pinned flat, shoulders hunched up, wide
+#             eyes, startle ticks over the head
+#   cols 6-7  back  — hooded robe from behind (npc.gd builds it frame_cols>=8)
+#   cols 8-9  side  — profile at the counter, tome under her arm; stored
+#             facing LEFT per the kit contract, play_side(true) flips her east
+# Geometry is her CANONICAL player sheet's (assets/_gen_fuji_sprites.py: head
+# cy=18, long robe 22..hem 40, feet fill y=44) — redrawn self-contained here
+# because that generator writes fuji_gen.png at import (module-level build).
+
+F_FUR, F_GING, F_CREAM = FUJI["FUR"], FUJI["GINGER"], FUJI["CREAM"]
+F_ROBE, F_TRIM = FUJI["ROBE"], FUJI["TRIM"]
+F_RIM, F_LENS, F_BOOK = FUJI["RIM"], FUJI["LENS"], FUJI["BOOK"]
+F_EYE, F_EYEL = FUJI["EYE_G"], FUJI["EYE_GL"]
+F_PUPIL, F_GLINT = FUJI["PUPIL"], FUJI["GLINT"]
+F_NOSE, F_MOUTH = FUJI["NOSE"], FUJI["MOUTH"]
+F_EARIN, F_EARIN_D = FUJI["EARIN"], FUJI["EARIN_D"]
+F_WHISK = FUJI["WHISK"]
+FUJI_OUTS = dict(FUJI["OUTS"])
+F_OUT = FUJI["OUT_FALLBACK"]
+FHEM = 40                                          # near-floor robe hem
+
+
+def _fuji_eye(s, ex, ey, wide=False):
+    """3x3 green-gold eye behind the lens; wide = the startled pinprick."""
+    s.rect(ex, ey, ex + 2, ey + 2, F_EYE)
+    s.rect(ex, ey, ex + 2, ey, F_EYEL)
+    if wide:
+        s.set(ex + 1, ey + 2, F_PUPIL)
+    else:
+        s.rect(ex + 1, ey + 1, ex + 1, ey + 2, F_PUPIL)
+
+
+def _fuji_specs_down(s, hx, hy):
+    """Round brass reading glasses ON the face — the eyes ARE the lenses."""
+    for ex, sh in ((hx - 5, 0), (hx + 3, 1)):
+        s.rect(ex, hy - 3, ex + 2, hy - 3, F_RIM[sh])       # top rim
+        s.rect(ex, hy + 1, ex + 2, hy + 1, F_RIM[sh + 1])   # bottom rim
+        for ry, rc in ((hy - 2, F_RIM[sh]), (hy - 1, F_RIM[sh + 1]),
+                       (hy, F_RIM[sh + 1])):
+            s.set(ex - 1, ry, rc)
+            s.set(ex + 3, ry, rc)
+        s.set(ex + 2, hy - 2, F_LENS[0])                    # glass shine
+    s.rect(hx - 1, hy - 2, hx + 1, hy - 2, F_RIM[2])        # bridge
+
+
+def fuji_head_down(s, dy=0, eyes="open", ears="up"):
+    """Split tortie ears (left black / right ginger), placed rust patches,
+    cream muzzle, green-gold eyes behind the brass specs."""
+    hx, hy = CX, 18 + dy
+    if ears == "up":
+        s.tri((hx - 4, hy - 10), hy - 4, hx - 7, hx - 1, F_FUR)
+        s.tri((hx + 4, hy - 10), hy - 4, hx + 1, hx + 7, F_GING, sh=0.15)
+        s.tri((hx - 4, hy - 8), hy - 5, hx - 5, hx - 3, F_EARIN)
+        s.tri((hx + 4, hy - 8), hy - 5, hx + 3, hx + 5, F_EARIN_D)
+    else:                                          # pinned flat (startled)
+        s.tri((hx - 8, hy - 3), hy, hx - 6, hx - 1, F_FUR)
+        s.tri((hx + 8, hy - 3), hy, hx + 1, hx + 6, F_GING, sh=0.15)
+    s.ball(hx, hy, 7.2, 6.0, F_FUR, power=2.4, wrap=0.34, curve=0.30)
+    s.rect(hx + 2, hy - 4, hx + 5, hy - 3, F_GING[1])       # right brow patch
+    s.set(hx + 6, hy - 2, F_GING[2])
+    s.rect(hx - 6, hy + 1, hx - 5, hy + 2, F_GING[2])       # left cheek fleck
+    s.ball(hx, hy + 4, 4.6, 2.9, F_CREAM, power=2.2, wrap=0.10, curve=0.10)
+    s.rect(hx - 1, hy + 2, hx, hy + 2, F_NOSE)
+    if eyes == "wide":                             # startled: little o mouth
+        s.rect(hx - 1, hy + 4, hx, hy + 5, F_MOUTH)
+        s.set(hx, hy + 4, MAW)
+        _fuji_eye(s, hx - 5, hy - 2, wide=True)
+        _fuji_eye(s, hx + 3, hy - 2, wide=True)
+    else:
+        s.line([(hx - 1, hy + 4), (hx, hy + 4)], F_MOUTH)
+        _fuji_eye(s, hx - 5, hy - 2)
+        _fuji_eye(s, hx + 3, hy - 2)
+    _fuji_specs_down(s, hx, hy)
+
+
+def fuji_whiskers_down(s, dy=0):
+    """Post-outline cheek strokes (the whisker rule)."""
+    for (x, y) in ((15, 21), (14, 21), (15, 23), (14, 24),
+                   (33, 21), (34, 21), (33, 23), (34, 24)):
+        s.set(x, y + dy, F_WHISK)
+
+
+def fuji_legs_down(s, liftL=0, liftR=0):
+    """Dark stubs + cream paws under the hem (feet fill y=44)."""
+    for (lx, lift, sh) in ((21, liftL, 0.0), (27, liftR, 0.10)):
+        fy = 42 - lift
+        s.capsule(lx, 33, lx, fy - 2, 2.2, 1.7, F_FUR, sh=sh)
+        s.ball(lx, fy + 0.6, 2.2, 1.7, F_CREAM, power=2.2, sh=sh * 0.5,
+               wrap=0.10, curve=0.10)
+
+
+def fuji_robe_down(s, dy=0, back=False):
+    """The near-floor plum robe, flat CT bands: lit field west of center, mid
+    field east, hard shade band screen-right, mustard trim stripe + placket.
+    back=True swaps the placket/chest for the draped hood + vent seam."""
+    top, hem = 22 + dy, FHEM + dy
+    h = hem - top
+    for y in range(top, hem + 1):
+        vy = (y - top) / h
+        half = 5.6 + 2.0 * vy
+        x0, x1 = int(round(CX - half)), int(round(CX + half))
+        if y == top:
+            x0 += 2
+            x1 -= 2
+        elif y == top + 1:
+            x0 += 1
+            x1 -= 1
+        for x in range(x0, x1 + 1):
+            if y >= hem - 1:                       # hem band
+                c = F_ROBE[3] if x >= x1 - 1 else F_ROBE[2]
+            elif x >= x1 - 1:                      # shade band, screen-right
+                c = F_ROBE[2]
+            elif y == hem - 2:                     # mustard trim stripe
+                c = F_TRIM[2]
+            elif x < CX:                           # lit field
+                c = F_ROBE[0]
+            else:                                  # mid field
+                c = F_ROBE[1]
+            s.set(x, y, c)
+    s.rect(CX - 5, hem + 1, CX + 5, hem + 1, F_ROBE[3])     # turn-under
+    if back:
+        s.tri((CX, top + 7), top, CX - 5, CX + 5, F_ROBE, sh=0.42)   # hood
+        s.set(CX, top + 7, F_ROBE[3])                       # hood point
+        s.rect(CX - 5, top, CX + 5, top, F_ROBE[3])         # hood roll
+        for y in range(top + 9, hem - 2):                   # vent seam
+            s.set(CX, y, F_ROBE[2])
+        return
+    for y in range(top + 4, hem - 2):                       # trim placket
+        s.set(CX, y, F_TRIM[1])
+    s.tri((CX, top), top + 3, CX - 2, CX + 2, F_CREAM)      # cream chest
+    s.rect(CX - 1, top + 2, CX, top + 2, F_TRIM[0])         # throat clasp
+
+
+def fuji_book_carry(s, dy=0):
+    """The tome hugged to her chest, cover out, sleeves wrapping in."""
+    y0, y1 = 24 + dy, 30 + dy
+    for y in range(y0, y1 + 1):
+        for x in range(21, 28):
+            if y == y1:
+                c = F_CREAM[2]                     # page block
+            elif x >= 26:
+                c = F_BOOK[2]                      # shade band
+            elif x <= 22:
+                c = F_BOOK[0]                      # lit field
+            else:
+                c = F_BOOK[1]
+            s.set(x, y, c)
+    s.rect(21, y0, 21, y1 - 1, F_BOOK[3])          # spine
+    s.set(27, y0 + 3, F_TRIM[1])                   # brass clasp
+    s.capsule(18, 23 + dy, 19.5, 26 + dy, 1.8, 1.5, F_ROBE, sh=0.18)
+    s.capsule(30, 23 + dy, 28.5, 26 + dy, 1.8, 1.5, F_ROBE, sh=0.30)
+    s.ball(19.5, 28 + dy, 1.6, 1.4, F_CREAM, power=2.2, wrap=0.10, curve=0.10)
+    s.ball(28.5, 28 + dy, 1.6, 1.4, F_CREAM, power=2.2, sh=0.12, wrap=0.10,
+           curve=0.10)
+
+
+def fuji_tail_down(s, bob=0, sway=0):
+    """Black tail curling east of the hem, RUST TIP — the tortie signature."""
+    tx, ty = 30, 33 + bob
+    s.capsule(tx, ty + 1, tx + 3, ty - 3, 1.7, 1.4, F_FUR, sh=0.08)
+    s.capsule(tx + 3, ty - 3, tx + 4 + sway, ty - 7, 1.4, 1.1, F_FUR, sh=0.12)
+    s.set(tx + 2, ty - 1, F_GING[2])                        # mid patch
+    s.set(tx + 3 + sway, ty - 8, F_GING[1])                 # rust tip
+    s.set(tx + 4 + sway, ty - 8, F_GING[1])
+
+
+def _fuji_wand(s, bob=0, spark=False):
+    """The slim BRASS wand off the raised paw, drawn POST-outline (the bindle
+    lesson: the grip pixel overwrites the fist — pole through the paw). A 1px
+    tip-to-grip shaft in her spectacle brass, a tiny glass BEAD at the tip."""
+    for i, (x, y) in enumerate(((34, 12), (35, 11), (36, 10), (37, 9),
+                                (38, 8))):
+        s.set(x, y + bob, F_RIM[0] if i % 2 else F_RIM[1])
+    s.set(39, 7 + bob, F_LENS[0])                  # the glass bead
+    s.set(40, 6 + bob, F_GLINT)                    # bead shine
+    if spark:                                      # cast flicker (frame 2)
+        s.set(41, 4 + bob, MSPARK)
+        s.set(38, 5 + bob, MSPARK_V)
+
+
+def fuji_npc(s, mood="idle", bob=0, step=0):
+    """Down-facing cells. mood: idle (tome hugged — the pair doubles as the
+    walk; step=1 lifts the left paw), act (wand cast), emote (startled)."""
+    fuji_tail_down(s, bob, 1 if (mood == "act" or step) else 0)
+    fuji_legs_down(s, liftL=step)
+    fuji_robe_down(s, bob)
+    if mood == "act":
+        # tome dropped to the off (west) arm's side; wand arm flung up east
+        s.capsule(18, 23 + bob, 16, 28 + bob, 1.8, 1.6, F_ROBE, sh=0.18)
+        s.ball(16, 30 + bob, 1.7, 1.5, F_CREAM, power=2.2, wrap=0.10,
+               curve=0.10)
+        s.capsule(30, 23 + bob, 33, 15 + bob, 1.8, 1.5, F_ROBE, sh=0.30)
+        s.ball(33.5, 13.5 + bob, 1.6, 1.4, F_CREAM, power=2.2, wrap=0.10,
+               curve=0.10)
+        fuji_head_down(s, bob)
+    elif mood == "emote":
+        # STARTLED: shoulders hunched high, paws up at the chest, the head
+        # sunk 1px into the collar, ears pinned, eyes wide
+        s.capsule(19, 23 + bob, 18, 26 + bob, 1.9, 1.7, F_ROBE, sh=0.18)
+        s.capsule(29, 23 + bob, 30, 26 + bob, 1.9, 1.7, F_ROBE, sh=0.30)
+        s.ball(18, 27.5 + bob, 1.6, 1.4, F_CREAM, power=2.2, wrap=0.10,
+               curve=0.10)
+        s.ball(30, 27.5 + bob, 1.6, 1.4, F_CREAM, power=2.2, sh=0.12,
+               wrap=0.10, curve=0.10)
+        fuji_head_down(s, bob + 1, eyes="wide", ears="flat")
+    else:
+        fuji_book_carry(s, bob)
+        fuji_head_down(s, bob)
+    s.despeckle(passes=1)
+    s.outline(FUJI_OUTS, F_OUT)
+    fuji_whiskers_down(s, bob + (1 if mood == "emote" else 0))
+    if mood == "act":
+        _fuji_wand(s, bob, spark=(bob != 0))
+    elif mood == "emote":
+        for (x, y) in ((14, 7 + bob), (24, 4 + bob), (34, 7 + bob)):
+            s.set(x, y, SPARK_D)                   # startle ticks, post-outline
+
+
+def fuji_npc_back(s, bob=0):
+    """From behind: hooded robe, crown rust patch, spectacle temple hooks,
+    the hug's elbows poking past the robe, raised rust-tip tail."""
+    fuji_legs_down(s)
+    fuji_robe_down(s, bob, back=True)
+    for (sx, dxx, sh) in ((18, -1.5, 0.20), (30, 1.5, 0.34)):   # hug elbows
+        s.capsule(sx, 23 + bob, sx + dxx, 26.5 + bob, 1.8, 1.5, F_ROBE, sh=sh)
+    s.capsule(29, 31 + bob, 32, 27 + bob, 1.7, 1.4, F_FUR, sh=0.10)   # tail
+    s.capsule(32, 27 + bob, 32, 22 + bob, 1.4, 1.1, F_FUR, sh=0.14)
+    s.set(32, 21 + bob, F_GING[1])                 # rust tip
+    hy = 18 + bob
+    s.tri((CX - 4, hy - 10), hy - 4, CX - 7, CX - 1, F_FUR)     # ear backs
+    s.tri((CX + 4, hy - 10), hy - 4, CX + 1, CX + 7, F_GING, sh=0.15)
+    s.tri((CX - 4, hy - 8), hy - 5, CX - 6, CX - 2, F_FUR, sh=0.38)
+    s.tri((CX + 4, hy - 8), hy - 5, CX + 2, CX + 6, F_GING, sh=0.46)
+    s.ball(CX, hy, 7.2, 6.0, F_FUR, power=2.4, wrap=0.34, curve=0.30)
+    s.rect(CX - 5, hy - 3, CX - 2, hy - 1, F_GING[1])           # crown patch
+    s.set(CX + 3, hy + 2, F_GING[2])
+    s.set(CX - 6, hy - 1, F_RIM[2])                # temple hooks
+    s.set(CX + 6, hy - 1, F_RIM[2])
+    s.line([(CX - 2, hy + 5), (CX - 1, hy + 6), (CX, hy + 6),
+            (CX + 1, hy + 6), (CX + 2, hy + 5)], F_FUR[3])      # neck part
+    s.despeckle(passes=1)
+    s.outline(FUJI_OUTS, F_OUT)
+
+
+def _fuji_mirror(s):
+    """Flip a FINISHED cell horizontally: the side cells are authored on the
+    canonical right-facing geometry, the npc kit stores LEFT-facing cells
+    (play_side(true) flips back east). Runtime-flipped profiles already
+    forfeit the global light direction, so the mirrored shade bands are
+    exactly as legal as npc.gd's own flip_h."""
+    for row in s.px:
+        row.reverse()
+
+
+def fuji_robe_side(s, dy=0):
+    """Robe in RIGHT-facing profile: straight dark front edge east, trim
+    closure column inside it, lit band along the back, trailing fold."""
+    top, hem = 22 + dy, FHEM + dy
+    h = hem - top
+    for y in range(top, hem + 1):
+        vy = (y - top) / h
+        x0, x1 = int(round(17 - vy * 3.0)), 29
+        if y == top:
+            x0 += 2
+            x1 -= 1
+        elif y == top + 1:
+            x0 += 1
+        fold = x0 + 3
+        for x in range(x0, x1 + 1):
+            if y >= hem - 1:                       # hem band
+                c = F_ROBE[3] if x >= x1 - 1 else F_ROBE[2]
+            elif x == x1:                          # dark front edge
+                c = F_ROBE[3] if y >= top + 2 else F_ROBE[2]
+            elif x == x1 - 1:                      # trim closure column
+                c = F_TRIM[2] if y >= top + 3 else F_ROBE[2]
+            elif y == hem - 2:                     # trim stripe
+                c = F_TRIM[2]
+            elif x == fold and y >= top + 4:       # trailing fold crease
+                c = F_ROBE[2]
+            elif x <= x0 + 2:                      # lit back
+                c = F_ROBE[0]
+            else:                                  # mid field
+                c = F_ROBE[1]
+            s.set(x, y, c)
+    s.rect(16, hem + 1, 27, hem + 1, F_ROBE[3])    # turn-under
+
+
+def fuji_head_side(s, dy=0):
+    """RIGHT-facing profile head: near black ear tall, far ginger ear front,
+    plump cream cheek, one lens with the temple arm running back."""
+    hx, hy = 23, 18 + dy
+    s.tri((hx + 3, hy - 10), hy - 5, hx + 1, hx + 5, F_GING, sh=0.30)  # far ear
+    s.tri((hx - 1, hy - 11), hy - 5, hx - 3, hx + 1, F_FUR)     # near ear
+    s.tri((hx - 1, hy - 9), hy - 6, hx - 2, hx, F_EARIN)
+    s.ball(hx, hy, 6.8, 5.6, F_FUR, power=2.4, wrap=0.34, curve=0.30)
+    s.rect(hx - 4, hy - 3, hx - 2, hy - 1, F_GING[1])           # nape patch
+    s.set(hx - 1, hy + 2, F_GING[2])                            # cheek fleck
+    s.ball(hx + 4, hy + 2.5, 3.2, 2.7, F_FUR, power=2.0, wrap=0.30)
+    s.ball(hx + 4.5, hy + 3.2, 3.2, 2.5, F_CREAM, power=2.0, wrap=0.10,
+           curve=0.10)
+    s.rect(hx + 6, hy + 2, hx + 7, hy + 2, F_NOSE)              # stub nose
+    s.line([(hx + 5, hy + 4), (hx + 6, hy + 4)], F_MOUTH)
+    _fuji_eye(s, hx + 2, hy - 3)
+    s.rect(hx + 2, hy - 4, hx + 4, hy - 4, F_RIM[0])            # top rim
+    s.rect(hx + 2, hy, hx + 4, hy, F_RIM[1])                    # bottom rim
+    for ry, rc in ((hy - 3, F_RIM[0]), (hy - 2, F_RIM[1]), (hy - 1, F_RIM[1])):
+        s.set(hx + 1, ry, rc)
+        s.set(hx + 5, ry, rc)
+    s.set(hx + 4, hy - 3, F_LENS[0])                            # glass shine
+    s.rect(hx - 4, hy - 4, hx + 1, hy - 4, F_RIM[2])            # temple arm
+
+
+def fuji_book_side(s, dy=0):
+    """The tome under her near arm, edge-on: cream page stripe, sleeve over."""
+    y = 28 + dy
+    for x in range(20, 30):
+        s.set(x, y - 1, F_BOOK[1])
+        s.set(x, y, F_CREAM[1])                    # pages, edge-on
+        s.set(x, y + 1, F_BOOK[2])
+    s.rect(20, y - 1, 20, y + 1, F_BOOK[3])        # spine cap
+    s.rect(29, y - 1, 29, y + 1, F_BOOK[3])        # fore-edge cap
+    s.capsule(23, 23 + dy, 24.5, 27 + dy, 1.8, 1.5, F_ROBE, sh=0.24)
+    s.ball(28, 30.5 + dy, 1.4, 1.2, F_CREAM, power=2.2, wrap=0.10, curve=0.10)
+
+
+def fuji_npc_side(s, bob=0):
+    """Profile standing at the counter, tome tucked under the near arm."""
+    s.capsule(16, 30 + bob, 13, 28 + bob, 1.7, 1.4, F_FUR, sh=0.10)   # tail
+    s.capsule(13, 28 + bob, 10, 26 + bob, 1.4, 1.1, F_FUR, sh=0.13)
+    s.set(12, 27 + bob, F_GING[2])                 # mid patch
+    s.set(9, 25 + bob, F_GING[1])                  # rust tip
+    for (lx, sh) in ((20, 0.16), (25, 0.0)):       # legs: back then front
+        s.capsule(lx, 33, lx, 40, 2.1, 1.7, F_FUR, sh=sh)
+        s.ball(lx + 0.5, 42.6, 2.2, 1.7, F_CREAM, power=2.2, sh=sh * 0.4,
+               wrap=0.10, curve=0.10)
+    fuji_robe_side(s, bob)
+    fuji_book_side(s, bob)
+    fuji_head_side(s, bob)
+    s.despeckle(passes=1)
+    s.outline(FUJI_OUTS, F_OUT)
+    for (x, y) in ((32, 19 + bob), (33, 19 + bob), (34, 20 + bob),
+                   (32, 22 + bob), (33, 23 + bob)):
+        s.set(x, y, F_WHISK)                       # profile whiskers
+    _fuji_mirror(s)
+
+
+# ---- the Lanternwood trio (the Ebb night, 2026-07-20) --------------------------------------
+# Three winter villagers out in Lanternwood's snowy street the night the
+# magic died (scene/lanternwood.gd spawns each at frame_cols = 6 — the plain
+# [idle x2, act x2, emote x2] contract). Ebb-night cool cast on the Paper
+# Girls law — pale blue-whites and steel indigos with violet-law darks, never
+# gray mud — plus ONE warm accent each: Bramble's russet scarf, Alder's amber
+# knit cap, Pip's own rust fur. Every held charm is DEAD on purpose: honest
+# wood, cold stone, dark glass — no glow pixels anywhere on these sheets.
+
+HARE_FUR = ramp((228, 232, 250), "violet", 4)      # snow-hare white, blue-leaning
+HARE_IN = ramp((186, 168, 208), "violet", 4)       # cool violet inner ear
+HARE_SCARF = ramp((202, 108, 58), "violet", 4)     # chunky russet knit — HER accent
+HARE_EYE, HARE_EYEL = (146, 200, 236, 255), (198, 228, 248, 255)
+HARE_OUTS = outs_for((HARE_FUR, OUT_LIGHT), (WHITE, OUT_LIGHT),
+                     (HARE_IN, OUT_LIGHT), (HARE_SCARF, OUT_DARK))
+
+
+def hare(s, mood="idle", bob=0):
+    """Bramble, the flustered snow hare: pale blue-white fur, LONG upright
+    ears running toward the cell top (art crests y=3 so the outline keeps
+    1px inside), chunky russet scarf, big split feet. act = the dead
+    warming-wand held UP TO one long ear — the ear folds down to meet it,
+    listening, baffled (slim honest wood, clearly INERT). emote = both paws
+    thrown up, the ears crossed back into an X of exasperation."""
+    hy, by = 21 + bob, 35 + bob
+    # -- ears first, behind the head ------------------------------------
+    if mood == "emote":                             # crossed back: an X
+        s.capsule(CX - 3, hy - 4, CX + 5, hy - 15, 1.9, 1.4, HARE_FUR, sh=0.04)
+        s.capsule(CX + 3, hy - 4, CX - 5, hy - 15, 1.9, 1.4, HARE_FUR, sh=0.14)
+    else:
+        s.capsule(CX - 3, hy - 4, CX - 4, hy - 17, 1.9, 1.4, HARE_FUR, sh=0.04)
+        s.capsule(CX - 3.5, hy - 9, CX - 4, hy - 15, 0.9, 0.7, HARE_IN)
+        if mood == "act":                           # east ear leans to the wand
+            s.capsule(CX + 3, hy - 4, CX + 8, hy - 8, 1.9, 1.4, HARE_FUR,
+                      sh=0.14)
+            s.capsule(CX + 4, hy - 6, CX + 7, hy - 8, 0.9, 0.7, HARE_IN,
+                      sh=0.30)
+        else:
+            s.capsule(CX + 3, hy - 4, CX + 4, hy - 17, 1.9, 1.4, HARE_FUR, sh=0.14)
+            s.capsule(CX + 3.5, hy - 9, CX + 4, hy - 15, 0.9, 0.7, HARE_IN,
+                      sh=0.30)
+    # -- feet / body / tail ---------------------------------------------
+    for (fx_, sh) in ((CX - 3, 0.0), (CX + 3, 0.10)):   # big hare feet
+        s.ball(fx_, 43, 2.7, 1.6, HARE_FUR, power=2.2, sh=sh, wrap=0.10,
+               curve=0.10)
+    s.ball(CX, by, 6.8, 6.4, HARE_FUR, power=2.2, wrap=0.28, curve=0.22)
+    s.ball(CX, by + 1, 3.8, 3.4, WHITE, power=2.2, wrap=0.10, curve=0.10)
+    s.ball(CX + 7.5, by + 3, 1.8, 1.6, WHITE, power=2.2, sh=0.10,
+           wrap=0.10, curve=0.10)                   # snow-puff tail
+    # -- arms per mood --------------------------------------------------
+    if mood == "act":                               # east arm raises the wand
+        s.capsule(CX - 6.5, by - 4, CX - 7.5, by + 1, 1.7, 1.5, HARE_FUR,
+                  sh=0.06)
+        s.ball(CX - 7.5, by + 2, 1.6, 1.4, WHITE, power=2.2, wrap=0.10,
+               curve=0.10)
+        s.capsule(CX + 6, by - 4, CX + 8, hy - 2, 1.7, 1.4, HARE_FUR, sh=0.16)
+        s.ball(CX + 8, hy - 2, 1.7, 1.5, WHITE, power=2.2, sh=0.10,
+               wrap=0.10, curve=0.10)
+    elif mood == "emote":                           # both paws thrown up
+        s.capsule(CX - 5.5, by - 3, CX - 9, by - 12, 1.7, 1.4, HARE_FUR,
+                  sh=0.06)
+        s.capsule(CX + 5.5, by - 3, CX + 9, by - 12, 1.7, 1.4, HARE_FUR,
+                  sh=0.16)
+        s.ball(CX - 9, by - 13, 1.7, 1.5, WHITE, power=2.2, wrap=0.10,
+               curve=0.10)
+        s.ball(CX + 9, by - 13, 1.7, 1.5, WHITE, power=2.2, sh=0.10,
+               wrap=0.10, curve=0.10)
+    else:
+        s.capsule(CX - 6.5, by - 4, CX - 7.5, by + 1, 1.7, 1.5, HARE_FUR,
+                  sh=0.06)
+        s.capsule(CX + 6.5, by - 4, CX + 7.5, by + 1, 1.7, 1.5, HARE_FUR,
+                  sh=0.16)
+        s.ball(CX - 7.5, by + 2, 1.6, 1.4, WHITE, power=2.2, wrap=0.10,
+               curve=0.10)
+        s.ball(CX + 7.5, by + 2, 1.6, 1.4, WHITE, power=2.2, sh=0.10,
+               wrap=0.10, curve=0.10)
+    # -- the chunky knitted scarf (flat bands + deliberate rib ticks) ---
+    sy = hy + 7
+    s.rect(CX - 5, sy, CX + 5, sy, HARE_SCARF[0])
+    s.rect(CX - 5, sy + 1, CX + 5, sy + 1, HARE_SCARF[1])
+    s.rect(CX - 5, sy + 2, CX + 5, sy + 2, HARE_SCARF[2])
+    for rx in range(CX - 4, CX + 5, 2):
+        s.set(rx, sy + 1, HARE_SCARF[2])            # knit ribs
+    s.rect(CX + 2, sy + 3, CX + 4, sy + 8, HARE_SCARF[1])   # hanging end
+    s.rect(CX + 4, sy + 3, CX + 4, sy + 8, HARE_SCARF[2])
+    for fx_ in (CX + 2, CX + 4):                    # fringe
+        s.set(fx_, sy + 9, HARE_SCARF[2])
+    # -- head -----------------------------------------------------------
+    s.ball(CX, hy, 6.8, 6.0, HARE_FUR, power=2.4, wrap=0.34, curve=0.30)
+    s.ball(CX, hy + 4, 4.4, 2.7, WHITE, power=2.2, wrap=0.10, curve=0.10)
+    s.rect(CX - 1, hy + 2, CX, hy + 2, NOSE)
+    ey = hy - 2
+    if mood == "emote":                             # shut-flat + shouting
+        _closed(s, CX - 5, ey, happy=False)
+        _closed(s, CX + 3, ey, happy=False)
+        s.rect(CX - 2, hy + 4, CX + 1, hy + 5, MAW)
+    else:
+        _eye(s, CX - 5, ey, HARE_EYE, HARE_EYEL)
+        _eye(s, CX + 3, ey, HARE_EYE, HARE_EYEL)
+        if mood == "act":                           # baffled little o
+            s.rect(CX - 1, hy + 4, CX, hy + 5, MAW)
+        else:
+            s.line([(CX - 1, hy + 4), (CX, hy + 4)], MOUTH)
+    s.despeckle(passes=1)
+    s.outline(HARE_OUTS, OUT_LIGHT)
+    whiskers_kid_down(s, bob - 7)
+    if mood == "act":                               # the INERT wand, post-outline
+        for i, wy in enumerate(range(hy - 11, hy + 3)):     # (the grip law:
+            s.set(CX + 8, wy, WOODF[1] if i % 2 else WOODF[2])  # pole through
+        s.set(CX + 8, hy - 12, WOODF[3])            # the paw) — dead dark tip
+
+
+BEAV_FUR = ramp((150, 106, 88), "violet", 4)       # riverbank brown (honest wood-kin)
+BEAV_COAT = ramp((96, 112, 160), "violet", 4)      # steel-indigo quilted coat
+BEAV_CAP = ramp((232, 158, 74), "violet", 4)       # amber knit cap — HIS accent
+BEAV_TAIL = ramp((110, 80, 104), "violet", 4)      # violet-brown paddle tail
+BEAV_MUZ = ramp((214, 204, 214), "violet", 4)      # grey-flecked old muzzle
+BEAV_EYE = (58, 40, 48, 255)
+GREYF = (172, 166, 186, 255)                       # the age flecks
+BEAV_OUTS = outs_for((BEAV_FUR, OUT_DARK), (BEAV_COAT, OUT_DARK),
+                     (BEAV_CAP, OUT_DARK), (BEAV_MUZ, OUT_LIGHT),
+                     (BEAV_TAIL, OUT_DARK), (WHITE, OUT_LIGHT))
+
+
+def beaver(s, mood="idle", bob=0):
+    """Alder, the elderly beaver woodworker: heavy-set in a quilted steel-blue
+    coat, small amber knit cap, grey-flecked muzzle, the broad flat tail
+    poking out at the base. act = the dead charm-stone held out at arm's
+    length, peering at it (a plain cold pebble). emote = the free paw
+    scratching up under the cap, tail pressed flat, weary puzzlement."""
+    hy, by = 21 + bob, 34 + bob
+    # -- the paddle tail at the base ------------------------------------
+    if mood == "emote":                             # pressed FLAT to the snow
+        s.ball(CX + 9, 42.5, 4.8, 1.8, BEAV_TAIL, power=1.8, wrap=0.10,
+               curve=0.10)
+    else:
+        s.capsule(CX + 6, 40 + bob, CX + 12, 42, 2.6, 2.2, BEAV_TAIL, sh=0.10)
+    # -- feet / the heavy quilted body ----------------------------------
+    for (fx_, sh) in ((CX - 3, 0.0), (CX + 3, 0.10)):
+        s.ball(fx_, 43, 2.2, 1.6, BEAV_FUR, power=2.2, sh=0.30 + sh,
+               wrap=0.10, curve=0.10)
+    s.ball(CX, by, 8.4, 7.4, BEAV_COAT, power=2.2, wrap=0.26, curve=0.20)
+    # -- arms per mood --------------------------------------------------
+    if mood == "act":                               # west arm OUT, full length
+        s.capsule(CX - 7, by - 3, CX - 14, by - 4, 2.0, 1.6, BEAV_COAT,
+                  sh=0.06)
+        s.ball(CX - 15, by - 4, 1.9, 1.6, BEAV_FUR, power=2.2, wrap=0.10,
+               curve=0.10)
+        s.capsule(CX + 7.5, by - 4, CX + 8.5, by + 2, 2.0, 1.7, BEAV_COAT,
+                  sh=0.16)
+        s.ball(CX + 8.5, by + 3, 1.7, 1.5, BEAV_FUR, power=2.2, sh=0.10,
+               wrap=0.10, curve=0.10)
+    elif mood == "emote":                           # east paw up under the cap
+        s.capsule(CX - 7.5, by - 4, CX - 8.5, by + 2, 2.0, 1.7, BEAV_COAT,
+                  sh=0.06)
+        s.ball(CX - 8.5, by + 3, 1.7, 1.5, BEAV_FUR, power=2.2, wrap=0.10,
+               curve=0.10)
+        s.capsule(CX + 7.5, by - 4, CX + 8, hy - 3, 1.9, 1.5, BEAV_COAT,
+                  sh=0.16)
+        s.ball(CX + 8, hy - 4, 1.7, 1.5, BEAV_FUR, power=2.2, sh=0.10,
+               wrap=0.10, curve=0.10)
+    else:
+        s.capsule(CX - 7.5, by - 4, CX - 8.5, by + 2, 2.0, 1.7, BEAV_COAT,
+                  sh=0.06)
+        s.capsule(CX + 7.5, by - 4, CX + 8.5, by + 2, 2.0, 1.7, BEAV_COAT,
+                  sh=0.16)
+        s.ball(CX - 8.5, by + 3, 1.7, 1.5, BEAV_FUR, power=2.2, wrap=0.10,
+               curve=0.10)
+        s.ball(CX + 8.5, by + 3, 1.7, 1.5, BEAV_FUR, power=2.2, sh=0.10,
+               wrap=0.10, curve=0.10)
+    # -- head + the small knit cap --------------------------------------
+    for (ex, sh) in ((CX - 6, 0.0), (CX + 6, 0.14)):    # small round ears
+        s.ball(ex, hy - 5, 1.8, 1.7, BEAV_FUR, power=2.0, sh=sh, wrap=0.20,
+               curve=0.16)
+    s.ball(CX, hy, 6.6, 5.8, BEAV_FUR, power=2.4, wrap=0.32, curve=0.28)
+    capdx = 1 if mood == "emote" else 0             # scratch tilts the cap
+    s.ball(CX + capdx, hy - 6, 5.2, 2.6, BEAV_CAP, power=2.0, wrap=0.16,
+           curve=0.10)
+    s.rect(CX - 5 + capdx, hy - 5, CX + 5 + capdx, hy - 4, BEAV_CAP[2])
+    for rx in range(CX - 4 + capdx, CX + 5 + capdx, 2):
+        s.set(rx, hy - 4, BEAV_CAP[3])              # knit rib ticks
+    # grey-flecked muzzle, big nose, the two honest teeth
+    s.ball(CX, hy + 4, 5.0, 3.0, BEAV_MUZ, power=2.0, wrap=0.10, curve=0.10)
+    s.rect(CX - 1, hy + 1, CX + 1, hy + 2, NOSE)
+    s.rect(CX - 1, hy + 6, CX - 1, hy + 7, WHITE[0])    # the two honest
+    s.rect(CX, hy + 6, CX, hy + 7, WHITE[2])            # teeth, split-shaded
+    for (gx, gy) in ((CX - 4, hy + 4), (CX + 4, hy + 5), (CX - 3, hy + 6)):
+        s.set(gx, gy, GREYF)                        # the age flecks
+    ey = hy - 1
+    if mood == "emote":                             # weary shut lids
+        _closed(s, CX - 5, ey - 1, happy=False)
+        _closed(s, CX + 3, ey - 1, happy=False)
+    else:
+        for ex in (CX - 5, CX + 3):
+            s.rect(ex, ey, ex + 1, ey + 1, BEAV_EYE)
+            s.set(ex + 1, ey, GLINT)
+        if mood == "act":                           # peering: brows knit down
+            s.line([(CX - 5, ey - 1), (CX - 4, ey - 1)], BEAV_FUR[3])
+            s.line([(CX + 3, ey - 1), (CX + 4, ey - 1)], BEAV_FUR[3])
+    s.despeckle(passes=1)
+    s.outline(BEAV_OUTS, OUT_DARK)
+    s.crease([(CX + 8, 41), (CX + 9, 41), (CX + 10, 41), (CX + 8, 43),
+              (CX + 10, 43)], BEAV_TAIL[3])         # the paddle crosshatch
+    s.crease([(CX - 3, by - 3), (CX - 3, by), (CX - 3, by + 3),
+              (CX + 3, by - 3), (CX + 3, by), (CX + 3, by + 3),
+              (CX - 6, by + 1), (CX, by + 1), (CX + 6, by + 1)],
+             BEAV_COAT[3])                          # quilt seams
+    whiskers_kid_down(s, bob - 5)
+    if mood == "act":                               # the cold pebble, seated
+        s.rect(CX - 16, by - 7, CX - 15, by - 6, STEELF[2])     # on the paw
+        s.set(CX - 15, by - 6, STEELF[3])
+        s.set(CX - 16, by - 7, STEELF[1])           # one cold light catch
+
+
+FOX_FUR = ramp((224, 120, 54), "violet", 4)        # rust — the kit's own warmth
+FOX_CREAM = ramp((248, 232, 204), "violet", 4)     # muzzle / chest / tail-tip
+FOX_KNIT = ramp((92, 148, 192), "violet", 4)       # frost-blue bobble hat + mittens
+FOX_EYE, FOX_EYEL = (246, 204, 116, 255), (252, 232, 168, 255)
+GLASSM = (214, 232, 242, 255)                      # the marble's cold glass
+GLASSM_D = (36, 28, 52, 255)                       # ...and its DEAD dark heart
+FOX_OUTS = outs_for((FOX_FUR, OUT_DARK), (FOX_CREAM, OUT_LIGHT),
+                    (FOX_KNIT, OUT_DARK))
+
+
+def foxkid(s, mood="idle", bob=0):
+    """Pip, the fox kid — child proportions (shorter, bigger head, the mouse
+    kid register): rust fur, cream muzzle and tail-tip, frost-blue bobble hat
+    and mittens. act = shaking the little glow-marble up in both mittens (the
+    glass is DARK inside — it died). emote = wide-eyed, mouth open, tail
+    bristled: thrilled AND scared at once."""
+    hy, by = 27 + bob, 37 + bob
+    # -- the bushy tail (the fox signature) -----------------------------
+    if mood == "emote":                             # bristled: fat + spiked
+        s.capsule(CX + 5, 39 + bob, CX + 10, 29 + bob, 3.2, 2.6, FOX_FUR,
+                  sh=0.10)
+        for (tx, ty) in ((CX + 4, 34), (CX + 9, 38), (CX + 13, 33),
+                         (CX + 7, 28)):
+            s.tri((tx, ty + bob - 2), ty + bob, tx - 1, tx + 1, FOX_FUR[1])
+        s.ball(CX + 10, 27 + bob, 2.2, 2.0, FOX_CREAM, power=2.2, wrap=0.10,
+               curve=0.10)
+    else:
+        s.capsule(CX + 5, 39 + bob, CX + 9, 31 + bob, 2.6, 2.2, FOX_FUR,
+                  sh=0.10)
+        s.ball(CX + 9, 29.5 + bob, 2.0, 1.8, FOX_CREAM, power=2.2, wrap=0.10,
+               curve=0.10)
+    # -- legs (dark socks) / small body ---------------------------------
+    for (lx, sh) in ((CX - 3, 0.0), (CX + 3, 0.10)):
+        s.capsule(lx, 39 + bob, lx, 42, 1.8, 1.5, FOX_FUR, sh=0.15 + sh)
+        s.ball(lx, 42.8, 1.9, 1.4, FOX_FUR, power=2.2, sh=0.55, wrap=0.10,
+               curve=0.10)
+    s.ball(CX, by, 5.2, 4.6, FOX_FUR, power=2.2, wrap=0.30, curve=0.24)
+    s.ball(CX, by + 1, 3.0, 2.6, FOX_CREAM, power=2.2, wrap=0.10, curve=0.10)
+    # -- arms per mood (mittens are the paws) ---------------------------
+    if mood == "act":                               # both up east, shaking
+        s.capsule(CX - 4.5, by - 2, CX + 4, hy - 11, 1.5, 1.3, FOX_FUR,
+                  sh=0.06)
+        s.capsule(CX + 4.5, by - 2, CX + 7, hy - 11, 1.5, 1.3, FOX_FUR,
+                  sh=0.16)
+        s.ball(CX + 4, hy - 12, 1.7, 1.5, FOX_KNIT, power=2.2, wrap=0.10,
+               curve=0.10)
+        s.ball(CX + 7.5, hy - 12, 1.7, 1.5, FOX_KNIT, power=2.2, sh=0.12,
+               wrap=0.10, curve=0.10)
+    elif mood == "emote":                           # flung a little out
+        s.capsule(CX - 4.5, by - 3, CX - 7, by - 7, 1.5, 1.3, FOX_FUR,
+                  sh=0.06)
+        s.capsule(CX + 4.5, by - 3, CX + 7, by - 7, 1.5, 1.3, FOX_FUR,
+                  sh=0.16)
+        s.ball(CX - 7.5, by - 8, 1.7, 1.5, FOX_KNIT, power=2.2, wrap=0.10,
+               curve=0.10)
+        s.ball(CX + 7.5, by - 8, 1.7, 1.5, FOX_KNIT, power=2.2, sh=0.12,
+               wrap=0.10, curve=0.10)
+    else:
+        s.capsule(CX - 4.5, by - 3, CX - 5.5, by, 1.5, 1.3, FOX_FUR, sh=0.06)
+        s.capsule(CX + 4.5, by - 3, CX + 5.5, by, 1.5, 1.3, FOX_FUR, sh=0.16)
+        s.ball(CX - 5.5, by + 1.5, 1.6, 1.4, FOX_KNIT, power=2.2, wrap=0.10,
+               curve=0.10)
+        s.ball(CX + 5.5, by + 1.5, 1.6, 1.4, FOX_KNIT, power=2.2, sh=0.12,
+               wrap=0.10, curve=0.10)
+    # -- the big kid head + pointed ears + the bobble hat ---------------
+    s.tri((CX - 6, hy - 12), hy - 4, CX - 9, CX - 3, FOX_FUR)
+    s.tri((CX + 6, hy - 12), hy - 4, CX + 3, CX + 9, FOX_FUR, sh=0.14)
+    s.rect(CX - 7, hy - 11, CX - 6, hy - 10, FOX_FUR[3])    # dark ear tips
+    s.rect(CX + 6, hy - 11, CX + 7, hy - 10, FOX_FUR[3])
+    s.ball(CX, hy, 6.2, 5.4, FOX_FUR, power=2.4, wrap=0.34, curve=0.30)
+    s.ball(CX - 4.5, hy + 3, 2.2, 1.8, FOX_CREAM, power=2.0, wrap=0.10,
+           curve=0.10)                              # cheek ruffs
+    s.ball(CX + 4.5, hy + 3, 2.2, 1.8, FOX_CREAM, power=2.0, sh=0.08,
+           wrap=0.10, curve=0.10)
+    s.ball(CX, hy + 3.6, 3.6, 2.4, FOX_CREAM, power=2.2, wrap=0.10,
+           curve=0.10)
+    s.rect(CX - 1, hy + 2, CX, hy + 2, NOSE)
+    s.ball(CX, hy - 6, 5.6, 3.0, FOX_KNIT, power=2.0, wrap=0.16, curve=0.10)
+    s.rect(CX - 5, hy - 4, CX + 5, hy - 3, FOX_KNIT[2])
+    for rx in range(CX - 4, CX + 5, 2):
+        s.set(rx, hy - 3, FOX_KNIT[3])              # rib ticks
+    s.ball(CX, hy - 10, 1.9, 1.7, FOX_CREAM, power=2.2, wrap=0.10,
+           curve=0.10)                              # the bobble
+    ey = hy - 2
+    if mood == "emote":                             # wide-eyed pinpricks
+        for ex in (CX - 5, CX + 3):
+            s.rect(ex, ey, ex + 2, ey + 2, FOX_EYE)
+            s.rect(ex, ey, ex + 2, ey, FOX_EYEL)
+            s.set(ex + 1, ey + 2, PUPIL)
+            s.set(ex + 2, ey, GLINT)
+        s.rect(CX - 2, hy + 4, CX + 1, hy + 5, MAW)
+    else:
+        _eye(s, CX - 5, ey, FOX_EYE, FOX_EYEL)
+        _eye(s, CX + 3, ey, FOX_EYE, FOX_EYEL)
+        if mood == "act":                           # rattling it — teeth grit
+            s.rect(CX - 1, hy + 4, CX, hy + 5, MAW)
+        else:
+            s.line([(CX - 1, hy + 4), (CX, hy + 4)], MOUTH)
+    s.despeckle(passes=1)
+    s.outline(FOX_OUTS, OUT_DARK)
+    if mood == "act":                               # the marble, post-outline:
+        mx, my = CX + 6, hy - 16                    # cold glass, DARK heart
+        for (px_, py_) in ((mx - 1, my), (mx + 1, my), (mx, my - 1),
+                           (mx, my + 1)):
+            s.set(px_, py_, GLASSM)
+        s.set(mx, my, GLASSM_D)
+        s.set(mx - 3, my - 2, GLASSM)               # shake ticks
+        s.set(mx + 3, my - 2, GLASSM)
+    elif mood == "emote":
+        for (px_, py_) in ((CX - 9, hy - 9), (CX, hy - 14),
+                           (CX + 9, hy - 9)):
+            s.set(px_, py_, SPARK_D)                # thrilled-scared ticks
+
+
 # ---- fx strip -----------------------------------------------------------------------------
 
 def fx_ribbon(s, r):
@@ -1799,6 +2503,34 @@ def fx_heart(s):
               (120, 26, 60, 255))
 
 
+def fx_magic_spark(s, big):
+    """A 4-point mote of raw magic (frames 20-21, the Ebb night: sparks
+    streaming into the summit crystal; Fuji's wand casts). White-hot heart,
+    mint-white body, violet fringe. big=False is the smaller/dimmer 2px-armed
+    variant for trail/flicker alternation. Bare hand-set pixels like the
+    sibling sparkle/zzz cells — no despeckle/outline pass."""
+    c = 8
+    if big:
+        for d in range(1, 4):                      # mint cross arms
+            for (x, y) in ((c, c - d), (c, c + d), (c - d, c), (c + d, c)):
+                s.set(x, y, MSPARK)
+        for (x, y) in ((c, c - 4), (c, c + 4), (c - 4, c), (c + 4, c)):
+            s.set(x, y, MSPARK_V)                  # violet arm tips
+        for (x, y) in ((c - 1, c - 1), (c + 1, c - 1),
+                       (c - 1, c + 1), (c + 1, c + 1)):
+            s.set(x, y, MSPARK)                    # core diamond
+        for (x, y) in ((c - 2, c - 2), (c + 2, c - 2),
+                       (c - 2, c + 2), (c + 2, c + 2)):
+            s.set(x, y, MSPARK_V)                  # diagonal violet fringe
+        s.set(c, c, MSPARK_W)                      # white-hot heart
+    else:
+        for d in (1, 2):                           # 2px arms, violet-tipped
+            col = MSPARK if d == 1 else MSPARK_V
+            for (x, y) in ((c, c - d), (c, c + d), (c - d, c), (c + d, c)):
+                s.set(x, y, col)
+        s.set(c, c, MSPARK)                        # dimmer: no pure white
+
+
 def accident_bg():
     """The dusk road backdrop for scene/accident.tscn — one 384x216 painting
     (a one-off set, not a tileset): banded violet-to-rose dusk, a half-set
@@ -2058,6 +2790,51 @@ kitty_adult_side(ka[0][8])
 kitty_adult_side(ka[0][9], bob=-1)
 write_cells(os.path.join(HERE, "npc_kitty_adult_gen.png"), ka, CELL)
 
+# Fuji, the librarian (the Ebb night): [idle x2 (the pair doubles as the
+# walk), WAND-CAST act x2, STARTLED emote x2, BACK x2, SIDE x2 (left profile
+# — play_side(true) faces her east at the counter)] — spawn frame_cols = 10
+fj = [[new() for _ in range(10)]]
+fuji_npc(fj[0][0])
+fuji_npc(fj[0][1], bob=-1, step=1)
+fuji_npc(fj[0][2], mood="act")
+fuji_npc(fj[0][3], mood="act", bob=-1)
+fuji_npc(fj[0][4], mood="emote")
+fuji_npc(fj[0][5], mood="emote", bob=-1)
+fuji_npc_back(fj[0][6])
+fuji_npc_back(fj[0][7], bob=-1)
+fuji_npc_side(fj[0][8])
+fuji_npc_side(fj[0][9], bob=-1)
+write_cells(os.path.join(HERE, "npc_fuji_gen.png"), fj, CELL)
+
+# the Lanternwood Ebb-night trio (scene/lanternwood.gd spawns all three at
+# frame_cols = 6): [idle x2, act x2, emote x2] each
+hr = [[new() for _ in range(6)]]
+hare(hr[0][0])
+hare(hr[0][1], bob=-1)
+hare(hr[0][2], mood="act")
+hare(hr[0][3], mood="act", bob=-1)
+hare(hr[0][4], mood="emote")
+hare(hr[0][5], mood="emote", bob=-1)
+write_cells(os.path.join(HERE, "npc_hare_gen.png"), hr, CELL)
+
+bv = [[new() for _ in range(6)]]
+beaver(bv[0][0])
+beaver(bv[0][1], bob=-1)
+beaver(bv[0][2], mood="act")
+beaver(bv[0][3], mood="act", bob=-1)
+beaver(bv[0][4], mood="emote")
+beaver(bv[0][5], mood="emote", bob=-1)
+write_cells(os.path.join(HERE, "npc_beaver_gen.png"), bv, CELL)
+
+fk = [[new() for _ in range(6)]]
+foxkid(fk[0][0])
+foxkid(fk[0][1], bob=-1)
+foxkid(fk[0][2], mood="act")
+foxkid(fk[0][3], mood="act", bob=-1)
+foxkid(fk[0][4], mood="emote")
+foxkid(fk[0][5], mood="emote", bob=-1)
+write_cells(os.path.join(HERE, "npc_foxkid_gen.png"), fk, CELL)
+
 # the bluff kiss composition: three 96px frames (lean / KISS / the after)
 kc = [[Sprite(96, grain=1, salt=13, jitter=0.0) for _ in range(3)]]
 kiss_lean(kc[0][0])
@@ -2069,7 +2846,9 @@ write_cells(os.path.join(HERE, "bluff_kiss_gen.png"), kc, 96)
 # A's, 10-15 thesis day's — its bytes must never change (WorldFx callers
 # address it by frame index; sheet_sprite infers vframes from the sheet, so
 # row-0 indices survive the second row). Row 1: the accident set-piece
-# (watch call, impact poof, motion lines) at cells 16+.
+# (watch call, impact poof, motion lines) at cells 16+, the bluff kiss heart
+# (19), and the Ebb-night magic sparks (20 bright / 21 dim trail) — only
+# APPEND here, NEVER widen a row.
 fx = [[Sprite(16, grain=1, salt=3, jitter=0.0) for _ in range(16)],
       [Sprite(16, grain=1, salt=3, jitter=0.0) for _ in range(16)]]
 fx_ribbon(fx[0][0], RIBBON_M)
@@ -2092,6 +2871,8 @@ fx_watch(fx[1][0])                  # frame 16
 fx_poof(fx[1][1])                   # frame 17
 fx_lines(fx[1][2])                  # frame 18
 fx_heart(fx[1][3])                  # frame 19 — the bluff kiss
+fx_magic_spark(fx[1][4], True)      # frame 20 — the Ebb-night magic mote
+fx_magic_spark(fx[1][5], False)     # frame 21 — dim 2px trail flicker
 write_cells(os.path.join(HERE, "prologue_fx.png"), fx, 16)
 
 # the accident set-piece: side-view sheets + the dusk road backdrop
@@ -2116,5 +2897,5 @@ write_cells(os.path.join(HERE, "accident_bike_down_gen.png"), bdn, CELL)
 
 accident_bg()
 
-print("prologue cast written: kid_basil (6x5) + 12 NPC sheets + fx strip 16x2"
+print("prologue cast written: kid_basil (6x5) + 18 NPC sheets + fx strip 16x2"
       " + the accident set + the bluff kiss (96px x3)")

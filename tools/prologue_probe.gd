@@ -13,8 +13,10 @@ extends SceneTree
 ##   explodes, 3 pieces, the refit + the kiss) -> Prologue B: plant's walk
 ##   home -> the dash -> the hall naming (auto walk-of-shame) -> bluff
 ##   call1 -> the accident (loop-and-land) -> bluff call2 -> the sickroom
-##   verdict -> the clinic-steps scolding + the scripted leaving -> hand-off
-##   to house.tscn with the adult roster.
+##   verdict -> the clinic-steps scolding + the scripted leaving -> the Ebb
+##   night (the mountain quake/crystal cutscene, skipped by the mash, then
+##   the Lanternwood library dead-wand beat) -> the story rests on playable
+##   solo Fuji in lanternwood.tscn, the street out comparing dead charms.
 ##
 ## Walk-gates are driven by TELEPORTING to the gate anchor; their pollable
 ## end-states are the party unlock (is_physics_processing) or a flag.
@@ -379,12 +381,31 @@ func _run() -> void:
 	var prologue_done := func() -> bool: return game.flag("prologue_done")
 	ok = await _mash_until(prologue_done, 12000)
 	_check("the leaving completes the prologue", ok)
-	var in_adult := func() -> bool: return _scene_is("res://scene/house.tscn")
-	ok = await _mash_until(in_adult, 1500)
-	_check("hand-off lands in the adult build (house.tscn)", ok)
-	_check("adult roster restored", party.roster.size() == 2
-			and party.roster[0] == &"basil" and party.roster[1] == &"fuji"
-			and party.leader_id == &"basil")
+
+	# the Ebb night (2026-07-19): the leaving hands into scene/ebb.gd — the
+	# mountain quake/crystal cutscene (the attack mash trips its polled skip
+	# once armed) — then the Lanternwood library plays Fuji's dead-wand beat
+	# onto the Ebb-night street (the adult build is ESC-skip-only now).
+	var in_ebb := func() -> bool: return _scene_is("res://scene/ebb.tscn")
+	ok = await _mash_until(in_ebb, 2500)
+	_check("the leaving hands into the Ebb night", ok)
+	var ebb_done := func() -> bool: return game.flag("ebb_done")
+	ok = await _mash_until(ebb_done, 4000)
+	_check("the Ebb plays (the mash skip fires)", ok)
+	var in_library := func() -> bool: return _scene_is("res://scene/library.tscn")
+	ok = await _mash_until(in_library, 4000)
+	_check("the quake hands to the Lanternwood library", ok)
+	# the story rests HERE now (2026-07-20): the dead-wand beat hands solo
+	# Fuji the town — the same night, the street out comparing dead charms
+	var in_lanternwood := func() -> bool: return _scene_is("res://scene/lanternwood.tscn")
+	ok = await _mash_until(in_lanternwood, 9000)
+	_check("Fuji's dead-wand beat hands her the town", ok)
+	_check("solo Fuji roster", party.roster.size() == 1
+			and party.roster[0] == &"fuji" and party.leader_id == &"fuji")
+	await _wait_frames(40)               # entry fade settles; villagers cast
+	_check("the Ebb-night street is peopled",
+			current_scene.get_node("World").get_children().any(
+					func(c: Node) -> bool: return c is NPC))
 
 	print("prologue probe: %s" % ("ALL PASS" if _fails == 0 else "%d FAILED" % _fails))
 	quit(1 if _fails > 0 else 0)

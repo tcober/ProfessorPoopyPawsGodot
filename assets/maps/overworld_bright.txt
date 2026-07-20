@@ -1,10 +1,13 @@
 ; Overworld travel map, PRE-EBB ERA - a BYTE COPY of overworld.txt's legend,
 ; anchors and grid (only this header differs; edit BOTH or the eras drift).
 ; Rendered by assets/_gen_tileset_overworld_bright.py in the bright pre-Ebb
-; palette: the big mountain still wears its snow summit (big_mountain, not
-; crystal_summit), the obelisk network glows MINT (alive), the waste pans
-; read as ordinary parched ground. Used by scene/overworld_bright.tscn and
-; the Ebb event scene; nothing in the live flow walks it.
+; palette (seeds lifted, same teal lean - the town_fest formula at world
+; scale): the big mountain still wears its snow summit (big_mountain, not
+; crystal_summit - no crystal blaze on the glow overlay; the glow accents
+; burn MINT, alive, instead of drained violet). Used by
+; scene/overworld_bright.tscn (staging/screenshots only) and by the Ebb
+; event scene, which stamps BOTH eras and swaps them under its white flash;
+; nothing in the live flow walks it.
 
 legend , flowers walk
 legend . grass walk
@@ -80,7 +83,7 @@ map
 ~~~s.......pp.,,,....r...........~~~~~~~~~~....MMMMMMMMMMMMMMMMMMMCCCCCC...~~~~~~~~~~~~MMMMMMMMMMMMMMMMMMM~~~~~~
 ~~~s........pppp,,...r..........~~~~~~~~~~~~.....MMMMMMMMMMMMMMMMMCCCCCC....~~~~~~~~~MMMMMMMMMMMMMMMMMMMM~~~~~~~
 ~~~s..........,pp....r..........~~~~~~~~~~~~~~......MMMMMMMMMMMMMMCCCCCC...~~~~~~~~~aaaMMMMMMMMMMMMMMMMMa~~~~~~~
-~~~~s...........pppppr=p.........~~~~~~~~~~~~~~~.hhhhhhhhhhhhhhhhhCCCCCC...~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaa~~~~~~
+~~~~s...........ppppp=pp.........~~~~~~~~~~~~~~~.hhhhhhhhhhhhhhhhhCCCCCC...~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaa~~~~~~
 ~~~~s.........t.......rpppp.......~~~~~~~~~~~~~~~~~hhhhhhhhhhhhhhhhh......~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaa~~~~~
 ~~~~~s....t..........,r,,,pGGGGGG..~~~~~~~~~~~~~~~~~~~~~~~h~hhhhhh.......~~~~~~~~aaaaaaalllaaaaaaaaaaaaaaaaa~~~~
 ~~~~~~s............t..r,,t.GGGGGG.s~~~~~~~~~~~~~~~~~~~~~~~~~~~.........~~~~~~~~~~aaaaaalllllaaaaaaaaaaaaaaaa~~~~

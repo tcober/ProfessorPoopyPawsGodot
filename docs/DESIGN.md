@@ -66,14 +66,26 @@ that IS the personality, Adventure Time style — never a generic villager.
 - **Basil** — the science cat. Can't do magic at all in a world where it's
   casual; got into
   the Academy on potion-craft (the one science that looks enough like magic);
-  branded "Professor Poopy Paws" at his thesis; hermit for years **beneath the
-  Elder Tree** on the riverbank, where he alone kept *measuring* the dead
-  crystals of the nearby wastes. Comes back "for the science, not for the
+  branded "Professor Poopy Paws" at his thesis; hermit for years **inside the
+  HOME TREE** on Forest Land's SE coast (2026-07-19, the five-lands redesign —
+  supersedes the riverbank "Elder Tree": the giant tree is his hermitage now,
+  arched door, round lit window, a stub flue through the canopy; interior zone
+  future), where he alone kept *measuring* the drained world — years of
+  readings on the distant summit crystal, the only data anyone has on the Ebb.
+  Comes back "for the science, not for the
   people" — the emotional runway of the whole game is closing that gap.
-- **Fuji** — tortoiseshell librarian (current playable; see Asset Specs). The
-  Academy's archivist, keeper of a library nobody visits. **A stranger to
-  Basil's past** — she knows him only through the thesis she unearths after
-  the Ebb. Pulls him back into the world; the slow-burn love of the story.
+- **Fuji** — tortoiseshell librarian (current playable; see Asset Specs).
+  **The LANTERNWOOD librarian (2026-07-19 canon — supersedes "the Academy's
+  archivist")**: keeper of the little library in her snow town on the NW ice
+  land, an ocean away from Basil's whole life. **A stranger to Basil's
+  past** — she knows him only through the thesis she unearths after the Ebb.
+  HOW his thesis reached a Lanternwood shelf, and how she crosses the ocean
+  to find him (the boat), are open Act 1 hooks. Her first on-screen
+  appearance is the shipped Ebb-night library beat (`scene/library.gd` —
+  the wand-made coffee, the quake, the wand that suddenly makes nothing),
+  after which the story hands HER the controls: playable solo Fuji on her
+  own Ebb-night street, the build's current resting point.
+  Pulls him back into the world; the slow-burn love of the story.
 - **Sage** — Basil's little sister (herb-name family). Younger AND
   effortlessly gifted at magic as a kid — her teasing is sibling-thoughtless,
   not cruel. Present day: the Ebb took her whole identity; she scrapes by
@@ -322,15 +334,35 @@ decision: the old look is rejected wholesale); only the beats are canon:
 
 ### ACT 1 — "THE EBB" (Fuji, present day — ends where the current build begins)
 
-1. **Cold open** *(cutscene)*: the night of the Ebb — a soundless flash, the
-   obelisk light dying, ribbons falling mid-float, the Academy going dark.
-   Cards.
-2. **The library** *(playable Fuji, new Academy-library interior)*: weeks
+*(Beats 1–2 restructured 2026-07-19 with the five-lands redesign: Fuji
+starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
+
+1. **Cold open — the Ebb night** *(BUILT 2026-07-19, wired into the live
+   flow off Prologue B's "YEARS LATER." card)*: **`scene/ebb.tscn`** — the
+   quake over the big mountain, ONE white flash swapping the bright world
+   for the drained one as the summit crystal ignites, fourteen motes of
+   loose magic streaming home to the summit from every horizon, a held
+   silence (sets `ebb_done`) → **`scene/library.tscn`** phase `"ebb"`
+   (`Game.library_phase` router): **Fuji's first appearance** — her
+   Lanternwood reading room at night, wand-made coffee whose sparks keep
+   missing the kettle, the quake reaching her floor, "...That was scary.
+   ...Everything seems okay, though?" — and then the next flick of the
+   wand makes NOTHING. No spark at all. Held beat, fade — and the story
+   ends (for now) on **PLAYABLE FUJI**: `scene/lanternwood.tscn` on the
+   SAME Ebb night, roster Fuji SOLO, spawned at the library door, free to
+   walk her snow town among its first villagers — every line about the
+   magic suddenly gone, while Lanternwood's honest firelight still burns.
+2. **The library** *(playable Fuji — the SAME Lanternwood room, reused via
+   `Game.library_phase`)*: weeks
    later. Fuji hunts by candlelight for *anything* about magic leaving.
    **Research gate**: find the right stack (light exploration puzzle),
    unearth a dusty thesis — *On Re-Enchantment: Why Science Is Magic's
-   Equal* — B. Basil. Marginal note: laughed out of the Academy.
-3. **Wander gate — asking around** *(playable)*: nobody knows a "Basil."
+   Equal* — B. Basil. Marginal note: laughed out of the Academy. (HOW the
+   thesis crossed an ocean to a Lanternwood shelf is an open hook —
+   deliberately unanswered until it can land.)
+3. **The crossing → asking around** *(the boat, then a wander gate)*: every
+   land is ocean-separated — how Fuji gets across is the Act 1 boat hook
+   (open). Landing near Alembic Town: nobody knows a "Basil."
    Everyone remembers "**Poopy Paws**" — the cruel name outlived the cat (the
    theme weaponized as a story gate: the player must ask about the *insult*
    to find the man). The Copper Kettle innkeeper: "went east, past the
@@ -339,26 +371,33 @@ decision: the old look is rejected wholesale); only the beats are canon:
    is her combat tutorial** — the meadow that was a childhood idyll in
    Prologue A now crawls with curdled-magic slimes (tome swing + darts taught
    here; same map, two eras, the loss made playable).
-5. **The hermitage — the Elder Tree** *(new small zone: the riverbank under
-   the giant tree, entered from its overworld landmark)*: a lean-to among the
-   roots, corkboard research, crystal instruments — Basil has spent years
-   *measuring* the dead crystals of the nearby wastes, the only person in the
-   world with data on the Ebb. And a strange brass gun.
+5. **The hermitage — the HOME TREE** *(new small zone: inside the giant
+   tree on Forest Land's SE coast, entered from its overworld landmark —
+   the door, round window and flue are already drawn on the map icon)*: a
+   den among the roots, corkboard research, crystal instruments — Basil has
+   spent years *measuring* the drained world, a hermit's log of readings on
+   the distant summit crystal, the only data anyone has on the Ebb. And a
+   strange brass gun.
 6. **The refusal → the party** *(cutscene + fight)*: he says no. She reads his
    own thesis back at him. A slime pack hits the camp — they fight side by
    side (**the 2-member party mechanic unlocks HERE, diegetically**). He
    comes back "for the science, not for the people."
-7. **Return to Alembic Town**: the shuttered, drained town of the current
-   build. Act 1 ends exactly where today's game boots — bedroom, downstairs,
-   town, overworld, meadow.
+7. **Return to Alembic Town**: the shuttered, drained town of the adult
+   sandbox. Act 1 ends exactly where the combat core lives — bedroom,
+   downstairs, town, overworld, meadow (today reachable via the ESC dev
+   skip; the live story flow currently ends on Fuji in Lanternwood).
 
 ### ACT 2+ — "RE-ENCHANTMENT" (the main game, sketched loose on purpose)
 
-- **The mystery is the engine**: probe the obelisk network region by region —
-  the Burrows (already anchored on the map), the Obelisk monument, the
-  Capital, the Horn. Each expedition is a dungeon; each success relights a
+- **The mystery is the engine**: probe the obelisk network **land by land** —
+  one dark obelisk per landmass (the surviving hook after the 2026-07-19
+  five-lands redesign cut the waste monument + Burrows anchors from the
+  map), plus the Capital, the Horn, and the summit crystal itself. Each
+  expedition is a dungeon; each success relights a
   region (the glow-overlay pipeline literally exists for lights coming back
-  on — restoration as a visible, palette-driven reward).
+  on — restoration as a visible, palette-driven reward). **The boat** carries
+  it: every landmass is ocean-separated by design, so travel between lands
+  is itself story progression.
 - **Schweinler recurs** at the Capital as the court's "Calamity Expert" —
   obstruction and stolen credit, escalating to a personal reckoning that
   lands as anticlimax-on-purpose: the apology arrives and Basil finds he's
@@ -379,9 +418,10 @@ decision: the old look is rejected wholesale); only the beats are canon:
 - **Wander gates over triggers**: progress unlocks by talking/finding (N
   townsfolk, a stack in the library, parts in the meadow) — the
   explore-talk-progress loop is taught from minute one.
-- **Reprise staging**: the same three stages carry the whole story — Alembic
+- **Reprise staging**: the same stages carry the whole story — Alembic
   Town (festival / thesis-day / drained), Whisker Meadow (Kitty / slimes),
-  the Academy (glowing / barred / dark library). Two eras of one place beat
+  the Lanternwood library (the Ebb-night dead wand / Act 1's candlelit
+  research, one room via `Game.library_phase`). Two eras of one place beat
   many places seen once.
 - **Combat debuts in Act 1** (Fuji in the meadow). The prologue's only action
   verbs are walk/hop/interact — the world before the Ebb was *safe*.
@@ -454,9 +494,11 @@ never modern tech or generic-fantasy defaults.
 Two layers:
 
 - **Overworld** (`scene/overworld.tscn`) — the travel layer: a Chrono Trigger /
-  Sea of Stars–style miniature TILED continent (64×36 tiles, 1024×576 px,
-  camera-clamped), stamped at runtime from a generated CT-style tileset
-  (~210 unique tiles; coasts, riverbanks, cliff feet, canopy rims and road
+  Sea of Stars–style miniature TILED continent (**112×63 tiles, 1792×1008 px**
+  since the 2026-07-19 five-lands redesign, camera-clamped), stamped at
+  runtime from a generated CT-style tileset
+  (~1170 unique tiles, ~700 of them animated water/lava; coasts, riverbanks,
+  cliff feet, canopy rims and road
   shoulders are neighbor-keyed autotile transitions that dedupe by
   construction) onto two TileMapLayers — under and over the chibi, so Basil
   passes behind the forest canopy rim. He walks it as a 24×24-cell chibi
@@ -465,11 +507,19 @@ Two layers:
   the CT area-map way. The 2026-07 darker pass replaced the candy-mint
   field with mossy emerald / deep ocean teal / violet-slate rock (the law
   holds: deep + saturated + hue-shifted, never gray).
-  **No combat on the map.** Terrain gates travel — water, forest, mountains,
-  rivers and buildings are solid; sand, grass, roads, bridges,
-  hills and the wastes are walkable; bridges and roads open the routes. The
-  eastern drained wastes render **hot violet-magenta** — the magic-drained
-  premise carried by color.
+  **No combat on the map.** Terrain gates travel — water, forest, pines,
+  mountains, rivers, lava and buildings are solid; sand, grass, roads,
+  bridges, hills, snow, desert dunes and basalt crust are walkable; bridges
+  and roads open the routes — and **every landmass is OCEAN-SEPARATED**: no
+  walkable crossing between lands exists at all (the boat is future story).
+  The magic-drained premise is carried by the **summit crystal**: the big
+  mountain's crystallized peak burns violet on the glow overlay at the
+  center of the map. **Two-era overworld** on the fest byte-copy pattern:
+  `overworld_bright.*` = pre-Ebb (snow summit, mint glow accents),
+  `overworld.*` = the post-Ebb default (crystal summit, violet glow); the
+  sibling `scene/overworld_bright.tscn` exists for staging/screenshots only
+  — nothing in the live flow walks it (the Ebb event scene stamps both eras
+  and swaps them under its flash).
 - **Zones** — the full-scale scenes entered from the map, where the existing
   gameplay happens: 48×48-cell field sprites, SNES-Zelda ALttP-style movement, and
   the top-down laser-gun shooter combat.
@@ -487,36 +537,58 @@ behind — over solid cells, NOT walkable. Its one walkable gate-mouth `D` cell
 carries the travel marker; stepping on it fades INTO the town's own walkable
 zone scene, exactly how CT's overworld towns open into their village maps.
 
-**Geography:** **ALEMBIC TOWN** as a DENSE cluster icon on the SW coast —
-seven small overlapping cottage roofs (openings are dabs: a town read from
-across the plain), the Academy's crenellated castle-keep at the back rank,
-and the steamworks' riveted copper boiler venting a steam plume the whole
-map can read, warm lit windows + rose window on the glow overlay, a
-flask-sign gate — → ONE winding trail NE past Whisker Meadow (center-west),
-over the rosewood bridge across the N→S river, petering out at the drained
-wastes; mountain ridge + foothills N with the Burrows pass (cave anchor),
-the **CAPITAL'S CASTLE** (`C` cells, 6×5) riding the west massif — pale
-stone hold, blue cones, pennants, its own steaming flue — and the **HORN**
-(`V`, 5×4), the one snowcapped summit breaking the ridge rhythm at the
-massif's NW tip; the **ELDER TREE** (`g`, 4×6, ~5× the chibi) leaning over
-the riverbank between trail and wastes — the plain's sense-of-scale anchor;
-wastes E/SE with the **crystal OBELISK monument** (`O`, 3×4, at the obelisk
-anchor) and 2×2 `K` crystal outcrops scattered around it; lone plains trees
-+ flower patches scatter the grass; ocean frames everything. (The static
-cloud-shadow overlay was cut 2026-07-06 — at CT zoom the soft dark ovals
-read as smudges, not weather.) Region edges are drawn as 1-cell
-stair-steps in the map txt ON PURPOSE — the autotile's 45° corner cuts
-render them as continuous diagonal coasts/rims.
+**Geography — THE FIVE LANDS (2026-07-19, sketch-faithful):** every landmass
+ocean-separated, region edges drawn as 1-cell stair-steps in the map txt ON
+PURPOSE — the autotile's 45° corner cuts render them as continuous diagonal
+coasts/rims. (The static cloud-shadow overlay was cut 2026-07-06 — at CT
+zoom the soft dark ovals read as smudges, not weather.)
+
+- **SW FOREST LAND** — the playable core. **ALEMBIC TOWN** as a DENSE
+  cluster icon on the coast —
+  seven small overlapping cottage roofs (openings are dabs: a town read from
+  across the plain), the Academy's crenellated castle-keep at the back rank,
+  and the steamworks' riveted copper boiler venting a steam plume the whole
+  map can read, warm lit windows + rose window on the glow overlay, a
+  flask-sign gate — → ONE winding trail NE past Whisker Meadow,
+  over the rosewood bridge across the river; and the **HOME TREE** (`g`
+  trunk / `G` walk-behind canopy, 6×9, ~6× the chibi) leaning over the SE
+  coast — **Basil's hermitage**: a great crown over a bark-grooved trunk
+  that carries an arched lit door, a round window, a hanging lantern and a
+  stub flue through the canopy — somebody LIVES in there (interior zone
+  future). Lone plains trees + flower patches scatter the grass.
+- **CENTRAL MOUNTAIN LAND** — the Kingdom. The **CAPITAL'S CASTLE** (`C`
+  cells, 6×5) riding the massif — pale
+  stone hold, blue cones, pennants, its own steaming flue — the **HORN**
+  (`V`, 5×4), the snowcapped summit at the ridge's west end, and **THE BIG
+  MOUNTAIN** (`B`, 14×10) at the heart of the land: pre-Ebb a proud
+  snowcapped summit, post-Ebb the **GIANT CRYSTAL** the world's magic
+  drained into, ablaze on the glow overlay.
+- **NW ICE/SNOW LAND** — a heavily pine-forested winter island (`i` snow,
+  `P` pines) carrying **LANTERNWOOD** (`L` cluster icon, its `d` gate →
+  `scene/lanternwood.tscn`) — **Fuji's hometown**, visible from the start
+  but ocean-locked: unreachable on foot by design until the boat.
+- **NE PURPLE DESERT + E/SE LAVA LAND** — one eastern landmass split by a
+  volcanic ridge: the pale ripple-dune desert pan (`b`) north, the basalt
+  crust (`a`) with **ANIMATED molten lava pools** (`l`) south — the
+  lava-ring law: every lava cell's neighbors must be lava or basalt,
+  asserted at build.
+- **MYSTERIOUS ISLANDS** off the south coast — unreachable, unnamed, on
+  purpose.
+
+Markers in the live build:
 
 - **ALEMBIC TOWN** (`town` → `alembic_town.tscn`) — the icon's gate mouth;
   it opens into the walkable town at its south gate.
 - **WHISKER MEADOW** (`meadow` → `meadow.tscn`) — the first field zone; the one
   playable combat zone today. A flower ring marks its road entrance.
-- **THE BURROWS** (design only) — future dungeon; its pass and cave anchor
-  already sit in the northern ridge.
-- **THE DRAIN** (design only) — where the magic *went* when **the Ebb** took
-  it: somewhere deep beneath the eastern wastes (see "Lore spine" in the Story
-  chapter).
+- **LANTERNWOOD** (`lanternwood` → `lanternwood.tscn`) — the snow town's
+  gate mouth on the NW island; wired and walkable as a zone, but the island
+  itself is ocean-locked from the playable core (the boat is the future
+  unlock).
+- The old **Burrows** cave, **waste pocket** and **obelisk monument**
+  geography is GONE from the map (cut 2026-07-19 with the five lands); the
+  obelisk network survives as lore — one dark obelisk per landmass, the
+  Act 2+ dungeon skeleton (see "Lore spine").
 
 **Alembic Town, walkable** (`scene/alembic_town.tscn`, 56×34 tiles — rebuilt
 from scratch 2026-07-11 as the Kakariko-style hub, LIVE in the flow) — the
@@ -547,18 +619,38 @@ town icon. Spawns route through `Game.town_spawn` (read-and-clear; "" = the
 south gate, `home` = below Basil's door — the downstairs front door now
 opens HERE, not onto the overworld).
 
+**Lanternwood, walkable** (`scene/lanternwood.tscn`, 44×28 tiles, shipped
+2026-07-19) — Fuji's winter pine-forest town at zone scale, riding the same
+OverWorld tile driver (pines border, packed-snow lanes via
+`road_verge="snow"`, the frozen pond as walkable cells under a baked
+Tier-1 ice prop): quaint log cabins as Tier-3 y-sorted 4-frame sheets with
+**fire-lit flickering windows and lazy woodsmoke** (cycled with per-cabin
+phase offsets), big standalone conifers, mantle lamps, and announce-only
+door banners — **THE LANTERNWOOD LIBRARY**, **FUJI'S FAMILY HOME**, and
+three snow-banked cabins. The south gate lane exits to the overworld at the
+`lanternwood` icon. Once `ebb_done` is set the town dresses for the Ebb
+night (`_ebb_night_town()` — the story's current resting state, playable
+solo Fuji): deep night tint the firelight burns through, and the first
+villagers out in the snow — Bramble the snow hare, Alder the elderly
+beaver, Pip the fox kid — comparing charms that all died at once (see the
+Ebb event block in "Current Milestone").
+
 History: the 2026-07 town carve absorbed the old standalone "Basil's Bluff"
 into Alembic Town and moved the town from its old NE-forest anchor onto the SW
 coast; the proportion pass tore the rampart back out (the walled compound
 dwarfed the chibi) in favor of an open on-map cluster; the icon pass then went
 CT-faithful — the on-map cluster became a drawn icon and the open town moved
-into its own walkable scene. The Burrows and the Drain stay design-only until
-their zones exist.
+into its own walkable scene. The 2026-07-19 **five-lands redesign** then
+replaced the single 64×36 continent with the ocean-separated 112×63 five
+lands, retired the waste-pocket / obelisk-monument / Burrows-cave geography,
+renamed the Elder Tree the HOME TREE (Basil's hermitage, drawn lived-in),
+and added the two-era bright twin + Lanternwood.
 
-The cracked/dead-tree/crystal **wastes biome** (east) visually encodes the
-drained-magic premise — the blight that spread out of the Drain after **the
-Ebb** (see the Story chapter's lore spine). New regions and zones unlock as the
-story progresses; the gating tools are terrain plus story keys.
+The drained-magic premise now lives at the center of the map: the **summit
+crystal** glowing violet over Mountain Land (mint and alive in the pre-Ebb
+twin — the era told by palette, the grid byte-locked between the two maps).
+New regions and zones unlock as the
+story progresses; the gating tools are terrain, the ocean, and story keys.
 
 ## Tech / Engine Conventions
 
@@ -629,7 +721,7 @@ story progresses; the gating tools are terrain plus story keys.
   introduced later as progression that mirrors the story. The laser gun is the
   early-game, magic-free weapon.
 
-## Current Milestone — Prologue A + B + Combat Core
+## Current Milestone — Prologue A + B + the Ebb Night + Combat Core
 
 **Prologue B "Professor Poopy Paws" is LIVE (2026-07-12)** — the thesis-day
 chapter, entered from the **sunset bluff** (2026-07-17; A's montage swaps
@@ -699,8 +791,9 @@ chapter, in flow order:
   SOUTH GATE (restaged 2026-07-18 from the east lane): the `knapsack`
   tableau on the central road, the `knapsack_back` look-back + the
   goodbye ("I wish I could have been welcome here."), the short
-  `knapsack_walk` trudge south out the gate mouth → the closing cards →
-  `house.tscn` with the adult roster `[basil, fuji]`).
+  `knapsack_walk` trudge south out the gate mouth → the closing cards
+  ("YEARS LATER.") → **the Ebb event** (`scene/ebb.tscn`, the block below;
+  2026-07-19 — the cards used to hand straight to `house.tscn`)).
 - **`scene/house_thesis.gd/.tscn`** — the 8:57 wake-up, reusing the loft
   bedroom tileset/map/props with a dawn-dim CanvasModulate that snaps bright
   when Basil bolts up; Dr. Feathers the bird (fx) at the window, the panic,
@@ -777,7 +870,8 @@ chapter, in flow order:
   the goose extended to a 6-col waddle. `prologue_fx.png` grew 10→16 cells (+ bag,
   paw-print, bird×2, puddle, zzz) — the bluff meet slices it via
   `WorldFx.sheet_sprite`;
-  row 1 carries watch/poof/lines + the kiss **heart** (cell 19, 2026-07-17).
+  row 1 carries watch/poof/lines + the kiss **heart** (cell 19, 2026-07-17)
+  + the Ebb-night **magic sparks** (cells 20-21, 2026-07-19).
   Adult Basil's sheet gained **row 8** (2026-07-17, `_gen_basil_sprites.py`
   — the frozen contract only ever APPENDS): `look_watch` (wrist raised to
   the brass face — every call beat plays this instead of the old floating
@@ -790,6 +884,74 @@ chapter, in flow order:
   frame for the south-gate goodbye (the pack bulge under the nape with a
   pinched cinch pucker);
   `accident_kitty_gen` grew a 5th `tumble` frame (the loop-and-land curl).
+
+**THE EBB EVENT (2026-07-19)** — the Act 1 opener, shipped and wired into
+the live flow: Prologue B's leaving cards now hand to the Ebb night before
+the adult build wakes.
+- **`scene/ebb.gd/.tscn`** — a PURE partyless cutscene staged over the
+  overworld's big mountain: BOTH era tilemaps are stamped on entry (bright
+  pair visible, drained pair hidden), the camera holds on the summit under
+  a deep-indigo night, the ground shakes (an escalating 1→4px wall-clock
+  camera jitter), and **ONE white flash swaps the bright world for the
+  drained one** — the palette drain and the summit-crystal ignition land on
+  the same cut. Then the SPARKS: **fourteen motes of loose magic streaming
+  home to the summit** from just off every screen edge (additive, violet-
+  white, exponential ease-in, shrinking as they fly) while the drained glow
+  breathes, and a held silence. No dialog, no cards — the narration purge:
+  the mountain does the talking. A polled LEVEL-detect skip
+  (ui_accept/ui_cancel/attack, armed after 1s — the crank-mash gotcha)
+  jumps to the idempotent finish from anywhere. Sets `ebb_done`, hands to
+  the library.
+- **`scene/library.gd/.tscn`** + `maps/library.txt` +
+  `_gen_tileset_library.py` (the `library` palette: rosewood planks / plum
+  weave, firelight amber against snow-blue night glass) — **FUJI'S FIRST
+  APPEARANCE**: the Ebb night from HER side of the world, her little
+  Lanternwood reading room. Partyless like the accident — Fuji is an NPC
+  posed by the Theater. Closing time, one more chapter, **wand-made
+  coffee**: the wand WORKS but keeps missing the kettle (sparks arc off the
+  bead; kettle hits blink out, wild ones pop poof decals on the
+  floorboards — the mess), the quake reaches her floor (the same jitter the
+  mountain rolls), the stillness — "...That was scary. ...Everything seems
+  okay, though? Nothing even fell." — and then the next flick makes
+  **NOTHING. No spark at all.** She flicks it again. Nothing. A held silent
+  beat, fade to black — and **the story stays with HER** (2026-07-20, no
+  card: no time passes between her floor and the street): `ebb_done`,
+  `Party.set_roster([&"fuji"], &"fuji")`, `Game.town_spawn = "library"` →
+  `scene/lanternwood.tscn`. Phase `"ebb"`
+  routes via **`Game.library_phase`** (read-and-clear, the town_thesis
+  pattern) — Act 1's playable research phase will reuse this same room.
+- **The Ebb-night street** (`scene/lanternwood.gd` `_ebb_night_town()`,
+  gated on `ebb_done` — the story's CURRENT RESTING STATE: playable solo
+  Fuji on the same night): the `town_spawn="library"` arrival lands her a
+  step south of her own library door (so the announce banner waits for her
+  to turn back to it), a deep indigo night tint the fire-lit windows and
+  oil lanterns burn straight through — **Lanternwood earns its name
+  diegetically: honest flame owes magic nothing** — and the neighbors out
+  in the snow comparing charms that all died at once: **Bramble the snow
+  hare** ("Every charm on my washing line, cold as river stones. All at
+  ONCE."), **Alder the elderly beaver** ("Sixty years my ember-charm kept
+  the workshop warm. Tonight - pfft. A dead pebble. ...But look around you.
+  The lanterns still burn."), **Pip the fox kid** ("It is NOT hiding. I
+  checked under the ice. TWICE."). Interact-to-talk NPC-kit villagers;
+  every line is about the sudden dead charms and **nobody blames anybody**
+  — the Ebb has no author. The adult Basil sandbox underneath is reached
+  via `prologue_open`'s ESC dev skip, not the story flow.
+- **New `Game` state**: the `ebb_done` flag + the `library_phase` router +
+  the `town_spawn = "library"` route into Lanternwood (the existing
+  read-and-clear spawn machinery, new anchor);
+  `prologue_open`'s ESC skip sets `ebb_done` too (the skip jumps past the
+  Ebb night as well as the prologue, straight to the adult sandbox).
+- **New art**: `npc_fuji_gen.png` (480×48 — a 10-col NPC-kit sheet, the
+  canonical tortie design from `_gen_fuji_sprites.py` redrawn on the NPC
+  contract: idle / act = the wand cast / emote = startled / back / side)
+  and `prologue_fx.png` cells 20–21 (bright + dim **magic sparks** on
+  row 1 — mint-white hearts, violet fringe; the never-widen-a-row rule
+  held).
+- The probe grew **42 → 46 checks**: the leaving → Ebb → library →
+  Lanternwood chain is asserted end-to-end (the attack mash trips the Ebb's
+  polled skip once armed), ending on the Lanternwood landing, the
+  solo-Fuji roster, and a peopled Ebb-night street.
+
 **Prologue A pacing pass (same day):** **Mom** is now load-bearing — three
 stinging talks make Basil want to go home, and **her blessing is the gate
 key** ("Magic is common as dandelions. You take things apart to see WHY.
@@ -818,7 +980,9 @@ LEVEL-edge detection (`is_action_pressed` + a was-down latch), NOT
 press lands, so a just_pressed edge is missed every time (killed the crank
 mash until fixed).
 
-`tools/prologue_probe.gd` now drives the WHOLE A+B chapter and asserts every
+`tools/prologue_probe.gd` now drives the WHOLE A+B chapter **plus the Ebb
+night through to solo Fuji in Lanternwood** (46 checks since 2026-07-20)
+and asserts every
 scene transition + flag; run it after touching any story scene.
 
 **Polish pass (2026-07-12, same day):** three player complaints fixed —
@@ -1014,7 +1178,10 @@ The **narrative kit** (built fresh 2026-07-12):
   `Party.set_roster()` (typed Array[StringName]; dynamic callers through
   `root.get_node("Party")` must pass a TYPED array or the call errors).
 
-Adult flow underneath (unchanged): **bedroom ↔ downstairs ↔ Alembic Town ↔
+Adult flow underneath (unchanged as a sandbox, but since 2026-07-20 the
+live STORY flow no longer lands in it — the Ebb night ends on solo Fuji in
+Lanternwood, and the adult loop is reached via `prologue_open`'s ESC skip):
+**bedroom ↔ downstairs ↔ Alembic Town ↔
 overworld ↔ Whisker Meadow**.
 The adult loop opens in the loft bedroom; its stairs descend to the downstairs
 great room, whose front door opens into walkable Alembic Town just below the
@@ -1086,11 +1253,12 @@ Basil's home door in town travels down into the downstairs.
   door → Alembic Town just below the cottage door (`Game.town_spawn =
   "home"`). Spawns route through `Game.interior_spawn` (read-and-clear;
   default = `front_door`, the town-entry landing).
-- **Overworld** (`overworld.tscn`): the CT/SoS TILED travel map (see "World
-  Structure"). Two markers: the town icon's gate mouth (`town`, into the
-  walkable town at its south gate) and Whisker Meadow (enters the combat
-  zone). Cave and obelisk stay anchor-only landmarks in the terrain; their
-  markers return with their zones.
+- **Overworld** (`overworld.tscn`): the CT/SoS TILED travel map — since
+  2026-07-19 the five-lands continent (see "World
+  Structure"). Three markers: the town icon's gate mouth (`town`, into the
+  walkable town at its south gate), Whisker Meadow (enters the combat
+  zone), and Lanternwood's gate (`lanternwood`, into the snow town —
+  ocean-locked from the playable core until the boat).
 - **Alembic Town, walkable** (`alembic_town.tscn`) — the Kakariko-style hub
   (see "World Structure" for the full composition): terrace Academy over the
   cliff-and-stair band, fountain square, the two shops + inn (announce-only
@@ -1101,6 +1269,12 @@ Basil's home door in town travels down into the downstairs.
   road trail, boulder-prop outcrops + the trailhead cairn),
   4 slimes, beaker respawns, HUD; a south hedge-gap exit returns to the overworld
   at the meadow marker.
+- **Lanternwood** (`scene/lanternwood.tscn`, 2026-07-19): Fuji's snow town
+  at zone scale — see "World Structure" for the full composition (flickering
+  cabin windows, woodsmoke, conifers, the frozen pond, the LIBRARY and
+  FUJI'S FAMILY HOME banners); its south gate lane returns to the overworld
+  at the `lanternwood` marker. With `ebb_done` set it plays the Ebb-night
+  street — the live story flow's current end point (playable solo Fuji).
 
 Feel: the bolt leaves the INSTANT the trigger is pulled (no wind-up — the shoot
 anim starts on the muzzle frame), laser bolt (2 dmg; slimes have 4 HP → two
@@ -1129,11 +1303,16 @@ actually cycle; hand-drawn sheets can still drop in later against "Asset Specs" 
 - `scene/map_data.gd` (map-file loader — keep in sync with `assets/_maps.py`) ·
   `scene/painted_map.gd` (stamps the invisible collision tiles at runtime) ·
   `scene/tiled_map.gd` (stamps visible tiles from a generated layout file)
-- `scene/overworld.gd/.tscn` (64×36 TILED continent: layout-stamped Tiles/
-  TilesUpper + additive glow + the town/meadow markers) ·
+- `scene/overworld.gd/.tscn` (112×63 TILED five-lands continent:
+  layout-stamped Tiles/
+  TilesUpper + additive glow + the town/meadow/lanternwood markers) ·
+  `scene/overworld_bright.gd/.tscn` (the byte-locked pre-Ebb twin —
+  staging/screenshots only) ·
   `scene/alembic_town.gd/.tscn` (56×34 TILED walkable town: same
   stamp-and-anchor pattern with the full-scale party, door/announce markers
   + the south exit) ·
+  `scene/lanternwood.gd/.tscn` (44×28 TILED walkable snow town on the same
+  TravelScene machinery, announce-only doors, animated cabin sheets) ·
   `scene/overworld_location.gd` (markers: id/display_name/target_scene/locked_text) ·
   `scene/game.gd` (autoload **Game** — remembers `overworld_spawn`, plus
   `town_spawn`/`interior_spawn`: the map anchor the next town/interior scene
@@ -1155,6 +1334,14 @@ actually cycle; hand-drawn sheets can still drop in later against "Asset Specs" 
   `assets/_gen_prologue_sprites.py` (cast sheets + `prologue_fx.png`) ·
   `assets/_gen_tileset_town_fest.py` (bright-era town tiles) ·
   `tools/prologue_probe.gd` (the chapter's end-to-end regression probe)
+- **Ebb slice (2026-07-19/20):** `scene/ebb.gd/.tscn` (the quake/crystal/
+  spark-stream cutscene over the big mountain) · `scene/library.gd/.tscn` +
+  `assets/maps/library.txt` + `assets/_gen_tileset_library.py` (Fuji's
+  Lanternwood reading room, phase-routed by `Game.library_phase`) ·
+  `assets/npc_fuji_gen.png` (her 10-col NPC sheet, in
+  `_gen_prologue_sprites.py`) · `scene/lanternwood.gd`'s `_ebb_night_town()`
+  (the playable Ebb-night street: night tint + the Bramble/Alder/Pip
+  villager NPCs)
 
 ### Art pipeline (generated, frame-consistent, palette-locked)
 
@@ -1178,8 +1365,10 @@ one-sidedly by its OWNER class (water > waste > beach > road > forest >
 mountain), so 1-cell stair-steps in the map txt chain into continuous
 diagonal coasts, rims and ridge edges — so repeated cells are byte-identical
 BY CONSTRUCTION and the slicer collapses them to a small atlas, exactly how
-an SNES scene lives in VRAM (house: 60 tiles from 336 cells; overworld: ~260
-from 2304; town: ~470 from 1904; meadow: ~145 from 1152). Every scene is
+an SNES scene lives in VRAM (house: 60 tiles from 336 cells; overworld:
+~1170 from the five lands' 7056 — ~700 of them animated water/lava; town:
+~190 from 1904; meadow: ~145 from 1152; lanternwood: ~100 from 1232;
+library: ~55). Every scene is
 driven by its `assets/maps/*.txt` file.
 
 - **`assets/maps/*.txt`** — the shared source of truth per map: a `legend`
@@ -1205,9 +1394,11 @@ driven by its `assets/maps/*.txt` file.
   body walks behind). Writers emit the packed atlas PNG, the TileSet `.tres`
   (visuals only — collision stays on the invisible collision layer) and the
   layered layout txt that `scene/tiled_map.gd` stamps at runtime.
-  **ANIMATED TILES (2026-07-17, the SNES water cycle):** a scene may hand
+  **ANIMATED TILES (2026-07-17, the SNES water cycle; LAVA joined
+  2026-07-19):** a scene may hand
   `slice_atlas` a LIST of N lower-canvas frames (`TileScene._lower_frames()`
-  hook — `OverWorld` overrides it to repaint only sea/river cells per frame
+  hook — `OverWorld` overrides it to repaint only sea/river — and, since
+  the five-lands pass, lava — cells per frame
   on a clone of the finished canvas, with a frame-0 byte-identity assert
   guarding the "nothing else paints water cells" contract). Dedupe keys on
   the tuple of per-frame cell bytes, so frame-invariant cells stay plain
@@ -1224,7 +1415,13 @@ driven by its `assets/maps/*.txt` file.
   phases) ride on top. RULE: every frame-dependent term in a water painter
   must be periodic in `WATER_FRAMES` (sea crests drift 4px on a 16-period,
   the river's row selector slides 2px on an 8-period, foam-churn salts and
-  glint blinks are period 4) so frame N-1 → 0 loops seamlessly.
+  glint blinks are period 4) so frame N-1 → 0 loops seamlessly. **Lava is
+  the water cycle's mirror** (2026-07-19): the `l` pools ride the same
+  `_lower_frames()` repaint and the same `WATER_FRAMES=4` periodicity rules
+  — molten channels crawl across the crust 4px/frame, seamless on the loop
+  — with a hand ramp (incandescence can't be derived: ramp()'s violet
+  shadow law would pull the darks cold) and the molten-lip glow blobs on
+  the additive overlay.
   **The tiled READ is a discipline, not a file format:** repeating art must be
   a function of tile-local coordinates + a per-cell variant hash, and light/
   shade must be quantized PER TILE (whole lit tiles + ordered-dither fringe
@@ -1254,7 +1451,15 @@ driven by its `assets/maps/*.txt` file.
 - **`assets/_overworld_tiles.py` + `assets/_overworld_props.py`** — the
   overworld kit: the CT autotile look on the same bake→slice→dedupe path.
   `OverWorld(TileScene)` owns the terrain fabrics (sea/grass/hills/flowers/
-  beach/forest-crowns/mountain-ridges/waste/road/bridge) and
+  beach/forest-crowns/mountain-ridges/waste/road/bridge — plus, since the
+  2026-07-19 five lands: **snow** (wind-scour drift dashes), **desert**
+  (pale purple ripple-dune pebbles), **basalt** (violet-charcoal crust),
+  **lava** (solid, ANIMATED — see the lava mirror above; the lava-ring law
+  asserts every pool is ringed by basalt) and **pines** (snow-dusted
+  conifer mass on its own ramp, the massif/forest lobe lattice shaded as
+  tiered spruce tops) — and the **`road_verge` knob**: what a trail's
+  shoulders render, `"grass"` by default, `"snow"` in the Lanternwood
+  generator) and
   the neighbor-stamp transitions — every cell's art is a PURE function of
   (terrain class, per-class 8-neighbor masks via `edge_dist`, coast-distance
   band) + tile-local pixels, so coasts/foam, riverbanks, cliff faces,
@@ -1297,14 +1502,31 @@ driven by its `assets/maps/*.txt` file.
   steaming flue; elements stay SMALL so it reads distant, never a
   walk-up building scaled up),
   `mountain_peak` (80×64: the Horn — three shaded facets, snowcap with
-  wind-torn fingers, crevasses), `giant_tree` (64×96: the Elder Tree —
-  ball-lobed crown with seam shadows, bark-grooved trunk, root flare,
-  surviving blooms), `obelisk` (48×64 faceted CRYSTAL obelisk — lit/deep
-  facets on the CRYS ramp, rune score, crystal burst + floating shard),
-  and `crystal_outcrop` (32×32 shard cluster, one per 2×2
-  `K` block). Walkable-town facades live at zone scale in
+  wind-torn fingers, crevasses), `home_tree` (96×144: Basil's hermitage,
+  the giant tree grown to a true landmark — ball-lobed crown, bark-grooved
+  trunk with an arched lit door, round window, hanging lantern and a stub
+  flue through the canopy; renamed/reworked from `giant_tree` 2026-07-19),
+  `lanternwood_cluster` (128×96: the snow town's icon — snow-laden cabin
+  roofs among icon spruces, every window burning warm, the library hall at
+  the back rank, lantern posts at the gate mouth), and the era pair
+  **`big_mountain` / `crystal_summit`** (224×160 over the `B` block — the
+  SAME massif body, same salt, byte-identical rock; pre-Ebb the deep
+  permanent snowcap, post-Ebb the giant faceted crystal seated in the
+  cone's throat with collar shards, dark crystal veins and floating tips —
+  the veins' glow rides the additive overlay). `obelisk` + `crystal_outcrop`
+  stay in the library but are OFF-MAP since the five-lands redesign (they
+  return with the Act 2 obelisk dungeons). Walkable-town facades live at
+  zone scale in
   `assets/_town_props.py` (`town_home`, `town_cottage`, `town_academy`,
-  `town_well`, `town_lamp`, `town_stall`); the meadow's per-cell boulder
+  `town_well`, `town_lamp`, `town_stall` — and the 2026-07-19 **winter
+  kit**: `town_cabin` — log walls, snow-loaded gable, stone chimney, a
+  `wide=True` library-hall variant — `town_conifer` (a Tier-3 trunk/crown
+  pair) and `frozen_pond`, Tier-1 ice baked over WALKABLE pond cells (never
+  sea/river — those animate), plus `town_lamp(mantle=)`; the shared
+  `_anim_building` gained `windows=` (baked 4-frame warm window flicker)
+  and `wood_flues=` (grey lazy woodsmoke) params and `_finish(pad=)`, all
+  default-off — the existing town/fest sheets are proven byte-identical);
+  the meadow's per-cell boulder
   domes + trailhead cairn in `assets/_meadow_props.py`; the shared drawing
   primitives (`S`, `ln`, `edge`) live in `assets/_propkit.py`.
   A new overworld = the map txt + `assets/_gen_tileset_overworld.py`'s
@@ -1342,8 +1564,9 @@ driven by its `assets/maps/*.txt` file.
 	 a chibi map's figure (the overworld's 24x24 travel chibi, ~16px) fits
 	 inside one tile and can't out-peek a silhouette, so covered walk-behind
 	 cells there need no ridge cap — a whole crown may be open walk-behind
-	 (`CHIBI_MAPS` in `_check_art.py` waives the cap lint; the Elder Tree's
-	 entire crown is walkable `G` cells since 2026-07-11, only its trunk
+	 (`CHIBI_MAPS` in `_check_art.py` waives the cap lint; the Home Tree's
+	 (né Elder Tree) entire crown is walkable `G` cells since 2026-07-11,
+	 only its trunk
 	 blocks).
   3. **Tier 3 — y-sorted `World` entity**: free-standing props a body can
 	 round (furniture, street lamps/well/stall/fountain, the animated
@@ -1385,7 +1608,7 @@ driven by its `assets/maps/*.txt` file.
   onto the UPPER canvas (pixel-identical composite) to swallow the corridor
   sliver — legal ONLY when the nearest south-side walkable row is ≥2 rows
   below the band row, so no south head can reach it (buildings' 2-row
-  facades, the elder tree's 3-row trunk block). NEVER band a 1-row-deep
+  facades, the home tree's 3-row trunk block). NEVER band a 1-row-deep
   solid strip between two walkable rows — the corridor feet and the south
   head need the same 12px and one of them always wears it (this killed the
   town-tree corridor, below). The band is the only legal upper art on a
@@ -1473,23 +1696,42 @@ Tiled scenes (atlas + `.tres` + layout from `assets/maps/*.txt`):
 
 - `assets/_gen_tileset_overworld.py` → `tilesets/overworld_tiles.png/.tres` +
   `overworld_layout.txt` + `overworld_glow.png`
-  (64×36 map → ~575 unique tiles): the CT/FF6 continent as real tiles —
+  (112×63 five-lands map → ~1170 unique tiles, ~700 animated): the CT/FF6
+  continent as real tiles —
   shallow→deep sea with foam-arc autotile coasts and layered swells, sand
   with wet lips and a creeping grass fringe, canopy-crown forests
   (crown-arc silhouette rims, dark outline ring), peak-lobe massifs
   (lit/shadow faces, scalloped snow crests on north rims), river +
-  rosewood bridge with
-  rails, crack-web violet wastes with crystal / dead-tree variant tiles,
+  rosewood bridge with rails, snow fields, purple ripple dunes, basalt
+  crust with ringed animated lava pools, snow-dusted pine mass,
   the dirt trail (gentle edge-keyed wobble), and the landmark compositions:
   the Alembic Town cluster icon (dense roofs, Academy keep, steamworks
-  plume), the Capital's castle + the Horn summit on the massif, the Elder
-  Tree on the river plain, the wastes' obelisk monument + crystal outcrops
+  plume), the Lanternwood cluster icon, the Capital's castle + the Horn on
+  the massif, the big mountain's CRYSTAL SUMMIT, the Home Tree on the SE
+  coast
   (grass variants: tufts, boulders, mossy sinks, wild blooms). The glow PNG
   is the additive night-lights overlay (cottage candlelight, the rose
-  window, firebox coals, the boiler gauge, castle windows + gate lamps,
-  obelisk + outcrop + shard crystals). (If a darkening overlay ever comes
+  window, firebox coals, the boiler gauge, Lanternwood's cabin doors + gate
+  lanterns, castle windows + gate lamps, the hermit's door/lantern/round
+  window, the summit-crystal blaze + vein nodes, molten pool lips). Both
+  eras build through one `build(scene_key, map_name, summit, network_glow,
+  summit_blaze)` config — placements and salts IDENTICAL apart from the
+  summit prop + glow. (If a darkening overlay ever comes
   back: Godot's canvas MUL blend darkens through transparent texels on
-  Compatibility — use plain MIX alpha blending.) ~2s.
+  Compatibility — use plain MIX alpha blending.)
+- `assets/_gen_tileset_overworld_bright.py` → the `overworld_bright_*`
+  twin set: the byte-locked PRE-EBB era on the `overworld_bright` palette
+  (seeds lifted, same teal lean — the town_fest formula at world scale) —
+  `big_mountain` snow summit instead of `crystal_summit`, no blaze, mint
+  accents. Used by `scene/overworld_bright.tscn` and the Ebb event's
+  bright-era stamp.
+- `assets/_gen_tileset_lanternwood.py` → the snow town at zone scale on the
+  OverWorld driver (`road_verge="snow"`, pines border, the frozen pond,
+  winter-kit props as Tier-3 manifest sheets — see `_town_props.py` above).
+- `assets/_gen_tileset_library.py` → Fuji's reading room on the interior
+  Room kit (`library` palette: rosewood planks / plum weave / firelight
+  amber against snow-blue night glass; armchair/counter/desk props + fire
+  overlay).
 - `assets/_gen_tileset_meadow.py` → `tilesets/meadow_tiles.png/.tres` +
   `meadow_layout.txt` (48×24 map → ~145 unique tiles): Whisker Meadow as real
   tiles on the same driver — teal-indigo treeline border (crown-arc rims),
@@ -1586,7 +1828,8 @@ Every scene keys into this table; new materials derive via
 a duo/tri-tone cast per scene. Wood may be an honest warm brown (a material,
 not the field); never a naturalistic beige/gray mud FIELD, and never
 un-hue-shifted muddy darks — if a dark wants to be gray, it's lavender.
-(`bedroom`, `downstairs`, `overworld`, `town`, `town_fest`, and `meadow` are
+(`bedroom`, `downstairs`, `overworld`, `overworld_bright`, `town`,
+`town_fest`, `meadow`, `lanternwood`, and `library` are
 in the current build; the other rows are the standing color script for scenes
 to come.)
 
@@ -1599,7 +1842,10 @@ to come.)
 | `morning_yard` | peach plaster                           | magenta shingles, pink blooms | violet      |
 | `road`         | minty teal + peach path                 | hot pink flowers              | teal        |
 | `hall`         | plum panelling / rose floor             | chalk-mint board writing      | violet      |
-| `overworld`    | deep ocean teal + mossy emerald land    | violet wastes + crystal       | teal        |
+| `overworld`    | deep ocean teal + mossy emerald land    | the violet summit crystal     | teal        |
+| `overworld_bright` | the drained seeds lifted (pre-Ebb era; geology identical) | mint glow, alive | teal   |
+| `lanternwood`  | near-white snow field / deep blue-spruce woods | firelight amber in every window | violet |
+| `library`      | rosewood planks / plum weave (night)    | firelight amber vs snow-blue glass | violet  |
 | `town`         | mossy lanes / dusky lavender plaster (drained era) | candle amber       | teal        |
 | `town_fest`    | spring grass / cream plaster (festival era — Prologue A) | festival magenta + living mint glow | teal |
 | `meadow`       | minty teal greens (mossy 2026-07 register) | candy hot-pink flowers     | teal        |
@@ -1747,11 +1993,16 @@ sprite is authored new on the current pipelines. Build order (user call:
    whole thesis-day chapter: plant / wake-up / dash / hall-and-naming /
    call-and-accident / sickroom / fountain / leaving. See the Current
    Milestone section.
-3. **Act 1 "The Ebb"** (next) — the Ebb cold-open, the Academy-library interior,
-   drained-town wander gates, the meadow as Fuji's combat tutorial, the
-   **Elder Tree hermitage** zone (the giant riverbank tree at zone scale —
-   lean-to among the roots, corkboard research, the brass gun), the
+3. **Act 1 "The Ebb"** (IN PROGRESS — the cold open shipped 2026-07-19/20:
+   `scene/ebb.tscn`, the library dead-wand beat, and the playable Ebb-night
+   street in Lanternwood, the build's current resting point; see Current
+   Milestone) — still to build: the library research phase (reusing
+   `scene/library.tscn` via `library_phase`), the boat crossing (open
+   hook), drained-town wander gates, the meadow as Fuji's combat tutorial,
+   the **HOME TREE hermitage** zone (the giant tree's interior at zone
+   scale — a den among the roots, corkboard research, the brass gun), the
    party-forming fight. Ends exactly where the combat sandbox boots.
 4. **Act 2 expansion** (much later) — the overworld grows: more towns
-   (Kitty's town), the walkable Capital, the Burrows and Drain dungeons,
+   (Kitty's town), the walkable Capital, the obelisk dungeons (one per
+   landmass, by boat), the summit-crystal ascent,
    region-relight glow states.

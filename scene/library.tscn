@@ -1,0 +1,47 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scene/library.gd" id="1_lib"]
+[ext_resource type="TileSet" path="res://assets/collision_tileset.tres" id="2_collision"]
+[ext_resource type="TileSet" path="res://assets/tilesets/library_tiles.tres" id="3_tiles"]
+[ext_resource type="Texture2D" path="res://assets/tilesets/library_fire.png" id="4_fire"]
+[ext_resource type="Texture2D" path="res://assets/tilesets/library_glow.png" id="5_glow"]
+[ext_resource type="PackedScene" path="res://scene/theater.tscn" id="6_theater"]
+
+[sub_resource type="CanvasItemMaterial" id="mat_add"]
+blend_mode = 1
+
+[node name="Library" type="Node2D"]
+script = ExtResource("1_lib")
+
+[node name="Dim" type="CanvasModulate" parent="."]
+color = Color(0.64, 0.6, 0.8, 1)
+
+[node name="Tiles" type="TileMapLayer" parent="."]
+texture_filter = 1
+tile_set = ExtResource("3_tiles")
+
+[node name="Fire" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("4_fire")
+centered = false
+hframes = 3
+
+[node name="Glow" type="Sprite2D" parent="."]
+texture_filter = 1
+material = SubResource("mat_add")
+texture = ExtResource("5_glow")
+centered = false
+
+[node name="Collision" type="TileMapLayer" parent="."]
+tile_set = ExtResource("2_collision")
+
+[node name="World" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="TilesUpper" type="TileMapLayer" parent="."]
+texture_filter = 1
+tile_set = ExtResource("3_tiles")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+[node name="Theater" parent="." instance=ExtResource("6_theater")]
