@@ -1,12 +1,10 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scene/downstairs.gd" id="1_downstairs"]
 [ext_resource type="TileSet" path="res://assets/tilesets/downstairs_tiles.tres" id="2_tiles"]
 [ext_resource type="TileSet" path="res://assets/collision_tileset.tres" id="3_collision"]
-[ext_resource type="PackedScene" path="res://entities/fuji/fuji.tscn" id="4_player"]
 [ext_resource type="Texture2D" path="res://assets/tilesets/downstairs_glow.png" id="5_glow"]
 [ext_resource type="Texture2D" path="res://assets/tilesets/downstairs_fire.png" id="6_fire"]
-[ext_resource type="Texture2D" path="res://assets/tilesets/downstairs_boiler.png" id="7_boiler"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
 size = Vector2(32, 16)
@@ -41,15 +39,6 @@ tile_set = ExtResource("3_collision")
 
 [node name="World" type="Node2D" parent="."]
 y_sort_enabled = true
-
-[node name="Player" parent="World" instance=ExtResource("4_player")]
-position = Vector2(184, 152)
-
-[node name="Boiler" type="Sprite2D" parent="World"]
-texture_filter = 1
-texture = ExtResource("7_boiler")
-hframes = 4
-offset = Vector2(0, -8)
 
 [node name="TilesUpper" type="TileMapLayer" parent="."]
 texture_filter = 1

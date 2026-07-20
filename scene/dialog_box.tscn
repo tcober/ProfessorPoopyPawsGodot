@@ -1,0 +1,85 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scene/dialog_box.gd" id="1_script"]
+[ext_resource type="FontFile" path="res://assets/font/pixel_font.fnt" id="2_font"]
+
+[node name="DialogBox" type="CanvasLayer"]
+layer = 20
+script = ExtResource("1_script")
+
+[node name="Panel" type="ColorRect" parent="."]
+offset_left = 6.0
+offset_top = 157.0
+offset_right = 378.0
+offset_bottom = 210.0
+mouse_filter = 2
+color = Color(0.055, 0.04, 0.115, 0.95)
+
+[node name="BevelTop" type="ColorRect" parent="."]
+offset_left = 6.0
+offset_top = 157.0
+offset_right = 378.0
+offset_bottom = 158.0
+mouse_filter = 2
+color = Color(0.91, 0.74, 0.38, 1)
+
+[node name="BevelLeft" type="ColorRect" parent="."]
+offset_left = 6.0
+offset_top = 157.0
+offset_right = 7.0
+offset_bottom = 210.0
+mouse_filter = 2
+color = Color(0.91, 0.74, 0.38, 1)
+
+[node name="BevelBottom" type="ColorRect" parent="."]
+offset_left = 6.0
+offset_top = 209.0
+offset_right = 378.0
+offset_bottom = 210.0
+mouse_filter = 2
+color = Color(0.42, 0.28, 0.14, 1)
+
+[node name="BevelRight" type="ColorRect" parent="."]
+offset_left = 377.0
+offset_top = 157.0
+offset_right = 378.0
+offset_bottom = 210.0
+mouse_filter = 2
+color = Color(0.42, 0.28, 0.14, 1)
+
+[node name="NamePlate" type="ColorRect" parent="."]
+offset_left = 12.0
+offset_top = 150.0
+offset_right = 60.0
+offset_bottom = 161.0
+mouse_filter = 2
+color = Color(0.42, 0.28, 0.14, 1)
+
+[node name="NameLabel" type="Label" parent="."]
+offset_left = 17.0
+offset_top = 151.0
+offset_right = 200.0
+offset_bottom = 161.0
+theme_override_colors/font_color = Color(1, 0.94, 0.82, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 8
+
+[node name="Text" type="Label" parent="."]
+offset_left = 14.0
+offset_top = 164.0
+offset_right = 370.0
+offset_bottom = 206.0
+theme_override_colors/font_color = Color(0.95, 0.94, 0.97, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 8
+autowrap_mode = 2
+
+[node name="Arrow" type="Label" parent="."]
+offset_left = 366.0
+offset_top = 199.0
+offset_right = 376.0
+offset_bottom = 209.0
+theme_override_colors/font_color = Color(0.91, 0.74, 0.38, 1)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 8
+text = "▼"

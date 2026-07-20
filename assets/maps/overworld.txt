@@ -1,75 +1,118 @@
-; Overworld travel map - 64x36 tiles (1024x576 px). Shared source of truth:
+; Overworld travel map - 112x63 tiles (1792x1008 px). Shared source of truth:
 ; tiled by assets/_gen_tileset_overworld.py (atlas + layout in assets/tilesets/),
-; collision/markers by scene/overworld.gd. Geography: ALEMBIC TOWN as a CT
-; cluster ICON on the SW coast (one hand-drawn composition of overlapping
-; roofs + the Academy's spires over 'T' cells; its walkable D gate-mouth
-; travels INTO scene/alembic_town.tscn) -> one winding trail NE past Whisker
-; Meadow -> bridge over the N->S river -> petering out at the hot-violet
-; drained wastes SE around the obelisk MONUMENT ('O' cells) and its 'K'
-; crystal outcrops; mountain ridge N with foothills, one pass (the Burrows,
-; the cave anchor), the Capital's CASTLE ('C' cells) riding the west massif
-; and the HORN summit ('V') crowning its NW tip; the ELDER TREE ('g', 4x6)
-; leans over the riverbank between trail and wastes — the plain's
-; sense-of-scale landmark. Region edges are drawn in 1-cell stair-steps ON
-; PURPOSE — the autotile renders them as 45-degree runs.
-legend ~ sea solid
-legend s beach walk
-legend . grass walk
+; collision/markers by scene/overworld.gd. THE FIVE LANDS (2026-07 continent):
+; every landmass is OCEAN-SEPARATED - no walkable crossing; travel between
+; lands is future boat story. NW ICE/SNOW LAND: a heavily pine-forested
+; winter island ('i' snow / 'P' pines) carrying LANTERNWOOD, Fuji's hometown
+; ('L' cluster icon; its 'd' gate travels INTO scene/lanternwood.tscn).
+; NE PURPLE DESERT ('b'): pale ripple-dune pan, sparse. E/SE LAVA LAND:
+; basalt crust ('a') with ANIMATED molten pools ('l') - THE LAVA-RING LAW:
+; every 'l' cell's 8 neighbors must be 'l' or 'a' (asserted at build).
+; CENTRAL MOUNTAIN LAND: the Kingdom - grass fringe, massif, the Capital's
+; CASTLE ('C') on the east slope, the HORN ('V'), and THE BIG MOUNTAIN
+; ('B' 8x6): pre-Ebb a proud summit, post-Ebb the GIANT CRYSTAL the world's
+; magic drained into. SW FOREST LAND: the playable core - ALEMBIC TOWN icon
+; ('T', its 'D' gate -> scene/alembic_town.tscn) on the coast, the trail NE
+; past Whisker Meadow, bridge over the river, the drained waste pocket with
+; the obelisk monument ('O') + 'K' outcrops, and the HOME TREE ('g' trunk /
+; 'G' walk-behind canopy) - Basil's hermitage - leaning over the SE coast.
+; MYSTERIOUS ISLANDS off the south coast, unreachable. Region edges are
+; drawn in 1-cell stair-steps ON PURPOSE - the autotile renders them as
+; 45-degree runs. THIS GRID IS BYTE-LOCKED with overworld_bright.txt (the
+; pre-Ebb era variant) - edit both or the two eras drift.
+
 legend , flowers walk
-legend h hills walk
-legend f forest solid
-legend M mountain solid
-legend r river solid
+legend . grass walk
 legend = bridge walk
-legend x waste walk
-legend p road walk
-legend D door walk
-legend T town solid
-legend t tree solid
+legend B bigmountain solid
 legend C castle solid
-legend O obelisk solid
-legend K crystal solid
-legend g giant_tree solid
+legend D door walk
+legend G treecanopy walk
+legend L lanternwood solid
+legend k lanternwood walk
+legend M mountain solid
+legend P pines solid
+legend T town solid
+legend u town walk
 legend V peak solid
-anchor player_start 13 24
-anchor town 8 25
-anchor meadow 20 16
-anchor cave 33 8
-anchor obelisk 52 26
+legend a basalt walk
+legend b desert walk
+legend d snowdoor walk
+legend f forest solid
+legend g giant_tree solid
+legend h hills walk
+legend i snow walk
+legend l lava solid
+legend p road walk
+legend r river solid
+legend s beach walk
+legend t tree solid
+legend ~ sea solid
+anchor player_start 12 38
+anchor town 8 35
+anchor meadow 14 40
+anchor lanternwood 21 17
 map
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~~~~sssssssss~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~~~~~~~~~~~~~~~ssss.......ssss~~~~~~~~~~~~~~~~ffffff~~~~~~~~~~~
-~~~~~~~~~~~~~~sssVVVVV........sss~~~~~~~~~~~~fffffffffff~~~~~~~~
-~~~~~~~~~~~~~ss..VVVVVMMMMMMMM..sss~~~~~~~~ffffffffffffff~~~fff~
-~~~~~~~~~~~~ss...VVVVVCCCCCCMMMM..ss~~~~~~ffffffffffffffff~~~~~~
-~~~~~~~~~~~~s....VVVVVCCCCCCMMMhh..ss~MMMMMMffffffffffffff~~~~~~
-~~~~~~~~~~~~ss...MMMMMCCCCCCMMMhhhhhssMMMMMMMMMffffffffffff~~~~~
-~~~~~~~~~~~~~sss..MMMMCCCCCC...........MMMMMMMhhfffffffffff~~~~~
-~~~~~~~~~~~~~~~s..hhhhCCCCCChh.......hhhhrhMhh.....fffffff~~~~~~
-~~~~~~~~~~~~~fss..hhhhhhhhhhhh.t.....hhhhrhhh......fffffff~~~~~~
-~~~~~~~~~~~~ffff.....hhhhhh......t......rr.........ffffff~~~~~~~
-~~~~~~~~~~~~ffffft......t...............rr.....t...fff~~~~~~~~~~
-~~~~~~~~~~~~ffffff..................t....r.........f~~~~~~~~~~~~
-~~~~~~~~~~~fffffff.,,,,.ppppppppppppppppp=ppppp....ff~~~~~~~~~~~
-~~~~~~~~~~fffffff.,pppppp,...............r..t.......s~~~~~~~~~~~
-~~~~~~~~sss.t......p.............,,.....rr..........sss~~~~~~~~~
-~~~~~ssss......t...p.......t......,.ggggr........xxxs~~~~~~~~~~~
-~~~ss.............pp................ggggr.......KKxxxxxx~~~~~~~~
-~~~ssTTTTTTTT....pp..............t..ggggr.....xxKKxxxxxxx~~~~~~~
-~~~ssTTTTTTTT...pp............t.....ggggr...xxxxxxxxxxxxxxx~~s~~
-~~~ssTTTTTTTT.,pp....f......t.......ggggr..xxxxxxxxOOOxxxxxsss~~
-~~~ssTTTTTTTT.pp....fffff...........ggggrr.xxxxxxxxOOOxxxKKx.s~~
-~~~ssTTTTTTTTpp....fffffffff............r.xxxxxxxxxOOOxxxKK..s~~
-~~~ssTTTDTTTTp......fffffff.............rr.xxxxxxxxOOOxxxxxxss~~
-~~~ss...pppppp.,,...ffffff..............rr.xxxxxxxxxxxxxxxx.ss~~
-~~~ss...............ffffff.,,......t.....rrxxxKKxxxxxxxKKxx..s~~
-~~~ss.......t...........t.....ssss........rr.xKKxxxxxxxKKxx..s~~
-~~~ss...............ssss..sssss~~ssss..sssrrsxxxxxxxxxxxxxx.ss~~
-~~~ss..............s~~~ssss~~~~~~~~~ssss~~~~~ssxxxxxxxxxx..ss~~~
-~~~ss............ss~~~~~~~~~~~~~~~~~~s~~~~~~~~~sss......ssss~~~~
-~~~~~~ssssssssssss~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ss...sss~f~~~~~
-~~~~~~~~~~~sss~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~sssss~~fff~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~f~~~~~
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~iiiiiiiiPPPPP~~~~~~~~~i~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~PPPPPiiiiiiiPPPPPPPPPPPPPPPiiiiM~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbb~~~~~~~~~~~~~~~~~~
+~~~~~~~~PPPPPPPPPPiiiiPPPPPPPPPPPPPPPPPiPMMM~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbbbMbbbbbbbbbbbbbbbbbbbbb~~~~~~~~~~~~
+~~~~~~PPPPPPPPPPPPPiiiiPPPPPPPPPPPPPPPPPPPMMM~~~~~~~~~~~~~~~~~~~~~~~~~bbbbMMMMMMMMMbbbbbbbbbbbbbbbbbbbb~~~~~~~~~
+~~~~~PPPPPPPPPPPPPPPiiiiPPPPPPPPPPPPPPPPPPPPii~~~~~~~~~~~~~~~~~~~~~~bbbbbMMMMMMMMMMMbbbbbbbbbbbbbbbbbbbbb~~~~~~~
+~~~~PPPPPPPPPPPPPPPiiiiiiiiiPPPPPiiiPPPPPPPPPi~~~~~~~~~~~~~~~~~~~~bbbbbbbbMMMMMMMMMbbbbbbbbbbbbbbbbbbbbbbbb~~~~~
+~~~PPPPPPPPPPPPPPPiiiiiiiiiiiiiiiiiiiPPPPPPPiii~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbMbbbbbbbbbbbbbbbbbbbbbbbbbbbbb~~~~
+~~~iiPPPPPPPPPPPiiiiiiiiiiiiiiiiiiiiiiPPPPPiii~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb~~~
+~~iiiiiiiiPiiiiiiiiiiiiiiiiiiiiiiiiiiiiiPiiiii~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb~~~
+~~iiiiiiiiiiiPPPiiLLLLLLLkiiiiiiiiiiiiiiiiiii~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb~~
+~~iiiiiiiiiPPPPPPPLLLLLLLkPPPPPPPPPiiiiiiiii~~~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb~~~
+~~iPPPPPPPiPPPPPPPLLLLLLLLPPPPPPPPPPPiiiiii~~~~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb~~~
+~~~PPPPPPPPPPPPPPPLLLLLLLLPPPPPPPPPPPiii~~~~~~~~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb~~~~
+~~~PPPPPPPPiiPPPiiLLLLLLLLPPPPPPPPPPPii~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb~~~~~
+~~~~~PPPPPPiiiiiiiLLLdLLLLPPPPPPPPPii~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb~~~~~~
+~~~~~~~~P~~iiiiiiiiiiiiiiiiiiiiiii~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb~~~~~~
+~~~~~~~~~~~~~~~~iiiiiiiiiiiii~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbbbbbbbbbbbb~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbb~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbb~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbb~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.~~~~~~~.~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbb~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.....M.MMMMMMMMMMM...~~~~~~~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbb~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.VVVVVMMMBBBBBBBBBBBBBB...~~~~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbb~~~
+~~~~~~~~~~~~~~~~~s~~~~~~~~~~~~~~~~~~~~~~~~..VVVVVMMMBBBBBBBBBBBBBBMM...~~~~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbb~~~
+~~~~~~~~~~~ssssss.ss...........~~~~~~~~~~...VVVVVMMMBBBBBBBBBBBBBBMMMM...~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbbbb~~
+~~~~~~~~~ffff.......hhhhh....ffff~~~~~~~~..MVVVVVMMMBBBBBBBBBBBBBBMMMMM...~~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbb~~~
+~~~~~TTTTTTTTf.....hhhhhhh..fffffff~~~~~...MMMMMMMMMBBBBBBBBBBBBBBMMMMMM...~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbb~~~
+~~~~~TTTTTTTTff.....hhhhh...fffffff~~~~~~..MMMMMMMMMBBBBBBBBBBBBBBMMMMMM....~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbb~~~
+~~~~~TTTTTTTTfff............ffffffff~~~~~..MMMMMMMMMBBBBBBBBBBBBBBMMMMMM....~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbb~~~
+~~~~fTTTTTTTTff.......r......fffffff~~~~~.MMMMMMMMMMBBBBBBBBBBBBBBMMMMMMM...~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbb~~~
+~~~~suTTTTTTufhh......r..............~~~...MMMMMMMMMBBBBBBBBBBBBBBMMMMMM.....~~~~~~~~~~~~~bbbbbbbbbbbbbbbbbbb~~~
+~~~s.uuuDuTuuhhhh.....r.............~~~~~..MMMMMMMMMBBBBBBBBBBBBBBMMMMMM....~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbb~~~~
+~~~s....pp.hhhhh....trr.............~~~~~..MMMMMMMMMMMMMMMMMMMMMMMMMMMMM....~~~~~~~~~~~~~~~bbbbbbbbbbbbbbbbb~~~~
+~~~s.....pp..........r.............~~~~~~...MMMMMMMMMMMMMMMMMMMMMMMMMMMM....~~~~~~~~~~~~~~~~MMMMMMMMMMMMbbb~~~~~
+~~s....t..pp.........r.............~~~~~~~...MMMMMMMMMMMMMMMMMMMMMCCCCCC...~~~~~~~~~~~~~~~MMMMMMMMMMMMMMMM~~~~~~
+~~~s.......pp.,,,....r...........~~~~~~~~~~....MMMMMMMMMMMMMMMMMMMCCCCCC...~~~~~~~~~~~~MMMMMMMMMMMMMMMMMMM~~~~~~
+~~~s........pppp,,...r..........~~~~~~~~~~~~.....MMMMMMMMMMMMMMMMMCCCCCC....~~~~~~~~~MMMMMMMMMMMMMMMMMMMM~~~~~~~
+~~~s..........,pp....r..........~~~~~~~~~~~~~~......MMMMMMMMMMMMMMCCCCCC...~~~~~~~~~aaaMMMMMMMMMMMMMMMMMa~~~~~~~
+~~~~s...........pppppr=p.........~~~~~~~~~~~~~~~.hhhhhhhhhhhhhhhhhCCCCCC...~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaa~~~~~~
+~~~~s.........t.......rpppp.......~~~~~~~~~~~~~~~~~hhhhhhhhhhhhhhhhh......~~~~~~~~aaaaaaaaaaaaaaaaaaaaaaaaa~~~~~
+~~~~~s....t..........,r,,,pGGGGGG..~~~~~~~~~~~~~~~~~~~~~~~h~hhhhhh.......~~~~~~~~aaaaaaalllaaaaaaaaaaaaaaaaa~~~~
+~~~~~~s............t..r,,t.GGGGGG.s~~~~~~~~~~~~~~~~~~~~~~~~~~~.........~~~~~~~~~~aaaaaalllllaaaaaaaaaaaaaaaa~~~~
+~~~~~ffff.............r....GGGGGG.s~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.~~~~~~~~~~~~~~aaaaalllllllaaaaaaaaaaaaaaa~~~~
+~~~~ffffff............r....GGGGGG..s~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaalllllaaaaaaaaaaaaaaaaa~~~
+~~~~ffffff..........frr....gGGGgg.s~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaalllaaaaaaaaaaaaaaaaa~~~~
+~~~~ffffff......fffffrfff..GGGGGG.s~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaalllllaaaaa~~~~
+~~~sfffff.....fffffffrfffffGgggGG.s~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaaalllllaaaaa~~~~
+~~~~s.........fffffffrfffffGGggGGs~~~~~~~~~~~~~~~~~~~~~~~~~~~...~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaaalllllaaaa~~~~~
+~~~~s........ffffffffrfffffGGggGG~~~~~~~~~~~~~~.~~~~~~~~~~~~.....~~~~~~~~~~~~~~~~~~aaaaaaaaalllaaaaaaaaaaa~~~~~~
+~~~~s.........fffffff~fffffssss~~~~~~~~~~~~~~..f..~~~~~~~~~~~...~~~~~~~~~~~~~~~~~~~~aaaaaaaalllaaaaaaaaaa~~~~~~~
+~~~~~s........ffffff~~~~~~f~~~~~~~~~~~~~~~~~..fff..~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaalllaaaaaaaaa~~~~~~~~
+~~~~~~ss........fff~~~~~~~~~~~~~~~~~~~~~~~~~~..f..~~~.....~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaaaaaaaa~~~~~~~~~~
+~~~~~~~~ssss.ssss~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.~~~~~.....~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~aaaaaaaaa~~~~~~~~~~~~~
+~~~~~~~~~~~~s~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~..........~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.~~~~~~.fff.~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~...~~~~~.....~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~.~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

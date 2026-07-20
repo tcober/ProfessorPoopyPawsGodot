@@ -1,63 +1,118 @@
-; Alembic Town — 40x28 tiles (640x448 px), the walkable CT-Truce village the
-; overworld's town icon opens into. Shared source of truth: tiled by
+; Alembic Town — 56x34 tiles (896x544 px), the walkable Kakariko-style village
+; the overworld's town icon opens into. Shared source of truth: tiled by
 ; assets/_gen_tileset_town.py on the shared OverWorld driver (hedge border =
-; forest class, lanes = the trail painter), collision/markers by
-; scene/alembic_town.gd. Buildings use TWO chars: solid facade rows + WALKABLE
-; roof rows whose art rides the upper layer, so the player passes behind
-; rooflines. Geography: Basil's cottage NW (open door -> downstairs), two
-; locked cottages mid-town, the commons (well/lamp/stall) astride the south
-; lane, the barred Academy fenced apart SE; the lane runs out the south gap
-; to the overworld.
+; forest class, lanes = the trail painter, pond = sea+beach, stream = river
+; with a bridge cell), collision/markers by scene/alembic_town.gd. Buildings,
+; trees, AND street furniture (well, lamps, stall, fountain) are all Tier-3
+; y-sorted World sprites from town_props.txt (scene/prop_spawner.gd) — the
+; upper tile layer is EMPTY. Each building still spans THREE chars (solid
+; facade `H..N` + walkable roof `h..n` + solid body-top digit `3..9`) but only
+; for collision and the sprite's footprint bbox; native y-sort sorts the whole
+; facade against the player, so there is no upper-layer roof, ridge cap, or
+; mask band. Trees span ^/T/t (fully solid) as an opaque trunk sprite plus an
+; overhanging crown sprite whose y-sort baseline reaches a tile south, so a
+; body tucks behind the crown and in front of the trunk at once. Geography, depth-first: the barred
+; ACADEMY crowns a
+; north cliff terrace on the town's central axis, a grand stone stair (S)
+; descends through the cliff band (C) to the lamp-flanked stair plaza; the
+; fountain SQUARE sits at the lane crossing with the stall on its west rim;
+; the weapons shop (xX) and item shop (pP) face the market cross-lane W/E of
+; the axis; the INN (nN) fronts the square SE, its lane crossing the stream
+; bridge (=) to the fenced NE orchard; Basil's home (hH, open door ->
+; downstairs) in its fenced NW yard; the two locked cottages staggered SW
+; around the well and the fenced garden; the stream (r) drops from the cliff
+; foot to the SE pond (~ with s beach lip); the lane runs out the lamp-and-
+; fence-flanked south gate to the overworld. Silhouette-fit retypes
+; (2026-07-12): street-furniture footprint cells whose y-sorted art is
+; transparent (the fountain's top corners) or a thin walk-behind head (lamp
+; tops O/L/U-style) are WALKABLE twins of their solid char — same terrain
+; name, so the paint is identical and only collision changes; the T3
+; coverage lint in _check_art.py keeps the pairing honest.
 legend # forest solid
-legend f forest solid
 legend . grass walk
 legend , flowers walk
 legend - road walk
 legend D door walk
 legend F fence solid
-legend h homeroof walk
-legend H homebody solid
-legend q cotWroof walk
-legend 1 cotWbody solid
-legend w cotEroof walk
-legend 2 cotEbody solid
-legend k academyroof walk
-legend K academybody solid
+legend G fence solid
+legend C cliff solid
+legend S stairs walk
+legend T treecanopy solid
+legend t treetrunk solid
+legend r river solid
+legend = bridge walk
+legend ~ sea solid
+legend s beach walk
+legend o fountain solid
+legend O fountain walk
 legend u well solid
+legend U well walk
 legend l lamp solid
+legend L lamp walk
 legend m stall solid
-anchor player_start 19 24
-anchor home 7 7
-anchor cottage_w 14 7
-anchor cottage_e 22 7
-anchor school 32 21
-anchor exit_south 19 26
+legend h homeroof solid
+legend H homebody solid
+legend q cotWroof solid
+legend 1 cotWbody solid
+legend w cotEroof solid
+legend 2 cotEbody solid
+legend k academyroof solid
+legend K academybody solid
+legend x weaponroof solid
+legend X weaponbody solid
+legend p itemroof solid
+legend P itembody solid
+legend n innroof solid
+legend N innbody solid
+legend 3 homebody solid
+legend 4 cotWbody solid
+legend 5 cotEbody solid
+legend 6 academybody solid
+legend 7 weaponbody solid
+legend 8 itembody solid
+legend 9 innbody solid
+legend ^ ridge solid
+anchor player_start 27 30
+anchor home 10 18
+anchor cottage_w 9 25
+anchor cottage_e 17 27
+anchor school 27 9
+anchor weapons 20 18
+anchor items 36 18
+anchor inn 38 25
+anchor exit_south 27 32
 map
-########################################
-########################################
-###..................................###
-##..hhhhhh............................##
-##..hhhhhh..qqqqq...wwwww.............##
-##..hhhhhh..qqqqq...wwwww........f....##
-##..HHHHHH..11111...22222.............##
-##..HHHDHH..11D11...22D22.............##
-##.....-..,,..-.......-...............##
-##...----------------------------.....##
-##...............l.-..................##
-##........uu.....l.-..mmm.FFFFFFFFFFFF##
-##........uu.......-..mmm.F...........##
-##......,,,........-......F.kkkkkkkkkk##
-##.f...............-......F.kkkkkkkkkk##
-##.................-......F.kkkkkkkkkk##
-##.....f...........-......F.kkkkkkkkkk##
-##.................-......F.KKKKKKKKKK##
-##.................-......F.KKKKKKKKKK##
-##.................-......F.KKKKKKKKKK##
-##.................-......F...........##
-##.................-......FFFFFFDFFFFF##
-##.................--------------.....##
-##......f..........-..................##
-##.................-..................##
-##.................-..................##
-###################--###################
-###################--###################
+########################################################
+########################################################
+#######################66kk66kk66#######################
+#######################kkkkkkkkkk#######################
+#######################kkkkkkkkkk#######################
+#######################kkkkkkkkkk#######################
+#####################..KKKKKKKKKK..#####################
+###################.,,.KKKKKKKKKK.,,.###################
+#################..,,..KKKKKKKKKK..,,..#################
+########............,,.....-......,,............########
+########..,,...............-................,,..########
+######CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCC######
+######CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCC######
+#####.......,,.........,,L.-..L,,.......^^...r.,,,,#####
+#####...3333.............l.-..l.........TT...r.GGGGG####
+#####..hhhhhh....x7777x....-.....p8888p.tt...r,,^^,,####
+#####..hhhhhh....xxxxxx.,,.-..,,.pppppp......r,,TT,,####
+#####..HHHHHH....XXXXXX....-.....PPPPPP......r..tt..####
+#####..HHHDHH....XXXDXX....-.....PPPDPP......=,,..,,####
+#####.---------------------------------------=--....####
+####..,,............mmm..-OoO-.........,,....=.,,..#####
+####^^..............mmm..-ooo-.,,..999999n...r.,,...####
+####TT.q444q..,,....,,,..-ooo-....9nnnnnnn9..r......####
+####tt.qqqqq.............-----....NNNNNNNNN..r..,,..####
+#####..11111...w555w..L....-......NNNNNNNNNl.r......####
+####...11D11...wwwww..l....-......NNNNDNNNNl.r......####
+####...........22222...,,..-..,,.L.........ss~~~~ss.####
+####,,,.^^..UU.22D22.......-.....l...,,..ss~~~~~~~~s####
+####....TT..uu.......,,....-.....^^......ss~~~~~~~~~####
+####..,,tt..,,..,,..^^..#..-.....TT.......ss~~~~~~~s####
+####....,,......,,..TT...L.-..L..tt...,,....sssssss.####
+####....,,..........ttFFFl.-..lFFF,,......,,.......#####
+###########################--###########################
+###########################--###########################

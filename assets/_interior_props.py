@@ -23,6 +23,7 @@ from _palette import ramp
 from _interior import (TIMBER, BRASS, STEEL, COPPER, IRON, GLASS, MINT,
                        VIOLETF, PAPER, PAPERD, RED, SPEC, WATER, STEAM)
 from _propkit import S, ln, edge
+from _pixfont import GLYPHS
 
 LEAF = ramp((92, 168, 118), "violet", 4)      # plant foliage (the green accent)
 EMBER = (216, 84, 52, 255)
@@ -264,6 +265,52 @@ def dish_shelf(w, h, salt=53):
 # ====================================================================================
 # bedroom
 # ====================================================================================
+
+
+def privacy_screen(w, h, linen, salt=67):
+    """A folding three-panel linen ward screen on little timber feet — the
+    hospital read in one prop (sickroom, 2026-07-16). Draw for a 2x1 solid
+    footprint as a y-sorted entity: bodies pass both sides."""
+    sp = S(w, h, salt)
+    pw = w // 3
+    for i in range(3):
+        x0 = i * pw + (1 if i == 0 else 0)
+        x1 = (i + 1) * pw - (2 if i == 2 else 0)
+        top = 4 if i == 1 else 7                              # center panel proud
+        sp.rect(x0, top, x1, h - 5, TIMBER[3])                # frame
+        sp.rect(x0 + 1, top + 1, x1 - 1, h - 6, linen[1])     # linen field
+        sp.rect(x0 + 1, top + 1, x1 - 1, top + 1, linen[0])
+        sp.rect(x0 + 1, h - 6, x1 - 1, h - 6, linen[3])
+        sp.rect(x0 + 1, top + 4, x1 - 1, top + 4, linen[2])   # seam
+        sp.set(x0, top, TIMBER[1])                            # lit frame corner
+        sp.rect(x0 + 1, h - 5, x0 + 2, h - 2, TIMBER[3])      # feet
+        sp.rect(x1 - 2, h - 5, x1 - 1, h - 2, TIMBER[4])
+    edge(sp)
+    return sp
+
+
+def drip_stand(w, h, salt=69):
+    """A brass drip-stand: weighted tripod base, tall pole, crossarm, and a
+    hanging tonic flask with a tube arcing off east toward the sickbed —
+    candle-and-gear medicine (sickroom, 2026-07-16). One-cell footprint,
+    y-sorted entity."""
+    sp = S(w, h, salt)
+    px_ = w // 2 - 1
+    sp.rect(px_ - 4, h - 4, px_ + 5, h - 3, BRASS[3])         # base
+    sp.rect(px_ - 2, h - 6, px_ + 3, h - 5, BRASS[2])
+    sp.rect(px_, 4, px_ + 1, h - 6, BRASS[2])                 # pole
+    sp.rect(px_, 4, px_, h - 6, BRASS[1])
+    sp.rect(px_ - 3, 4, px_ + 4, 5, BRASS[1])                 # crossarm
+    sp.set(px_ - 3, 6, BRASS[3])                              # hook
+    sp.rect(px_ - 4, 7, px_ - 2, 13, GLASS)                   # hanging flask
+    sp.rect(px_ - 4, 10, px_ - 2, 13, MINT)                   # the tonic
+    sp.set(px_ - 4, 8, SPEC)
+    sp.rect(px_ - 3, 13, px_ - 3, 15, GLASS)                  # flask neck
+    # the tube, arcing east toward the bed
+    ln(sp, px_ - 3, 16, px_ + 4, 22, COPPER[1])
+    ln(sp, px_ + 4, 22, w - 1, 26, COPPER[1])
+    edge(sp)
+    return sp
 
 
 def bed(w, h, quilt, linen, salt=3):
@@ -865,5 +912,175 @@ def armchair(w, h, quilt, salt=73):
     for px2 in (4, w - 6):                                    # wooden feet
         sp.rect(px2, 27, px2 + 1, 29, TIMBER[3])
         sp.set(px2, 29, TIMBER[5])
+    edge(sp)
+    return sp
+
+
+# ====================================================================================
+# academy hall (Prologue B — the lecture, 2026-07-12)
+# ====================================================================================
+
+
+def _stamp_glyphs(sp, text, x, y, color, spacing=6):
+    """Chalk-stamp `text` (uppercase) via the shared 5x7 pixel font, straight
+    onto the Sprite. Kept local to the props kit — draw_text() wants a pixel
+    callback and this just needs sp.set on filled cells."""
+    cx = x
+    for ch in text.upper():
+        rows = GLYPHS.get(ch, GLYPHS.get("?"))
+        for ry, row in enumerate(rows):
+            for rx, bit in enumerate(row):
+                if bit == "X":
+                    sp.set(cx + rx, y + ry, color)
+        cx += spacing
+
+
+def chalkboard(w, h, chalk, salt=11):
+    """The Academy's slate lecture board (the corkboard skeleton, re-skinned):
+    a timber frame around a dark slate field with a chalk 'RE-ENCHANTMENT'
+    scrawl, an underline, a little sketched diagram, and a chalk tray. The
+    thesis title on the wall — the scene of the humiliation."""
+    sp = S(w, h, salt)
+    sp.rect(0, 0, w - 1, h - 1, TIMBER[3])                    # frame
+    sp.rect(0, 0, w - 1, 0, TIMBER[1])
+    sp.rect(0, h - 1, w - 1, h - 1, TIMBER[5])
+    for cx_, cy_ in ((1, 1), (w - 2, 1), (1, h - 2), (w - 2, h - 2)):
+        sp.set(cx_, cy_, BRASS[2])                            # corner bosses
+    slate = ramp((44, 52, 66), "violet", 4)
+    sp.rect(3, 3, w - 4, h - 6, slate[2])                     # slate field
+    for i in range(18):                                       # faint wipe streaks
+        sx = 4 + h2(i, 0, 21) % (w - 8)
+        sy = 4 + h2(0, i, 22) % (h - 10)
+        sp.set(sx, sy, slate[1])
+    _stamp_glyphs(sp, "RE-ENCHANTMENT", 6, 6, chalk[0])
+    sp.rect(6, 15, w - 20, 15, chalk[1])                      # underline
+    _stamp_glyphs(sp, "MAGIC SLEEPS", 6, 19, chalk[1])
+    # a little chalk diagram: a flask feeding a spark
+    dx, dy = w - 22, 18
+    sp.rect(dx, dy, dx + 5, dy + 6, chalk[1])                 # flask body
+    sp.rect(dx + 2, dy - 2, dx + 3, dy - 1, chalk[1])         # neck
+    for (ox, oy) in ((dx + 8, dy), (dx + 10, dy + 2), (dx + 8, dy + 4),
+                     (dx + 11, dy - 1)):                      # spark rays
+        sp.set(ox, oy, chalk[0])
+    sp.rect(3, h - 5, w - 4, h - 4, TIMBER[2])                # chalk tray
+    sp.rect(3, h - 5, w - 4, h - 5, TIMBER[1])
+    sp.rect(6, h - 6, 9, h - 6, chalk[0])                     # a chalk stick
+    edge(sp)
+    return sp
+
+
+def lectern(w, h, salt=5):
+    """The speaker's lectern (the desk y-sorted pattern): a slanted podium top
+    on a turned column, an open manuscript catching the light, a brass reading
+    lamp. Drawn as a scene ENTITY so a body rounds it."""
+    sp = S(w, h, salt)
+    # slanted reading top
+    for i in range(w - 4):
+        yy = 4 + i * 5 // (w - 4)
+        sp.set(2 + i, yy, TIMBER[0])
+        sp.rect(2 + i, yy + 1, 2 + i, yy + 4, TIMBER[1])
+        sp.set(2 + i, yy + 5, TIMBER[3])
+    sp.rect(2, 9, w - 3, 10, TIMBER[2])                       # front lip
+    sp.rect(2, 11, w - 3, 11, TIMBER[4])
+    # the open manuscript on the slope
+    mx = 5
+    sp.rect(mx, 3, mx + 12, 7, PAPER)
+    sp.rect(mx + 6, 3, mx + 6, 7, PAPERD)                     # gutter
+    for yy in (4, 6):
+        sp.rect(mx + 1, yy, mx + 4, yy, PAPERD)
+        sp.rect(mx + 8, yy, mx + 11, yy, PAPERD)
+    lx = w - 8                                                # brass reading lamp
+    sp.rect(lx, 2, lx + 3, 2, BRASS[2])
+    sp.rect(lx + 1, 0, lx + 2, 1, BRASS[1])
+    sp.set(lx + 1, 1, MINT)
+    # turned column + splayed foot (floor shows past it)
+    cx = w // 2
+    sp.rect(cx - 2, 12, cx + 1, h - 6, TIMBER[2])
+    sp.rect(cx - 2, 12, cx - 2, h - 6, TIMBER[1])
+    sp.rect(cx + 1, 12, cx + 1, h - 6, TIMBER[4])
+    sp.rect(cx - 4, 16, cx + 3, 17, TIMBER[3])                # collar
+    sp.rect(cx - 5, h - 5, cx + 4, h - 4, TIMBER[3])          # foot
+    sp.rect(cx - 5, h - 4, cx + 4, h - 4, TIMBER[4])
+    edge(sp)
+    return sp
+
+
+def stage_front(w, h, salt=77):
+    """The stage apron: one long low riser closing a raised dais's south
+    edge, drawn for life as a one-row y-sorted entity (the desk plane idiom
+    at stage width). The upper band is the stage boards' lit south lip — it
+    overlaps the dais row behind, so a performer's feet read as ON the
+    platform edge; below it a panelled riser face drops to a dark contact
+    lip. Kept fully opaque across its footprint row on purpose: the solid D
+    cells must never dedupe to open floor (the T3 coverage rule)."""
+    sp = S(w, h, salt)
+    sp.rect(0, h - 26, w - 1, h - 26, TIMBER[0])              # lit stage lip
+    sp.rect(0, h - 25, w - 1, h - 21, TIMBER[1])              # board ends
+    for gx in range(6, w - 2, 12):
+        sp.rect(gx, h - 25, gx, h - 21, TIMBER[2])            # board seams
+    sp.rect(0, h - 20, w - 1, h - 20, TIMBER[2])              # nosing shadow
+    sp.rect(0, h - 19, w - 1, h - 4, TIMBER[3])               # riser field
+    sp.rect(0, h - 19, w - 1, h - 19, TIMBER[2])              # top rail
+    for px2 in range(6, w - 20, 22):                          # beveled panels
+        sp.rect(px2, h - 16, px2 + 14, h - 7, TIMBER[2])
+        sp.rect(px2, h - 16, px2 + 14, h - 16, TIMBER[4])     # inset shadow
+        sp.rect(px2, h - 7, px2 + 14, h - 7, TIMBER[1])       # catch-light
+    sp.rect(0, h - 3, w - 1, h - 1, TIMBER[4])                # contact lip
+    edge(sp)
+    return sp
+
+
+def curtain_leg(w, h, red, salt=83):
+    """A theater-red gathered stage drape: one proscenium-height curtain leg
+    hanging from a brass rail nub down past the stage floor to a puddled
+    hem. Vertical fold bands (lit crests / violet-law valleys, hard CT
+    edges) with a mid-height sway crease. Emitted as a Tier-3 y-sorted
+    entity on its one solid map cell: the cell's south edge is the feet
+    line, so every body on the stage tuck row (node y below the leg's
+    origin) draws BEHIND it — the walk-on "appears from behind the
+    curtain," and the flee is swallowed back behind it."""
+    sp = S(w, h, salt)
+    # art inset 1px each side: sprite_img crops to (w, h), so the outline
+    # must land INSIDE the footprint or the east rim is cut off
+    # brass rail nub peeking over the gather
+    sp.rect(2, 0, w - 3, 1, BRASS[2])
+    sp.rect(2, 0, w - 3, 0, BRASS[1])
+    # gathered folds: narrow vertical bands — lit crests, violet valleys
+    fold = (0, 1, 2, 1, 3, 1, 0, 2, 1, 3, 2, 1)
+    for x in range(1, w - 1):
+        sp.rect(x, 2, x, h - 5, red[fold[(x * 3 // 4) % len(fold)]])
+    # the drape bellies at mid-height: one soft sway crease per third
+    for cx_ in (w // 4, w // 2, 3 * w // 4):
+        sp.rect(cx_, h // 2 - 5, cx_, h // 2 + 7, red[3])
+    # puddled hem: the fabric pools past the floor contact
+    sp.rect(1, h - 5, w - 2, h - 4, red[1])
+    sp.rect(1, h - 3, w - 2, h - 2, red[2])
+    sp.rect(1, h - 1, w - 2, h - 1, red[4])
+    edge(sp, h)
+    return sp
+
+
+def bench(w, h, salt=71):
+    """A tiered lecture bench (the workbench counter-walk pattern): a plank
+    seat + back on stout legs. Audience NPCs stand on the walkable row behind
+    it so their legs tuck under the seat — the seated-in-the-gallery read;
+    only the bottom row is solid."""
+    sp = S(w, h, salt)
+    sp.rect(1, 8, w - 2, 8, TIMBER[0])                        # seat top edge
+    sp.rect(1, 9, w - 2, 12, TIMBER[1])                       # seat plank
+    for gx in range(4, w - 4, 10):
+        sp.rect(gx, 10, gx + 5, 10, TIMBER[2])               # grain
+    sp.rect(1, 13, w - 2, 13, TIMBER[2])
+    sp.rect(1, 14, w - 2, 14, TIMBER[4])                      # front lip
+    sp.rect(2, 2, w - 3, 3, TIMBER[2])                        # low backrest
+    sp.rect(2, 2, w - 3, 2, TIMBER[1])
+    sp.rect(2, 4, w - 3, 4, TIMBER[4])
+    for px2 in (3, w - 6):                                    # backrest posts
+        sp.rect(px2, 4, px2 + 1, 8, TIMBER[3])
+    for px2 in (3, w - 6):                                    # legs (floor between)
+        sp.rect(px2, 15, px2 + 3, h - 3, TIMBER[3])
+        sp.rect(px2 + 3, 15, px2 + 3, h - 3, TIMBER[4])
+        sp.rect(px2, h - 4, px2 + 3, h - 3, TIMBER[4])
+    sp.rect(6, h - 8, w - 7, h - 7, TIMBER[3])                # stretcher
     edge(sp)
     return sp

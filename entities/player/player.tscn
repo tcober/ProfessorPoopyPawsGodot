@@ -1,6 +1,7 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://entities/player/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://entities/player/basil_brain.gd" id="6_brain"]
 [ext_resource type="SpriteFrames" path="res://entities/player/player_frames.tres" id="2_frames"]
 [ext_resource type="Script" path="res://components/health_component.gd" id="3_health"]
 [ext_resource type="Script" path="res://components/hurtbox_component.gd" id="4_hurtbox"]
@@ -47,3 +48,6 @@ shape = SubResource("RectangleShape2D_hurt")
 [node name="Camera2D" type="Camera2D" parent="."]
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
+
+[node name="Brain" type="Node" parent="."]
+script = ExtResource("6_brain")

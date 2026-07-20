@@ -15,22 +15,14 @@ const LAYOUT_PATH := "res://assets/tilesets/house_layout.txt"
 const DIM_OPEN := Color(0.72, 0.7, 0.86)
 const DIM_CLOSED := Color(0.62, 0.6, 0.8)
 
-## Basil's feet sit at node.y + 20 (48px cell, feet baseline 44); y-sorted
-## furniture entities must use the same feet convention to sort true.
-const PLAYER_FEET := 20.0
-
-## Prop-local geometry shared with the generator: the bed cover crop starts
-## at this y inside the bed bbox (_interior_props.bed_parts cover_span), and
-## the baked contact shadow occupies the bbox's bottom rows.
-const COVER_TOP := 24.0
-const BED_SHADOW := 5.0
+const PROPS_PATH := "res://assets/tilesets/house_props.txt"
 
 var map: Dictionary
 var curtains_open := false
 var _near_window := false
 var _curtain_busy := false
 
-@onready var player: DirectionalBody2D = $World/Player
+var player: DirectionalBody2D
 
 
 func _ready() -> void:
@@ -39,13 +31,16 @@ func _ready() -> void:
 	PaintedMap.build_collision(map, $Collision)
 	# Spawn at the routed anchor (stair_top when climbing up from the
 	# downstairs), else the default bedside boot spawn. Read-and-clear.
+	# y-sorted furniture (desk, bed cover) from the generated manifest,
+	# spawned before the party so bodies win y-sort ties
+	PropSpawner.build(PROPS_PATH, map, $World)
 	var spawn := Game.interior_spawn
 	Game.interior_spawn = ""
 	if spawn.is_empty() or not map.anchors.has(spawn):
 		spawn = "player_spawn"
-	player.position = MapData.anchor_px(map, spawn)
+	player = Party.spawn($World, MapData.anchor_px(map, spawn))
 	$ExitDoor.position = MapData.anchor_px(map, "exit_door")
-	MapData.clamp_camera(player.get_node("Camera2D"), MapData.view_size())
+	Party.clamp_cameras(MapData.view_size())
 	$ExitDoor.body_entered.connect(_on_exit_door)
 	# Curtain mechanic: the room wakes with the curtains drawn; standing at
 	# the window (WindowZone) and pressing interact toggles them. Positions
@@ -58,24 +53,6 @@ func _ready() -> void:
 	$WindowZone.position = win.position + Vector2(win.size.x / 2.0, win.size.y + 14.0)
 	$WindowZone.body_entered.connect(_on_window_zone.bind(true))
 	$WindowZone.body_exited.connect(_on_window_zone.bind(false))
-	_place_furniture()
-
-
-## The y-sorted furniture entities, positioned from the map bboxes at the
-## player's feet convention: the desk (walk behind it / stand in front of
-## it) and the bed cover (in bed = under the quilt, head on the pillow).
-func _place_furniture() -> void:
-	var d := MapData.bbox_rect(map, "d")
-	var dsk: Sprite2D = $World/Desk
-	var dbase := d.position.y + d.size.y
-	dsk.position = Vector2(d.position.x + d.size.x / 2.0, dbase - PLAYER_FEET)
-	dsk.offset = Vector2(0.0, dbase - dsk.texture.get_height() / 2.0 - dsk.position.y)
-	var b := MapData.bbox_rect(map, "bB")
-	var cover: Sprite2D = $World/BedCover
-	var cbase := b.position.y + b.size.y - BED_SHADOW
-	cover.position = Vector2(b.position.x + b.size.x / 2.0, cbase - PLAYER_FEET)
-	cover.offset = Vector2(0.0, b.position.y + COVER_TOP
-			+ cover.texture.get_height() / 2.0 - cover.position.y)
 
 
 func _process(_delta: float) -> void:

@@ -132,13 +132,20 @@ SCENES = {
             "rock": (154, 146, 190, 255),
         },
     },
-    "hall": {           # deep plum timber duotone, chalk-mint accent
-        "shadow": "violet",
+    "hall": {           # deep plum panelling / rose floor, chalk-mint accent
+        "shadow": "violet",                     # (Prologue B lecture hall)
         "accent": (150, 240, 214, 255),         # chalk mint
         "mats": {
-            "timber": (118, 76, 128, 255),
-            "floor": (146, 96, 132, 255),
-            "board": (36, 72, 74, 255),
+            "wall": (118, 76, 128, 255),        # plum panelling (Room wants `wall`)
+            "floor": (150, 100, 136, 255),      # dusty rose floor
+        },
+    },
+    "sickroom": {       # the doctor's surgery (Prologue B): pale linen walls,
+        "shadow": "violet",                     # cool lavender floor, a single
+        "accent": (238, 214, 168, 255),         # warm lamp against the chill
+        "mats": {
+            "wall": (206, 198, 224, 255),       # pale lavender plaster
+            "floor": (150, 158, 190, 255),      # cool slate-blue boards
         },
     },
     "overworld": {      # hot teal sea + minty continent, hot violet wastes
@@ -151,6 +158,11 @@ SCENES = {
                      (198, 138, 108, 255), (156, 92, 96, 255), (110, 58, 78, 255)],
             "road": [(240, 206, 160, 255), (228, 184, 136, 255), (212, 158, 116, 255),
                      (184, 124, 100, 255), (146, 84, 90, 255), (104, 54, 74, 255)],
+            # incandescence can't be derived — ramp()'s shadow law would pull
+            # the darks violet-cold; molten rock walks white-gold -> orange ->
+            # scorched crust by hand
+            "lava": [(255, 244, 180, 255), (255, 196, 88, 255), (244, 120, 52, 255),
+                     (188, 62, 48, 255), (84, 38, 54, 255), (44, 22, 40, 255)],
         },
         # 2026-07 darker pass: the candy-mint field seeds dropped to mossy,
         # richer values (lower L, kept/raised S, same teal lean) — the law
@@ -166,10 +178,55 @@ SCENES = {
             "snow": (234, 242, 252, 255),
             "bridge": (150, 88, 112, 255),      # rosewood planks
             "trunk": (52, 62, 118, 255),        # forest understory indigo
+            # the five-lands biomes (2026-07): pale dusty-lavender dunes (a
+            # wide L gap above basalt so the two violet lands never blur),
+            # violet-charcoal volcanic crust, deep blue-spruce winter mass
+            "desert": (178, 150, 208, 255),
+            "basalt": (74, 62, 92, 255),
+            "pines": (30, 90, 104, 255),
             # Alembic Town (the CT pitched-roof cluster + the Academy):
             "roof_blue": (70, 124, 178, 255),   # deep slate-blue shingles
             "roof_green": (62, 138, 110, 255),  # deep verdigris shingles
             "plaster": (168, 158, 196, 255),    # dusky lavender walls
+        },
+    },
+    "overworld_bright": {   # the PRE-EBB continent: the drained overworld's
+        "shadow": "teal",   # seeds lifted (higher L, kept S, same teal lean —
+        "accent": (196, 120, 255, 255),     # the town_fest formula at world
+        # scale). Geology stays put: desert/basalt/lava identical in both
+        # eras. The WASTE pan re-seeds to ordinary dry-gold parched earth —
+        # pre-Ebb there is no drained blight, just dry ground (the byte-
+        # locked grid keeps the cells; the palette tells the era).
+        "ramps": {
+            "sand": [(250, 228, 182, 255), (242, 206, 152, 255), (230, 182, 132, 255),
+                     (204, 146, 112, 255), (162, 98, 98, 255), (114, 62, 80, 255)],
+            "road": [(246, 214, 166, 255), (236, 192, 142, 255), (222, 168, 122, 255),
+                     (194, 134, 106, 255), (154, 92, 94, 255), (110, 58, 78, 255)],
+            "lava": [(255, 244, 180, 255), (255, 196, 88, 255), (244, 120, 52, 255),
+                     (188, 62, 48, 255), (84, 38, 54, 255), (44, 22, 40, 255)],
+            # pre-Ebb the pans are ordinary parched earth: a hand straw->umber
+            # walk (the driver derives waste with VIOLET shadows, which turns
+            # any warm seed salmon-brick)
+            "waste": [(232, 206, 152, 255), (216, 186, 130, 255), (196, 162, 108, 255),
+                      (168, 132, 88, 255), (128, 96, 74, 255), (88, 64, 58, 255)],
+        },
+        "mats": {
+            "sea": (48, 128, 164, 255),
+            "grass": (84, 172, 108, 255),
+            "grass2": (110, 178, 94, 255),
+            "forest": (52, 148, 112, 255),
+            "rock": (122, 114, 168, 255),
+            "sand": (244, 210, 160, 255),
+            "waste": (206, 172, 120, 255),      # (unused: hand ramp above wins)
+            "snow": (240, 246, 255, 255),
+            "bridge": (168, 102, 122, 255),
+            "trunk": (66, 78, 138, 255),
+            "desert": (178, 150, 208, 255),     # geology: identical both eras
+            "basalt": (74, 62, 92, 255),
+            "pines": (38, 104, 118, 255),       # living winter spruce, lifted
+            "roof_blue": (86, 146, 198, 255),
+            "roof_green": (78, 158, 124, 255),
+            "plaster": (236, 210, 182, 255),
         },
     },
     "town": {           # Alembic Town at zone scale — the overworld palette
@@ -195,9 +252,108 @@ SCENES = {
             "snow": (234, 242, 252, 255),
             "bridge": (150, 88, 112, 255),
             "trunk": (52, 62, 118, 255),
+            "desert": (178, 150, 208, 255),     # ride-alongs, unused: the
+            "basalt": (74, 62, 92, 255),        # shared driver constructs
+            "pines": (30, 90, 104, 255),        # every ramp it knows
+            "lava": (244, 120, 52, 255),
             "roof_blue": (70, 124, 178, 255),
             "roof_green": (62, 138, 110, 255),
             "plaster": (168, 158, 196, 255),
+        },
+    },
+    "town_fest": {      # Alembic Town, FESTIVAL ERA (Prologue A) — the same
+        "shadow": "teal",               # town ALIVE: spring grass, cream
+        "accent": (240, 96, 170, 255),  # plaster, festival-banner magenta
+        # Sunnier walk ramps than the drained town's (closer to morning_yard's
+        # warmth) — the era difference must read in the ground itself.
+        "ramps": {
+            "sand": [(250, 228, 182, 255), (242, 206, 152, 255), (230, 182, 132, 255),
+                     (204, 146, 112, 255), (162, 98, 98, 255), (114, 62, 80, 255)],
+            "road": [(246, 214, 166, 255), (236, 192, 142, 255), (222, 168, 122, 255),
+                     (194, 134, 106, 255), (154, 92, 94, 255), (110, 58, 78, 255)],
+        },
+        # The drained "town" seeds, lifted: higher L, kept saturation, same
+        # teal lean — bright but never candy (the darker-tone law still
+        # holds; this is spring, not sugar).
+        "mats": {
+            "sea": (48, 128, 164, 255),
+            "grass": (84, 172, 108, 255),
+            "grass2": (110, 178, 94, 255),
+            "forest": (52, 148, 112, 255),
+            "rock": (122, 114, 168, 255),
+            "sand": (244, 210, 160, 255),
+            "waste": (188, 112, 178, 255),
+            "snow": (234, 242, 252, 255),
+            "bridge": (168, 102, 122, 255),
+            "trunk": (66, 78, 138, 255),
+            "desert": (178, 150, 208, 255),     # ride-alongs, unused
+            "basalt": (74, 62, 92, 255),
+            "pines": (30, 90, 104, 255),
+            "lava": (244, 120, 52, 255),
+            "roof_blue": (86, 146, 198, 255),
+            "roof_green": (78, 158, 124, 255),
+            "plaster": (236, 210, 182, 255),
+        },
+    },
+    "lanternwood": {    # Fuji's hometown at zone scale: a winter-dusk pine
+        "shadow": "violet",                 # town — near-white snow field,
+        "accent": (255, 190, 96, 255),      # deep blue-spruce woods, and
+        # every window burning firelight amber (the town of lanterns).
+        # Hand ramps: packed-snow lanes (derived road turns salmon under
+        # violet shadows) and the same lava/incandescence rule as ever.
+        "ramps": {
+            "road": [(226, 234, 246, 255), (206, 216, 236, 255), (182, 192, 220, 255),
+                     (150, 158, 196, 255), (114, 118, 164, 255), (80, 80, 126, 255)],
+            "sand": [(226, 234, 246, 255), (206, 216, 236, 255), (182, 192, 220, 255),
+                     (150, 158, 196, 255), (114, 118, 164, 255), (80, 80, 126, 255)],
+        },
+        "mats": {
+            "sea": (60, 110, 168, 255),         # ride-along ice-water
+            "grass": (208, 222, 242, 255),      # ride-along (snow is the field)
+            "grass2": (196, 214, 238, 255),
+            "forest": (36, 96, 110, 255),       # blue-spruce hedgerows
+            "pines": (34, 92, 108, 255),        # the deep winter wood border
+            "rock": (146, 150, 194, 255),       # icy lavender stone
+            "snow": (238, 244, 254, 255),       # THE ground field
+            "waste": (188, 112, 178, 255),      # ride-alongs, unused
+            "bridge": (150, 88, 112, 255),
+            "trunk": (74, 62, 102, 255),        # cold violet-brown boles
+            "desert": (178, 150, 208, 255),
+            "basalt": (74, 62, 92, 255),
+            "lava": (244, 120, 52, 255),
+            "roof_blue": (96, 124, 168, 255),   # slate cabin roofs (under snow)
+            "roof_green": (78, 140, 128, 255),
+            "plaster": (214, 208, 228, 255),
+        },
+    },
+    "bluff": {          # the sunset bluff over the water (Prologue B: the
+        "shadow": "violet",                     # watch romance + both calls) —
+        "accent": (255, 168, 112, 255),         # amber-rose hour, violet darks
+        # Same hand-tuned warm walk as the meadow's (derived ramps turn warm
+        # dirt salmon under violet shadows) — serves any path scuffs + the
+        # driver's mandatory sand ramp.
+        "ramps": {
+            "road": [(248, 224, 178, 255), (240, 200, 148, 255), (226, 176, 128, 255),
+                     (198, 138, 108, 255), (156, 92, 96, 255), (110, 58, 78, 255)],
+            "sand": [(248, 224, 178, 255), (240, 200, 148, 255), (226, 176, 128, 255),
+                     (198, 138, 108, 255), (156, 92, 96, 255), (110, 58, 78, 255)],
+        },
+        # Duotone cast: one gilded-grass field against one deep evening sea,
+        # rose-lit cliff stone between them, dusk-violet windbreak.
+        "mats": {
+            "grass": (150, 128, 62, 255),       # sun-gilded dry headland
+            "grass2": (174, 144, 72, 255),      # warmer crest drift
+            "forest": (74, 56, 92, 255),        # dusk-violet windbreak
+            "trunk": (52, 40, 84, 255),
+            "rock": (164, 108, 106, 255),       # rose-lit cliff face
+            "sea": (56, 64, 138, 255),          # deep evening indigo water
+            "waste": (188, 112, 178, 255),      # ride-along, unused
+            "snow": (234, 242, 252, 255),
+            "bridge": (150, 88, 112, 255),
+            "desert": (178, 150, 208, 255),     # ride-alongs, unused
+            "basalt": (74, 62, 92, 255),
+            "pines": (30, 90, 104, 255),
+            "lava": (244, 120, 52, 255),
         },
     },
     "meadow": {         # minty teal greens, candy hot-pink flowers — the
@@ -228,6 +384,10 @@ SCENES = {
             "waste": (188, 112, 178, 255),      # ride-along, unused
             "snow": (234, 242, 252, 255),
             "bridge": (150, 88, 112, 255),
+            "desert": (178, 150, 208, 255),     # ride-alongs, unused
+            "basalt": (74, 62, 92, 255),
+            "pines": (30, 90, 104, 255),
+            "lava": (244, 120, 52, 255),
         },
     },
 }

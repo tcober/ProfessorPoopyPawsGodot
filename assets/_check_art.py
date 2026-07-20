@@ -37,13 +37,71 @@ def png_size(rel):
     return struct.unpack(">II", data[16:24])
 
 
+def png_alpha(rel):
+    """Decode an 8-bit RGB(A) non-interlaced PNG -> (w, h, alpha rows).
+    Stdlib-only, mirror of _core's writer; used by the T3 coverage lint to
+    measure how much of a footprint cell the y-sorted prop art actually
+    covers."""
+    import zlib
+    data = open(os.path.join(ROOT, rel), "rb").read()
+    assert data[:8] == b"\x89PNG\r\n\x1a\n", f"{rel}: not a PNG"
+    pos, idat, w, h, bit, color = 8, b"", 0, 0, 0, 0
+    while pos < len(data):
+        ln = struct.unpack(">I", data[pos:pos + 4])[0]
+        typ = data[pos + 4:pos + 8]
+        if typ == b"IHDR":
+            w, h, bit, color = struct.unpack(">IIBB", data[pos + 8:pos + 18])
+        elif typ == b"IDAT":
+            idat += data[pos + 8:pos + 8 + ln]
+        elif typ == b"IEND":
+            break
+        pos += 12 + ln
+    assert bit == 8 and color in (2, 6), f"{rel}: PNG bit {bit} color {color}"
+    nch = 4 if color == 6 else 3
+    raw = zlib.decompress(idat)
+    stride = w * nch
+    rows, prev, p = [], bytearray(stride), 0
+    for _y in range(h):
+        flt = raw[p]
+        line = bytearray(raw[p + 1:p + 1 + stride])
+        p += 1 + stride
+        if flt == 1:
+            for i in range(nch, stride):
+                line[i] = (line[i] + line[i - nch]) & 255
+        elif flt == 2:
+            for i in range(stride):
+                line[i] = (line[i] + prev[i]) & 255
+        elif flt == 3:
+            for i in range(stride):
+                a = line[i - nch] if i >= nch else 0
+                line[i] = (line[i] + ((a + prev[i]) >> 1)) & 255
+        elif flt == 4:
+            for i in range(stride):
+                a = line[i - nch] if i >= nch else 0
+                b, c = prev[i], (prev[i - nch] if i >= nch else 0)
+                pa, pb, pc = abs(b - c), abs(a - c), abs(a + b - 2 * c)
+                line[i] = (line[i] + (a if pa <= pb and pa <= pc
+                                      else b if pb <= pc else c)) & 255
+        rows.append(line)
+        prev = line
+    if nch == 3:
+        return w, h, [[255] * w for _ in range(h)]
+    return w, h, [[line[i * 4 + 3] for i in range(w)] for line in rows]
+
+
 # ---- maps ------------------------------------------------------------------------
 MAPS = [
     "maps/meadow.txt",
     "maps/overworld.txt",
+    "maps/overworld_bright.txt",
     "maps/town.txt",
+    "maps/town_fest.txt",
+    "maps/lanternwood.txt",
     "maps/house.txt",
     "maps/downstairs.txt",
+    "maps/hall.txt",
+    "maps/sickroom.txt",
+    "maps/bluff.txt",
 ]
 
 print("maps:")
@@ -75,12 +133,27 @@ TILED = {
     "maps/overworld.txt": ("tilesets/overworld_layout.txt",
                            "tilesets/overworld_tiles.png",
                            "tilesets/overworld_tiles.tres"),
+    "maps/overworld_bright.txt": ("tilesets/overworld_bright_layout.txt",
+                                  "tilesets/overworld_bright_tiles.png",
+                                  "tilesets/overworld_bright_tiles.tres"),
     "maps/town.txt": ("tilesets/town_layout.txt",
                       "tilesets/town_tiles.png",
                       "tilesets/town_tiles.tres"),
+    "maps/lanternwood.txt": ("tilesets/lanternwood_layout.txt",
+                             "tilesets/lanternwood_tiles.png",
+                             "tilesets/lanternwood_tiles.tres"),
+    "maps/town_fest.txt": ("tilesets/town_fest_layout.txt",
+                           "tilesets/town_fest_tiles.png",
+                           "tilesets/town_fest_tiles.tres"),
+    "maps/hall.txt": ("tilesets/hall_layout.txt", "tilesets/hall_tiles.png",
+                      "tilesets/hall_tiles.tres"),
+    "maps/sickroom.txt": ("tilesets/sickroom_layout.txt",
+                          "tilesets/sickroom_tiles.png",
+                          "tilesets/sickroom_tiles.tres"),
 }
 
 print("tiled scenes:")
+LAYERS = {}
 for map_rel, (layout, atlas, tres) in TILED.items():
     mm = maps[map_rel]
     layers = {}
@@ -116,6 +189,214 @@ for map_rel, (layout, atlas, tres) in TILED.items():
     undeclared = [rc for rc in refs if f"{rc[0]}:{rc[1]}/0 = 0" not in tsrc]
     check(f"assets/{tres} declares every referenced tile", not undeclared,
           f"missing {sorted(undeclared)[:4]}")
+    LAYERS[map_rel] = layers
+
+# ---- z-order doctrine (see DESIGN.md "Z-order / layering doctrine") -------------------
+# Upper-layer art draws over EVERY body unconditionally, so it is only legal
+# where a body can never stand south of it un-occluded: anchored on solid
+# ground (or more upper art), with walk-behind corridors capped by a solid
+# ridge row so at most a head-peek crosses the silhouette.
+print("z-order:")
+# maps/town.txt is intentionally absent: its buildings + trees are now Tier-3
+# y-sorted World sprites (not upper-layer tiles), so its upper layer is empty
+# and the z-order checks below short-circuit for it (the invisible-wall +
+# T3-coverage lint carry the load). town_fest still bakes them, so it stays.
+UPPER_REQUIRED = {"maps/overworld.txt", "maps/overworld_bright.txt",
+                  "maps/house.txt", "maps/downstairs.txt", "maps/hall.txt",
+                  "maps/sickroom.txt"}
+# 24x24 travel chibi, figure <=1 tile tall
+CHIBI_MAPS = {"maps/overworld.txt", "maps/overworld_bright.txt"}
+for map_rel, layers in LAYERS.items():
+    mm = maps[map_rel]
+    upper = {(x, y) for y, row in enumerate(layers["upper"])
+             for x, tok in enumerate(row.split()) if tok != "-"}
+    if map_rel in UPPER_REQUIRED:
+        check(f"{map_rel} upper layer non-empty", bool(upper))
+    if not upper:
+        continue
+
+    def terr(x, y, mm=mm):
+        ch = mm.at(x, y)
+        return mm.legend[ch]["terrain"] if ch else None
+
+    def solid(x, y, mm=mm):
+        ch = mm.at(x, y)
+        return mm.legend[ch]["solid"] if ch else True
+
+    # (support) every upper cell IS solid (the mask-band idiom: _eave_lift
+    # mirrors a solid row's top <=12px so pressed bodies' feet are swallowed
+    # — a south body's head only reaches the row's bottom ~3px), or rests on
+    # solid ground / more upper art / a doorway (lintels + door-top strips
+    # float over the walk-through by design)
+    bad = [(x, y) for (x, y) in upper
+           if not (solid(x, y) or solid(x, y + 1) or (x, y + 1) in upper
+                   or terr(x, y) == "door" or terr(x, y + 1) == "door")]
+    check(f"{map_rel} upper art supported", not bad,
+          f"floating over walkable ground at {sorted(bad)[:4]}")
+    # (head clearance) a walkable covered cell needs covered art due north:
+    # the corridor is capped by a solid ridge row, so a body can never poke
+    # more than its head over the prop's silhouette. Scale-gated: a chibi map's
+    # figure fits inside one tile, so it can't out-peek a silhouette — whole
+    # crowns/roofs may be open walk-behind there, no cap required
+    if map_rel not in CHIBI_MAPS:
+        bad = [(x, y) for (x, y) in upper
+               if not solid(x, y) and terr(x, y) != "door" and (x, y - 1) not in upper]
+        check(f"{map_rel} walk-behind corridors capped", not bad,
+              f"make the row above a solid ridge at {sorted(bad)[:4]}")
+    # (ridge placement) a ridge cell exists to sit under a prop's top rows —
+    # it (or, at silhouette corners, a 4-neighbor) must carry upper art
+    bad = [(x, y) for y in range(mm.rows_n) for x in range(mm.cols)
+           if terr(x, y) == "ridge" and (x, y) not in upper
+           and not any(n in upper for n in ((x + 1, y), (x - 1, y),
+                                            (x, y + 1), (x, y - 1)))]
+    check(f"{map_rel} ridge cells under upper art", not bad, str(bad[:4]))
+
+# ---- Tier-3 props manifests (TileScene.emit_prop -> scene/prop_spawner.gd) -----------
+print("props manifests:")
+PROPS = {
+    "maps/house.txt": "tilesets/house_props.txt",
+    "maps/downstairs.txt": "tilesets/downstairs_props.txt",
+    "maps/town.txt": "tilesets/town_props.txt",
+    "maps/town_fest.txt": "tilesets/town_fest_props.txt",
+    "maps/lanternwood.txt": "tilesets/lanternwood_props.txt",
+    "maps/hall.txt": "tilesets/hall_props.txt",
+    "maps/sickroom.txt": "tilesets/sickroom_props.txt",
+}
+T3_CHARS = {}                          # map_rel -> chars whose art is y-sorted
+T3_PROPS = {}                          # map_rel -> parsed rows (coverage lint)
+for map_rel, props_rel in PROPS.items():
+    mm = maps[map_rel]
+    path = os.path.join(HERE, props_rel)
+    if not os.path.exists(path):
+        check(f"assets/{props_rel} exists", False)
+        continue
+    for ln in open(path):
+        ln = ln.strip()
+        if not ln or ln.startswith(";"):
+            continue
+        parts = ln.split()
+        ok = len(parts) >= 4 and parts[0] == "prop"
+        if ok:
+            T3_CHARS.setdefault(map_rel, set()).update(parts[2])
+        detail = ""
+        hframes = 1
+        top = None
+        each = False
+        for opt in parts[4:]:
+            if opt.startswith("hframes="):
+                hframes = int(opt.split("=", 1)[1])
+            elif opt == "each":
+                each = True
+            elif opt.startswith("anchor=top:"):
+                top = int(opt.split(":", 1)[1])
+            elif not opt.startswith("base_inset="):
+                ok, detail = False, f"unknown option {opt!r}"
+        chars = parts[2]
+        if not any(ch in chars for row in mm.rows for ch in row):
+            ok, detail = False, f"no {chars!r} cells in the map"
+        dims = png_size(os.path.join("assets", "tilesets", parts[3]))
+        if dims is None or dims[0] % hframes:
+            ok, detail = False, f"png {dims}, hframes {hframes}"
+        if ok:
+            T3_PROPS.setdefault(map_rel, []).append(
+                dict(name=parts[1], chars=chars, png=parts[3],
+                     top=top, hframes=hframes, each=each))
+        check(f"assets/{props_rel}: {parts[1]}", ok, detail)
+
+
+def t3_components(mm, chars, each):
+    """The prop's footprint groups, mirroring prop_spawner: 4-connected
+    components for `each`, else one group of every chars cell."""
+    cells = [(x, y) for y in range(mm.rows_n) for x in range(mm.cols)
+             if mm.at(x, y) in chars]
+    if not each:
+        return [cells]
+    pending = set(cells)
+    comps = []
+    for seed in cells:
+        if seed not in pending:
+            continue
+        pending.discard(seed)
+        comp = [seed]
+        i = 0
+        while i < len(comp):
+            cx, cy = comp[i]
+            i += 1
+            for n in ((cx + 1, cy), (cx - 1, cy), (cx, cy + 1), (cx, cy - 1)):
+                if n in pending:
+                    pending.discard(n)
+                    comp.append(n)
+        comps.append(comp)
+    return comps
+
+
+T3_COVER_MIN = 0.20   # a footprint cell keeps its solid map cell only if the
+                      # prop's frame-0 art covers >= 20% of the 16px square
+                      # (measured floor: legit bases ~25-46%, true walls 0%)
+
+
+def t3_covered_cells(mm, props):
+    """Solid footprint cells the prop art actually covers — the per-cell
+    Tier-3 exemption for the invisible-wall lint (placement math mirrors
+    scene/prop_spawner.gd: art centered on the group's x, bottom on its
+    south edge unless anchor=top)."""
+    covered = set()
+    for prop in props:
+        pw, ph, alpha = png_alpha(os.path.join("assets", "tilesets", prop["png"]))
+        fw = pw // prop["hframes"]
+        for comp in t3_components(mm, prop["chars"], prop["each"]):
+            x0 = min(c[0] for c in comp)
+            x1 = max(c[0] for c in comp)
+            y0 = min(c[1] for c in comp)
+            y1 = max(c[1] for c in comp)
+            ax0 = (x0 + x1 + 1) * ZONE_TILE / 2.0 - fw / 2.0
+            ay0 = y0 * ZONE_TILE + prop["top"] if prop["top"] is not None \
+                else (y1 + 1) * ZONE_TILE - ph
+            for (cx, cy) in comp:
+                n = 0
+                for py in range(ZONE_TILE):
+                    sy = int(cy * ZONE_TILE + py - ay0)
+                    if not 0 <= sy < ph:
+                        continue
+                    arow = alpha[sy]
+                    for px_ in range(ZONE_TILE):
+                        sx = int(cx * ZONE_TILE + px_ - ax0)
+                        if 0 <= sx < fw and arow[sx] > 0:
+                            n += 1
+                if n >= T3_COVER_MIN * ZONE_TILE * ZONE_TILE:
+                    covered.add((cx, cy))
+    return covered
+
+# ---- invisible walls (silhouette-fit rule, DESIGN.md) ---------------------------------
+# A solid cell whose art dedupes to a tile also used on open walkable ground
+# reads as walkable but blocks — the deduped atlas makes this exact: an
+# art-free prop-footprint corner shares its atlas tile with plain fabric.
+# Only faces a body can press count (4-adjacent to a walkable cell). The
+# Tier-3 exemption is per CELL (2026-07-12): a footprint cell is exempt only
+# where the y-sorted prop art covers >= T3_COVER_MIN of its square — an
+# art-free corner must be retyped walkable (the O/L/U twins).
+print("invisible walls:")
+for map_rel, layers in LAYERS.items():
+    mm = maps[map_rel]
+    lower = [row.split() for row in layers["lower"]]
+    upper = {(x, y) for y, row in enumerate(layers["upper"])
+             for x, tok in enumerate(row.split()) if tok != "-"}
+    covered = t3_covered_cells(mm, T3_PROPS.get(map_rel, []))
+
+    def solid(x, y, mm=mm):
+        ch = mm.at(x, y)
+        return mm.legend[ch]["solid"] if ch else True
+
+    walk_toks = {lower[y][x] for y in range(mm.rows_n) for x in range(mm.cols)
+                 if not solid(x, y)}
+    bad = [(x, y) for y in range(mm.rows_n) for x in range(mm.cols)
+           if solid(x, y) and (x, y) not in covered
+           and lower[y][x] != "-" and lower[y][x] in walk_toks
+           and (x, y) not in upper
+           and any(not solid(*n) for n in ((x + 1, y), (x - 1, y),
+                                           (x, y + 1), (x, y - 1)))]
+    check(f"{map_rel} no invisible walls", not bad,
+          f"solid cells rendering as open ground at {sorted(bad)[:6]}")
 
 # ---- collision tileset ---------------------------------------------------------------
 print("collision tileset:")
@@ -133,6 +414,12 @@ PLACEMENTS = {
     "scene/house.tscn": "maps/house.txt",
     "scene/downstairs.tscn": "maps/downstairs.txt",
     "scene/alembic_town.tscn": "maps/town.txt",
+    "scene/lanternwood.tscn": "maps/lanternwood.txt",
+    "scene/town_fest.tscn": "maps/town_fest.txt",
+    "scene/town_thesis.tscn": "maps/town_fest.txt",
+    "scene/house_thesis.tscn": "maps/house.txt",
+    "scene/hall.tscn": "maps/hall.txt",
+    "scene/sickroom.tscn": "maps/sickroom.txt",
 }
 
 print("placements:")
@@ -149,7 +436,7 @@ for rel, map_rel in PLACEMENTS.items():
 
 # ---- sheet dimensions -----------------------------------------------------------------
 SHEETS = {
-    "assets/basil_gen.png": (6 * ZONE_CELL, 8 * ZONE_CELL),
+    "assets/basil_gen.png": (6 * ZONE_CELL, 10 * ZONE_CELL),
     "assets/fuji_gen.png": (6 * ZONE_CELL, 10 * ZONE_CELL),
     "assets/slime_gen.png": (6 * 24, 4 * 24),
     "assets/overworld_basil.png": (4 * OW_CELL, 3 * OW_CELL),
@@ -162,6 +449,27 @@ SHEETS = {
     "assets/placeholder/beaker.png": (12, 14),
     "assets/placeholder/shadow.png": (24, 10),
     "assets/placeholder/blow_dart.png": (12, 4),
+    # the Prologue A cast (assets/_gen_prologue_sprites.py)
+    "assets/kid_basil_gen.png": (6 * ZONE_CELL, 5 * ZONE_CELL),
+    "assets/npc_sage_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_schweinler_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_kitty_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_sheep_gen.png": (8 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_owl_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_goose_gen.png": (8 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_mouse_gen.png": (8 * ZONE_CELL, ZONE_CELL),
+    "assets/prologue_fx.png": (256, 32),
+    "assets/accident_kitty_gen.png": (5 * ZONE_CELL, ZONE_CELL),
+    "assets/accident_atv_gen.png": (5 * ZONE_CELL, ZONE_CELL),
+    "assets/accident_bike_down_gen.png": (ZONE_CELL, ZONE_CELL),
+    "assets/accident_bg.png": (384, 216),
+    # thesis-day cast (Prologue B) + Mom (the A pacing pass)
+    "assets/npc_mom_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_schweinler_adult_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_badger_gen.png": (8 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_stork_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_kitty_bed_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_kittymom_gen.png": (6 * ZONE_CELL, ZONE_CELL),
 }
 
 print("sheets:")
@@ -176,6 +484,7 @@ FRAMES = {
     "entities/enemies/slime_frames.tres": ("assets/slime_gen.png", 24),
     "entities/player/overworld_basil_frames.tres": ("assets/overworld_basil.png", OW_CELL),
     "entities/player/overworld_fuji_frames.tres": ("assets/overworld_fuji.png", OW_CELL),
+    "entities/kid/kid_basil_frames.tres": ("assets/kid_basil_gen.png", ZONE_CELL),
 }
 
 print("frames:")

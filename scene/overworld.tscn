@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://scene/overworld.gd" id="1_ow"]
 [ext_resource type="Script" path="res://scene/overworld_location.gd" id="3_loc"]
 [ext_resource type="Texture2D" path="res://assets/overworld_icons.png" id="4_icons"]
-[ext_resource type="PackedScene" path="res://entities/player/overworld_fuji.tscn" id="5_player"]
+[ext_resource type="PackedScene" path="res://entities/player/overworld_player.tscn" id="5_player"]
 [ext_resource type="FontFile" path="res://assets/font/pixel_font.fnt" id="6_font"]
 [ext_resource type="TileSet" path="res://assets/collision_tileset.tres" id="7_collision"]
 [ext_resource type="TileSet" path="res://assets/tilesets/overworld_tiles.tres" id="8_tiles"]
@@ -56,10 +56,20 @@ shape = SubResource("RectangleShape2D_marker")
 position = Vector2(136, 408)
 script = ExtResource("3_loc")
 id = "town"
-display_name = "BASIL'S COTTAGE"
-target_scene = "res://scene/downstairs.tscn"
+display_name = "ALEMBIC TOWN"
+target_scene = "res://scene/alembic_town.tscn"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Town"]
+shape = SubResource("RectangleShape2D_door")
+
+[node name="Lanternwood" type="Area2D" parent="Locations"]
+position = Vector2(312, 312)
+script = ExtResource("3_loc")
+id = "lanternwood"
+display_name = "LANTERNWOOD"
+target_scene = "res://scene/lanternwood.tscn"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Lanternwood"]
 shape = SubResource("RectangleShape2D_door")
 
 [node name="OverworldPlayer" parent="." instance=ExtResource("5_player")]

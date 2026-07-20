@@ -1,0 +1,48 @@
+; The sunset bluff — 32x18 tiles (512x288 px). A gilded headland over deep
+; evening water, staged FROM BEHIND (2026-07-17 restage): the sea + sunset
+; run across the NORTH of the screen, so a body at the lip faces up-screen
+; with its back to the camera. A 1-row cliff-lip band (C, authored rim
+; cells — the sheer drop reads as a dark crevice line against the water)
+; runs under the sea, the coast slopes down 45° cuts around the NE point,
+; and the forest windbreak rings the W/S. One windswept tree (t, Tier-3
+; y-sorted prop) leans over the lip east of the couple's spot. Shared
+; source of truth: tiled by assets/_gen_tileset_bluff.py (the OverWorld
+; driver), collision/logic by scene/bluff.gd — Prologue B's romance beat
+; (the watch: explode -> gather -> fix -> the kiss) and both phone calls
+; play here, so the place their love began is where the bad news finds him.
+; part_* anchors catch the exploded watch pieces; sit_spot is the lip cell
+; under the tree Basil sits on for the calls; kitty_pos faces the water
+; two cells east of basil_mark.
+legend . grass walk
+legend f flowers walk
+legend # forest solid
+legend o sea solid
+legend C cliff solid
+legend t tree solid
+anchor player_spawn 5 14
+anchor kitty_pos 15 5
+anchor basil_mark 13 5
+anchor sit_spot 20 5
+anchor whirligig 15 6
+anchor part_gear 6 12
+anchor part_spring 25 6
+anchor part_crank 16 13
+map
+oooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooo
+oooooooooooooooooooooooooooooooo
+##CCCCCCCCCCCCCCCCCCCCCCCooooooo
+##................t........ooooo
+#...........................oooo
+#.......ff.................ooooo
+##..........................oooo
+##............................##
+#.............................##
+#..............................#
+#..............ff.............##
+##.............ff.............##
+##...........................###
+####......................######
+################################
+################################

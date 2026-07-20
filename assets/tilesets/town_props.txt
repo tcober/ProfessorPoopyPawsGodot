@@ -1,0 +1,16 @@
+; y-sorted World props from assets/maps/town.txt — see scene/prop_spawner.gd
+prop Home hH3 town_home.png hframes=4
+prop CottageW q14 town_cottagew.png hframes=4
+prop CottageE w25 town_cottagee.png hframes=4
+prop Academy kK6 town_academy.png hframes=4
+prop Weapons xX7 town_weapons.png hframes=4
+prop Items pP8 town_items.png hframes=4
+prop Inn nN9 town_inn.png hframes=4
+prop Fountain oO town_fountain.png hframes=4
+prop Well uU town_well.png
+prop Lamp lL town_lamp.png each
+prop Stall m town_stall.png
+prop Fence F town_fence.png each
+prop FenceLong G town_fencelong.png
+prop TreeTrunk Tt^ town_treetrunk.png each
+prop TreeCrown Tt^ town_treecrown.png anchor=top:0 base_inset=-16 each

@@ -1,6 +1,7 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://entities/fuji/fuji.gd" id="1_fuji"]
+[ext_resource type="Script" path="res://entities/fuji/fuji_brain.gd" id="7_brain"]
 [ext_resource type="SpriteFrames" path="res://entities/fuji/fuji_frames.tres" id="2_frames"]
 [ext_resource type="Script" path="res://components/health_component.gd" id="3_health"]
 [ext_resource type="Script" path="res://components/hurtbox_component.gd" id="4_hurtbox"]
@@ -62,3 +63,6 @@ disabled = true
 [node name="Camera2D" type="Camera2D" parent="."]
 position_smoothing_enabled = true
 position_smoothing_speed = 8.0
+
+[node name="Brain" type="Node" parent="."]
+script = ExtResource("7_brain")

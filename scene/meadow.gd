@@ -17,7 +17,8 @@ const TILE := 16
 
 var map: Dictionary
 
-@onready var player: DirectionalBody2D = $World/Player
+var player: DirectionalBody2D
+
 @onready var hud: HUD = $HUD
 @onready var world: Node2D = $World
 
@@ -26,17 +27,17 @@ func _ready() -> void:
 	map = MapData.load_map(MAP_PATH)
 	TiledMap.build(LAYOUT_PATH, {"lower": $Tiles, "upper": $TilesUpper})
 	PaintedMap.build_collision(map, $Collision)
-	player.position = MapData.anchor_px(map, "player_spawn")
+	player = Party.spawn(world, MapData.anchor_px(map, "player_spawn"))
 	$ExitSouth.position = MapData.anchor_px(map, "exit_south")
-	MapData.clamp_camera(player.get_node("Camera2D"), MapData.size_px(map))
-	hud.bind_health(player.get_node("HealthComponent") as HealthComponent)
-	if player is Player:
-		# Gun-cat plumbing: ammo pips, spare mags, and the beaker refill.
-		hud.bind_ammo(player as Player)
-		_track_beaker($World/Beaker)
-	else:
-		# Fuji fights with tome + darts — the beaker refill has no meaning.
-		$World/Beaker.queue_free()
+	Party.clamp_cameras(MapData.size_px(map))
+	hud.bind_party(Party.members)
+	for m in Party.members:
+		if m is Player:
+			# Gun-cat plumbing: ammo pips, spare mags, and the beaker refill
+			# feed Basil whether he leads or follows (AI Basil restocks by
+			# walking over the beaker — collect_beaker fires on body contact).
+			hud.bind_ammo(m as Player)
+	_track_beaker($World/Beaker)
 	for child in world.get_children():
 		if child is Slime:
 			_track_slime(child)
@@ -71,7 +72,7 @@ func _spawn_slime() -> void:
 
 
 func _random_spawn() -> Vector2:
-	# Try a few spots so the respawn doesn't drop on the player or in a solid.
+	# Try a few spots so the respawn doesn't drop on the party or in a solid.
 	var size := MapData.size_px(map)
 	var point := Vector2.ZERO
 	for i in 20:
@@ -80,9 +81,17 @@ func _random_spawn() -> Vector2:
 			randf_range(TILE * 1.5, size.y - TILE * 1.5)
 		)
 		var cell := Vector2i(point / TILE)
-		if not MapData.is_solid(map, cell) and point.distance_to(player.global_position) > 48.0:
+		if not MapData.is_solid(map, cell) and _clear_of_party(point):
 			return point
 	return point
+
+
+func _clear_of_party(point: Vector2) -> bool:
+	# No respawns on anyone's head — leader or follower.
+	for m in Party.members:
+		if is_instance_valid(m) and point.distance_to(m.global_position) <= 48.0:
+			return false
+	return true
 
 
 func _on_exit_south(body: Node) -> void:

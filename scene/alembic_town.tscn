@@ -1,8 +1,7 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://scene/alembic_town.gd" id="1_town"]
 [ext_resource type="Script" path="res://scene/overworld_location.gd" id="2_loc"]
-[ext_resource type="PackedScene" path="res://entities/fuji/fuji.tscn" id="3_player"]
 [ext_resource type="FontFile" path="res://assets/font/pixel_font.fnt" id="4_font"]
 [ext_resource type="TileSet" path="res://assets/collision_tileset.tres" id="5_collision"]
 [ext_resource type="TileSet" path="res://assets/tilesets/town_tiles.tres" id="6_tiles"]
@@ -36,7 +35,7 @@ tile_set = ExtResource("5_collision")
 [node name="Locations" type="Node2D" parent="."]
 
 [node name="Home" type="Area2D" parent="Locations"]
-position = Vector2(120, 120)
+position = Vector2(168, 296)
 script = ExtResource("2_loc")
 id = "home"
 display_name = "BASIL'S COTTAGE"
@@ -46,37 +45,67 @@ target_scene = "res://scene/downstairs.tscn"
 shape = SubResource("RectangleShape2D_door")
 
 [node name="CottageW" type="Area2D" parent="Locations"]
-position = Vector2(232, 120)
+position = Vector2(152, 408)
 script = ExtResource("2_loc")
 id = "cottage_w"
 display_name = "A NEIGHBOR'S COTTAGE"
-locked_text = "Bolted. A kettle whistles somewhere inside."
+locked_text = "BOLTED. A KETTLE WHISTLES SOMEWHERE INSIDE."
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/CottageW"]
 shape = SubResource("RectangleShape2D_door")
 
 [node name="CottageE" type="Area2D" parent="Locations"]
-position = Vector2(360, 120)
+position = Vector2(280, 440)
 script = ExtResource("2_loc")
 id = "cottage_e"
-display_name = "A NEIGHBOR'S COTTAGE"
-locked_text = "Dark windows. Nobody answers."
+display_name = "THE DOCTOR'S OFFICE"
+locked_text = "DARK WINDOWS. THE OLD STORK RETIRED YEARS AGO. NOBODY CAME AFTER."
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/CottageE"]
 shape = SubResource("RectangleShape2D_door")
 
 [node name="School" type="Area2D" parent="Locations"]
-position = Vector2(520, 344)
+position = Vector2(440, 152)
 script = ExtResource("2_loc")
 id = "school"
 display_name = "THE ALEMBIC ACADEMY"
-locked_text = "The gates are barred. No magic has stirred here in years."
+locked_text = "THE GATES ARE BARRED. NO MAGIC HAS STIRRED HERE IN YEARS."
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/School"]
 shape = SubResource("RectangleShape2D_door")
 
+[node name="Weapons" type="Area2D" parent="Locations"]
+position = Vector2(328, 296)
+script = ExtResource("2_loc")
+id = "weapons"
+display_name = "THE BRASS FANG"
+locked_text = "SHUTTERED. THE GRINDSTONE SITS COLD."
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Weapons"]
+shape = SubResource("RectangleShape2D_door")
+
+[node name="Items" type="Area2D" parent="Locations"]
+position = Vector2(584, 296)
+script = ExtResource("2_loc")
+id = "items"
+display_name = "THE CRACKED FLASK"
+locked_text = "CLOSED. TONICS GLINT ON THE DARK SILL."
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Items"]
+shape = SubResource("RectangleShape2D_door")
+
+[node name="Inn" type="Area2D" parent="Locations"]
+position = Vector2(616, 408)
+script = ExtResource("2_loc")
+id = "inn"
+display_name = "THE COPPER KETTLE"
+locked_text = "NO BEDS TONIGHT. THE HEARTH IS BANKED LOW."
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Inn"]
+shape = SubResource("RectangleShape2D_door")
+
 [node name="ExitSouth" type="Area2D" parent="."]
-position = Vector2(312, 424)
+position = Vector2(440, 520)
 collision_layer = 0
 collision_mask = 2
 
@@ -85,9 +114,6 @@ shape = SubResource("RectangleShape2D_exit")
 
 [node name="World" type="Node2D" parent="."]
 y_sort_enabled = true
-
-[node name="Player" parent="World" instance=ExtResource("3_player")]
-position = Vector2(312, 392)
 
 [node name="TilesUpper" type="TileMapLayer" parent="."]
 texture_filter = 1

@@ -33,3 +33,15 @@ def edge(sp, h=None):
     if h is not None:
         for y in range(h, sp.n):
             sp.px[y] = [None] * sp.n
+
+
+def split_rows(sp, y_cut):
+    """Split a finished (already edge()d) prop into a (lower, upper) pair at
+    pixel row y_cut: rows above the cut ride the UPPER tile layer (bodies walk
+    behind them), the rest bakes below entities. Pixels are copied verbatim,
+    so the silhouette outline crosses the cut with no seam."""
+    lo, up = S(sp.n, salt=sp.salt), S(sp.n, salt=sp.salt)
+    for y in range(sp.n):
+        dst = up if y < y_cut else lo
+        dst.px[y] = list(sp.px[y])
+    return lo, up

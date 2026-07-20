@@ -22,6 +22,7 @@ var player: Node2D
 
 var _entry_locked := true
 var _busy := false
+var _banner_tw: Tween
 ## Marker ids the body is currently standing on; cleared on body_exited so a
 ## marker can't re-fire until the body steps off and back onto it.
 var _standing: Dictionary = {}
@@ -93,11 +94,19 @@ func _announce(loc: OverworldLocation) -> void:
 
 func _show_banner(text: String, hold: float) -> void:
 	banner.text = text
-	var tw := create_tween()
-	tw.tween_property(banner, "modulate:a", 1.0, BANNER_IN)
-	tw.tween_interval(hold)
-	tw.tween_property(banner, "modulate:a", 0.0, BANNER_OUT)
-	await tw.finished
+	# kill the previous banner's tween or its fade-out yanks THIS text
+	# mid-hold (two fire-and-forget callers can overlap — create_tween()
+	# never auto-kills). A killed tween never emits finished, so the superseded
+	# caller's await just ends with its coroutine — fine for the
+	# fire-and-forget call sites; _announce's awaited banners are
+	# serialized by _busy and can't be superseded.
+	if _banner_tw:
+		_banner_tw.kill()
+	_banner_tw = create_tween()
+	_banner_tw.tween_property(banner, "modulate:a", 1.0, BANNER_IN)
+	_banner_tw.tween_interval(hold)
+	_banner_tw.tween_property(banner, "modulate:a", 0.0, BANNER_OUT)
+	await _banner_tw.finished
 
 
 ## Fade to black; callers change scene once it resolves.

@@ -106,6 +106,7 @@ def droplets(s, spread, alpha):
     for i, (dx, dyy) in enumerate(((-1.0, -2), (1.0, -3), (-0.72, -6), (0.85, -7), (0.1, -9))):
         x, y = round(CX + dx * spread), BASE + dyy
         k = 1 if i % 2 else 0
+        x = max(1, min(CELL - 2 - k, x))    # keep 1px cell margin: no mid-flight crop
         s.rect(x, y, x + k, y + k, (GELR[1][0], GELR[1][1], GELR[1][2], alpha))
         s.set(x, y, (GELR[0][0], GELR[0][1], GELR[0][2], alpha))
 

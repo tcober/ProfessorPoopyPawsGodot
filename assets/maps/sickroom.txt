@@ -1,0 +1,49 @@
+; THE DOCTOR'S OFFICE — Prologue B "the verdict" (24x14 tiles, 384x224 px;
+; view clamps to 384x216). Reworked 2026-07-16 to the loft-bedroom recipe: a
+; SMALL dense diorama room floating in void (8-tile interior, ~7-tile side
+; margins), the front room of the EAST NEIGHBOR COTTAGE in town (the door
+; banners name it — one village, one doctor). Every wall stretch is occupied
+; (tonic-sill WINDOW | the SICKBED | wall CLOCK | FLASK shelf) and the floor
+; is packed: the brass DRIP-STAND at the pillow (i), the folding ward SCREEN
+; dividing the bed from the office corner (S), the doctor's own DESK by the
+; door (d — one-row footprint, stand behind it and it hides your legs), the
+; visitor's CHAIR, a rose rug under the bedside, a potted plant. Kitty lies
+; in the bed (kitty_bed + a code offset centers her on the pillow); Basil
+; enters from the south DOOR, crosses to the bedside, hears the verdict, and
+; leaves. Feature chars place props in assets/_gen_tileset_sickroom.py.
+; bedside / kitty_bed / doctor_spot are LOAD-BEARING (probe + verdict flow).
+legend V void solid
+legend # wall solid
+legend W window solid
+legend B bedframe solid
+legend b bed walk
+legend F flasks solid
+legend o clock solid
+legend i dripstand solid
+legend S screen solid
+legend d desk solid
+legend h chair solid
+legend P plant solid
+legend . floor walk
+legend g rug walk
+legend - door walk
+anchor player_spawn 11 8
+anchor door 11 9
+anchor bedside 11 6
+anchor kitty_bed 11 5
+anchor doctor_spot 14 7
+map
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVV##########VVVVVVV
+VVVVVVV#WWBBBBoF#VVVVVVV
+VVVVVVV#..BBBB.F#VVVVVVV
+VVVVVVV#.iBbbB..#VVVVVVV
+VVVVVVV#...ggSS.#VVVVVVV
+VVVVVVV#.h.gg...#VVVVVVV
+VVVVVVV#P....ddd#VVVVVVV
+VVVVVVV####--####VVVVVVV
+VVVVVVVVVV#--#VVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV

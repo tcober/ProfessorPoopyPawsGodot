@@ -15,6 +15,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from _core import Img
 from _palette import ramp
+from _tilekit import sprite_img
 from _interior import (Room, flag_px, TIMBER, STONER, T, OUTDIR)
 from _interior_props import (window, rug, hearth, sink_counter,
                              dish_shelf, flask_shelf, boiler_frames,
@@ -110,11 +111,17 @@ room.place("p", framed_picture(32, 16, DAWN, salt=42))
 room.place("o", wall_clock())
 room.place("F", flask_shelf(48, 32))
 room.place("y", pipe_wall(48, 48))
-# 'A' (the boiler) is NOT baked: it lives as an animated y-sorted scene
-# entity; its map cells stay solid so collision still comes from here.
-room.place("t", table(32, 32))
-room.place("r", armchair(32, 32, QUILT), shadow_h=3)
-room.place("B", workbench(64, 32), shadow_h=3)
+# free-standing furniture is Tier 3 (bodies pass both north and south of
+# it): only the contact shadows bake here; the art rides y-sorted World
+# entities spawned from downstairs_props.txt (scene/prop_spawner.gd), like
+# the boiler's 'A' cells. The table and workbench are COUNTER-WALK: their
+# top row (T/E) is walkable, so a body standing behind tucks its legs
+# under the y-sorted tabletop (the desk pattern); the bottom row stays solid.
+room.bake_shadow("r", 3)
+room.bake_shadow("BE", 3)
+room.emit_prop("Table", "tT", sprite_img(table(32, 32), 32, 32))
+room.emit_prop("Armchair", "r", sprite_img(armchair(32, 32, QUILT), 32, 32))
+room.emit_prop("Workbench", "BE", sprite_img(workbench(64, 32), 64, 32))
 room.place("P", potted_plant(16, 32), shadow_h=2)
 
 
@@ -142,9 +149,9 @@ room.write_glow(_glow)
 
 
 def _anim_sheets():
-    """Animated dressing the scene stamps over/inside the room: the hearth
-    fire (3 frames, over the cold firebox) and the free-standing boiler
-    (4 frames, a y-sorted entity at the 'A' footprint)."""
+    """Animated dressing: the hearth fire (3 frames, a root Sprite2D over
+    the cold firebox) saves directly; the free-standing boiler (4 frames)
+    rides the props manifest like the rest of the Tier-3 furniture."""
     fire = fire_frames()
     fw, fh = 28, 24
     sheet = Img(fw * len(fire), fh)
@@ -156,8 +163,9 @@ def _anim_sheets():
     sheet = Img(bw * len(frames), bh)
     for i, f in enumerate(frames):
         sheet.blit_cell(f, i * bw, 0)
-    sheet.save(os.path.join(OUTDIR, "downstairs_boiler.png"))
+    room.emit_prop("Boiler", "A", sheet, hframes=4)
 
 
 _anim_sheets()
+room.south_lift()          # mask the south wall's feet-sink sliver (upper band)
 room.finish()

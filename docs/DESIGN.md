@@ -9,25 +9,404 @@ stakes, party/progression depth, emotional arcs).
 Structure in one line: **Chrono Trigger / Sea of Stars overworld for travel; zones
 play as an ALttP-style top-down shooter (laser gun) — not turn-based.**
 
-## Story Outline
+## Story — Chapter Structure (canon, 2026-07-12)
 
-- Protagonist: a brilliant **science cat** living in a magical world.
-- Inciting humiliation: on the morning of an important lecture he oversleeps and rushes
-  out. **Schweinler** — a smug pig, his academic rival and bully — has left a bag of
-  poop outside his door; he steps in it. Mid-lecture Schweinler calls it out publicly
-  and brands him **"Professor Poopy Paws"** — the name sticks and becomes the name of
-  the game.
-- Loss: later that same day, his girlfriend is hit by a car.
-- Retreat: devastated, the cat becomes a reclusive hermit.
-- Catalyzing event: all magic is removed/drained from the world.
-- Call to adventure: Little brown librarian cat called Fuji who goes to the library to try and figure out how to bring magic back and reads an old paper by Basil and sets out to find him.
-- Arc: through a series of adventures he restores the world's magic, saves the world,
-  grows past his humiliation, and finds love again with Fuji.
+Logline: a brilliant **science cat** in a world of casual magic — the one kid who
+can't do any — is publicly branded **"Professor Poopy Paws"** on the day of his
+thesis, loses his girlfriend to an accident that erases her memory of him, and
+walks into the wilderness a hermit. Years later the world's magic drains away in
+a single night (**the Ebb**), and a librarian stranger named **Fuji** finds the
+one paper that reads like a map back — his — and goes looking for its author.
+Together they restore the world's magic; along the way he grows past the name
+and finds love again, with her.
+
+### Lore spine
+
+- **The Ebb** (the calamity, event — RESTAGED 2026-07-19 as a SEISMIC,
+  VISIBLE night): one night an earthquake shook the whole world, and the
+  **BIG MOUNTAIN**'s summit at the heart of Mountain Land transformed into
+  a **GIANT CRYSTAL** — every mote of magic in the world streamed visibly
+  toward it like sparks up a flue, and the world went dark. The crystal
+  glows with everything it drank. It is still **natural / ancient,
+  author-less, NOT villain-made** — Schweinler is a personal rival only,
+  never the world's villain. WHY it happened is the standing mystery of
+  Act 2+ (something ancient waking? never meant to be permanent? the
+  mountain itself, drinking?) — deliberately unresolved for now; the
+  mystery is the engine.
+- **The Summit Crystal** (place — replaces "the Drain", retired 2026-07-19):
+  where the magic *went* is no secret — everyone alive WATCHED it go. The
+  Big Mountain's crystallized summit IS the world's drained magic, glowing
+  at the center of the map. The old "somewhere deep beneath the eastern
+  wastes" canon is dead — the eastern wastes no longer exist on the map.
+- **The obelisks** (future material): dark ancient structures nobody living
+  built. The old overworld waste pocket + obelisk monument were CUT from
+  the map 2026-07-19 with the five-lands redesign; the surviving hook is
+  **one dark obelisk per landmass** — the network idea (they once
+  circulated magic through the world like a water table; probing and
+  relighting them, land by land) stays the Act 2+ skeleton.
+- **Slimes are curdled magic**: feral residue pooling in the wild since the
+  Ebb — every enemy ties to the mystery, and combat exists ONLY in the
+  present-day chapters. The prologue world is SAFE (walk/hop/interact only).
+- **Basil's thesis** — *On Re-Enchantment: Why Science Is Magic's Equal*:
+  magic is not gone, it is merely sleeping; science can measure, carry, and
+  rekindle it. Written as an academic argument and laughed off a stage; after
+  the Ebb it reads as the only known map back. This is why Fuji seeks him.
+- **The laser gun is hermit-built** — magic-free tech Basil invents alone in
+  the wilderness. Nobody carries a gun in the prologue.
+
+### Characters
+
+**World rule — animal folk (2026-07-12):** the world is peopled by
+anthropomorphic animals of MANY species, not just cats, and **a character's
+personality matches its animal**: Schweinler the boorish pig, Basil and Fuji
+the particular, curious cats, and townsfolk chosen species-first (a gentle
+sheep matron, a know-it-all owl, a chaos goose...). New NPCs pick the animal
+that IS the personality, Adventure Time style — never a generic villager.
+
+- **Basil** — the science cat. Can't do magic at all in a world where it's
+  casual; got into
+  the Academy on potion-craft (the one science that looks enough like magic);
+  branded "Professor Poopy Paws" at his thesis; hermit for years **beneath the
+  Elder Tree** on the riverbank, where he alone kept *measuring* the dead
+  crystals of the nearby wastes. Comes back "for the science, not for the
+  people" — the emotional runway of the whole game is closing that gap.
+- **Fuji** — tortoiseshell librarian (current playable; see Asset Specs). The
+  Academy's archivist, keeper of a library nobody visits. **A stranger to
+  Basil's past** — she knows him only through the thesis she unearths after
+  the Ebb. Pulls him back into the world; the slow-burn love of the story.
+- **Sage** — Basil's little sister (herb-name family). Younger AND
+  effortlessly gifted at magic as a kid — her teasing is sibling-thoughtless,
+  not cruel. Present day: the Ebb took her whole identity; she scrapes by
+  running THE CRACKED FLASK item shop selling *potions* — the sister who
+  teased Basil for having no magic now survives on his kind of craft.
+  Reconciliation is an Act 2 thread.
+- **Kitty Cool** — the maker girl. Meets kid Basil in Whisker Meadow; her
+  creed: "anyone can wiggle their fingers — try *making* something."
+  **She made Basil's brass wrist-watch comm** (2026-07-16 canon, the "Kitty
+  thread"; the gift restaged 2026-07-17): the SUNSET BLUFF plays the gift
+  ON-SCREEN — three summers of secret work, "Academy cats cannot be late",
+  it EXPLODES on the handoff, he gathers the pieces, she refits it, and
+  **the kiss on the bluff is where the romance begins**. Every call beat
+  plays Basil's `look_watch` pose (wrist raised to the little brass face —
+  the gesture she taught him), both of Prologue B's calls travel through
+  the watch (the night-before bookend; then on the bluff SHE calls to ask
+  how the lecture went, and after the crash HER watch calls his — with
+  Ridley's voice on it — the "He kept the watch." leaving card was CUT in
+  the 2026-07-18 card purge; the adult build shows it instead: `look_watch`
+  + the mantel whirligig), and the hermit still wears it. **Her wheel WORKSHOP is OFF-SCREEN, never
+  seen** (the stall-cameo idea was CUT 2026-07-18 — the fountain-rim flask
+  stall is generic town scenery again, nobody's in particular): a
+  busted-axle job there runs long on thesis morning — why she misses the
+  lecture, told only in her call1 apology — and by dusk she's shut the
+  shop and is on the road, riding to him.
+  Run down by the machine Schweinler was joyriding; lives, but her memories
+  never return (the doctor's verdict stays honest — no miracle recovery);
+  at the bedside her paws already fidget — folding neat pleats into the
+  blanket — the hands-remember thread planted visibly in the first minute
+  after the verdict.
+  Present day: **largely left behind** — she lives in a distant town, hands
+  still remembering what her mind lost, running a little handmade-goods shop.
+  One optional quiet scene: Basil visits, she doesn't know him, he leaves
+  without saying who he was. Closure, not reunion — and its planned payoff:
+  she admires the craftsmanship of the stranger's watch, with no idea she
+  built it.
+- **Schweinler** — the pig bully (sprites to be designed fresh; the deleted
+  generator is not recovered). Rich family, all swagger. Kid bully → Academy rival who plants the bag and
+  coins the name → the machine he was joyriding runs Kitty down (a rich kid's
+  imported toy — machines exist in this world, but he did NOT cause the Ebb).
+  Present day: recurring personal rival — he's weaseled into the Capital's
+  court as the self-declared "Calamity Expert," obstructing and stealing
+  credit. His arc ends personal-sized: the apology finally arrives and Basil
+  finds he's already past it.
+- **Minor cast**: the Dean (from the old intro), the doctor, the fountain
+  classmate (unnamed, one scene), the Copper Kettle innkeeper (the town's
+  memory — the one who recalls where Basil went), festival townsfolk, and
+  Dr. Feathers the bird (kept — beloved wake-up gag).
+
+### PROLOGUE A — "THE WHIRLIGIG" (kid Basil · Alembic Town, bright era)
+
+*(Renamed 2026-07-18: the "Sparkless" nickname and all "spark" magic-talk
+were CUT as corny — dialogue just says he can't do magic, and the bullies
+mock him for exactly that, no nickname.)*
+
+1. **Festival morning — home start** *(playable from the first frame;
+   reshaped 2026-07-12)*: kid Basil wakes in the loft bedroom on festival
+   morning, walks downstairs, and says good morning to MOM by the hearth —
+   her send-off is the front-door key. He steps out into the bright-era
+   town himself: the Founding Festival, the Academy open and glowing, kids
+   levitating ribbons in the fountain square.
+2. **The teasing** *(proximity cutscene)*: the beat fires when Basil first
+   walks BY the fountain square — and Sage HAILS him first ("BASIL! HEY!
+   Over HERE!") so the scripted walk toward the kids is motivated, never a
+   silent control-grab (2026-07-17). Basil can't do magic. Sage
+   (younger, floating three ribbons right over her own head — ownership
+   reads on sight) teases; kid Schweinler makes it public and mean. The
+   goose steals the lowest of SAGE's ribbons mid-cutscene (the FLY-BY
+   restage 2026-07-18 — the announced waddle-in read as anything but a
+   theft): no warning, a swoop in from off-screen west at ribbon height,
+   the snatch mid-glide, out past the east edge — and only then Sage:
+   "...did that goose just steal my RIBBON!?").
+3. **Wander gate — the pout** *(playable)*: the player is turned loose in the
+   festival town. Townsfolk dialog is well-meaning but every line stings
+   ("everyone blooms eventually, dear"). Talking to a few + reaching the south
+   gate unlocks leaving — the game *teaches its own loop* (wander, talk, exits
+   gated by story state).
+4. **The bluff — Kitty** *(playable fetch-quest; MOVED onto the headland
+   2026-07-18 — the fest meadow scene was cut, the south gate now climbs
+   straight to the bluff, `bluff_phase="meet"`, bright DAYTIME over blue
+   water)*: pouting on the headland, Basil finds a girl cat wrestling with
+   a hand-cranked whirligig. She doesn't care that he can't do magic. Find
+   her three parts around the bluff (gear by the treeline, spring out at
+   the point, crank in the flowers — the SAME anchors the watch scatters
+   over years later) — teaches interact/explore verbs, no combat. The
+   crank-up mash, the flight. First friend — on the same cliff where
+   everything else will happen.
+5. **Montage cards → THE SUNSET ROMANCE** *(semi-playable, 2026-07-17 —
+   the romance made playable; `scene/bluff.gd/.tscn`, the same scene
+   reloading itself in phase `romance`;
+   replaces the retired workshop interlude)*: one TIME card — "THREE
+   SUMMERS LATER." (the summer-montage trio was CUT in the 2026-07-18
+   card purge) — lands on a NEW gilded headland over evening
+   water (`assets/maps/bluff.txt` + `_gen_tileset_bluff.py`, the `bluff`
+   sunset palette; college roster `basil_student` + `npc_kitty_adult_gen`).
+   **Staged FROM BEHIND (2026-07-17 restage)**: the sea + sun-glint lane
+   run across the NORTH of the screen, a windswept tree leans over the
+   lip — the couple stands at the edge with their backs to the camera,
+   watching the water, and turns to PROFILE only to look at each other.
+   Kitty summoned him up here on the acceptance-letter news — she finished
+   something: HIS WATCH ("It keeps PERFECT time."). She hands it over and
+   **it EXPLODES** — the three pieces scatter across the headland (**gear,
+   spring, crank, the whirligig recipe on purpose**), Basil gathers them,
+   she refits it ("the MAINSPRING was overwound, that's ALL"), and gifts
+   it working — his first `look_watch`. Then **the kiss**: she closes the
+   gap and the composed two-cat frames take over (lean-in with the
+   paw-hold → the KISS on tiptoe, heart fx blooming over the water → the
+   after: both from behind, her head on his shoulder — and the SUN GOES
+   DOWN while they watch (2026-07-18): `_fall_night()` tweens the
+   CanvasModulate sunset→dusk→night, the sun-glint lane fades out and
+   the additive STARFIELD + moon fade in over the water, the stars
+   breathing on a soft alpha pulse) — the romance begins HERE, on
+   screen, not in a card. One outro card — "YEARS LATER." (the watch/
+   sunset commentary pair was CUT in the card purge) — hands to thesis
+   day. Owns
+   `prologue_watch_given` + `prologue_romance` +
+   `prologue_wpart_gear/spring/crank`.
+
+### PROLOGUE B — "PROFESSOR POOPY PAWS" (college-age Basil · bright era)
+
+Beats 1–5 re-tell the old five-part intro's gags, but **everything is built
+fresh** — the deleted implementation and its art are not recovered (2026-07-12
+decision: the old look is rejected wholesale); only the beats are canon:
+
+1. **Night before** *(SEMI-PLAYABLE, reworked 2026-07-16; theme reframe
+   2026-07-17)*: opens at the Academy stair, night tint — Basil's been
+   prepping the hall ("Notes stacked. Chalk lined up.") — then the walk
+   home through the sleeping town is the player's own (walk-gate on the
+   home doorstep; the shuttered-stall pass-by line was CUT 2026-07-18 with
+   the rest of the stall canon). At the doorstep, the **bookend call** (`look_watch`, the
+   raised-wrist gesture): Kitty makes him say the REAL achievement out
+   loud — **not one drop of magic to his name, and they still have to hand him
+   the robes**; everyone calls his work "potions," the two of them know
+   it's CHEMISTRY ("measured, repeatable, REAL") — renews the front-row
+   promise ("the whooping is PREPARED"), and sends him to bed — "That
+   watch keeps PERFECT time. It's the cat wearing it who runs late." He
+   goes in; the yard goes quiet; THEN Schweinler creeps up and plants the
+   bag ("a little CONGRATULATIONS for the no-magic wonder and his little
+   POTIONS"). Same gesture as the bluff calls — opposite emotional poles.
+   **The "youngest professor ever" angle is CUT** (2026-07-17): the story
+   is that he PROVED himself without magic, not that he was young.
+2. **8:57 AM** *(cutscene, the loft bedroom in bright dressing)*: Dr.
+   Feathers, "FIVE MORE MINUTES", the clock, panic.
+3. **SQUELCH.** *(cutscene, cottage door; the step SHOWN 2026-07-18)*: the
+   bag sits visibly on the doorstep lane from frame one — exactly where
+   Schweinler left it — and Basil, mid-panic, bolts south STRAIGHT ONTO
+   IT (a scripted step, not a decal appearing underfoot); the squelch,
+   the hop, and the bag lingers a beat before fading.
+4. **The dash** *(playable)*: sprint through waking Alembic Town to the
+   Academy on the cliff, a fading trail of brown paw prints behind him
+   (the hop-the-puddles obstacle course was CUT 2026-07-17 — the flat
+   decals never read as puddles; the dash is a clean run). The grand
+   stair is the final climb. **Kitty is nowhere in it** (the stall cameo
+   was CUT 2026-07-18): she's at her off-screen wheel workshop wrestling
+   a busted axle — WHY she never makes the front row; the promise breaks
+   for a mundane, maker-shaped reason, told in her call1 apology.
+5. **The lecture** *(cutscene, Academy hall interior; restaged 2026-07-18
+   as a COLLEGE hall with a full stage; curtain pass later the same
+   day)*: a raised north STAGE closed by the apron riser, dressed as a
+   true proscenium — a scalloped theater-red VALANCE across the opening,
+   a slim east drape, and the y-sorted WEST CURTAIN LEG the stage is
+   entered behind — Basil comes on from STAGE RIGHT, appearing from
+   behind the curtain, and presents front-center from BEHIND THE PODIUM
+   (the desk idiom hides his legs), the judging panel behind their long
+   desk stage-left on the same line. The house is three TIERED bench rows
+   of audience seen from BEHIND (back cells — rows of heads facing the
+   stage). The re-enchantment thesis leads with the theme ("You call my
+   flasks 'potions.' They are chemistry."); Schweinler heckles from the
+   east aisle; the naming — and the whole hall ROARS: the panel cracks up
+   face-first while every audience head bobs on its own looped tween,
+   periods staggered so the tiers RIPPLE. Basil tries once — "But...
+   I..." — and hands Schweinler the encore ("'BUT'?! HA! HE SAID BUTT!"),
+   the head goes down (`bow_head`, held), and he's already retreating AS
+   they laugh: the flee back behind the west curtain leg is AUTOMATIC —
+   his body giving up — a SLOW head-bowed trudge (the `defeat_walk`
+   cells, 2026-07-18) with the chant rolling over the walk, and the
+   curtain swallows him completely (his modulate fades over the last
+   steps — the figure is wider than the drape, no tail left showing).
+   Card: "THAT EVENING." ("THE NAME STUCK." was cut in the card purge).
+6. **Bluff call1** *(the bluff at dusk, `scene/bluff.gd` phase `call1`)*:
+   Basil climbs to the lip of the same headland where she kissed him and
+   SITS (the `sit` profile against the water). The watch blinks — SHE
+   calls HIM, leading with the missed-morning apology (the stupid AXLE
+   job that ate her morning — the only place the excuse is told):
+   "How'd it go? Tell me somebody whooped." He can barely
+   answer. "...That bad, huh. Okay. Listen to me. **I'm coming. Stay
+   right there.**" — "Wait - it's nearly dark, the road - ...She's
+   already pedaling."
+7. **The accident** *(SHOWN, side-view set-piece, `scene/accident.tscn`,
+   WITH CAUSE; impact reworked 2026-07-17)*: dusk roadside — Schweinler
+   shows Ridley the badger his brand-new machine (parked frame, a bow on
+   the bars), Ridley warns him it looks DANGEROUS, Schweinler climbs on
+   ("You don't DRIVE a machine like this. You POINT it.") and loses
+   control the moment the engine catches — exactly as Kitty happens to
+   pedal around the bend, bell bright. Wobble, motion lines, the drift
+   across the centerline; Kitty braces — then **the LOOP**: a soft flash
+   and she launches up-and-OVER in one cartoon arc (the spinning `tumble`
+   curl, accident_kitty frame 4), the bike thrown down, landing into the
+   still frame while the machine grinds past. Stylized motion, never a
+   held contact frame — the flip reads as impact, not harm. The sun goes
+   while Ridley RUNS to the wreck; Schweinler's stunned "...I DIDN'T SEE
+   HER."; her watch blinks with Basil's name on the glass.
+8. **Bluff call2** *(the bluff at night, phase `call2`)*: still where she
+   told him to stay — the fall to FULL night plays out on screen while he
+   sits (no narrator; the stars just come out), then one line: "...Where
+   is she?" His wrist lights up — "Kitty! Finally -" — but the
+   voice is RIDLEY's, from the roadside, reading the name engraved on her
+   little glass. "There's been an accident. The doctor has her. You
+   should... you should run." And he RUNS — a real bolt back down the
+   headland, the cut catching him mid-run. Then the sickroom: the verdict — expanded
+   2026-07-18 with the WORLD-SPIRIT lore: their magic mends near anything
+   (bone, blood, fever) but never memory; a lost memory returns to the
+   spirit of the world and lives on out there, somewhere — maybe some
+   part of what they were surfaces again one day, in some far-off place —
+   just not in her (a lore seed the Ebb era can harvest) — the polite
+   stranger, the hands-remember beat, and then **KITTY'S MOTHER bursts
+   in** (2026-07-18): she rushes to the bed ("Oh no - Kitty! My baby,
+   what HAPPENED to you?!"), Basil admits Kitty was riding out to see
+   him, and the mother rounds on him — "You. YOU did this... Get away
+   from her. I never want you near my daughter again - not now, not
+   ever." He tries to protest — "But - I -" — and she cuts him down with
+   one word: "LEAVE." (2026-07-18: the old accepting "...I understand."
+   was cut — he fights it for half a breath and loses.) A beat, then he
+   turns and walks himself out the door before the fade. The banishment
+   is the HUMAN rejection that exiles him — the town's laughter took his
+   name, the mother takes his welcome.
+9. **The clinic steps** *(cutscene, reworked 2026-07-17 — replaces the
+   fountain scolding)*: Basil makes it exactly six steps out of the
+   doctor's door and folds onto the stoop (`sit`). Ridley comes up the
+   lane, says the blunt thing ("sitting out here like the sky fell on
+   YOU - that's pretty selfish... Perspective. Anyway. Feel better!") and
+   walks off. Basil barely speaks — one "..." — and **bows his head**
+   (`bow_head`, the slump past sad). Night falls on him sitting there.
+10. **The leaving** *(scripted, night; restaged 2026-07-18 to the SOUTH
+   GATE)*: the cut — the central road just inside the lamp-flanked gate,
+   the knapsack over his shoulder (a tied cloth bundle now — gathered
+   twist neck, no stick — held as a tableau). Then the LOOK BACK: he
+   turns to face the town (`knapsack_back`, the pack on his back) and
+   says goodbye — "...Goodbye." / "I would have loved being yours. Your
+   chemist. Your neighbor. Anything." / "I wish I could have been
+   welcome here." — then turns away and trudges south out the gate mouth
+   (`knapsack_walk`, kept short: the trudge is a side profile) into the
+   dark. Cards: "THE LAUGHTER FOLLOWED HIM TO THE TOWN LINE." / "HE
+   STOPPED GOING ANYWHERE AT ALL." / "HE KEPT THE WATCH." / "YEARS
+   LATER."
+
+### ACT 1 — "THE EBB" (Fuji, present day — ends where the current build begins)
+
+1. **Cold open** *(cutscene)*: the night of the Ebb — a soundless flash, the
+   obelisk light dying, ribbons falling mid-float, the Academy going dark.
+   Cards.
+2. **The library** *(playable Fuji, new Academy-library interior)*: weeks
+   later. Fuji hunts by candlelight for *anything* about magic leaving.
+   **Research gate**: find the right stack (light exploration puzzle),
+   unearth a dusty thesis — *On Re-Enchantment: Why Science Is Magic's
+   Equal* — B. Basil. Marginal note: laughed out of the Academy.
+3. **Wander gate — asking around** *(playable)*: nobody knows a "Basil."
+   Everyone remembers "**Poopy Paws**" — the cruel name outlived the cat (the
+   theme weaponized as a story gate: the player must ask about the *insult*
+   to find the man). The Copper Kettle innkeeper: "went east, past the
+   meadow, years back. Never came through again."
+4. **The road east** *(playable)*: Fuji's overworld travel; **Whisker Meadow
+   is her combat tutorial** — the meadow that was a childhood idyll in
+   Prologue A now crawls with curdled-magic slimes (tome swing + darts taught
+   here; same map, two eras, the loss made playable).
+5. **The hermitage — the Elder Tree** *(new small zone: the riverbank under
+   the giant tree, entered from its overworld landmark)*: a lean-to among the
+   roots, corkboard research, crystal instruments — Basil has spent years
+   *measuring* the dead crystals of the nearby wastes, the only person in the
+   world with data on the Ebb. And a strange brass gun.
+6. **The refusal → the party** *(cutscene + fight)*: he says no. She reads his
+   own thesis back at him. A slime pack hits the camp — they fight side by
+   side (**the 2-member party mechanic unlocks HERE, diegetically**). He
+   comes back "for the science, not for the people."
+7. **Return to Alembic Town**: the shuttered, drained town of the current
+   build. Act 1 ends exactly where today's game boots — bedroom, downstairs,
+   town, overworld, meadow.
+
+### ACT 2+ — "RE-ENCHANTMENT" (the main game, sketched loose on purpose)
+
+- **The mystery is the engine**: probe the obelisk network region by region —
+  the Burrows (already anchored on the map), the Obelisk monument, the
+  Capital, the Horn. Each expedition is a dungeon; each success relights a
+  region (the glow-overlay pipeline literally exists for lights coming back
+  on — restoration as a visible, palette-driven reward).
+- **Schweinler recurs** at the Capital as the court's "Calamity Expert" —
+  obstruction and stolen credit, escalating to a personal reckoning that
+  lands as anticlimax-on-purpose: the apology arrives and Basil finds he's
+  already past it.
+- **Sage thread**: THE CRACKED FLASK, the drained sister, reconciliation.
+- **Kitty side note**: one optional scene in a later town. Closure, not
+  reunion.
+- **Fuji romance**: slow burn in camp/inn beats across the acts; magic's
+  return and "finds love again" land together — the metaphor made literal.
+- **Party member 3** (future, "the sympathizers"): slot stays open; the
+  roster architecture already supports it.
+
+### Pacing rules
+
+- **Never >90 seconds without control.** Every chapter alternates cutscene →
+  playable gate. Time-skips are cards (the `card()` mechanism from the old
+  cutscene kit), never montage cutscenes.
+- **Wander gates over triggers**: progress unlocks by talking/finding (N
+  townsfolk, a stack in the library, parts in the meadow) — the
+  explore-talk-progress loop is taught from minute one.
+- **Reprise staging**: the same three stages carry the whole story — Alembic
+  Town (festival / thesis-day / drained), Whisker Meadow (Kitty / slimes),
+  the Academy (glowing / barred / dark library). Two eras of one place beat
+  many places seen once.
+- **Combat debuts in Act 1** (Fuji in the meadow). The prologue's only action
+  verbs are walk/hop/interact — the world before the Ebb was *safe*.
+- **No narrator (2026-07-18).** The `say("")` narration box is banned from
+  story scenes: every beat is carried by environment cues (the sky falls to
+  night on screen, the flinch-hop plays the squelch) or in-character
+  dialogue (Schweinler's brag carries the engine catch, Basil voices the
+  hands-remember beat). **The card purge (same day)**: a black-screen card
+  may ONLY state how much time passed ("THE NEXT MORNING.", "THREE SUMMERS
+  LATER.", "THAT EVENING.", "YEARS LATER.") — commentary cards ("THE NAME
+  STUCK.", the summer-montage trio, the watch/sunset pair, "He did not tell
+  her who he was.", the leaving trio) were all CUT; the prologue_open
+  title/era cards stay.
 
 ## Themes
 
 Humiliation → isolation → being seen by others → growth → redemption and renewed love.
 Magic as a metaphor for hope/connection returning to the protagonist and the world.
+The insult outlives the man — "Poopy Paws" is remembered when "Basil" is
+forgotten, and finding him means asking about the wound (Act 1's story gate).
+Making-by-hand vs. wishing — Kitty's creed, Basil's science, Sage's inversion:
+what is built endures what is granted.
+The loss made playable — the same stages in two eras (festival town vs.
+shuttered town, idyll meadow vs. slime meadow); the world before the Ebb was
+safe, and the player feels the difference in the verbs.
 
 ## Influences
 
@@ -129,29 +508,44 @@ read as smudges, not weather.) Region edges are drawn as 1-cell
 stair-steps in the map txt ON PURPOSE — the autotile's 45° corner cuts
 render them as continuous diagonal coasts/rims.
 
-- **ALEMBIC TOWN** (`town` → `downstairs.tscn` for now) — the icon's gate
-  mouth; it goes straight into Basil's downstairs while the walkable town
-  scene is parked.
+- **ALEMBIC TOWN** (`town` → `alembic_town.tscn`) — the icon's gate mouth;
+  it opens into the walkable town at its south gate.
 - **WHISKER MEADOW** (`meadow` → `meadow.tscn`) — the first field zone; the one
   playable combat zone today. A flower ring marks its road entrance.
 - **THE BURROWS** (design only) — future dungeon; its pass and cave anchor
   already sit in the northern ridge.
-- **THE DRAIN** (design only) — drained-wastes story hook: where the magic went.
+- **THE DRAIN** (design only) — where the magic *went* when **the Ebb** took
+  it: somewhere deep beneath the eastern wastes (see "Lore spine" in the Story
+  chapter).
 
-**Alembic Town, walkable** (`scene/alembic_town.tscn`, 40×28 tiles — built
-2026-07-05, currently PARKED/unreferenced: the icon's mouth goes straight to
-the downstairs instead) — the CT-Truce village at zone scale (48px player),
-riding the SAME OverWorld tile driver (hedge borders = the forest class,
-lanes = the trail painter, plus a fence class): Basil's cottage NW with an
-open candle-lit doorway (`home` → `downstairs.tscn` at the front door), the
-locked neighbor cottages (`cottage_w`/`cottage_e`, announce-only), the
-well/lamp/stall commons, and the barred Academy fenced apart SE (`school`,
-announce-only — "no magic has stirred here in years"). Buildings are TWO map
-chars: solid facade rows + WALKABLE roof rows whose art rides the upper tile
-layer, so the player walks behind rooflines, CT-style. The south lane gap
-(`exit_south`) returns to the overworld at the town icon. Spawns route
-through `Game.town_spawn` (read-and-clear; "" = the south entrance, `home` =
-below Basil's door).
+**Alembic Town, walkable** (`scene/alembic_town.tscn`, 56×34 tiles — rebuilt
+from scratch 2026-07-11 as the Kakariko-style hub, LIVE in the flow) — the
+village at zone scale (48px player), riding the SAME OverWorld tile driver
+(tree borders = the forest class, lanes = the trail painter, fence class
+yards, sea+beach pond, a river stream with one bridge cell), composed
+DEPTH-FIRST: the barred **Academy crowns a north cliff terrace** on the
+town's central axis (`school`, announce-only — "no magic has stirred here in
+years"), a grand stone stair descending through the authored cliff-column
+band (16×32 face columns, 3 salted variants stamped per column — the
+meadow-boulder reuse pattern) to a lamp-flanked stair plaza; the **fountain
+square** at the lane crossing (basin + brass alembic-bulb finial, trail ring
+forking around it, the flask-stall on its rim); the **weapons shop** "THE
+BRASS FANG" (`weapons`) and **item shop** "THE CRACKED FLASK" (`items`)
+facing the market cross-lane — one shared shopfront builder, same salt, only
+roof/sign/wares differ so their facade tiles dedupe; the two-story **inn**
+"THE COPPER KETTLE" (`inn`) fronting the square SE by the stream bridge, lit
+windows and a tankard sign (all three announce-only until shops earn
+systems); **Basil's cottage** NW in its fenced yard with the open candle-lit
+doorway (`home` → `downstairs.tscn` at the front door); the locked neighbor
+cottages staggered SW (`cottage_w`/`cottage_e`) around the well and fenced
+garden; the fenced NE orchard across the bridge; the SE pond; and six
+walk-behind trees (canopy rows walk on the upper layer, trunk row solid).
+Buildings are TWO map chars: solid facade rows + WALKABLE roof rows whose
+art rides the upper tile layer, so the player walks behind rooflines,
+CT-style. The south lane gap (`exit_south`) returns to the overworld at the
+town icon. Spawns route through `Game.town_spawn` (read-and-clear; "" = the
+south gate, `home` = below Basil's door — the downstairs front door now
+opens HERE, not onto the overworld).
 
 History: the 2026-07 town carve absorbed the old standalone "Basil's Bluff"
 into Alembic Town and moved the town from its old NE-forest anchor onto the SW
@@ -162,8 +556,9 @@ into its own walkable scene. The Burrows and the Drain stay design-only until
 their zones exist.
 
 The cracked/dead-tree/crystal **wastes biome** (east) visually encodes the
-drained-magic premise. New regions and zones unlock as the story progresses; the
-gating tools are terrain plus story keys.
+drained-magic premise — the blight that spread out of the Drain after **the
+Ebb** (see the Story chapter's lore spine). New regions and zones unlock as the
+story progresses; the gating tools are terrain plus story keys.
 
 ## Tech / Engine Conventions
 
@@ -202,6 +597,25 @@ gating tools are terrain plus story keys.
   `resources/`. Playable rooms/levels in `scene/`. Art/audio in `assets/`.
 - Movement: `CharacterBody2D`, 8-way movement with 4-way facing (fires in the facing
   direction), ALttP-style.
+- **Controls** (InputMap in `project.godot`; every action is POLLED — the shot.gd
+  synthesized-press gotcha — so keyboard and gamepad share one code path). Gamepad
+  bindings use Godot's generic SDL indices labeled here for the PS5 DualSense
+  (2026-07-11); any XInput-style pad maps the same:
+
+  | Action                                 | Keyboard      | Gamepad            |
+  | -------------------------------------- | ------------- | ------------------ |
+  | Move                                   | WASD / arrows | Left stick / D-pad |
+  | Attack (Basil laser · Fuji tome)       | J / Space     | R2 or Square       |
+  | Secondary (Basil reload · Fuji dart)   | R · L         | L2                 |
+  | Hop                                    | K / Shift     | Cross              |
+  | Interact                               | E             | Circle             |
+  | Swap leader                            | Q / Tab       | Triangle or L1     |
+
+  `reload` and `dart` are separate actions sharing the L2 event on purpose: only
+  the **leader** polls their own secondary (`PartyMember._gather_intent`), so one
+  physical button is contextual per character. The analog stick feeds the same
+  `move_*` actions (0.2 deadzone) and the intent vector is normalized, so stick
+  tilt never changes speed — same 8-way feel as keys.
 - Combat: a **laser gun** with limited charges. Firing spawns a `LaserBolt` projectile
   (`Area2D`) that travels and damages the first `HurtboxComponent` it hits. Always-on
   `HitboxComponent`s (e.g. an enemy body) handle contact damage. All damage flows
@@ -215,20 +629,398 @@ gating tools are terrain plus story keys.
   introduced later as progression that mirrors the story. The laser gun is the
   early-game, magic-free weapon.
 
-## Current Milestone — Combat Core (house · overworld · meadow)
+## Current Milestone — Prologue A + B + Combat Core
+
+**Prologue B "Professor Poopy Paws" is LIVE (2026-07-12)** — the thesis-day
+chapter, entered from the **sunset bluff** (2026-07-17; A's montage swaps
+the roster to `basil_student` — a kit-less adult body on the existing
+player sheet, no gun; the laser is still years off — and hands to the
+bluff's romance phase, whose outro cards open thesis day). The whole
+chapter, in flow order:
+- **`scene/bluff.gd/.tscn`** (2026-07-17 — replaces the retired workshop
+  interlude; git keeps it) — ONE new headland scene, THREE beats routed by
+  `Game.bluff_phase` over one warm sunset painting, **staged FROM BEHIND**
+  (the 2026-07-17 restage): the sea runs across the NORTH of the screen
+  (`assets/maps/bluff.txt` + `_gen_tileset_bluff.py`, the `bluff` palette:
+  gilded grass / evening indigo sea; a 1-row authored CLIFF-LIP band —
+  ragged sunlit brow + a dark crevice line against the water, three salted
+  16×16 variants, the north-drop answer to the town_cliff face columns —
+  where the headland falls away; a WINDSWEPT TREE Tier-3 prop
+  (`bluff_blufftree.png`, crown streaming east, amber sunset rim) leaning
+  over the lip on a solid `t` cell; a SUN-GLINT lane on the additive
+  `bluff_glow.png` overlay pointing down the water at the couple's spot —
+  the call phases lay cooler CanvasModulate tints over it all and fade
+  `$Glow` with the hour — the tint law). The cast faces the water —
+  backs to camera (the player's `idle_up`; Kitty's `back`/`side` NPC
+  cells, sheet cols 6-9, the npc.gd OPTIONAL-facings extension:
+  `play_back()` / `play_side(right)`, built only when `frame_cols` >=
+  8/10) — and turns to profile for the face-to-face lines. **romance**:
+  Kitty (`npc_kitty_adult_gen`) summoned Basil up with the
+  acceptance-letter news — the watch gift EXPLODES on the handoff (poof
+  fx + the three pieces FLY to their anchors), a semi-playable gather
+  (gear/spring/crank on NAMED ANCHORS — the meadow pickup idiom
+  byte-for-byte: decal icon + sparkle + root Area2D; the probe drives the
+  same anchors), the talked-handler refit cutscene (AWAITED — the Sage
+  lesson), the first `look_watch`, and THE KISS — a composed two-cat
+  sheet (`bluff_kiss_gen.png`, three 96px frames: lean-in with the
+  paw-hold / the KISS, her on tiptoe, muzzles meeting, closed eyes, heart
+  fx above / the after, both from behind, her head on his shoulder)
+  swapped in over the hidden bodies, because two 48px bodies standing
+  near each other never read as a kiss → outro cards → `town_thesis`
+  plant. Flags `prologue_wpart_*`, `prologue_watch_given`,
+  `prologue_romance`. **call1** (dusk tint): after the hall — Basil's own
+  walk to the lip (walk-gate), a held look out over the drop, then the
+  `sit` profile beneath the tree, HER call ("I'm coming. Stay right
+  there.") → the accident. **call2** (night tint): still sitting where
+  she said — her watch calls his with RIDLEY's voice on it → the
+  sickroom. The same place on purpose: where the love began is where the
+  bad news finds him.
+- **`scene/town_thesis.gd/.tscn`** — ONE scene on the festival town's map +
+  tiles, THREE flag-driven phases dressed only by a `Tint` CanvasModulate
+  (the tint law: one painting, never a repaint), routed by
+  `Game.town_thesis_phase`: **plant** (night, SEMI-PLAYABLE 2026-07-16 —
+  opens at the Academy stair, the walk home is the player's own via a
+  doorstep walk-gate (the shuttered-stall line was CUT 2026-07-18 with the
+  stall canon), then the
+  doorstep **bookend call** (the `look_watch` gesture; the earned-it /
+  potions-vs-chemistry exchange, "that watch keeps PERFECT time"); he
+  walks in and goes invisible, THEN Schweinler creeps up and leaves the
+  bag at `home + BAG_OFF` — the same doorstep-lane spot the morning step
+  lands on, "a little CONGRATULATIONS for the no-magic wonder", → the
+  wake-up), **dash** (morning — the step onto the bag is SHOWN 2026-07-18:
+  the door-mouth spawn, the bag visible from frame one, a scripted bolt
+  south ONTO it, the SQUELCH, then a clean run with the fading
+  paw-print trail (the puddle-hop course was CUT 2026-07-17; the stall
+  cameo was CUT 2026-07-18 — Kitty's absence IS the beat, her workshop
+  off-screen), reach the Academy → the hall), **steps→leaving**
+  (2026-07-17, dusk then night — out the doctor's door onto the clinic
+  stoop: `sit`, Ridley's blunt "perspective" speech and exit, Basil's one
+  "..." and the `bow_head`, night falls, then the scripted cut to the
+  SOUTH GATE (restaged 2026-07-18 from the east lane): the `knapsack`
+  tableau on the central road, the `knapsack_back` look-back + the
+  goodbye ("I wish I could have been welcome here."), the short
+  `knapsack_walk` trudge south out the gate mouth → the closing cards →
+  `house.tscn` with the adult roster `[basil, fuji]`).
+- **`scene/house_thesis.gd/.tscn`** — the 8:57 wake-up, reusing the loft
+  bedroom tileset/map/props with a dawn-dim CanvasModulate that snaps bright
+  when Basil bolts up; Dr. Feathers the bird (fx) at the window, the panic,
+  hop out of bed, the stair cuts to the dash.
+- **`scene/hall.gd/.tscn`** + `maps/hall.txt` + `_gen_tileset_hall.py` — the
+  Academy lecture hall on the interior Room kit (the `hall` palette: plum
+  panelling / rose floor / chalk-mint; its mat key is now `wall`, not
+  `timber`, since Room needs `wall`). New reusable interior props in
+  `_interior_props.py`: **chalkboard** (corkboard skeleton + a
+  `_pixfont`-stamped "RE-ENCHANTMENT" scrawl), **lectern** (desk y-sorted
+  pattern), **bench** (workbench counter-walk — audience NPCs stand on the
+  walkable top row so their legs tuck = the seated-gallery read). The Dean is
+  **Professor Strix the owl** (the childhood note-taker, grown into the
+  Academy); the naming plays out, the gallery chants, card "THAT EVENING."
+  (2026-07-18 card purge: "THE NAME STUCK." was commentary, cut).
+  2026-07-15: the hall gained its **judging panel** — a `desk()` on a
+  one-row solid `J` footprint (the desktop plane hides the panel's legs;
+  lamp flame chalk-mint, 96px since the college restage), Dean +
+  stork/badger/sheep at `judge_1..4`, and the gallery packed to
+  **eighteen** (three per bench, six benches, `aud_1..18`).
+  **2026-07-18 COLLEGE restage** (supersedes the 2026-07-17 stage pass;
+  map now 24×18): the whole north band is a raised STAGE closed by the
+  **apron riser** (`D` solid row + the full-width `stage_front()` y-sorted
+  entity in `_interior_props.py` — opaque across its footprint per the T3
+  coverage rule), reachable only through its WEST WING — Basil spawns
+  there (stage right), the walk-in gate is the band across the stage rows
+  just west of the podium (unavoidable: the wing corridor is the only
+  route), and the flee exits the same wing. The podium (the lectern on
+  its own one-row `lLLl` counter-walk footprint) stays front-CENTER —
+  Basil presents from the tuck row BEHIND it; the panel desk sits
+  stage-LEFT (east). The house is three TIERS of B/E benches, eighteen
+  audience with `frame_cols=8` playing their **back cells** (sheep/mouse/
+  badger sheets grew cols 6-7 back frames — `play_emote` would flip a
+  back-turned head to a front face, so the gallery laugh is a **looped
+  `position:y` bob per head** (`_laugh_bob`), periods staggered to
+  ripple; only the front-facing panel + Dean emote). **The curtain pass
+  (2026-07-18, later the same day)**: the stage opening is dressed as a
+  true proscenium — a scalloped theater-red VALANCE + slim east drape
+  baked Tier-1 into the front-wall art (`_stage_dressing()` in the hall
+  gen: lower-layer paint over solid wall rows can never occlude a tuck-row
+  head; the lobes only kiss the chalkboard's top frame, the title stays
+  legible), and the **west CURTAIN LEG** (`curtain_leg()` in
+  `_interior_props.py`, `CURT = ramp((152,38,54))`) a y-sorted T3 entity
+  on its one solid `c` cell beside the wing (art 24×64, origin y60 —
+  beats every stage body's node y ≤ ~58, so the walk-on "appears from
+  behind the curtain" and the flee is swallowed back behind it; its
+  contact row hides behind the opaque StageFront, so no bake_shadow).
+  Under the eruption Basil tries once — "But... I..." — Schweinler's
+  encore ("'BUT'?! HA! HE SAID BUTT!"), the held `bow_head`, and only
+  then the flee AS the laugh rolls — the chant lines play over the
+  automatic walk → bluff call1.
+- **`scene/sickroom.gd/.tscn`** + `maps/sickroom.txt` +
+  `_gen_tileset_sickroom.py` + the `sickroom` palette (pale lavender walls,
+  one warm bedside lamp) — Kitty in the bed (the `npc_kitty_bed` sprite:
+  rest/vacant/polite), Dr. Ciconia the stork doctor's permanent-amnesia
+  verdict (2026-07-18: carries the world-spirit lore — magic mends near
+  anything but memory; a lost memory returns to the spirit of the world),
+  Kitty's kind-stranger lines + the hands-remember narrator beat
+  (2026-07-16: her paws fold pleats into the blanket while she talks — the
+  present-day "hands still remembering" made visible), Basil leaves without
+  saying who he was — and then **Kitty's mother** bursts in from the door
+  anchor (2026-07-18, `_make_npc` + a fast `theater.walk`): the gasp at
+  the bedside (`play_act`), Basil's admission, the accusing point
+  (`play_emote`) and the banishment.
+- Sprites (all in `_gen_prologue_sprites.py`): Mom, adult Schweinler (plum
+  waistcoat), the badger classmate, the stork doctor, Kitty-in-bed, plus
+  **college-age Kitty** (`npc_kitty_adult_gen`, 2026-07-16 — the kid
+  sheet's ginger fur/teal bandana/grease smudge on the adult body, waxed
+  canvas work apron; act = tinker, emote = the beam-whoop), **Kitty's
+  mother** (`npc_kittymom_gen`, 2026-07-18 — the Mom matron rig with
+  older-ginger fur, a berry-wine shawl (never Basil-mom's sage) and
+  Kitty's OWN blue eyes so the mother/daughter reads; act = the
+  hands-to-cheeks gasp, emote = the accusing point + shouting face), and
+  the goose extended to a 6-col waddle. `prologue_fx.png` grew 10→16 cells (+ bag,
+  paw-print, bird×2, puddle, zzz) — the bluff meet slices it via
+  `WorldFx.sheet_sprite`;
+  row 1 carries watch/poof/lines + the kiss **heart** (cell 19, 2026-07-17).
+  Adult Basil's sheet gained **row 8** (2026-07-17, `_gen_basil_sprites.py`
+  — the frozen contract only ever APPENDS): `look_watch` (wrist raised to
+  the brass face — every call beat plays this instead of the old floating
+  watch fx), `sit`, `bow_head`, and the `knapsack` stand + 2-frame trudge
+  — reworked 2026-07-18 into a TIED CLOTH BUNDLE (gathered twist neck
+  drawn post-finish so despeckle keeps it, NO stick, the paw gripping the
+  tie at the shoulder; `SACKR` is a hand-tuned warm burlap ramp — ramp()'s
+  violet shadow law swung the orange seed's darks red) — and **row 9**
+  (sheet 6×10, 2026-07-18): `knapsack_back`, the from-behind look-back
+  frame for the south-gate goodbye (the pack bulge under the nape with a
+  pinched cinch pucker);
+  `accident_kitty_gen` grew a 5th `tumble` frame (the loop-and-land curl).
+**Prologue A pacing pass (same day):** **Mom** is now load-bearing — three
+stinging talks make Basil want to go home, and **her blessing is the gate
+key** ("Magic is common as dandelions. You take things apart to see WHY.
+That's rarer."). Reworked 2026-07-15: Mom STAYS home all festival (no
+duplicate festival Mom) — the want-home beat sends Basil back through his
+own FRONT DOOR (`town_fest`'s home-door re-entry zone, armed only after the
+arrival body steps off it) to the fest downstairs, where the blessing by the
+hearth sets `prologue_gate_open`; the downstairs front door refuses (softlock
+guard) until she's heard. The **goose ribbon chase** minigame was retired the
+same day (goose_chase.gd deleted): the goose now STEALS a ribbon inside the
+festival cutscene — restaged 2026-07-18 as the sneak FLY-BY (the announced
+waddle-in read as anything but a theft): no narration, a swoop in from
+off-screen west on the sheet's new fly cells 6-7 (a scene-local "fly" clip;
+npc.gd keeps `frame_cols = 6`), the lowest ribbon swapped to a carried
+goose-child at a mid-glide tween callback (the same-fx-cell contract), out
+past the east edge, and only THEN Sage's "...did that goose just steal my
+RIBBON!?" — it HIDES behind the orchard TreeCrown east of the
+river (`goose_hide` anchor + one step east — head over the leaves, the stolen
+ribbon floating as the tell); finding and startling it is the warmth beat
+(`prologue_goose_hidden` → talk → `prologue_ribbon`). One minigame remains:
+the **crank-up mash** at
+the whirligig flight (mash E to fill a meter, the rotor spins up with it).
+GOTCHA (2026-07-12): a coroutine polling input on `process_frame` must use
+LEVEL-edge detection (`is_action_pressed` + a was-down latch), NOT
+`is_action_just_pressed` — the frame signal can fire before the same-frame
+press lands, so a just_pressed edge is missed every time (killed the crank
+mash until fixed).
+
+`tools/prologue_probe.gd` now drives the WHOLE A+B chapter and asserts every
+scene transition + flag; run it after touching any story scene.
+
+**Polish pass (2026-07-12, same day):** three player complaints fixed —
+z-order, agency, invisible walls. The direction rule from the pass: **pacing
+is fixed with AGENCY, never cuts** — every authored line and wait survived;
+control was inserted BETWEEN beats.
+- **Runtime FX now depth-sort** (`scene/world_fx.gd`, see the z-order
+  doctrine): the thesis-day bag/puddles/paw-prints (the prints were
+  invisible under the floor — the `z_index=-1` hack), the wake-up bird/Zs,
+  the festival ribbons and meadow quest parts all moved from scene-root
+  children into `$World` as decals (north-biased origin + child index 0)
+  or airborne FX (ground-anchored origin, art lifted by sprite offset).
+  The bed read fixed: Basil's bed spawn nudged 4px north so the quilt's
+  y-sort origin (119) beats his (116) — head on the pillow, Zs floating
+  OVER the quilt.
+- **Prologue A opens AT HOME** (playable from the first frame):
+  `scene/house_fest.tscn` (loft bedroom, bright tint) → the SW stairs →
+  `scene/downstairs_fest.tscn` (Mom by the hearth; her good-morning sets
+  `prologue_saw_mom` and unlocks the front door) → the festival town at the
+  home door (`Game.town_spawn="home"`), FREE — the teasing cutscene fires
+  from a proximity Area2D when Basil first walks by the fountain square.
+- **`Theater.walk_gate(goal, size, relock)`**: the kit's mid-scene
+  control hand-back — unlock, one-shot goal Area2D (the dash-goal idiom),
+  await the player, optional re-lock. Group-based, position passed in (the
+  no-autoloads rule). Prologue B hands control back FOUR times inside its
+  cutscene chain (2026-07-17 shape): the walk home (plant's doorstep
+  gate), the walk onto the hall stage (the Dean's welcome is the
+  summons), the walk to the bluff's lip (call1), and the walk to Kitty's
+  bedside — the hall walk-OUT and the whole steps/leaving ending are
+  deliberately automatic (his body giving up is the beat).
+  `prologue_scolded` flags the steps beat's end (a pollable state for the
+  probe). **GATE GEOMETRY (the review pass):** a gate must be
+  UNAVOIDABLE for its objective, or the beat soft-stalls with no re-prompt
+  — a point-rect is walkable around (the hall's side aisles, the
+  fountain's ring roads). The shapes that work: a FULL-WIDTH room band on
+  an open row every route crosses (hall row 8, sickroom row 6), a
+  generous zone at an open target (the bluff lip's 48×32), or the whole
+  objective zone (the fest cutscene's 96×96 fountain-square zone). The
+  last steps from wherever the gate fired are then staged with `walk_via`
+  waypoints — and since theater walks are straight no-collision tweens,
+  any staged path near the fountain dog-legs the road ring
+  (`_square_route` in town_fest).
+  Refused exits also need a physical stop: the gate-mouth road runs to
+  the map edge and collision stamps only grid cells, so both town scenes
+  wall the mouth just past the last row (`_wall_gate_mouth`).
+- **Invisible walls + facades**: the silhouette-fit retypes and the T3
+  coverage lint (see the doctrine), plus the `_eave_lift` SIDE bands — a
+  body pressed on a building's west/east face no longer paints over the
+  wall corner (the "standing on the roof" read; the Academy keep gained
+  both bands). Fest-only anchor moves pulled Sage/Schweinler off the
+  fountain ring's side lanes.
+- **Harness**: `tools/shot.gd` grew `phase:<name>` (shoot any town_thesis
+  dressing) and `roster:<id>[:<id>...]` (story scenes assume story
+  rosters); the probe covers the home start, the Mom gate (door refuses
+  before her), the proximity trigger, and every walk-gate — 33 checks.
+
+**Narrative & cutscene rework (2026-07-15/16)** — seven story-beat changes,
+each probe-verified in lockstep (the plan lived in docs/FOUNDATION_PLAN.md's
+tab; probe now 36 checks):
+- **Sunrise opening**: `house_fest` is a scripted wake-up — kid Basil asleep
+  in bed (new `kid_basil_gen.png` row 4: `sleep`/`wake`/`sigh`, sheet now
+  6×5) → eyes open → pads to the window (`walk_via` dog-leg) → the curtains
+  slide apart (the house.gd Curtains sprite + Glow/Dim tween, now instanced
+  in house_fest.tscn with a Theater) → a sigh ("...the whole town") →
+  control. The probe mashes to the unlock before the stair teleport.
+- **The fest Academy door is OPEN** (`town_academy(open_door=True)` —
+  `_arch_door` at the sealed door's own arch rows; warm mouth on the glow):
+  the drained town keeps the iron bars. The hall gained the judging panel +
+  the packed gallery (see the hall bullet).
+- **Mom's blessing moved home**; **the goose chase became the theft** (see
+  the pacing-pass paragraph above).
+- **The accident is SHOWN**: bluff call1 → black →
+  `scene/accident.gd/.tscn`, a partyless side-view set-piece on a generated
+  384×216 dusk-road painting (`accident_bg.png`) with profile sheets
+  `accident_kitty_gen` (pedal ×2 / brace / down / **tumble**, 5 cols since
+  2026-07-17), `accident_atv_gen` (drive ×2 / swerve / skid — Schweinler
+  baked into every frame, so the aftermath line comes from the stopped
+  machine), `accident_bike_down_gen`. **Impact reworked 2026-07-17
+  (loop-and-land)**: a soft white flash (no hard black), and Kitty
+  launches up-and-OVER in one cartoon arc — the `tumble` curl spun a full
+  `TAU` on parabolic tweens — landing into the still `down` frame while
+  the machine grinds past; the bike drops at the clip point; the sun-goes
+  Dim tween runs while Ridley RUNS to the wreck (no teleport pops).
+  Stylized motion, never a held contact frame. The scene owns
+  `prologue_accident` and hands to bluff call2 (her watch, Ridley's
+  voice) → the sickroom.
+  **Recomposed 2026-07-16 on the user's notes** ("the road is way too big;
+  the side-view sprites don't match the cast"): ONE narrow country lane
+  (46px, y 154-200) the 48px cast nearly fills, dark foreground meadow
+  strip framing the bottom; the profile sprites redrawn at the cast's
+  CHIBI proportions (head nearly half the figure, the kid-sheet 3×3 lit
+  eye + glint, white muzzle/snout leading). Staging: Kitty rides the NEAR
+  side, the machine enters on the FAR side and drifts across the
+  centerline during the swerve (rotation wobble + motion lines + a bell
+  sparkle on her bars earlier); impact adds a full-screen white Flash
+  before the black; the aftermath plays under a cooler CanvasModulate
+  (the sun is gone). RULE for any future one-off cutscene art: keep the
+  cast's chibi proportions and let the characters DOMINATE the
+  composition — scenery bands stay narrow.
+- **`prologue_fx.png` grew a second 16-cell row** (256×32: watch 16, poof
+  17, motion lines 18) — row 0 stays byte-identical, and
+  `WorldFx.sheet_sprite` now infers `vframes` from the sheet's height
+  (square cells), so every old frame index survived. NEVER widen the row.
+- **Sickroom REBUILT as THE DOCTOR'S OFFICE** (2026-07-16, superseding the
+  same-day ambient pass, on the user's notes — smaller, floating in void,
+  elaborate like the bedroom): the loft-diorama recipe — an 8-tile interior
+  in a 24×14 void with every wall stretch occupied (tonic-sill window |
+  4-cell sickbed | wall clock | flask shelf) and a packed floor: new
+  `privacy_screen` (3-panel linen ward divider) and `drip_stand` (brass
+  tripod, hanging tonic flask, tube arcing to the bed) props in
+  `_interior_props.py`, the doctor's own `desk()` by the door (he stands
+  behind it, legs hidden), chair, rose rug, plant; clinical pale-teal
+  BEDDING ramp (the old blue-lavender quilt read as a kid's bedroom);
+  glow adds the drip-tonic mint dot + the desk lamp's flame.
+  `npc_kitty_bed` REDRAWN at full chibi scale (head nearly the figure,
+  kid-sheet eyes, a clean three-band brow bandage where the bandana sits;
+  softer shade wrap — the full band left her cheek raw red) and centered
+  on the pillow via the spawn offset (+8,-14). The walk-gate row moved
+  with the geometry (y=104, row 6). CANON: the office is the EAST
+  NEIGHBOR COTTAGE — `cottage_e` banners name it in the fest town
+  ("THE DOCTOR IS AT THE SQUARE.") and the drained present ("THE OLD
+  STORK RETIRED YEARS AGO. NOBODY CAME AFTER."). bedside/kitty_bed/
+  doctor_spot anchors remain load-bearing.
+- **Cutscene routes creep the lanes**: Schweinler's plant-phase walk now
+  dog-legs the gate road → fountain west ring → main lane (he walked
+  straight through the shop blocks); same rule as `_square_route`.
+- **Harness hardening**: an OCCLUDED macOS window runs UNCAPPED (~2000fps) —
+  frame budgets burned in real seconds while wall-clock cutscene timers
+  didn't move, so `shot.gd` and `prologue_probe.gd` pin `Engine.max_fps=60`
+  at start. `shot.gd` also grew `flag:<name>` (pre-set story flags — shoot
+  staged states like the hidden goose) and `pos:<x>:<y>` (teleport the
+  leader after load).
+
+### Prologue A "The Whirligig" + the combat core (detail)
 
 **The 2026-07 combat-first cut** pared the build to its core loop to hone the
-battling and the look. Deleted (git history keeps the implementations; the story
-sections above remain the plan): the title screen, the five-part intro (night
-yard → bedroom wake-up → morning yard → playable road → lecture hall),
-Schweinler's sprites, and the cutscene/dialog kit (`cutscene.gd`,
-`dialog_box.gd/.tscn` — awaitable say/walk/fade/card helpers, typewriter box).
+battling and the look. Deleted (git history keeps the implementations, but per
+the build-fresh doctrine NOTHING narrative is recovered): the title screen,
+the old five-part intro, Schweinler's sprites, and the old cutscene/dialog
+kit.
 
-Flow: **bedroom ↔ downstairs ↔ overworld ↔ Whisker Meadow**. The game boots
-into the loft bedroom; its stairs descend to the downstairs great room, whose
-front door opens onto the overworld at the town icon's gate mouth (and
-stepping on the mouth lands back at that front door). The walkable Alembic
-Town scene is PARKED — built, unreferenced by the flow for now.
+**Prologue A "The Whirligig" is LIVE (2026-07-12)** — the game's first playable
+minute is the story's first minute. Boot: `scene/prologue_open.tscn` (main
+scene; title + era cards over black; ESC skips to the adult sandbox) → the
+**festival town** (`scene/town_fest.tscn` on `maps/town_fest.txt` — a BYTE
+COPY of town.txt tiled by `assets/_gen_tileset_town_fest.py` in the bright
+`town_fest` palette, same builders + salts as the drained town so every lane
+is recognizable across eras; the Academy rose window burns mint on the glow —
+magic is ALIVE; keep the two grids in lockstep) where **kid Basil**
+(`entities/kid/kid_basil.*` — a kit-less PartyMember, walk/hop/interact only;
+the pre-Ebb world is SAFE) plays the fountain-square teasing beat (levitated
+ribbon fx, Sage's three ribbons, kid Schweinler mocking the no-magic cat),
+then the **wander gate**: six talkables (Sage, Schweinler, sheep matron, owl
+scholar, the thieving goose, mouse kid — the animal-folk rule in action;
+every line stings a little), any three talks → "I want to go home" → back
+through the front door for Mom's blessing (2026-07-15) → the south gate →
+the **bluff MEET** (2026-07-18: `meadow_fest` was DELETED; the whirligig
+quest lives on the headland as `bluff_phase="meet"`, bright day tint + day
+sky): meeting Kitty Cool, the whirligig fetch-quest (gear by the treeline /
+spring at the point / crank in the flowers — `prologue_fx.png` pickups with
+sparkle loops, the same `part_*` anchors the watch scatter reuses), the
+crank-up mash, the flight finale, montage cards → the same scene reloads as
+the sunset romance (`Party.set_roster([basil_student])`,
+`bluff_phase="romance"`). Quest state lives in `Game.flags`.
+**`tools/prologue_probe.gd`** drives the whole chapter with synthesized
+presses and asserts every flag flips in order — run it after touching story
+scenes, like party_probe for the brains.
+
+The **narrative kit** (built fresh 2026-07-12):
+
+- `scene/dialog_box.gd/.tscn` — the typewriter box: bottom panel, brass
+  bevel, auto-sizing name plate, blinking ▼ arrow, POLLED
+  attack/interact/ui_accept (a press mid-type reveals the line), a 140ms
+  swallow window so the press that opens a conversation can't skip line one.
+  Mixed-case text: lowercase glyphs shipped in `assets/_pixfont.py` (same
+  5×7 cells, per-char BMFont yoffset carries x-height/descenders, lineHeight
+  9→10; `draw_text` still uppercases, so art stamps stay caps).
+- `scene/theater.gd/.tscn` — the cutscene kit: awaitable
+  black/clear/card/say/converse/wait + actor helpers walk/face/hop (drive
+  anything exposing an AnimatedSprite2D `sprite` with walk_/idle_ clips —
+  PartyMember and NPC both do) + lock/unlock_party via the **"party"
+  group**. GOTCHA: the kit must reference NO autoload identifiers — a
+  `--script` probe that compile-time-references game classes loads the chain
+  before autoloads register and poisons the Theater script for the whole run
+  (found by the prologue probe 2026-07-12).
+- `entities/npcs/npc.gd/.tscn` — interact-to-talk: solid StaticBody2D at the
+  party feet convention, TalkZone polls E, conversation runs through the
+  scene's Theater (the "theater" group), `talked` signal feeds wander-gate
+  counting. Sheets are ONE 48px row [idle0, idle1, act0, act1, emote0,
+  emote1] (villagers stop at 4 cols) and SpriteFrames build at RUNTIME — a
+  new villager is a PNG + exports, no .tres authoring.
+- `Game.flags` (set-once story booleans, process-lifetime) +
+  `Party.set_roster()` (typed Array[StringName]; dynamic callers through
+  `root.get_node("Party")` must pass a TYPED array or the call errors).
+
+Adult flow underneath (unchanged): **bedroom ↔ downstairs ↔ Alembic Town ↔
+overworld ↔ Whisker Meadow**.
+The adult loop opens in the loft bedroom; its stairs descend to the downstairs
+great room, whose front door opens into walkable Alembic Town just below the
+cottage door; the town's south gate leads out to the overworld at the town
+icon (and stepping on the icon's mouth lands back at the town's south gate).
+Basil's home door in town travels down into the downstairs.
 
 - **House** (`scene/house.tscn`, main scene): Basil's LOFT bedroom as a TILED
   room (the CT-bedroom treatment) — a SMALL dense diorama floating in a huge
@@ -279,23 +1071,31 @@ Town scene is PARKED — built, unreferenced by the flow for now.
   `_interior_props.boiler_frames`: gauge-needle wiggle, firebox flicker, a
   lazy steam leak), its collision still the map's solid `A` cells, its node
   placed at the player's feet convention (feet = node.y + 20) so y-sort
-  agrees — and a workbench with a half-built gizmo. The loft staircase descends through a top-center
+  agrees — and a workbench with a half-built gizmo. The hearth mantel
+  carries **the whirligig** (2026-07-16 Kitty thread): the prologue's
+  first-friend machine as a runtime relic between the baked candle and
+  trinket box — `WorldFx.sheet_sprite` on the fx sheet's droop/spin frames
+  (`downstairs.gd` `WHIRL_*` consts), the rotor stirred by the fire's draft
+  for a beat every ~7s; a plain `$World` sprite, keyed north of any
+  reachable body so bodies pressed to the hearth face always occlude it,
+  same as the baked mantel clutter. The loft staircase descends through a top-center
   alcove jutting above the cornice (treads brighten as they come down out of
   the dark); the south wall holds the **front door** — an open doorway
   spilling daylight, lintel on the upper layer (Basil ducks under it), stone
   stoop into the void. Exits: up the alcove → bedroom (`stair_top`); out the
-  door → overworld at the town icon's gate mouth. Spawns route through
-  `Game.interior_spawn` (read-and-clear; default = `front_door`, the
-  overworld-entry landing).
+  door → Alembic Town just below the cottage door (`Game.town_spawn =
+  "home"`). Spawns route through `Game.interior_spawn` (read-and-clear;
+  default = `front_door`, the town-entry landing).
 - **Overworld** (`overworld.tscn`): the CT/SoS TILED travel map (see "World
-  Structure"). Two markers: the town icon's gate mouth (`town`, straight
-  into the downstairs for now) and Whisker Meadow (enters the combat zone).
-  Cave and obelisk stay anchor-only landmarks in the terrain; their markers
-  return with their zones.
-- **Alembic Town, walkable** (`alembic_town.tscn`) — PARKED: the CT-Truce
-  village at zone scale (see "World Structure") is built and passes checks
-  but is unreferenced by the flow; rewire the town marker + downstairs door
-  through it (via `Game.town_spawn`) when the town earns its place.
+  Structure"). Two markers: the town icon's gate mouth (`town`, into the
+  walkable town at its south gate) and Whisker Meadow (enters the combat
+  zone). Cave and obelisk stay anchor-only landmarks in the terrain; their
+  markers return with their zones.
+- **Alembic Town, walkable** (`alembic_town.tscn`) — the Kakariko-style hub
+  (see "World Structure" for the full composition): terrace Academy over the
+  cliff-and-stair band, fountain square, the two shops + inn (announce-only
+  facades), cottages, stream/bridge/pond, walk-behind trees; Basil's home
+  door travels down to the downstairs; the south gate exits to the overworld.
 - **Meadow — Whisker Meadow** (`scene/meadow.tscn`): 48×24-tile TILED zone on
   the shared overworld driver (forest treeline, sea pond + beach collar,
   road trail, boulder-prop outcrops + the trailhead cairn),
@@ -331,8 +1131,8 @@ actually cycle; hand-drawn sheets can still drop in later against "Asset Specs" 
   `scene/tiled_map.gd` (stamps visible tiles from a generated layout file)
 - `scene/overworld.gd/.tscn` (64×36 TILED continent: layout-stamped Tiles/
   TilesUpper + additive glow + the town/meadow markers) ·
-  `scene/alembic_town.gd/.tscn` (40×28 TILED walkable town: same
-  stamp-and-anchor pattern with the full-scale player, door/announce markers
+  `scene/alembic_town.gd/.tscn` (56×34 TILED walkable town: same
+  stamp-and-anchor pattern with the full-scale party, door/announce markers
   + the south exit) ·
   `scene/overworld_location.gd` (markers: id/display_name/target_scene/locked_text) ·
   `scene/game.gd` (autoload **Game** — remembers `overworld_spawn`, plus
@@ -341,13 +1141,27 @@ actually cycle; hand-drawn sheets can still drop in later against "Asset Specs" 
 - `entities/player/overworld_player.gd/.tscn` (+ `overworld_basil_frames.tres`) —
   travel-only `CharacterBody2D`: 8-way move, 4-way facing, 90 px/s, no gun/hop/health
 - `assets/font/pixel_font.fnt/.png` — bitmap font all Labels use
-  (`assets/font/_gen_font.py`, glyphs shared via `assets/_pixfont.py`)
+  (`assets/font/_gen_font.py`, glyphs shared via `assets/_pixfont.py`;
+  caps + LOWERCASE since 2026-07-12 — UI chrome stays caps by convention,
+  mixed case belongs to the dialog system)
+- **Prologue A slice (2026-07-12):** `scene/prologue_open.gd/.tscn` (boot
+  cards) · `scene/town_fest.gd/.tscn` + `assets/maps/town_fest.txt` (the
+  festival town: cutscene, cast, wander gate) · the bluff meet phase
+  (`scene/bluff.gd` — Kitty, the whirligig quest, the montage hand-off;
+  `meadow_fest` deleted 2026-07-18) ·
+  `scene/dialog_box.gd/.tscn` + `scene/theater.gd/.tscn` (the narrative
+  kit) · `entities/npcs/npc.gd/.tscn` (interact-to-talk) ·
+  `entities/kid/kid_basil.gd/.tscn/_frames.tres` (the playable kid) ·
+  `assets/_gen_prologue_sprites.py` (cast sheets + `prologue_fx.png`) ·
+  `assets/_gen_tileset_town_fest.py` (bright-era town tiles) ·
+  `tools/prologue_probe.gd` (the chapter's end-to-end regression probe)
 
 ### Art pipeline (generated, frame-consistent, palette-locked)
 
-The AI-generated sheets (`assets/basil.png`, `assets/basil_sheet.png`) draw a slightly
-different cat in every frame, so animations strobe; they are kept only as concept
-reference. The live art is drawn procedurally by stdlib-only Python scripts.
+The AI-generated sheets (`docs/reference/basil.png`, `docs/reference/basil_sheet.png`)
+draw a slightly different cat in every frame, so animations strobe; they are kept only
+as concept reference, parked outside `assets/` under a `.gdignore` so Godot never
+imports them. The live art is drawn procedurally by stdlib-only Python scripts.
 
 **One scene pipeline, one map format.** Every scene is TILED (the interiors —
 the 2026-07 CT-bedroom pivot — then, with the 2026-07 town carve, the
@@ -365,7 +1179,7 @@ mountain), so 1-cell stair-steps in the map txt chain into continuous
 diagonal coasts, rims and ridge edges — so repeated cells are byte-identical
 BY CONSTRUCTION and the slicer collapses them to a small atlas, exactly how
 an SNES scene lives in VRAM (house: 60 tiles from 336 cells; overworld: ~260
-from 2304; town: ~240 from 1120; meadow: ~145 from 1152). Every scene is
+from 2304; town: ~470 from 1904; meadow: ~145 from 1152). Every scene is
 driven by its `assets/maps/*.txt` file.
 
 - **`assets/maps/*.txt`** — the shared source of truth per map: a `legend`
@@ -391,6 +1205,26 @@ driven by its `assets/maps/*.txt` file.
   body walks behind). Writers emit the packed atlas PNG, the TileSet `.tres`
   (visuals only — collision stays on the invisible collision layer) and the
   layered layout txt that `scene/tiled_map.gd` stamps at runtime.
+  **ANIMATED TILES (2026-07-17, the SNES water cycle):** a scene may hand
+  `slice_atlas` a LIST of N lower-canvas frames (`TileScene._lower_frames()`
+  hook — `OverWorld` overrides it to repaint only sea/river cells per frame
+  on a clone of the finished canvas, with a frame-0 byte-identity assert
+  guarding the "nothing else paints water cells" contract). Dedupe keys on
+  the tuple of per-frame cell bytes, so frame-invariant cells stay plain
+  static tiles; a differing cell becomes ONE animated tile whose frames
+  `pack_tiles()` lays as N contiguous same-row atlas cells (statics pack
+  first in reading order — an all-static scene reproduces the old atlas
+  byte-for-byte). The `.tres` declares `animation_frames_count` + per-frame
+  durations (`WATER_FRAME_DUR = 0.30`) on the base cell ONLY — frame and
+  padding cells must NEVER get their own `x:y/0 = 0` line (create_tile
+  inside a reserved animation span poisons the whole TileSet), and never
+  set random-start `animation_mode` (the synced clock is what keeps the
+  32-space quadrant fabric coherent). Godot's TileMapLayer plays the cycle
+  natively — zero runtime code, and CanvasModulate scene tints (the bluff's
+  phases) ride on top. RULE: every frame-dependent term in a water painter
+  must be periodic in `WATER_FRAMES` (sea crests drift 4px on a 16-period,
+  the river's row selector slides 2px on an 8-period, foam-churn salts and
+  glint blinks are period 4) so frame N-1 → 0 loops seamlessly.
   **The tiled READ is a discipline, not a file format:** repeating art must be
   a function of tile-local coordinates + a per-cell variant hash, and light/
   shade must be quantized PER TILE (whole lit tiles + ordered-dither fringe
@@ -487,6 +1321,139 @@ driven by its `assets/maps/*.txt` file.
   `scene/house.tscn` is the tiled
   interior reference; `scene/overworld.tscn` the tiled exterior reference;
   `scene/meadow.tscn` the tiled combat-zone reference.
+- **Z-order / layering doctrine (2026-07-11, lint-enforced).** Draw order is
+  the fixed sandwich above — lower tiles always under every body, upper
+  tiles always over, only `World` children y-sort against each other. There
+  is NO per-tile depth (per-tile `y_sort_origin` was rejected: the dedupe
+  atlas shares tiles between props at different heights). Every piece of art
+  therefore belongs to one of THREE TIERS, chosen by one question — *can a
+  body stand directly south of it and overlap it?*
+  1. **Tier 1 — baked lower**: terrain, flat props, and wall-flush furniture
+	 (a body can never get north of it, so always-under is always right).
+  2. **Tier 2 — static split** (`place_split`: roof/canopy/lintel rows on
+	 the upper canvas, base rows + contact shadow on the lower): tall props
+	 whose over-art sits ONLY above solid cells or door cells. The top row
+	 of every walk-behind corridor is a solid **`ridge`** cell (map digits,
+	 all legend-named `ridge`, never a struct — a struct's shade band
+	 peeks through the silhouette): a 33px body over 16px tiles covers its
+	 feet row + the row above + ~5px more, so a ridge-capped corridor shows
+	 at most a head-peek over the roofline (the CT "behind the house" read)
+	 and never a full body "standing on the roof". The cap is SCALE-GATED:
+	 a chibi map's figure (the overworld's 24x24 travel chibi, ~16px) fits
+	 inside one tile and can't out-peek a silhouette, so covered walk-behind
+	 cells there need no ridge cap — a whole crown may be open walk-behind
+	 (`CHIBI_MAPS` in `_check_art.py` waives the cap lint; the Elder Tree's
+	 entire crown is walkable `G` cells since 2026-07-11, only its trunk
+	 blocks).
+  3. **Tier 3 — y-sorted `World` entity**: free-standing props a body can
+	 round (furniture, street lamps/well/stall/fountain, the animated
+	 boiler). NEVER baked: the generator calls `TileScene.emit_prop()`
+	 (PNG + a row in generated `tilesets/<scene>_props.txt`; `each` splits
+	 one char into per-component sprites) and `scene/prop_spawner.gd`
+	 spawns them into `World` — node origin on the feet line
+	 (`base_y - 20`, matching `ZONE_FEET=44` in the 48px cell), art bottom
+	 on the footprint's south edge (or `anchor=top:<px>` for crops like the
+	 bed cover, `base_inset=<px>` to lift the baseline off a baked shadow).
+	 Collision stays on the map's solid cells — spawned props are visual
+	 only, and the spawner front-loads them in child order so bodies win
+	 y-sort ties. **Counter-walk variant** (desk / table / workbench): a
+	 counter-height Tier-3 prop makes its TOP footprint row `walk` and only
+	 its bottom row `solid`, so a body steps onto the top row and tucks in
+	 behind the y-sorted tabletop, legs hidden — the SoM shop-counter read.
+	 **Runtime FX are Tier 3 too** (`scene/world_fx.gd`, 2026-07-12): a
+	 sprite spawned by a script (paw prints, the squelch bag, puddle
+	 splashes, quest-part icons, ribbons, sleeping Zs) joins `$World`, never
+	 the scene root (a root child draws over the whole world; the old
+	 `z_index=-1` paw-print hack buried them UNDER the floor tiles).
+	 `WorldFx.decal()` is for GROUND art that must lose y-sort to EVERY
+	 body that can overlap it: origin `DECAL_BIAS`=32px north of the visual
+	 center (art offset south) AND `move_child(0)` so it also loses exact
+	 ties to the front-loaded props. The bias arithmetic: bodies key at
+	 feet−20, and the northmost overlapping body (feet on the decal's top
+	 edge, center−8) keys at center−28 — a bias ≤28 lets a body standing ON
+	 the decal render UNDER it (the original 8px draft did exactly that).
+	 `WorldFx.airborne()` is for FLOATING art: origin ground-anchored on the
+	 point it hovers over, art lifted by sprite `offset` only (the
+	 theater.hop move-the-sprite rule), so world depth sorts by the ground
+	 beneath — and bob/float tweens must animate `offset`, never `position`.
+  **The mask band (pressed-body rule).** The collision box hugs the FEET,
+  so a body pressed against a solid row sinks ~10px of sprite past the
+  boundary in EITHER direction: pressed from the north, its feet + shadow
+  leak ~14px over the lower-layer art of the row below (facade top);
+  pressed from the south, its HEAD sinks ~10px into a solid row's top.
+  `_town_props._eave_lift(lo, up, w, fy)` mirrors a solid row's top 12px
+  onto the UPPER canvas (pixel-identical composite) to swallow the corridor
+  sliver — legal ONLY when the nearest south-side walkable row is ≥2 rows
+  below the band row, so no south head can reach it (buildings' 2-row
+  facades, the elder tree's 3-row trunk block). NEVER band a 1-row-deep
+  solid strip between two walkable rows — the corridor feet and the south
+  head need the same 12px and one of them always wears it (this killed the
+  town-tree corridor, below). The band is the only legal upper art on a
+  body-adjacent solid row, and why the lint's support rule accepts upper
+  cells that are themselves solid. **The SIDE band** (2026-07-12, the
+  "standing on the roof corner" fix): a body pressed against a building's
+  west/east face overlaps the wall edge at EVERY height, so
+  `_eave_lift(..., h=h)` also mirrors the facade's outer 6px columns from
+  the eave down to the footing — the pressed sliver is swallowed by the
+  silhouette instead of painting over the plaster and roof-eave corner.
+  Every town building carries both bands (the Academy keep was authored
+  before the rule and gained them 2026-07-12).
+  **The small-prop rule.** A walk-behind corridor needs ~2 covered rows
+  above the corridor row AND a ≥2-row solid base below it. Props smaller
+  than that (the 2x3 town trees: 2-row crown, 1-row trunk) get NO corridor
+  — every cell solid, the ALttP small-tree standard. Their crown still
+  rides the upper layer so a body passing east/west tucks its inner
+  shoulder behind the silhouette, and a south-pressed body correctly draws
+  over the trunk row's lower-layer art.
+  **The silhouette-fit rule.** Solid must READ solid: a round prop over a
+  square footprint leaves corner cells the art barely touches — a solid
+  corner cell with no visible art is an invisible wall (hit on the elder
+  tree's crown-top corners 2026-07-11). Shape the map chars to the
+  silhouette (the elder's top canopy row is `.GG.`) and clip the prop's
+  stray corner pixels one px past the cell boundary BEFORE `edge()` (the
+  4-way outline dilates one pixel and must not spill into the walkable
+  cell — the head-clearance lint catches spills). The collision box must
+  also be FEET-ALIGNED like the zone bodies' — the overworld chibi's box
+  was 3px below its `OW_FEET` baseline, which added a phantom margin to
+  every south press (fixed 2026-07-11: `CollisionShape2D` at (0, -3) in
+  both overworld_*.tscn bodies). The landmark footprints were audited
+  2026-07-11: every art-free solid cell a body could press (town-icon
+  spire gaps, the massif's east tip, the obelisk's NW corner, the elder
+  trunk's bare west flank, the town's home/inn ridge corners) was retyped
+  walkable, the town garden hedge spur became a fence run (a 1-cell-thick
+  forest line can't terminate — the lobe lattice always rejects the tip
+  cell into a grass bay), and the invisible-wall lint below keeps the
+  class extinct. **Extended through Tier-3 footprints 2026-07-12:** the
+  lint's Tier-3 exemption is now per CELL — a footprint cell keeps its
+  solid map cell only where the prop's frame-0 art covers ≥20% of its
+  16px square (measured floor: legit bases 25-46%, true walls 0%; the
+  lint decodes the manifest PNGs and mirrors prop_spawner's placement
+  math). Art-free cells are retyped to WALKABLE TWINS with the same
+  terrain name so the paint stays byte-identical and only collision
+  changes: `O`/`U`/`L` beside `o`/`u`/`l` in the town maps (the fountain's
+  transparent top corners were the one true invisible wall; lamp heads
+  and the well roof became walk-behinds — the twin chars stay in the
+  manifest charsets so `bbox`/`each` grouping is unchanged), `l` beside
+  `L` for the hall lectern's corners. One walk-behind was REVERTED to
+  solid on gameplay grounds: the inn-nook lamp top at (43,24) opened a
+  1-cell pocket inside the goose-chase leash and the fleeing goose
+  wedged there (the catch loop stalled — walkable pockets next to chase
+  AI are a trap; the town glow finder keys on lamp-component TOPS in
+  either char, so the revert cost no pixels).
+  `assets/_check_art.py` enforces the doctrine: upper art must rest on
+  solid/upper/door cells or itself be a solid-cell mask band (no floating
+  over walkable ground), walkable
+  covered cells must have covered art due north (corridors capped —
+  waived on `CHIBI_MAPS`),
+  `ridge` cells must sit under upper art, the four upper layers must be
+  non-empty, every props manifest must parse against its map and PNGs,
+  and NO pressable solid cell may render as open ground (the
+  invisible-wall lint: a solid cell 4-adjacent to walkable whose lower
+  tile dedupes to one used on walkable ground, with no upper art, fails
+  the build; Tier-3 manifest chars are exempt — their solid cells
+  legitimately sit under y-sorted sprites).
+  Generator-side, `place_upper` asserts a non-empty upper sprite (no dead
+  splits).
 - **`assets/_sprites.py`** — the sprite construction kit: `Sprite` canvas with
   steer-lit `ball`/`capsule`/`panel` volumes, cluster-jittered tone selection,
   `cluster_shade`/`despeckle`/`outline`/`crease` finishing passes, and `Rig`
@@ -494,7 +1461,9 @@ driven by its `assets/maps/*.txt` file.
   Generators (re-run any with `python3 <script>`; then let Godot reimport, or
   `godot --headless --path . --import`; **always run `python3 assets/_check_art.py`
   after regenerating** — it asserts map enclosure/anchors, layout/atlas/.tres
-  agreement, collision tileset shape, entity placements on walkable
+  agreement, the z-order doctrine (upper-art support, capped walk-behind
+  corridors, ridge placement, non-empty upper layers, props manifests),
+  collision tileset shape, entity placements on walkable
   cells, sheet dims and `.tres` regions):
 
 - `assets/_gen_collision.py` → `collision_tile.png` (16×16 transparent) for the
@@ -617,8 +1586,9 @@ Every scene keys into this table; new materials derive via
 a duo/tri-tone cast per scene. Wood may be an honest warm brown (a material,
 not the field); never a naturalistic beige/gray mud FIELD, and never
 un-hue-shifted muddy darks — if a dark wants to be gray, it's lavender.
-(Only `bedroom`, `downstairs`, `overworld`, and `meadow` are in the current build; the other
-rows are the standing color script for scenes to come.)
+(`bedroom`, `downstairs`, `overworld`, `town`, `town_fest`, and `meadow` are
+in the current build; the other rows are the standing color script for scenes
+to come.)
 
 | Scene key      | Dominant field                          | Hot accent                    | Shadow bias |
 | -------------- | --------------------------------------- | ----------------------------- | ----------- |
@@ -630,6 +1600,8 @@ rows are the standing color script for scenes to come.)
 | `road`         | minty teal + peach path                 | hot pink flowers              | teal        |
 | `hall`         | plum panelling / rose floor             | chalk-mint board writing      | violet      |
 | `overworld`    | deep ocean teal + mossy emerald land    | violet wastes + crystal       | teal        |
+| `town`         | mossy lanes / dusky lavender plaster (drained era) | candle amber       | teal        |
+| `town_fest`    | spring grass / cream plaster (festival era — Prologue A) | festival magenta + living mint glow | teal |
 | `meadow`       | minty teal greens (mossy 2026-07 register) | candy hot-pink flowers     | teal        |
 
 ## Asset Specs (sprite sheets to provide)
@@ -690,24 +1662,66 @@ stays friendly, with crisp fire/recover cadence, hit-pause, and readable knockba
   each should differ in arc/range/rate/knockback the way SoM's weapon families did.
   The 48×48 cells and 4-frame shoot rows are sized so alternate weapons swap into
   the same animation contract (`shoot_down/up/side` + `muzzle_offset`).
-- **3-person party** — the sympathizers (starting with **Fuji**, the librarian cat
-  who pulls Basil back into the world) eventually join as party members, SoM-style:
-  same 48 px sprite spec, composing the same Health/Hurtbox components, AI-followed
-  with leader switching. Party UI stacks additional heart rows.
-  **Fuji is BUILT and currently swapped in as the playable character (2026-07-07)**
-  to dial her look and feel — tortoiseshell (real-Fuji faithful: warm-black fur,
-  placed rust patches, cream chin/chest/paws, green-gold eyes), round brass
-  reading glasses, deep plum scholar's robe with mustard trim, hugging her
-  clasped tome as she walks. Kit: **tome swing** (attack — two-paw overhead slam,
-  BookHitbox opens through the strike/impact window, forward lunge) + **blow-pipe
-  darts** (`dart` action, L — unlimited, the planted pose is the cost; dart leaves
-  on the puff frame at the pipe-tip 16px contract) + Basil's hop-dodge.
+- ~~**3-person party**~~ — **2-member slice BUILT (2026-07-10), SoM-style.**
+  Basil is back as the default leader; **Fuji** (the librarian cat who pulls
+  Basil back into the world) runs as the AI companion — and **Q/Tab swaps the
+  lead** (camera + control hand off, the AI takes the other body). The
+  architecture is roster-based, so the third sympathizer is additive:
+  - `entities/party/party_member.gd` — `PartyMember` base (extends
+	`DirectionalBody2D`): shared 8-way move, hop, knockback/hurt, can't-die
+	refill. Each physics frame it fills an `Intent` (move/face vectors +
+	attack/secondary/jump edges) from the keyboard when leading or from its
+	`Brain` child when following — one movement/attack code path for both.
+	Kits (Basil's gun states, Fuji's book/dart states) live in the subclasses
+	behind `_process_kit` / `_on_attack_intent` / `_on_secondary_intent`.
+  - `entities/party/ai_brain.gd` — `AIBrain` (a plain `Brain` node in each
+	member scene), a three-mood machine: FOLLOW with hysteresis (stop 34px /
+	resume 44px), catch-up sprint past 56px; ENGAGE acquires the nearest
+	`enemies`-group node within 70px while ≤96px of the leader, then LATCHES
+	the target and holds it to 140px (acquire/hold split — Basil's ~30px
+	recoil skid crosses any single line every shot); RETURN once the leash
+	breaks past 128px — run home to 48px ignoring enemies before re-engaging.
+	Every boundary is a two-threshold band; single-threshold edges read as
+	frame twitching (2026-07-10 fix). Attack cooldowns decay in the brain's
+	own `_physics_process` (think() pauses during the member's kit/hurt
+	states); brains reset on leader swap. The catch-up teleport fires only
+	past 130px (kept ≤ the smallest view half-extent + margin so an
+	off-screen-stuck follower always qualifies) AND off-screen (live camera
+	check), landing a step behind the leader after a `test_move` sweep proves
+	the step walkable (else on the leader) — never a visible pop, never an
+	embed. `tools/party_probe.gd` is the behavioral regression probe (mood
+	transitions, in-view pops, settle distances). Kit brains:
+	`fuji_brain.gd` (close to swing range, tome slam), `basil_brain.gd`
+	(sidle the shorter axis onto a cardinal — 4-way facing — fire in
+	[36, 110]px, recoil kites him out, reload when dry, passive when out of
+	beakers too; he restocks by walking over beaker pickups).
+  - `scene/party.gd` — the `Party` autoload: roster `[basil, fuji]`,
+	`leader_id` persists across scenes (HP does not, same as before),
+	`spawn(world, pos)` replaces per-scene player instances, `place()`,
+	`clamp_cameras()`, swap on `swap_member` (polled). Leadership = three
+	things it applies together: `is_leader` on the body, sole membership of
+	the **`player` group** (all door/exit/zone triggers still gate on it,
+	untouched), and the live child `Camera2D` (`make_current` +
+	`reset_smoothing` on swap). All members sit in the **`party` group**;
+	slimes re-pick the nearest party member every frame and join/leave the
+	**`enemies` group** for brain targeting.
+  - HUD stacks one heart row per member (roster order, follower dimmed to
+	55%); Basil's ammo pips/mags bind to him whether he leads or follows.
+	The overworld stays ONE chibi — the leader's (frames swap on entry).
+  Fuji's build notes (2026-07-07, look/feel dialed as solo playable):
+  tortoiseshell (real-Fuji faithful: warm-black fur, placed rust patches,
+  cream chin/chest/paws, green-gold eyes), round brass reading glasses, deep
+  plum scholar's robe with mustard trim, hugging her clasped tome as she
+  walks. Kit: **tome swing** (attack — two-paw overhead slam, BookHitbox
+  opens through the strike/impact window, forward lunge) + **blow-pipe
+  darts** (`dart` action, L — unlimited, the planted pose is the cost; dart
+  leaves on the puff frame at the pipe-tip contract) + Basil's hop-dodge.
   `entities/fuji/` (fuji.gd/.tscn/frames), `entities/projectiles/blow_dart.*`,
   `assets/_gen_fuji_sprites.py` → `fuji_gen.png` (288×480, 6×10), chibi
   `overworld_fuji.png` in `_gen_overworld_actors.py`, `FUJI` palette dict.
-  Scene scripts are now player-agnostic (`DirectionalBody2D` + the `player`
-  group) — the groundwork for the Basil⇄Fuji switch; Basil's `player.tscn` is
-  parked, fully working, one ext_resource repoint away.
+  Remaining party ideas for later: member 3, real KO/downed state (both
+  members currently refill on death), per-member AI stance settings
+  (aggressive/defensive), SoM ring-menu flavor for swapping.
 - **Magic returns late** — spell systems unlock as the story restores magic; the
   drained world is why early combat is all blasters.
 - ~~**The downstairs**~~ — **BUILT (2026-07-04).** The kitchen + lab great
@@ -716,3 +1730,28 @@ stays friendly, with crisp fire/recover cadence, hit-pause, and readable knockba
   Remaining downstairs ideas for later: cooking/eating at the hearth,
   crafting at the workbench, the boiler as a story prop (the last machine
   still running on drained-world power).
+
+## Future Direction — Story Build (recorded 2026-07-12, in progress)
+
+The chapter structure in "Story" above is canon. **Build-fresh doctrine
+(2026-07-12): nothing narrative is recovered from git** — the deleted intro,
+cutscene kit, dialog box, and Schweinler sprites are rejected wholesale for
+how they looked; the beats and gags stay canon, every implementation and
+sprite is authored new on the current pipelines. Build order (user call:
+**start the game from its first minute**), each a coherent slice:
+
+1. ~~**Prologue A "The Whirligig"**~~ — **DONE (2026-07-12).** See the Current
+   Milestone section. Pacing pass added (Mom's blessing gate + goose-chase
+   and crank-mash minigames).
+2. ~~**Prologue B "Professor Poopy Paws"**~~ — **DONE (2026-07-12).** The
+   whole thesis-day chapter: plant / wake-up / dash / hall-and-naming /
+   call-and-accident / sickroom / fountain / leaving. See the Current
+   Milestone section.
+3. **Act 1 "The Ebb"** (next) — the Ebb cold-open, the Academy-library interior,
+   drained-town wander gates, the meadow as Fuji's combat tutorial, the
+   **Elder Tree hermitage** zone (the giant riverbank tree at zone scale —
+   lean-to among the roots, corkboard research, the brass gun), the
+   party-forming fight. Ends exactly where the combat sandbox boots.
+4. **Act 2 expansion** (much later) — the overworld grows: more towns
+   (Kitty's town), the walkable Capital, the Burrows and Drain dungeons,
+   region-relight glow states.

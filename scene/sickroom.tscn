@@ -1,0 +1,38 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scene/sickroom.gd" id="1_sr"]
+[ext_resource type="TileSet" path="res://assets/collision_tileset.tres" id="2_collision"]
+[ext_resource type="TileSet" path="res://assets/tilesets/sickroom_tiles.tres" id="3_tiles"]
+[ext_resource type="Texture2D" path="res://assets/tilesets/sickroom_glow.png" id="4_glow"]
+[ext_resource type="PackedScene" path="res://scene/theater.tscn" id="5_theater"]
+
+[sub_resource type="CanvasItemMaterial" id="mat_add"]
+blend_mode = 1
+
+[node name="Sickroom" type="Node2D"]
+script = ExtResource("1_sr")
+
+[node name="Dim" type="CanvasModulate" parent="."]
+color = Color(0.66, 0.66, 0.82, 1)
+
+[node name="Tiles" type="TileMapLayer" parent="."]
+texture_filter = 1
+tile_set = ExtResource("3_tiles")
+
+[node name="Glow" type="Sprite2D" parent="."]
+material = SubResource("mat_add")
+texture = ExtResource("4_glow")
+centered = false
+texture_filter = 1
+
+[node name="Collision" type="TileMapLayer" parent="."]
+tile_set = ExtResource("2_collision")
+
+[node name="World" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="TilesUpper" type="TileMapLayer" parent="."]
+texture_filter = 1
+tile_set = ExtResource("3_tiles")
+
+[node name="Theater" parent="." instance=ExtResource("5_theater")]

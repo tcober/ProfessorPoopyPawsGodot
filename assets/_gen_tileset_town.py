@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 """Alembic Town, walkable — a thin CONFIG on the shared overworld tile kit.
 
-The town map (assets/maps/town.txt) rides assets/_overworld_tiles.py's
-OverWorld driver directly: the hedge border is the forest class, lanes are
-the wobbly trail painter, yards are the fence class. This file only picks
-the palette, place_split()s the zone-scale facades from
-assets/_town_props.py (roofs to the upper layer, so the player walks behind
-rooflines), and writes the additive night-glow (Basil's doorway and windows,
-the lamp mantle, the Academy's rose window).
+The town map (assets/maps/town.txt, 56x34) rides assets/_overworld_tiles.py's
+OverWorld driver directly: the tree border is the forest class, lanes are the
+wobbly trail painter, yards are the fence class, the SE pond is sea+beach and
+the stream a river with one bridge cell. This file picks the palette,
+emit_prop()s the zone-scale facades and trees from assets/_town_props.py as
+single Tier-3 y-sorted World sprites (native y-sort sorts each building/tree
+against the player — no upper-layer roof, ridge cap, or _eave_lift mask band),
+stamps the terrace's cliff columns from salted repeating variants (the
+meadow-boulder reuse pattern) into the lower layer, and writes the additive
+night-glow. The upper tile layer is now empty (the cliff/stairs are lower-only
+backdrops the player never occludes).
 
 Re-run: python3 assets/_gen_tileset_town.py [--preview out.png]
 """
@@ -15,33 +19,87 @@ import os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+from _core import h2
 from _overworld_tiles import OverWorld, T
-from _tilekit import GLOW_WARM as WARM, GLOW_MINT as MINTG
+from _tilekit import COPPER, GLOW_WARM as WARM, GLOW_MINT as MINTG, sprite_img
 from _town_props import (town_home, town_cottage, town_academy, town_well,
-                         town_lamp, town_stall)
+                         town_lamp, town_stall, town_shop, town_inn,
+                         town_fountain, town_stairs, town_cliff, town_tree,
+                         town_fence)
 
 tn = OverWorld("town", "town")
 _blob = OverWorld.glow_blob            # shared radial glow dab (see TileScene)
 
 ROOFB = tn.mat("roof_blue")
 ROOFG = tn.mat("roof_green")
+ROOFR = tn.mat("bridge")               # rosewood — the inn's roof
 PLAST = tn.mat("plaster")
 STONE = tn.ROCK                        # town masonry = the scene's violet slate
 
 tn.paint_terrain()
 
-# ---- the buildings at their map footprints (roofs ride the upper layer) -----------
-lo, up = town_home(ROOFB, PLAST)
-tn.place_split("hH", lo, up)
-lo, up = town_cottage(ROOFG, PLAST, salt=211)
-tn.place_split("q1", lo, up)
-lo, up = town_cottage(ROOFB, PLAST, salt=217)
-tn.place_split("w2", lo, up)
-lo, up = town_academy(ROOFB, STONE)
-tn.place_split("kK", lo, up)
-tn.place("u", town_well(STONE))
-tn.place_each("l", town_lamp())
-tn.place("m", town_stall())
+# ---- the buildings, each a single Tier-3 y-sorted World sprite (composite=
+# True flattens the old (facade, roof) split into one opaque feet-origin PNG).
+# Native y-sort sorts the whole building against a body at the front-wall
+# baseline, which retires the upper-layer roof + ridge-cap + _eave_lift mask
+# band this scene used to need. The char triples stay (solid facade `H..N` +
+# WALKABLE roof `h..n` corridor + solid ridge digit `3..9`) purely for
+# collision + the footprint bbox; nothing rides the upper tile layer now. ------------
+# every building is a 4-frame sheet (animated water + chimney smoke), cycled
+# by scene/alembic_town.gd the way downstairs cycles its boiler.
+tn.emit_prop("Home", "hH3",
+             town_home(ROOFB, PLAST, composite=True, frames=4), hframes=4)
+tn.emit_prop("CottageW", "q14",
+             town_cottage(ROOFG, PLAST, salt=211, composite=True, frames=4), hframes=4)
+tn.emit_prop("CottageE", "w25",
+             town_cottage(ROOFB, PLAST, salt=211, composite=True, frames=4), hframes=4)
+tn.emit_prop("Academy", "kK6",
+             town_academy(ROOFB, STONE, composite=True, frames=4), hframes=4)
+tn.emit_prop("Weapons", "xX7",
+             town_shop(COPPER, PLAST, sign="sword", wares="arms",
+                       salt=251, composite=True, frames=4), hframes=4)
+tn.emit_prop("Items", "pP8",
+             town_shop(ROOFG, PLAST, sign="flask", wares="tonics",
+                       salt=251, composite=True, frames=4), hframes=4)
+tn.emit_prop("Inn", "nN9",
+             town_inn(ROOFR, PLAST, salt=261, composite=True, frames=4), hframes=4)
+tn.place("S", town_stairs(STONE))
+# street furniture is Tier 3: free-standing (bodies pass both north and
+# south of it), so the art rides y-sorted World entities spawned from
+# town_props.txt (scene/prop_spawner.gd); the map chars keep the solid
+# collision and anchor the glow dabs
+tn.bake_shadow("oO", 3)
+tn.emit_prop("Fountain", "oO", town_fountain(STONE, frames=4), hframes=4)
+tn.emit_prop("Well", "uU", sprite_img(town_well(STONE), 32, 32))
+tn.emit_prop("Lamp", "lL", sprite_img(town_lamp(), 16, 32), each=True)
+tn.emit_prop("Stall", "m", sprite_img(town_stall(), 48, 32))
+# the fences y-sort like everything a body can stand both sides of
+# (2026-07-19): F = the two 3-cell gate runs, G = the 5-cell orchard run
+tn.emit_prop("Fence", "F", sprite_img(town_fence(3), 48, 16), each=True)
+tn.emit_prop("FenceLong", "G", sprite_img(town_fence(5), 80, 16))
+
+# ---- the terrace cliff band: one 16x32 face column per map column, hash-
+# picked from three salted variants (the meadow-boulder per-cell pattern —
+# opaque, unoutlined, so ~40 columns dedupe to a handful of tiles) -------------------
+cliffs = [town_cliff(tn.ROCK, tn.GRASS, salt=s) for s in (291, 293, 297)]
+for ty in range(tn.m.rows_n):
+    for tx in range(tn.m.cols):
+        if tn.m.at(tx, ty) == "C" and tn.m.at(tx, ty - 1) != "C":
+            tn.bg.blit_cell(cliffs[h2(tx, ty, 51) % 3], tx * T, ty * T)
+
+# ---- walk-behind trees: TWO y-sorted World props per {^,T,t} component
+# (prop_spawner's `each` splits them by connected component). The opaque TRUNK
+# sprite sorts at the footprint's south edge; the CROWN sprite's y-sort
+# baseline is pushed ~1 tile SOUTH (base_inset=-16) so the canopy overhangs —
+# a body beside or at the trunk tucks behind it, a body a tile south walks out
+# in front. Native y-sort gives the "behind crown / in front of trunk" read
+# that the old upper-layer + solid-ridge trick faked. (each=True reuses ONE
+# PNG, so the three salted variants collapse to a uniform tree — fine for the
+# pilot; distinct char families would restore the variety.) --------------------------
+lo, up = town_tree(tn.FOREST, tn.TRUNK, tn.GRASS)
+tn.emit_prop("TreeTrunk", "Tt^", sprite_img(lo, 32, 48), each=True)
+tn.emit_prop("TreeCrown", "Tt^", sprite_img(up, 32, 48), each=True,
+             top=0, base_inset=-16)
 
 
 # ---- additive glow: the sleeping town's little lights ------------------------------
@@ -52,10 +110,22 @@ def _glow(img):
     _blob(img, hx + 80, hy + 17, 9, WARM, 54)
     kx, ky = tn.bbox("K")[0] * T, tn.bbox("K")[1] * T
     _blob(img, kx + 79, ky + 14, 16, MINTG, 46)            # the rose window
+    nx, ny = tn.bbox("N")[0] * T, tn.bbox("N")[1] * T      # the inn, wide awake
+    for wx_ in (20, 50, 122):                              # upper windows
+        _blob(img, nx + wx_, ny + 10, 8, WARM, 50)
+    for wx_ in (30, 110):                                  # lower windows
+        _blob(img, nx + wx_, ny + 33, 9, WARM, 54)
+    _blob(img, nx + 72, ny + 23, 7, WARM, 46)              # the transom
+    _blob(img, nx + 56, ny + 31, 6, WARM, 44)              # the wall lantern
+    ox_, oy_ = tn.bbox("oO")[0] * T, tn.bbox("oO")[1] * T
+    _blob(img, ox_ + 24, oy_ + 29, 10, MINTG, 40)          # fountain shimmer
     m = tn.m
     for y in range(m.rows_n):
         for x in range(m.cols):
-            if m.at(x, y) == "l" and m.at(x, y - 1) != "l":
+            # each lamp component's TOP cell (usually the walkable L head;
+            # the inn-nook lamp keeps a solid l top — the goose chase wedges
+            # in a walkable pocket there)
+            if m.at(x, y) in "lL" and m.at(x, y - 1) not in "lL":
                 _blob(img, x * T + 7, y * T + 4, 11, MINTG, 58)
 
 

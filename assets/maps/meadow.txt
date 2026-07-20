@@ -15,6 +15,12 @@ legend r boulder solid
 legend c boulder solid
 anchor player_spawn 8 10
 anchor exit_south 24 23
+anchor enter_south 24 21
+anchor kitty_pos 24 6
+anchor whirligig 26 7
+anchor part_gear 36 13
+anchor part_spring 12 18
+anchor part_crank 7 15
 map
 ################################################
 #########......#####.......#####################
