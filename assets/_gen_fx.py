@@ -26,6 +26,9 @@ OUT = os.path.join(HERE, "placeholder")
 GREEN = BASIL["GUNE"][:3]           # (132, 246, 152)
 RUBY = [(255, 150, 160), (236, 80, 104), (192, 44, 80), (128, 24, 62)]
 SOCKET = [(74, 58, 96), (52, 40, 70), (34, 26, 50)]
+# The charged pip is drawn NEUTRAL so the HUD can tint it per compound (see the
+# pip block below). Near-white rather than pure, so the shading bands survive.
+PIP = (242, 250, 245)
 
 
 def heart_mask(cx, cy, r, x, y):
@@ -80,9 +83,14 @@ for i, full in enumerate((True, False)):
             if nx * nx + ny * ny > 1.0:
                 continue
             if full:
+                # NEUTRAL, not laser-green: the HUD tints this row by the loaded
+                # compound's colour via modulate, and modulate MULTIPLIES — a
+                # green pip times a purple plasma tint came out near-black. Drawn
+                # near-white, the tint reproduces each compound's true hue, and
+                # the default green base lands back on the original look.
                 t = 0.5 + 0.4 * (nx * 0.5 + ny * 0.8)
-                g = (int(GREEN[0] * (1.15 - t * 0.5)), int(GREEN[1] * (1.15 - t * 0.5)),
-                     int(GREEN[2] * (1.15 - t * 0.5)))
+                g = (int(PIP[0] * (1.15 - t * 0.5)), int(PIP[1] * (1.15 - t * 0.5)),
+                     int(PIP[2] * (1.15 - t * 0.5)))
                 pips.put(x, y, (min(255, g[0]), min(255, g[1]), min(255, g[2]), 255))
             else:
                 q = SOCKET[1] if (nx * 0.5 + ny * 0.8) < 0.2 else SOCKET[2]

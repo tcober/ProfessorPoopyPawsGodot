@@ -45,6 +45,12 @@ var _print_accum := 0.0
 var _last_print := Vector2.ZERO
 var _dashing := false
 
+## Animated Tier-3 props (the fountain's flowing water + the buildings' window
+## flicker/smoke), cycled in _process the way town_fest does — the same
+## era-frozen village, so the same props must live and breathe on thesis day.
+var _anim_t := 0.0
+var _animated: Array[Sprite2D] = []
+
 @onready var theater: Theater = $Theater
 @onready var tint: CanvasModulate = $Tint
 
@@ -82,6 +88,11 @@ func _place_player() -> void:
 
 func _extra_setup() -> void:
 	PropSpawner.build("res://assets/tilesets/town_fest_props.txt", map, $World)
+	# collect the animated building/fountain sheets before the phase cutscenes
+	# add their (single-frame) FX, so only the standing props get cycled
+	for c in $World.get_children():
+		if c is Sprite2D and (c as Sprite2D).hframes > 1:
+			_animated.append(c)
 	$ExitSouth.position = MapData.anchor_px(map, "exit_south")
 	_wall_gate_mouth()
 	Party.clamp_cameras(MapData.size_px(map))
@@ -211,6 +222,18 @@ func _on_reach_school(body: Node2D) -> void:
 	theater.close_dialog()
 	await fade_out()
 	get_tree().change_scene_to_file("res://scene/hall.tscn")
+
+
+func _process(delta: float) -> void:
+	# the village breathes on thesis day too — cycle the fountain + buildings
+	# (per-prop phase offset = looser, less mechanical), same as town_fest
+	if _animated.is_empty():
+		return
+	_anim_t += delta
+	var f := int(_anim_t / 0.18)
+	for i in _animated.size():
+		var s := _animated[i]
+		s.frame = (f + i) % s.hframes
 
 
 func _physics_process(_delta: float) -> void:

@@ -444,7 +444,13 @@ func _phase_romance() -> void:
 		"Overwound. OVER-wound. The case is FINE.",
 	])
 	theater.unlock_party()
-	_show_hint("GEAR - SPRING - CRANK. SOME RECIPES DON'T CHANGE.")
+	# re-entered with the pieces already in his paws (the chapter selector's
+	# kiss beat) — go straight to the handover, or the hint sends him fetching
+	# something that isn't lying in the grass any more
+	if _all_parts_found("prologue_wpart_"):
+		_ready_for_handover()
+	else:
+		_show_hint("GEAR - SPRING - CRANK. SOME RECIPES DON'T CHANGE.")
 
 
 ## The poof kicks the three pieces out across the headland: each icon flies
@@ -452,6 +458,14 @@ func _phase_romance() -> void:
 func _scatter_parts() -> void:
 	var flights: Array = []
 	for part: String in PARTS:
+		# skip pieces already gathered — the _phase_meet guard, which this
+		# mirrored for years without it. _on_part_touched bails early on a set
+		# flag, so a re-entry with wpart_* pre-set (the dev chapter selector's
+		# kiss beat) used to strand un-collectable sparkles in the grass, and a
+		# PARTIAL set softlocked: _all_parts_found never goes true, the Kitty
+		# talk never fires, and the bluff has no exits.
+		if Game.flag("prologue_wpart_" + part):
+			continue
 		var cfg: Dictionary = PARTS[part]
 		var icon := WorldFx.sheet_sprite(FX_SHEET, cfg["cell"])
 		$World.add_child(icon)
@@ -500,12 +514,17 @@ func _on_part_touched(body: Node2D, part: String, area: Area2D) -> void:
 	(area.get_meta("spark") as Node).queue_free()
 	area.queue_free()
 	if _all_parts_found("prologue_wpart_"):
-		_kitty.lines = PackedStringArray([
-			"Paw them over. CAREFULLY. Springs hold grudges.",
-		])
-		_show_hint("BRING THEM TO KITTY")
+		_ready_for_handover()
 	else:
 		_show_hint(PARTS[part]["line"])
+
+
+## Every piece accounted for — she waits for them.
+func _ready_for_handover() -> void:
+	_kitty.lines = PackedStringArray([
+		"Paw them over. CAREFULLY. Springs hold grudges.",
+	])
+	_show_hint("BRING THEM TO KITTY")
 
 
 func _parts_found(prefix: String) -> int:

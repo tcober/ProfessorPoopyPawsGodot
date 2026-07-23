@@ -96,17 +96,22 @@ func _show_banner(text: String, hold: float) -> void:
 	banner.text = text
 	# kill the previous banner's tween or its fade-out yanks THIS text
 	# mid-hold (two fire-and-forget callers can overlap — create_tween()
-	# never auto-kills). A killed tween never emits finished, so the superseded
-	# caller's await just ends with its coroutine — fine for the
-	# fire-and-forget call sites; _announce's awaited banners are
-	# serialized by _busy and can't be superseded.
+	# never auto-kills).
 	if _banner_tw:
 		_banner_tw.kill()
 	_banner_tw = create_tween()
 	_banner_tw.tween_property(banner, "modulate:a", 1.0, BANNER_IN)
 	_banner_tw.tween_interval(hold)
 	_banner_tw.tween_property(banner, "modulate:a", 0.0, BANNER_OUT)
-	await _banner_tw.finished
+	# Await a matched timer, NOT _banner_tw.finished: a later _show_banner
+	# kill()s this tween, and a killed Godot tween never emits finished — an
+	# awaiting _announce would hang there with _busy stuck true, which
+	# dead-locks every marker, the home door and the south gate (a fire-and-
+	# forget banner from _want_home_line / _goose_startle / the festival close
+	# CAN supersede an announce banner, since _announce doesn't lock the party).
+	# The timer fires regardless, so _busy is always released; a superseded
+	# banner just loses its visual to the newer one.
+	await get_tree().create_timer(BANNER_IN + hold + BANNER_OUT).timeout
 
 
 ## Fade to black; callers change scene once it resolves.

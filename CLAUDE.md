@@ -36,7 +36,43 @@ lore spine, pacing rules — in docs/DESIGN.md "Story".)
   magazines: pickups pocket as spares, reload (R, or a dry trigger) pours one in.
   Full gamepad (PS5 DualSense) bindings live alongside the keys in the InputMap —
   see the Controls table in DESIGN.md; `reload`+`dart` share L2 (leader-contextual).
+- **COMPOUNDS (2026-07-20):** a beaker is a colour-coded ammo TYPE
+  (`resources/compound.gd`) — green `base` (the original laser, dmg 2 ×6) / blue
+  `frost` (chill → brief freeze) / red `flame` (short-range sprayer + burn DoT) /
+  purple `plasma` (dmg 4, PIERCES, ×3). `M` opens the **mixing bench**
+  (`scene/mix_menu.gd`, 4th autoload) to fuse two spares into one under three rules
+  in `resources/alchemy.gd`: same+same CONCENTRATES, green+anything DILUTES (green
+  is the inert solvent — keeps the common drop useful all game), red+blue = purple;
+  everything else is refused with a reason, never silently eaten. ONE bolt scene
+  serves all four — `bolt.apply_compound(c)` sets damage/speed/lifetime/effect/
+  pierce/tint the way `direction`/`shooter` already are. The loadout (`loaded`,
+  `spares`, `ammo_left`) lives on **`Game`**, because `Party.spawn()` rebuilds every
+  body at each door; `reset_story()` blanks it so a backwards chapter jump can't
+  carry plasma into a scene that predates the gun. HUD tints the ammo pips to the
+  loaded kind and each spare icon to its own — no new row, no new art.
 - Combat: `Area2D` Hitbox vs `Area2D` Hurtbox → HealthComponent. `LaserBolt` projectile.
+- **STATUS AILMENTS (2026-07-20):** `components/status_component.gd`, composed onto
+  enemies. Payload rides the one chokepoint —
+  `take_hit(damage, source, effect := NO_EFFECT)` with `effect` a small Dictionary
+  (`{"drowse":1}`/`{"chill":1}`/`{"burn":4}`; the const default avoids allocating per
+  hit). **Fuji's darts are SLEEP darts** and sleep is a BUILDUP, not a flag: each dart
+  adds drowse, crossing `drowse_threshold` drops the target (still + contact hitbox
+  OFF), it takes NORMAL damage and does NOT wake on being hit, and a bigger enemy just
+  raises the threshold — hence `BigSlime` (`entities/enemies/big_slime.*`, bruise-violet,
+  10 HP, threshold 5, 30% of meadow respawns). Distinctness rule: sleep is slow/long/
+  total, freeze is instant/partial/short, burn disables nothing.
+  GOTCHAS, all three already cost real bugs: (1) buildup needs a GRACE WINDOW before
+  decay resumes or the threshold lies (decay nibbles between the darts of a burst — a
+  "2 dart" enemy took 3); (2) disabling contact damage toggles the Hitbox's collision
+  SHAPE, never `monitoring` — re-enabling monitoring does not re-scan an overlap that
+  never ended, so an enemy woken while touching the player stays harmless forever;
+  (3) burn ticks go straight to `HealthComponent`, never back through `take_hit`, or
+  the hurtbox's `invincible_time` eats most of them.
+  Probe: `tools/status_probe.gd` (50 checks — statuses, mixing rules, loadout survives
+  a scene change, `reset_story` clears it); `tools/status_shot.gd` poses the tells and
+  the bench for eyeballing. NOTE a `--script` probe must NOT name the `Player` class:
+  that drags `player.gd` into the tool's own compile, which happens BEFORE autoloads
+  register, so its `Game.` references fail and poison the run — duck-type it instead.
 - **Overworld layer:** CT/SoS-style TILED travel map (`scene/overworld.tscn`)
   between zones — 24×24 chibi travel scale (~16 px figure), terrain-gated
   walking, no map combat; since 2026-07-19 the **FIVE LANDS**: a 112×63
@@ -391,6 +427,30 @@ byte-identical) — but never open a walkable pocket inside a chase leash
 `Engine.max_fps = 60` (an OCCLUDED macOS window runs UNCAPPED ~2000fps —
 frame budgets burn in real seconds while wall-clock cutscene timers don't
 advance any faster; the 2026-07-16 harness gotcha).
+**THE DEV CHAPTER SELECTOR (2026-07-20): press `0` ANYWHERE** — title,
+cutscene, mid-meadow — for a paused two-column menu of all 32 story beats;
+pick one and land in it with roster/phase/spawn/flags staged. `scene/dev_menu.gd`
+(autoload `DevMenu`, third after Game/Party; overlay built in code on
+CanvasLayer 100, `PROCESS_MODE_ALWAYS`, one of the project's only TWO
+`get_tree().paused` uses — `MixMenu` is the other, and the two refuse to open
+on top of each other so closing one can't unpause the tree under the other;
+all-polled input; the whole thing behind `OS.is_debug_build()`) reads the
+beat table in **`scene/chapters.gd`** — deliberately `class_name`-free and
+autoload-free so `--script` tools can `load()` it, which is how `tools/shot.gd`
+gained **`beat:<n>`** (stages a whole beat in one arg and can stand in for the
+scene path — the only way to shoot the beats needing `town_spawn` /
+`interior_spawn` / `library_phase`, none of which has an arg of its own).
+`Game.reset_story()` clears flags + blanks the routers first, because
+`set_flag` is one-way and a BACKWARDS jump would otherwise carry a later
+chapter's flags into an earlier scene. Toggle key is `0` only, NOT ESC:
+autoloads process before the current scene, so unpausing on ESC hands the same
+still-pressed ESC to prologue_open's skip in that very frame. Gotchas the
+table encodes: **roster is a SpriteFrames contract** (sleep/wake/sigh are
+kid-only, sit/look_watch/bow_head/knapsack*/defeat_walk adult-only — the wrong
+body plays a beat as error spam and a frozen pose); never an EMPTY roster
+(`party.gd` indexes `ids[0]`); never kid/student into the meadow (no Brain
+node, no kit); group headings clip to one column (~30 chars). Adding a beat =
+one row in `chapters.gd`.
 The adult sandbox underneath is unchanged (though the live story flow now
 ends on Fuji in Lanternwood — the sandbox is entered via prologue_open's
 ESC skip): `scene/house.tscn` — a small dense CT-bedroom diorama floating in void (10-tile-wide room

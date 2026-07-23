@@ -486,3 +486,15 @@ SLIME = {
     "EYE": (24, 34, 28, 255),
     "GLINT": (235, 250, 238, 255),
 }
+
+# Big slime — the heavy. A bruise-VIOLET gel rather than a scaled-up green one,
+# so "this one is tougher" reads at a glance from the colour alone (the duotone
+# rule: one hue field, one hot accent) instead of only from its size. Denser and
+# lower-L than SLIME across the ramp — it looks like it weighs more.
+SLIME_BIG = {
+    "GELR": [(196, 168, 246, 255), (150, 116, 214, 255), (108, 78, 172, 255), (72, 48, 124, 255)],
+    "OUT": (34, 22, 58, 255),
+    "EYE": (26, 20, 38, 255),
+    "GLINT": (244, 236, 255, 255),
+    "NUCR": [(126, 100, 190, 255), (96, 72, 158, 255), (70, 50, 126, 255), (48, 32, 96, 255)],
+}

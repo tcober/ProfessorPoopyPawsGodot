@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
-"""Meadow slime sheet (assets/slime_gen.png, 144x96, 24x24 cells, 6x4) on the
-_sprites.py kit, at TRUE SNES density (CT-chunk restart).
+"""Meadow slime sheets on the _sprites.py kit, at TRUE SNES density (CT-chunk
+restart). TWO variants off one builder:
+
+  assets/slime_gen.png      144x96, 24x24 cells, 6x4 — the common green slime
+  assets/slime_big_gen.png  216x144, 36x36 cells, 6x4 — the HEAVY: a
+      bruise-violet gel half again as large, worth more darts to put under
+      (entities/enemies/big_slime.tscn raises drowse_threshold)
 
 FROZEN contracts (entities/enemies/slime_frames.tres + slime.gd):
   row0 walk_down(6)  row1 walk_up(6)  row2 walk_side(6, faces RIGHT; code mirrors)
@@ -9,8 +14,15 @@ FROZEN contracts (entities/enemies/slime_frames.tres + slime.gd):
 
 The bounce is squash-and-stretch with conserved volume (half_w x height stays
 ~constant), a darker gel nucleus that lags the body, a wet glint, and a
-translucent bottom rim where light passes through the gel. Feet baseline y=21.
-Palette: _palette.SLIME. Re-run: python3 assets/_gen_slime_sprites.py
+translucent bottom rim where light passes through the gel. Feet baseline y=21
+(small) / y=31 (big) — both a 3px margin off the cell floor.
+
+The two sheets share every routine and the same per-cell salt; only CELL,
+the geometry scale and the palette differ, so the heavy reads as the same
+species. The small sheet's bytes are UNCHANGED by the two-variant refactor.
+
+Palette: _palette.SLIME / _palette.SLIME_BIG.
+Re-run: python3 assets/_gen_slime_sprites.py
 """
 import os, sys
 
@@ -18,9 +30,14 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from _core import write_cells
 from _sprites import Sprite
-from _palette import SLIME
+from _palette import SLIME, SLIME_BIG
 
-CELL, COLS, ROWS = 24, 6, 4
+COLS, ROWS = 6, 4
+
+# Per-variant drawing context, rebound by build() before each sheet. Module
+# globals rather than threaded parameters so every routine below reads exactly
+# as it did when there was only one slime.
+CELL = 24
 BASE = 21
 CX = 11.5
 
@@ -111,24 +128,44 @@ def droplets(s, spread, alpha):
         s.set(x, y, (GELR[0][0], GELR[0][1], GELR[0][2], alpha))
 
 
-cells = [[Sprite(CELL, grain=1, salt=r * 7 + c, jitter=0.0) for c in range(COLS)]
-         for r in range(ROWS)]
-
 # bounce cycle: rest, squash, launch, apex, fall, land — volume ~conserved,
 # nucleus lags down on launch and floats up at apex.
-cycle = [(8.0, 12, 0, 0.0), (9.2, 10, 0, 0.8), (6.8, 14, 1, 1.0),
+CYCLE = [(8.0, 12, 0, 0.0), (9.2, 10, 0, 0.8), (6.8, 14, 1, 1.0),
          (6.5, 15, 4, -1.0), (6.8, 14, 1, -0.5), (9.2, 10, 0, 0.8)]
-for i, (w, h, dy, lag) in enumerate(cycle):
-    slime(cells[0][i], w, h, dy, "down", lag)
-    slime(cells[1][i], w, h, dy, "up", lag)
-    slime(cells[2][i], w, h, dy, "side", lag)
 
-# death: flinch flat, burst, melt, evaporate
-slime(cells[3][0], 10.0, 7, 0, "down", 0.5)
-slime(cells[3][1], 11.0, 4, 0, "down", 0.0, eyes=False)
-droplets(cells[3][1], 8, 255)
-slime(cells[3][2], 11.2, 2, 0, "down", 0.0, alpha=190, eyes=False)
-droplets(cells[3][2], 10, 190)
-droplets(cells[3][3], 11, 110)
+# death: flinch flat, burst, melt, evaporate.
+# (half_w, height, lag, alpha, eyes, droplet spread or None)
+DEATH = [
+    (10.0, 7, 0.5, 255, True, None),
+    (11.0, 4, 0.0, 255, False, 8),
+    (11.2, 2, 0.0, 190, False, 10),
+]
 
-write_cells(os.path.join(HERE, "slime_gen.png"), cells, CELL)
+
+def build(name, cell, base, cx, k, pal, nucr):
+    """Draw one variant's sheet. `k` scales the bounce geometry; every length
+    below is authored for the 24px slime and multiplied through, so the heavy
+    is the same animation at a different weight."""
+    global CELL, BASE, CX, GELR, OUT, EYE, GLINT, NUCR
+    CELL, BASE, CX = cell, base, cx
+    GELR, OUT, EYE, GLINT, NUCR = pal["GELR"], pal["OUT"], pal["EYE"], pal["GLINT"], nucr
+
+    cells = [[Sprite(CELL, grain=1, salt=r * 7 + c, jitter=0.0) for c in range(COLS)]
+             for r in range(ROWS)]
+
+    for i, (w, h, dy, lag) in enumerate(CYCLE):
+        for row, view in ((0, "down"), (1, "up"), (2, "side")):
+            slime(cells[row][i], w * k, round(h * k), round(dy * k), view, lag * k)
+
+    for i, (w, h, lag, alpha, eyes, spread) in enumerate(DEATH):
+        slime(cells[3][i], w * k, round(h * k), 0, "down", lag * k,
+              alpha=alpha, eyes=eyes)
+        if spread is not None:
+            droplets(cells[3][i], round(spread * k), alpha)
+    droplets(cells[3][3], round(11 * k), 110)
+
+    write_cells(os.path.join(HERE, name), cells, CELL)
+
+
+build("slime_gen.png", 24, 21, 11.5, 1.0, SLIME, NUCR)
+build("slime_big_gen.png", 36, 31, 17.5, 1.5, SLIME_BIG, SLIME_BIG["NUCR"])

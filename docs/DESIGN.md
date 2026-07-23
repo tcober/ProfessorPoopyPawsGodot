@@ -702,6 +702,7 @@ story progresses; the gating tools are terrain, the ocean, and story keys.
   | Hop                                    | K / Shift     | Cross              |
   | Interact                               | E             | Circle             |
   | Swap leader                            | Q / Tab       | Triangle or L1     |
+  | Chapter select (DEV, debug builds)     | 0             | —                  |
 
   `reload` and `dart` are separate actions sharing the L2 event on purpose: only
   the **leader** polls their own secondary (`PartyMember._gather_intent`), so one
@@ -712,14 +713,52 @@ story progresses; the gating tools are terrain, the ocean, and story keys.
   (`Area2D`) that travels and damages the first `HurtboxComponent` it hits. Always-on
   `HitboxComponent`s (e.g. an enemy body) handle contact damage. All damage flows
   through `HealthComponent`. Single shot per `attack` press.
-- **Ammo / beakers:** the gun holds `max_ammo` charges; each shot consumes one. **Beakers
-  are magazines**: pickups (`entities/pickups/beaker.tscn`) pocket as spares (up to
-  `max_beakers`; full paws leave the pickup in the world), and reloading — R/L, or pulling
-  the trigger dry — plays the planted pour animation and empties one into the gun. The HUD
-  shows hearts + an ammo-pip row.
+- **Ammo / beakers / COMPOUNDS:** the gun holds `max_ammo` charges; each shot consumes
+  one. **Beakers are magazines**: pickups (`entities/pickups/beaker.tscn`) pocket as
+  spares (up to `max_beakers`; full paws leave the pickup in the world), and reloading —
+  R/L, or pulling the trigger dry — plays the planted pour animation and empties one into
+  the gun. Each beaker is a **compound** (`resources/compound.gd`) with its own colour, and
+  what he pours decides what the gun *is*: **green** REAGENT BASE (damage 2, 6 rounds — the
+  original laser), **blue** HOARFROST DRAUGHT (chills, stacking to a brief hard freeze),
+  **red** CINDER TINCTURE (short range, fast cadence, leaves the target burning), **purple**
+  PLASMA DECOCTION (damage 4, pierces, only 3 rounds). Two spares fuse into one at the
+  **mixing bench** (`M`, `scene/mix_menu.gd`) under three rules in `resources/alchemy.gd`:
+  same+same concentrates, green+anything dilutes (green is the inert solvent, which is why
+  the common drop stays useful all game), and red+blue makes purple. The HUD tints the
+  ammo pips to the loaded compound and each spare icon to its own kind — no extra row.
+  The loadout lives on `Game`, not the body, because `Party.spawn()` rebuilds every member
+  at each door; rounds persist too, or walking out of a zone and back would be a free
+  plasma refill.
 - **Magic is deferred by design:** the world starts drained, so spell systems are
   introduced later as progression that mirrors the story. The laser gun is the
-  early-game, magic-free weapon.
+  early-game, magic-free weapon — and it **stays** magic-free once it burns and freezes,
+  because the compounds are CHEMISTRY. That distinction is the character: everyone else
+  calls the stuff in his coat "potions," Basil knows it is chemistry, and a reagent needs
+  no magic to catch fire. Keep the in-world vocabulary on that side of the line
+  (reagents, draughts, tinctures, decoctions — never spells), and never let a compound
+  do something only magic could.
+- **Status ailments** live in `components/status_component.gd`, composed onto an enemy
+  beside its Health/Hurtbox/Hitbox. The payload rides the ONE damage chokepoint —
+  `HurtboxComponent.take_hit(damage, source, effect)`, where `effect` is a small
+  Dictionary (`{"drowse": 1}` / `{"chill": 1}` / `{"burn": 4}`) defaulting to a shared
+  `NO_EFFECT` const so the common no-status path allocates nothing. Three ailments, kept
+  deliberately distinct so none is a reskin of another: **SLEEP** (Fuji's darts — slow to
+  build, long, total, no damage bonus, no wake-on-hit), **FREEZE** (blue compound —
+  immediate, partial, short: a slow that stacks into a brief hard lock), **BURN** (red
+  compound — damage over time, disables nothing). Two rules worth keeping:
+  - **Buildup has a grace window** (`buildup_grace`) before decay resumes. Without it the
+	threshold lies — decay eats part of a point *between* the darts of a burst, so a
+	"2 dart" enemy really took three.
+  - **Disabling contact damage toggles the Hitbox's collision SHAPE, never `monitoring`.**
+    Re-enabling `monitoring` does not re-scan an overlap that never ended, so an enemy
+    that woke while still touching the player would stay harmless forever. (`_on_died`
+    gets away with `monitoring = false` only because it frees the node.) Same reason
+	Fuji's BookHitbox toggles its shape.
+  - Burn ticks go **straight to the HealthComponent**, not back through `take_hit` — the
+	hurtbox's `invincible_time` gate would swallow most of them.
+  `tools/status_probe.gd` (50 checks) drives all of it against real slimes in the real
+  meadow, plus the mixing rules and the loadout's survival across a scene change;
+  `tools/status_shot.gd` poses the tells and the mixing bench for eyeballing.
 
 ## Current Milestone — Prologue A + B + the Ebb Night + Combat Core
 
@@ -1809,6 +1848,11 @@ Tiled interiors (atlas + TileSet + layout from `assets/maps/*.txt`):
   with the dialog system.
 - Screenshot check: `Godot --path . --script tools/shot.gd --
 res://scene/meadow.tscn /tmp/shot.png` (windowed; headless renders black).
+- Beat check: `... tools/shot.gd -- beat:<n> /tmp/shot.png 90` stages a whole
+  story beat (scene, roster, phase/spawn routers, flags) from the chapter
+  table in `scene/chapters.gd` — the same table the in-game dev chapter
+  selector (`0`, debug builds only) reads, so the harness and the menu can
+  never drift. `beat:<n>` stands in for the scene argument.
 
 Render style (CT-chunk): every form is a shaded volume — material ramps whose
 shadows hue-shift cool, light from the upper-left. Sprites: 4-tone ramps with
@@ -1905,7 +1949,12 @@ The target feel is **Secret of Mana, but snappier**: real-time top-down action t
 stays friendly, with crisp fire/recover cadence, hit-pause, and readable knockback.
 
 - **Weapon variety** — the laser gun is the first of several blaster-type weapons;
-  each should differ in arc/range/rate/knockback the way SoM's weapon families did.
+  each should differ in arc/range/rate/knockback **and now compound/effect** the way
+  SoM's weapon families did. (The original line said "not element" on purpose, to keep
+  weapons from collapsing into a damage-type chart; the compounds earn the fifth axis
+  because each one changes range and cadence *as well as* what it leaves behind — the
+  cinder tincture is a short-range sprayer, not a red-tinted laser. A compound that only
+  swapped a damage type would still be the thing this rule was written against.)
   The 48×48 cells and 4-frame shoot rows are sized so alternate weapons swap into
   the same animation contract (`shoot_down/up/side` + `muzzle_offset`).
 - ~~**3-person party**~~ — **2-member slice BUILT (2026-07-10), SoM-style.**
@@ -1962,6 +2011,16 @@ stays friendly, with crisp fire/recover cadence, hit-pause, and readable knockba
   opens through the strike/impact window, forward lunge) + **blow-pipe
   darts** (`dart` action, L — unlimited, the planted pose is the cost; dart
   leaves on the puff frame at the pipe-tip contract) + Basil's hop-dodge.
+  **The darts are SLEEP darts** — that is what the pipe is FOR, and why a
+  damage-1 poke costing a 0.42s planted pose is worth firing. Each one adds
+  DROWSE; cross the target's `drowse_threshold` and it drops: still, harmless
+  (its contact hitbox shuts off) and wide open to the tome. It takes NORMAL
+  damage while asleep and does NOT wake when hit — sleep runs out its own
+  timer, which is what makes it a setup tool rather than a damage bonus.
+  Drowse decays after a grace window, so the buildup has to be committed to in
+  a burst; a bigger enemy simply raises its threshold, which is the whole
+  reason sleep is a meter and not a flag. Her AI opens with the pipe as it
+  closes and stops darting once the target is under.
   `entities/fuji/` (fuji.gd/.tscn/frames), `entities/projectiles/blow_dart.*`,
   `assets/_gen_fuji_sprites.py` → `fuji_gen.png` (288×480, 6×10), chibi
   `overworld_fuji.png` in `_gen_overworld_actors.py`, `FUJI` palette dict.

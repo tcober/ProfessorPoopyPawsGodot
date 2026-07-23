@@ -42,7 +42,10 @@ func _ready() -> void:
 	# the row center alone is 120 and he'd draw over the quilt).
 	var bed_row := MapData.bbox_rect(map, "b")
 	player = Party.spawn($World, bed_row.get_center() + Vector2(0.0, -4.0))
-	Party.clamp_cameras(MapData.size_px(map))
+	# one-screen diorama: pin the camera (view_size), matching house.gd and the
+	# downstairs scenes — the 24x14 map is 8px taller than the view, and
+	# size_px would give this the only follow-drift among the loft's three eras
+	Party.clamp_cameras(MapData.view_size())
 	player.sprite.play("idle_down")
 	_spawn_bird()
 	_wake_cutscene()

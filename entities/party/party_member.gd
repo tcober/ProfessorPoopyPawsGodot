@@ -168,7 +168,10 @@ func _update_hop(delta: float) -> void:
 	shadow.scale = Vector2.ONE * (1.0 - 0.45 * arc)
 
 
-func _on_hurt(_damage: int, source: Node) -> void:
+## `_effect` is the status payload the hit carried. Party members have no
+## StatusComponent — nothing puts Basil or Fuji to sleep yet — so it is
+## accepted and ignored rather than the signal being special-cased.
+func _on_hurt(_damage: int, source: Node, _effect: Dictionary) -> void:
 	if source is Node2D:
 		_knockback = (global_position - (source as Node2D).global_position).normalized() * knockback_speed
 	else:

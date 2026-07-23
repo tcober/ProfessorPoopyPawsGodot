@@ -494,6 +494,7 @@ FRAMES = {
     "entities/player/player_frames.tres": ("assets/basil_gen.png", ZONE_CELL),
     "entities/fuji/fuji_frames.tres": ("assets/fuji_gen.png", ZONE_CELL),
     "entities/enemies/slime_frames.tres": ("assets/slime_gen.png", 24),
+    "entities/enemies/big_slime_frames.tres": ("assets/slime_big_gen.png", 36),
     "entities/player/overworld_basil_frames.tres": ("assets/overworld_basil.png", OW_CELL),
     "entities/player/overworld_fuji_frames.tres": ("assets/overworld_fuji.png", OW_CELL),
     "entities/kid/kid_basil_frames.tres": ("assets/kid_basil_gen.png", ZONE_CELL),
