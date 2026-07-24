@@ -38,21 +38,7 @@ var _ribbons: Array[Sprite2D] = []
 ## stands on it (it lands exactly on the door zone and must not bounce back)
 var _home_armed := true
 
-## Animated Tier-3 building sprites (water + smoke), cycled like the boiler.
-var _anim_t := 0.0
-var _animated: Array[Sprite2D] = []
-
 @onready var theater: Theater = $Theater
-
-
-func _process(delta: float) -> void:
-	if _animated.is_empty():
-		return
-	_anim_t += delta
-	var f := int(_anim_t / 0.18)
-	for i in _animated.size():
-		var s := _animated[i]
-		s.frame = (f + i) % s.hframes
 
 
 func _player_node() -> Node2D:
@@ -86,9 +72,7 @@ func _place_player() -> void:
 
 func _extra_setup() -> void:
 	PropSpawner.build("res://assets/tilesets/town_fest_props.txt", map, $World)
-	for c in $World.get_children():
-		if c is Sprite2D and (c as Sprite2D).hframes > 1:
-			_animated.append(c)
+	_collect_animated()
 	$ExitSouth.position = MapData.anchor_px(map, "exit_south")
 	$ExitSouth.body_entered.connect(_on_exit_south)
 	_wall_gate_mouth()
@@ -375,6 +359,7 @@ func _goose_theft() -> void:
 	goose.sprite.play("fly")
 	goose.sprite.flip_h = true            # fly cells face LEFT; east = flipped
 	var rib: Sprite2D = _ribbons[0]       # the LOWEST ribbon — visual ~(378,318)
+	_ribbons.remove_at(0)                 # it's freed below — drop the dead ref
 	var cell := rib.frame
 	var tw := create_tween()
 	# glide in on a shallow dip so the beak crosses the ribbon's spot...

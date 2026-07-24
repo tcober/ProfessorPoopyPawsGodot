@@ -82,6 +82,7 @@ func _place_player() -> void:
 
 func _extra_setup() -> void:
 	PropSpawner.build("res://assets/tilesets/town_fest_props.txt", map, $World)
+	_collect_animated()   # the fountain pours on thesis day too — same props
 	$ExitSouth.position = MapData.anchor_px(map, "exit_south")
 	_wall_gate_mouth()
 	Party.clamp_cameras(MapData.size_px(map))

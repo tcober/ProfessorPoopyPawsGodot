@@ -48,8 +48,7 @@ func _build_frames() -> void:
 		var cols: Array = defs[anim]
 		if cols[0] >= frame_cols:
 			continue
-		if anim != "default":
-			f.add_animation(anim)
+		f.add_animation(anim)
 		f.set_animation_speed(anim, idle_fps)
 		f.set_animation_loop(anim, true)
 		for i: int in cols:

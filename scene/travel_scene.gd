@@ -16,6 +16,7 @@ const TRAVEL_FADE := 0.5     ## fade-to-black when leaving through a marker
 const BANNER_IN := 0.25
 const BANNER_OUT := 0.35
 const BANNER_HOLD := 1.6     ## how long a banner line rests before fading
+const ANIM_STEP := 0.18      ## frame time for the animated Tier-3 props
 
 var map: Dictionary
 var player: Node2D
@@ -26,6 +27,11 @@ var _banner_tw: Tween
 ## Marker ids the body is currently standing on; cleared on body_exited so a
 ## marker can't re-fire until the body steps off and back onto it.
 var _standing: Dictionary = {}
+## Animated Tier-3 props (multi-frame prop sheets — the fountain's pour,
+## chimney smoke, flickering cabin windows). Subclasses call
+## _collect_animated() once their PropSpawner pass has run.
+var _anim_t := 0.0
+var _animated: Array[Sprite2D] = []
 
 @onready var locations: Node2D = $Locations
 @onready var banner: Label = $UI/Banner
@@ -57,6 +63,34 @@ func _wire_locations() -> void:
 		loc.position = MapData.anchor_px(map, loc.id)
 		loc.body_entered.connect(_on_location_entered.bind(loc))
 		loc.body_exited.connect(_on_location_exited.bind(loc))
+
+
+## Every zone that spawns the whole party wires this to Party.leader_changed:
+## the marker gates all key off `player`, so Q/Tab has to re-aim them. The
+## _standing latches must be resynced from the real overlaps too — the old
+## leader's body_exited arrives as a non-player body and would leave its
+## marker latched shut, swallowing the new leader's next step onto it.
+func _on_leader_changed(leader: PartyMember) -> void:
+	player = leader
+	for loc: OverworldLocation in locations.get_children():
+		_standing[loc.id] = loc.overlaps_body(leader)
+
+
+## Sprite2Ds under $World with a multi-frame sheet cycle as one animated set.
+func _collect_animated() -> void:
+	for c in $World.get_children():
+		if c is Sprite2D and (c as Sprite2D).hframes > 1:
+			_animated.append(c as Sprite2D)
+
+
+func _process(delta: float) -> void:
+	if _animated.is_empty():
+		return
+	_anim_t += delta
+	var f := int(_anim_t / ANIM_STEP)
+	for i in _animated.size():   # per-prop phase offset = looser, less mechanical
+		var s := _animated[i]
+		s.frame = (f + i) % s.hframes
 
 
 func _on_location_entered(body: Node2D, loc: OverworldLocation) -> void:
@@ -107,6 +141,18 @@ func _show_banner(text: String, hold: float) -> void:
 	_banner_tw.tween_interval(hold)
 	_banner_tw.tween_property(banner, "modulate:a", 0.0, BANNER_OUT)
 	await _banner_tw.finished
+
+
+## The shared south-gate exit: leave for the overworld, arriving back at this
+## zone's own icon marker (explicit, never the value the overworld wrote on
+## the way in).
+func _exit_to_overworld(marker: String) -> void:
+	if _busy:
+		return
+	_busy = true
+	Game.overworld_spawn = marker
+	await fade_out()
+	get_tree().change_scene_to_file("res://scene/overworld.tscn")
 
 
 ## Fade to black; callers change scene once it resolves.

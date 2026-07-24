@@ -69,6 +69,11 @@ const TINT_DUSK := Color(0.80, 0.64, 0.74)     # call1: the light going
 const TINT_LATE := Color(0.68, 0.58, 0.74)     # call1's end / call2's open
 const TINT_NIGHT := Color(0.54, 0.50, 0.74)    # gone
 
+## The fetch quest's three pieces, in hint order. MEET_PARTS and PARTS are the
+## same recipe told twice (that's the point — Kitty keeps the recipes that
+## work), so the counters below walk THIS list rather than either dict.
+const PART_KEYS := ["gear", "spring", "crank"]
+
 ## Prologue A's whirligig recipe — gear on the treeline grass, spring out
 ## by the point, crank in the flowers. Anchors live in maps/bluff.txt.
 const MEET_PARTS := {
@@ -162,7 +167,7 @@ func _phase_meet() -> void:
 	_set_hour(TINT_DAY, 0.12, 0.0, SKY_DAY)
 	_spawn_kitty_kid()
 	_spawn_whirligig()
-	for part: String in MEET_PARTS:
+	for part: String in PART_KEYS:
 		if not Game.flag("prologue_part_" + part):
 			_spawn_part(part, MEET_PARTS, _on_meet_part_touched)
 	# the meeting trigger: a wide zone around Kitty's work spot
@@ -254,8 +259,8 @@ func _part_line(part: String) -> void:
 	theater.close_dialog()
 	theater.unlock_party()
 	var found := _parts_found("prologue_part_")
-	if found < MEET_PARTS.size():
-		_show_hint("%d OF %d PARTS" % [found, MEET_PARTS.size()])
+	if found < PART_KEYS.size():
+		_show_hint("%d OF %d PARTS" % [found, PART_KEYS.size()])
 	else:
 		_show_hint("BRING THEM BACK TO KITTY")
 
@@ -354,9 +359,11 @@ func _crank_minigame() -> void:
 		node.queue_free()
 
 
-## Rotor flicker while the whirligig is airborne (scene-lifetime loop).
+## Rotor flicker while the whirligig is airborne (scene-lifetime loop). The
+## is_inside_tree() guard stops it when the montage swaps the scene out —
+## otherwise the timer keeps resuming a coroutine on a torn-down scene.
 func _spin_whirligig() -> void:
-	while _flying and is_instance_valid(_whirligig):
+	while _flying and is_inside_tree() and is_instance_valid(_whirligig):
 		_whirligig.frame = FX_WHIRL_SPIN0 if _whirligig.frame != FX_WHIRL_SPIN0 \
 				else FX_WHIRL_SPIN0 + 1
 		await get_tree().create_timer(0.09).timeout
@@ -450,8 +457,8 @@ func _phase_romance() -> void:
 ## The poof kicks the three pieces out across the headland: each icon flies
 ## from Basil's paws to its anchor, then becomes the meet-quest pickup idiom.
 func _scatter_parts() -> void:
-	var flights: Array = []
-	for part: String in PARTS:
+	var icons: Array[Sprite2D] = []
+	for part: String in PART_KEYS:
 		var cfg: Dictionary = PARTS[part]
 		var icon := WorldFx.sheet_sprite(FX_SHEET, cfg["cell"])
 		$World.add_child(icon)
@@ -460,11 +467,13 @@ func _scatter_parts() -> void:
 		tw.tween_property(icon, "global_position",
 				MapData.anchor_px(map, cfg["anchor"]), 0.55) \
 				.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		flights.append([tw, icon, part])
+		icons.append(icon)
+	# the flights land together (0.55s) — then each becomes the pickup idiom
 	await theater.wait(0.65)
-	for f: Array in flights:
-		(f[1] as Node).queue_free()
-		_spawn_part(f[2], PARTS, _on_part_touched)
+	for i in PART_KEYS.size():
+		var part: String = PART_KEYS[i]
+		icons[i].queue_free()
+		_spawn_part(part, PARTS, _on_part_touched)
 
 
 ## The shared pickup idiom (meet quest + watch scatter): root Area2D for
@@ -510,14 +519,14 @@ func _on_part_touched(body: Node2D, part: String, area: Area2D) -> void:
 
 func _parts_found(prefix: String) -> int:
 	var n := 0
-	for part: String in PARTS:
+	for part: String in PART_KEYS:
 		if Game.flag(prefix + part):
 			n += 1
 	return n
 
 
 func _all_parts_found(prefix: String) -> bool:
-	return _parts_found(prefix) == PARTS.size()
+	return _parts_found(prefix) == PART_KEYS.size()
 
 
 func _spawn_kitty() -> void:

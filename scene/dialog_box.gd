@@ -61,7 +61,12 @@ func converse(speaker: String, conversation: PackedStringArray) -> void:
 func close() -> void:
 	visible = false
 	_typing = false
-	_awaiting = false
+	# A say() still parked on `advanced` would hang its whole cutscene — the
+	# beat's remaining awaits would never run and the party would stay locked.
+	# Dropping the box resolves the line instead.
+	if _awaiting:
+		_awaiting = false
+		advanced.emit()
 
 
 func _process(delta: float) -> void:

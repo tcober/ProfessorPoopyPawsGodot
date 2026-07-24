@@ -24,6 +24,9 @@ const AIR_LAST := 4
 const AIR_BOOST := 2.1     # airborne speed multiplier...
 const GROUND_DRAG := 0.1   # ...vs. barely creeping while grounded
 
+## How long the white hit flash holds.
+const FLASH_TIME := 0.08
+
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var health: HealthComponent = $HealthComponent
 @onready var hurtbox: HurtboxComponent = $HurtboxComponent
@@ -31,6 +34,7 @@ const GROUND_DRAG := 0.1   # ...vs. barely creeping while grounded
 
 var _knockback: Vector2 = Vector2.ZERO
 var _dying: bool = false
+var _flash_tw: Tween
 
 
 func _ready() -> void:
@@ -89,13 +93,21 @@ func _play_keeping_frame(anim: String) -> void:
 
 
 func _on_hit(_damage: int, source: Node) -> void:
+	# The killing blow emits `died` before `hit`, so the splat is already
+	# running — don't flash over its first frames or shove the corpse.
+	if _dying:
+		return
 	if source is Node2D:
 		_knockback = (global_position - (source as Node2D).global_position).normalized() * knockback_speed
-	# Brief white flash to telegraph the hit.
+	# Brief white flash to telegraph the hit. The tween hangs off the sprite,
+	# so it dies with the slime — a scene-tree timer would come back to a
+	# freed instance when the splat frees us mid-flash.
 	sprite.modulate = Color(2.0, 2.0, 2.0)
-	await get_tree().create_timer(0.08).timeout
-	if is_instance_valid(sprite):
-		sprite.modulate = Color.WHITE
+	if _flash_tw:
+		_flash_tw.kill()
+	_flash_tw = sprite.create_tween()
+	_flash_tw.tween_interval(FLASH_TIME)
+	_flash_tw.tween_callback(func() -> void: sprite.modulate = Color.WHITE)
 
 
 func _on_died() -> void:
@@ -106,6 +118,8 @@ func _on_died() -> void:
 	hitbox.set_deferred("monitoring", false)
 	hurtbox.set_deferred("monitorable", false)
 	$CollisionShape2D.set_deferred("disabled", true)
+	if _flash_tw:
+		_flash_tw.kill()          # a live flash would re-whiten mid-splat
 	sprite.modulate = Color.WHITE
 	sprite.play("death")
 	await sprite.animation_finished

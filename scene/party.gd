@@ -36,6 +36,7 @@ var leader: PartyMember
 ## open as Fuji alone). Call BETWEEN scenes — the next spawn() instances the
 ## new roster; live bodies in the current scene are left to die with it.
 func set_roster(ids: Array[StringName], lead: StringName = &"") -> void:
+	assert(not ids.is_empty(), "set_roster: the party can never be empty")
 	for id in ids:
 		assert(SCENES.has(id), "unknown party member: " + String(id))
 	roster = ids.duplicate()
@@ -95,6 +96,12 @@ func swap() -> void:
 			alive.append(m)
 	members = alive
 	if members.size() < 2 or not is_instance_valid(leader):
+		return
+	# A frozen party means a staged beat is running (Theater.lock_party parks
+	# physics on every member) — handing the camera and the "player" group to
+	# a body the cutscene isn't driving derails the whole scene. Same
+	# predicate npc.gd uses to refuse conversations mid-cutscene.
+	if not leader.is_physics_processing():
 		return
 	_apply_leader(members[(members.find(leader) + 1) % members.size()])
 	leader_changed.emit(leader)
