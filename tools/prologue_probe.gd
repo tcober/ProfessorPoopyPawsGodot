@@ -15,8 +15,10 @@ extends SceneTree
 ##   call1 -> the accident (loop-and-land) -> bluff call2 -> the sickroom
 ##   verdict -> the clinic-steps scolding + the scripted leaving -> the Ebb
 ##   night (the mountain quake/crystal cutscene, skipped by the mash, then
-##   the Lanternwood library dead-wand beat) -> the story rests on playable
-##   solo Fuji in lanternwood.tscn, the street out comparing dead charms.
+##   the Lanternwood library's sync gag + dead-wand beat, which hands
+##   control back IN the room and makes her walk out her own door) -> the
+##   story rests on playable solo Fuji in lanternwood.tscn, the street out
+##   comparing dead charms.
 ##
 ## Walk-gates are driven by TELEPORTING to the gate anchor; their pollable
 ## end-states are the party unlock (is_physics_processing) or a flag.
@@ -396,10 +398,18 @@ func _run() -> void:
 	ok = await _mash_until(in_library, 4000)
 	_check("the quake hands to the Lanternwood library", ok)
 	# the story rests HERE now (2026-07-20): the dead-wand beat hands solo
-	# Fuji the town — the same night, the street out comparing dead charms
+	# Fuji the town — the same night, the street out comparing dead charms.
+	# Since 2026-07-24 it hands CONTROL back in the room first (she has to
+	# walk out and investigate), so this is a walk-gate like every other:
+	# poll the unlock, then teleport to the door mouth. A mash alone would
+	# hang here — attack only makes her swing her tome where she stands.
+	var lib_map: Dictionary = MapData.load_map("res://assets/maps/library.txt")
+	ok = await _mash_until(_party_free, 9000)
+	_check("the dead-wand beat hands control back in the library", ok)
+	_player().global_position = MapData.anchor_px(lib_map, "exit_door")
 	var in_lanternwood := func() -> bool: return _scene_is("res://scene/lanternwood.tscn")
-	ok = await _mash_until(in_lanternwood, 9000)
-	_check("Fuji's dead-wand beat hands her the town", ok)
+	ok = await _mash_until(in_lanternwood, 900)
+	_check("Fuji walks out her own door into the town", ok)
 	_check("solo Fuji roster", party.roster.size() == 1
 			and party.roster[0] == &"fuji" and party.leader_id == &"fuji")
 	await _wait_frames(40)               # entry fade settles; villagers cast

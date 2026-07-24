@@ -345,13 +345,26 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
    silence (sets `ebb_done`) → **`scene/library.tscn`** phase `"ebb"`
    (`Game.library_phase` router): **Fuji's first appearance** — her
    Lanternwood reading room at night, wand-made coffee whose sparks keep
-   missing the kettle, the quake reaching her floor, "...That was scary.
-   ...Everything seems okay, though?" — and then the next flick of the
-   wand makes NOTHING. No spark at all. Held beat, fade — and the story
-   ends (for now) on **PLAYABLE FUJI**: `scene/lanternwood.tscn` on the
-   SAME Ebb night, roster Fuji SOLO, spawned at the library door, free to
-   walk her snow town among its first villagers — every line about the
-   magic suddenly gone, while Lanternwood's honest firelight still burns.
+   missing the kettle, and then **THE SYNC** *(2026-07-24)*: the third
+   cast lands exactly on the earthquake. She flicks, the world shakes,
+   she freezes mid-follow-through — and for a moment she is entirely
+   certain she did it. "...Did I do that?" / "...That was the ground.
+   That was DEFINITELY the ground. Ground does that." / "...Everything
+   seems okay, though? Nothing even fell." This is the Venice-library gag
+   from *Last Crusade*, where the librarian's stamp keeps landing on
+   Indy's crash and he never questions it — and it carries a hidden
+   payoff: **no spark leaves the bead on that flick.** The magic was
+   already gone; the quake covered for it. The next cast, with nothing to
+   hide behind, makes nothing at all — "...It's not the wand." / "...Is
+   it just my wand?" / "...I need to go and see."
+   Then the room **HANDS CONTROL BACK WHERE SHE STANDS** — no fade, no
+   card, nobody drags her out. She is playable in her own library, free
+   to look at the dead kettle / the lit window / her shelves / her desk
+   (optional interact lines), and she leaves by **walking out her own
+   door** into `scene/lanternwood.tscn` on the SAME Ebb night, roster
+   Fuji SOLO, landing at the library door, free to walk her snow town
+   among its first villagers — every line about the magic suddenly gone,
+   while Lanternwood's honest firelight still burns.
 2. **The library** *(playable Fuji — the SAME Lanternwood room, reused via
    `Game.library_phase`)*: weeks
    later. Fuji hunts by candlelight for *anything* about magic leaving.
@@ -945,20 +958,44 @@ the adult build wakes.
   `_gen_tileset_library.py` (the `library` palette: rosewood planks / plum
   weave, firelight amber against snow-blue night glass) — **FUJI'S FIRST
   APPEARANCE**: the Ebb night from HER side of the world, her little
-  Lanternwood reading room. Partyless like the accident — Fuji is an NPC
-  posed by the Theater. Closing time, one more chapter, **wand-made
+  Lanternwood reading room. Closing time, one more chapter, **wand-made
   coffee**: the wand WORKS but keeps missing the kettle (sparks arc off the
   bead; kettle hits blink out, wild ones pop poof decals on the
-  floorboards — the mess), the quake reaches her floor (the same jitter the
-  mountain rolls), the stillness — "...That was scary. ...Everything seems
-  okay, though? Nothing even fell." — and then the next flick makes
-  **NOTHING. No spark at all.** She flicks it again. Nothing. A held silent
-  beat, fade to black — and **the story stays with HER** (2026-07-20, no
-  card: no time passes between her floor and the street): `ebb_done`,
-  `Party.set_roster([&"fuji"], &"fuji")`, `Game.town_spawn = "library"` →
-  `scene/lanternwood.tscn`. Phase `"ebb"`
+  floorboards — the mess; hits INTERLEAVE with misses, "nearly, no, nearly,
+  no").
+  **THE SYNC (2026-07-24)** — the third cast lands ON the quake: she flicks,
+  the ground goes, and she holds the follow-through through the first
+  ~0.6 s of it, because as far as she knows the follow-through is what did
+  this. "...Did I do that?" / "...That was the ground. That was DEFINITELY
+  the ground. Ground does that." / "...Everything seems okay, though?
+  Nothing even fell." / "Where was I. Coffee." The gag is the Venice
+  library in *Last Crusade*, where the stamp keeps landing on the crash.
+  **The hidden payoff: no spark leaves the bead on that flick** — the magic
+  was already gone and the quake covered for it, which the fourth cast then
+  says out loud by making **NOTHING. No spark at all.** She flicks it again.
+  Nothing. Lowers it. "...It's not the wand." / "...Is it just my wand?" /
+  "...I need to go and see."
+  **THE ROOM IS A CUTSCENE THAT BECOMES PLAYABLE (2026-07-24).** Fuji acts
+  the beat as an **NPC puppet over her own hidden body** — her party sheet
+  has no wand-cast pose (it's walk / tome / darts), and `npc_fuji_gen` is
+  drawn to that sheet's geometry off the same palette, so the swap on the
+  matching front-facing idle reads as nothing (verified A/B; ~1px baseline
+  settle). At the hand-over the puppet goes, the body takes its place,
+  `ebb_done` is set — and **control comes back where she stands**: no fade,
+  no card, nobody drags her out. The room is hers to poke at (optional
+  look-at zones on the dead kettle / the lit window / her shelves / her
+  desk, on the house.gd `$WindowZone` idiom — one cell, first walkable cell
+  south of the feature), and she leaves by **walking out her own door**
+  (`exit_door`, the door-mouth cell below the south wall — the
+  downstairs.txt `front_door`/`exit_door` split, so the exit zone and the
+  arrival cell can never overlap). Phase `"ebb"`
   routes via **`Game.library_phase`** (read-and-clear, the town_thesis
-  pattern) — Act 1's playable research phase will reuse this same room.
+  pattern); ANY other phase skips the cutscene and just opens the room —
+  Act 1's playable research phase will reuse it. Probe:
+  **`tools/library_probe.gd`** (14 checks — the scene alone, not the
+  chapter: the forced solo roster, the locked body under the puppet, the
+  beat reaching the unlock, the recentered camera, a look-at zone
+  answering, and her door landing her in Ebb-night Lanternwood).
 - **The Ebb-night street** (`scene/lanternwood.gd` `_ebb_night_town()`,
   gated on `ebb_done` — the story's CURRENT RESTING STATE: playable solo
   Fuji on the same night): the `town_spawn="library"` arrival lands her a

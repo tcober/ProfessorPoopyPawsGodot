@@ -181,10 +181,17 @@ static var BEATS: Array[Dictionary] = [
 		roster = ADULTS, lead = &"basil", state = {}, flags = [],
 	},
 	{
-		# any library_phase other than "" or "ebb" renders an EMPTY room
+		# the sync gag + the dead-wand beat, ending on control in the room
 		name = "FUJI'S LIBRARY", scene = "res://scene/library.tscn",
 		roster = FUJI, lead = &"fuji",
 		state = {library_phase = "ebb"}, flags = [],
+	},
+	{
+		# any library_phase other than "" or "ebb" SKIPS the cutscene and
+		# just opens the room — the walk-out, without sitting through it
+		name = "FUJI'S LIBRARY (WALK OUT)", scene = "res://scene/library.tscn",
+		roster = FUJI, lead = &"fuji",
+		state = {library_phase = "night"}, flags = ["ebb_done"],
 	},
 	{
 		name = "LANTERNWOOD - EBB NIGHT",

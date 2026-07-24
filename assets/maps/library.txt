@@ -20,8 +20,15 @@
 ; cell one east of it, so moving the kettle anchor moves HER and the spark
 ; target together) and mess_a / mess_b (open floor cells flanking the
 ; counter, for splash decals). The scene also derives the fire overlay from
-; the H bbox. RESERVED for the Act 1 research phase (declared, not yet read
-; by any code): fuji_spot, desk_spot, door, player_spawn.
+; the H bbox. Since 2026-07-24 the room is PLAYABLE after the dead-wand
+; beat (she has to walk out and investigate), so it also consumes
+; exit_door — the DOOR-MOUTH cell BELOW the south wall, the downstairs.txt
+; front_door/exit_door split: the arrival cell (player_spawn, row 8) sits
+; inside the room and the exit zone (row 10) sits in the mouth, so they can
+; never overlap and the zone needs no re-fire suppression. The anchor
+; column is 8px west of the 2-cell arch — the scene x-centers both on the
+; '-' bbox. RESERVED for the Act 1 research phase (declared, not yet read
+; by any code): fuji_spot, desk_spot, door.
 legend V void solid
 legend # wall solid
 legend H hearth solid
@@ -37,6 +44,7 @@ legend g rug walk
 legend - door walk
 anchor player_spawn 11 8
 anchor door 11 9
+anchor exit_door 11 10
 anchor fuji_spot 8 8
 anchor kettle 8 6
 anchor desk_spot 14 6

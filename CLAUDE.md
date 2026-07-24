@@ -323,11 +323,36 @@ LEVEL-detect skip on accept/cancel/attack, armed after 1s; sets
 read-and-clear router): **FUJI'S FIRST APPEARANCE** — her Lanternwood
 reading room at night (`maps/library.txt` + `_gen_tileset_library.py`, the
 `library` palette), wand-made coffee whose sparks keep missing the kettle
-(wild motes pop poof decals — the mess), the quake on her floor, "...That
-was scary. ...Everything seems okay, though?", then the next wand flick
-makes NOTHING — no spark at all — and **the story STAYS WITH HER**
-(2026-07-20, NO card: no time passes between her floor and the street):
-`Party.set_roster([&"fuji"], &"fuji")` + `Game.town_spawn="library"` →
+(wild motes pop poof decals — the mess; hits INTERLEAVE with misses).
+**THE SYNC (2026-07-24):** the third cast lands ON the quake — she flicks,
+the ground goes, she holds the follow-through ~0.6s into it, and is
+briefly certain she did it ("...Did I do that?" / "...That was the ground.
+That was DEFINITELY the ground. Ground does that." / "...Everything seems
+okay, though? Nothing even fell."). The Venice-library gag from Last
+Crusade, where the stamp keeps landing on the crash. The hidden payoff:
+**NO spark leaves the bead on that flick** — the magic was already gone
+and the quake covered for it — which the fourth cast says out loud by
+making NOTHING at all ("...It's not the wand." / "...Is it just my wand?" /
+"...I need to go and see."). **THE ROOM IS A CUTSCENE THAT BECOMES
+PLAYABLE (2026-07-24):** Fuji acts the beat as an NPC PUPPET over her own
+HIDDEN body (her party sheet has no wand-cast pose — walk/tome/darts; the
+npc sheet is drawn to that sheet's geometry off the same palette, so the
+swap on the matching front-facing idle reads as nothing — A/B verified,
+~1px settle; swapping on the PROFILE would risk a pop). At the hand-over
+the puppet goes, the body takes its place, `ebb_done` is set, and control
+comes back WHERE SHE STANDS — no fade, no card, nobody drags her out. The
+room is hers to poke at (optional look-at zones on kettle/window/shelves/
+desk, the house.gd `$WindowZone` idiom — one cell, first WALKABLE cell
+south of the feature) and she leaves by WALKING OUT HER OWN DOOR:
+`anchor exit_door 11 10`, the door-mouth cell BELOW the south wall — the
+downstairs.txt `front_door`/`exit_door` split, so the exit zone and the
+arrival cell can never overlap and no `_standing` suppression is needed;
+x comes off the `-` bbox because the anchor column sits 8px west of the
+2-cell arch. ANY library_phase other than ""/"ebb" skips the cutscene and
+just opens the room. Probe: **`tools/library_probe.gd`** (14 checks, the
+SCENE alone — the standing rule is to verify the scene you changed, not
+re-run the whole chapter probe). **The story STAYS WITH HER**
+(2026-07-20, NO card: no time passes between her floor and the street) →
 `scene/lanternwood.tscn`, whose `_ebb_night_town()` (gated on `ebb_done`)
 lands her a step south of her own library door under a deep night tint the
 fire-lit windows and oil lanterns burn straight through — Lanternwood's
@@ -359,9 +384,14 @@ creeps). **The stall canon was CUT (2026-07-18):** the fountain-rim `m`
 stall is generic scenery again; Kitty's wheel WORKSHOP is off-screen,
 never seen — the busted-axle job there is why she misses the naming and
 why she's on the dusk road, and the excuse is told ONLY in her call1
-apology on the bluff. Probe: 46
-checks (2026-07-20 — the tail asserts the Ebb → library → Lanternwood
-chain, the solo-Fuji roster, and a peopled Ebb-night street). **DOOR-MOUTH ARRIVALS (2026-07-17):** leaving an interior lands
+apology on the bluff. Probe: 45
+checks (2026-07-24 — the tail asserts the Ebb → library → Lanternwood
+chain, the solo-Fuji roster, and a peopled Ebb-night street; the library
+leg is now a WALK-GATE, driven like every other by teleporting to the
+anchor, because a mash alone just makes Fuji swing her tome in place).
+**Prefer `tools/library_probe.gd` and the other per-scene probes** — the
+full prologue probe takes minutes and is for handoff-chain changes and
+final checks, not for every edit. **DOOR-MOUTH ARRIVALS (2026-07-17):** leaving an interior lands
 the body ON the door marker/zone (feet on the lane under the arch — the
 old tile-and-a-half drop read as appearing nowhere near the door);
 `_standing`/`_home_armed` suppress the re-fire until the body steps off
@@ -428,7 +458,7 @@ byte-identical) — but never open a walkable pocket inside a chase leash
 frame budgets burn in real seconds while wall-clock cutscene timers don't
 advance any faster; the 2026-07-16 harness gotcha).
 **THE DEV CHAPTER SELECTOR (2026-07-20): press `0` ANYWHERE** — title,
-cutscene, mid-meadow — for a paused two-column menu of all 32 story beats;
+cutscene, mid-meadow — for a paused two-column menu of all 33 story beats;
 pick one and land in it with roster/phase/spawn/flags staged. `scene/dev_menu.gd`
 (autoload `DevMenu`, third after Game/Party; overlay built in code on
 CanvasLayer 100, `PROCESS_MODE_ALWAYS`, one of the project's only TWO
