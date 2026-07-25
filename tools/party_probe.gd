@@ -27,6 +27,10 @@ func _initialize() -> void:
 
 
 func _run() -> void:
+	# Same hazard town_probe carried: an occluded macOS window runs uncapped,
+	# and this probe measures distances a delta-driven body covers over a
+	# fixed FRAME budget. Pin the rate or the numbers mean nothing.
+	Engine.max_fps = 60
 	await process_frame
 	change_scene_to_file("res://scene/meadow.tscn")
 	await process_frame

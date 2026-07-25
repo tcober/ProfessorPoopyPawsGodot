@@ -13,6 +13,14 @@ func _initialize() -> void:
 
 
 func _run() -> void:
+	# An OCCLUDED macOS window runs UNCAPPED (~2000fps). This probe budgets in
+	# FRAMES — 90 frames of held input, a 4000-frame timeout — while the body
+	# it is driving moves by `delta`, so uncapped the party travels almost no
+	# distance before the budget runs out and the walk silently fails. Pin the
+	# rate so frame budgets track wall-clock (the same fix prologue_probe and
+	# shot.gd carry; this probe never got it, which is what made its results
+	# depend on whether the window happened to be visible).
+	Engine.max_fps = 60
 	await process_frame
 	var party := root.get_node("/root/Party")
 	change_scene_to_file("res://scene/downstairs.tscn")
@@ -41,19 +49,6 @@ func _run() -> void:
 		await process_frame
 	print("settled leader=", party.leader_id, " members=",
 		  party.members.map(func(m): return "%s %s" % [m.member_id, m.global_position]))
-	# Step SOUTH clear of the door marker before walking back into it. The
-	# arrival lands the body dead-centre on the 16x12 marker with _standing
-	# latched true, and the marker is enter-triggered: pressing up from there
-	# only walks into the building wall, never leaves the area, so body_exited
-	# never fires and the door can't re-arm. Whether the arrival's residual
-	# drift happened to carry the body out on its own is what used to make
-	# this probe pass ~2 runs in 8.
-	Input.action_press("move_down")
-	for i in 40:
-		await process_frame
-	Input.action_release("move_down")
-	for i in 30:
-		await process_frame
 	# walk back up through Basil's door — should land in the downstairs
 	Input.action_press("move_up")
 	frames = 0
