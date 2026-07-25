@@ -186,15 +186,18 @@ def _inn_anim(facade, canopy, f, dy=0):
 
 
 def _academy_anim(facade, canopy, f, dy=0):
-    _anim_building(facade, canopy, f, dy=dy, flues=((56, 2), (104, 2)),
-                   streams=((42, 104, 3),),               # riser spout -> the basin
-                   basins=((41, 59, 105),),
-                   drips=((104, 100), (118, 100)))        # nubs over the planters
+    # geometry follows town_academy's 224x144 rebuild: flues sit on the canopy
+    # BETWEEN the two spired towers, the basin and planters moved out with the
+    # wider facade
+    _anim_building(facade, canopy, f, dy=dy, flues=((86, 31), (138, 31)),
+                   streams=((59, 136, 3),),               # riser spout -> the basin
+                   basins=((57, 81, 137),),
+                   drips=((152, 132), (168, 132)))        # nubs over the planters
 
 
 # ---- shared naturey-building parts (canopy roof, cement wall, window, door) ----
 
-def _canopy(up, w, fy, flue_xs=()):
+def _canopy(up, w, fy, flue_xs=(), sx0=0, sx1=None, lobe=None, top=5.0):
     """A leafy canopy roof built from ROUND lobes of one size (keyed to roof
     HEIGHT — a wide building gets MORE lobes, never stretched ellipses), each
     lobe given its own under-arc shadow + crown highlight so the leaf masses
@@ -202,16 +205,22 @@ def _canopy(up, w, fy, flue_xs=()):
     edge, so edge() rings it completely (no half-outline that reads as a
     crop), and the top TOP px stay clear as headroom for the copper flue caps
     and their wind-swept smoke (animated later — never clipped)."""
-    TOP = 5.0                                              # flue-cap/smoke headroom
-    r = max(7.0, fy * 0.40)                                # the one lobe radius
+    # sx0/sx1 confine the leaf mass to a SPAN of the building rather than its
+    # whole width, `lobe` overrides the radius, and `top` drops the crown —
+    # all three so the Academy's canopy can sit BETWEEN its towers and BELOW
+    # their spires instead of swallowing them. Defaults reproduce the
+    # original full-width canopy exactly (every other building relies on it).
+    sx1 = w if sx1 is None else sx1
+    TOP = top                                              # flue-cap/smoke headroom
+    r = lobe if lobe else max(7.0, fy * 0.40)              # the one lobe radius
     crown, eave = [], []
-    x0, x1 = r * 1.05 + 1.0, w - r * 1.05 - 1.0            # crown row (inset)
+    x0, x1 = sx0 + r * 1.05 + 1.0, sx1 - r * 1.05 - 1.0    # crown row (inset)
     nc = max(1, round(max(1.0, x1 - x0) / (r * 0.9)))
     for i in range(nc + 1):
         bx = x0 + (x1 - x0) * i / max(1, nc)
         crown.append((bx, TOP + r + (r * 0.18 if i % 2 else 0.0)))
     re = r * 0.80                                          # eave row (clamped inside)
-    ex0, ex1 = re + 1.5, w - re - 2.5
+    ex0, ex1 = sx0 + re + 1.5, sx1 - re - 2.5
     ne = max(1, round(max(1.0, ex1 - ex0) / (re * 1.05)))
     for i in range(ne + 1):
         eave.append((ex0 + (ex1 - ex0) * i / max(1, ne), fy - re * 0.55))
@@ -225,21 +234,25 @@ def _canopy(up, w, fy, flue_xs=()):
     for bx, by in crown:
         up.blob(bx + r * 0.08, by + r * 0.50, r * 0.60, r * 0.26, FOLIAGE[4])
         up.blob(bx - r * 0.36, by - r * 0.44, r * 0.32, r * 0.20, FOLIAGE[0])
-    up.blob(w / 2.0, fy - 1.5, w * 0.47, 2.0, FOLIAGE[5])  # dark under-rim
-    for i in range(max(8, w // 6)):                        # leaf-cluster dabs
-        hx = 4 + (i * 23) % max(1, w - 10)
+    span = sx1 - sx0
+    up.blob((sx0 + sx1) / 2.0, fy - 1.5, span * 0.47, 2.0, FOLIAGE[5])  # under-rim
+    for i in range(max(8, span // 6)):                     # leaf-cluster dabs
+        hx = sx0 + 4 + (i * 23) % max(1, span - 10)
         hy = int(TOP + 4 + (i * 11) % max(4, int(fy - TOP - 9)))
         if up.get(hx, hy) is not None and up.get(hx + 2, hy + 1) is not None:
             c, s = (FOLIAGE[1], FOLIAGE[4]) if i % 2 else (FOLIAGE[2], FOLIAGE[5])
             up.set(hx, hy, c); up.set(hx + 1, hy, c)
             up.set(hx + 1, hy + 1, s); up.set(hx + 2, hy + 1, s)
-    for i in range(max(6, w // 10)):                       # single-pixel dapple
-        hx = (i * 29) % (w - 6) + 3
+    for i in range(max(6, span // 10)):                    # single-pixel dapple
+        hx = sx0 + (i * 29) % (span - 6) + 3
         hy = int(TOP + 2 + (i * 7) % max(4, int(fy - TOP - 8)))
         if up.get(hx, hy) is not None:
             up.set(hx, hy, FOLIAGE[1] if i % 2 else FOLIAGE[3])
     for fx in flue_xs:                                     # caps BELOW the top edge
-        _chimney(up, fx, 2, min(fy - 6, 22))
+        # keyed to TOP, not to y=0: a canopy slung lower (the Academy's, which
+        # sits between its towers) would otherwise leave its flues floating in
+        # the sky above the leaves. TOP=5 reproduces the original 2 .. 22.
+        _chimney(up, fx, int(TOP) - 3, min(fy - 6, int(TOP) + 17))
 
 
 def _cement_wall(lo, w, h, fy):
@@ -482,22 +495,43 @@ def town_academy(roof, stone, salt=221, composite=False, frames=1,
     walls, a copper header feeding a stone basin and a planter row, ivy
     everywhere — the wizard college gone quiet, kept alive by its garden.
     (`roof`/`stone` unused.)"""
-    w, h, fy = 160, 112, 64
+    w, h, fy = 224, 144, 80
     lo, up = S(w, h, salt), S(w, h, salt + 1)
-    # ---- roof: the shared canopy, then twin towers rising THROUGH it
-    _canopy(up, w, fy, flue_xs=(56, 104))
-    for tx0 in (8, w - 30):
-        tx1 = tx0 + 21
-        cxt = (tx0 + tx1) / 2.0
-        for bx, r_ in ((cxt - 5.0, 6.5), (cxt + 5.0, 6.5), (cxt, 7.5)):
-            up.ball(bx, 16.0, r_, r_ * 0.9, FOLIAGE, sh=-0.02, power=2.1)   # dome cap
-        up.blob(cxt, 20.5, 9.0, 2.2, FOLIAGE[4])           # dome under-rim
-        _coursed_wall(up, tx0, 23, tx1, fy - 1, CEMENT, salt=salt, course=7, joint=11)
-        up.rect(tx0, 23, tx0, fy - 1, CEMENT[0])           # lit W edge
-        up.rect(tx1, 23, tx1, fy - 1, CEMENT[4])
-        for wy in (30, 47):                                # mint arrow slits
-            up.rect(int(cxt) - 1, wy, int(cxt), wy + 6, DOORDARK)
-            up.set(int(cxt) - 1, wy, MINT)
+    TW = 38                                                # tower width
+    TOWERS = (5, w - TW - 5)
+    # The building sits on the map's top row, so when the camera hits its
+    # upper clamp the canvas top IS the screen top — the spires start low
+    # enough to leave the pennants clear sky instead of flying off-frame.
+    CONE_TIP, CONE_BASE = 14, 42
+    PEN = 7                                                # pennant top
+    # ---- roof: twin SPIRED towers, the canopy slung BETWEEN and BELOW them.
+    # The old build gave both towers little leaf domes level with a full-width
+    # canopy, so the silhouette was one rounded slab and the towers vanished —
+    # while the overworld icon promises a keep with two coned spires. This is
+    # that promise kept at zone scale: cones clear above the leaf line.
+    _canopy(up, w, fy, flue_xs=(86, 138),
+            sx0=TOWERS[0] + TW - 4, sx1=TOWERS[1] + 4, lobe=17.0, top=34.0)
+    for tx0 in TOWERS:
+        tx1 = tx0 + TW - 1
+        cxt = (tx0 + tx1) // 2
+        # cylindrical shaft: tone ramps left-lit to right-shadowed, banded
+        for y in range(CONE_BASE, fy):
+            for x in range(tx0, tx1 + 1):
+                t = 0.18 + 0.56 * ((x - tx0) / float(TW - 1))
+                if (y - CONE_BASE) % 9 == 8:
+                    t += 0.20                              # course shadow
+                up.set(x, y, up.tone(CEMENT, t, x, y, jitter=0.30))
+        up.tri((cxt, CONE_TIP), CONE_BASE, tx0 - 3, tx1 + 4, FOLIAGE)   # spire
+        up.rect(tx0 - 3, CONE_BASE, tx1 + 4, CONE_BASE, FOLIAGE[5])     # eave line
+        up.set(cxt, CONE_TIP - 2, BRASS[1])                # finial
+        up.rect(cxt, PEN, cxt, CONE_TIP - 3, IRON[1])      # pennant pole
+        for i in range(4):                                 # swallowtail pennant
+            up.rect(cxt + 1, PEN + i, cxt + 6 - i, PEN + i, VIOLETF)
+        up.set(cxt + 2, PEN + 1, CRYSTAL)                  # its device
+        for wy in (CONE_BASE + 10, CONE_BASE + 26):        # mint-lit arrow slits
+            up.rect(cxt - 1, wy, cxt, wy + 7, DOORDARK)
+            up.set(cxt - 1, wy, MINT)
+        up.blob(cxt, CONE_BASE + 5, 6.0, 1.6, CEMENT[4])   # shade under the eave
     edge(up, fy)
     # ---- facade: dressed courses over the cement base
     _cement_wall(lo, w, h, fy)
@@ -506,74 +540,93 @@ def town_academy(roof, stone, salt=221, composite=False, frames=1,
         off = 5 if (cy_ // 9) % 2 else 0
         for hx in range(7 + off, w - 5, 11):
             lo.rect(hx, cy_ - 4, hx, cy_ - 1, CEMENT[2])   # offset head joints
-    for tx0 in (8, w - 30):                                # the towers' lower shafts
-        tx1 = tx0 + 21
+    for tx0 in TOWERS:                                     # the towers' lower shafts
+        tx1 = tx0 + TW - 1
         _coursed_wall(lo, tx0, fy, tx1, h - 3, CEMENT, salt=salt, course=7, joint=11)
         lo.rect(tx0, fy, tx0, h - 3, CEMENT[0])
         lo.rect(tx1, fy, tx1, h - 3, CEMENT[4])
         lo.rect(tx0, h - 3, tx1, h - 1, STONER[4])         # plinth into the footing
         cxt = (tx0 + tx1) // 2
-        lo.rect(cxt - 1, fy + 16, cxt, fy + 23, DOORDARK)  # slit
-        lo.set(cxt - 1, fy + 16, MINT)
-        _vine(lo, [(tx0 + 2, h - 4), (cxt + 3, fy + 26), (tx0 + 3, fy + 3)])
+        for sy_ in (fy + 14, fy + 34):                     # tall paired slits
+            lo.rect(cxt - 1, sy_, cxt, sy_ + 9, DOORDARK)
+            lo.set(cxt - 1, sy_, MINT)
+        _vine(lo, [(tx0 + 2, h - 4), (cxt + 4, fy + 30), (tx0 + 3, fy + 3)])
     # copper header + risers, routed AROUND the rose window
-    _ph(lo, 32, w - 33, fy + 3)
-    for rx in (34, w - 36):
+    _ph(lo, TOWERS[0] + TW + 6, TOWERS[1] - 7, fy + 3)
+    for rx in (TOWERS[0] + TW + 8, TOWERS[1] - 9):
         _valve(lo, rx, fy + 4)
-    _pv(lo, 34, fy + 4, h - 9); _ph(lo, 34, 42, h - 9)     # left riser -> the basin
-    _pv(lo, w - 36, fy + 4, h - 13); _ph(lo, 96, w - 36, h - 13)   # right -> planters
-    for nx in (104, 118):
+    _pv(lo, 51, fy + 4, h - 9); _ph(lo, 51, 62, h - 9)     # left riser -> the basin
+    _pv(lo, w - 53, fy + 4, h - 13)                        # right -> the planters
+    _ph(lo, 146, w - 53, h - 13)
+    for nx in (152, 168):
         _pv(lo, nx, h - 12, h - 11)                        # drip nubs (animated)
-    # the great arcane rose window
-    cx, cy = w // 2 - 1, fy + 17
-    for r_, c in ((11.5, COPPER[2]), (10.2, TIMBER[3]), (9.0, DOORDARK),
-                  (7.2, MINT), (3.8, FOLIAGE[2])):
+    # the great arcane rose window — scaled up with the building
+    cx, cy = w // 2 - 1, fy + 20
+    for r_, c in ((14.5, COPPER[2]), (13.0, TIMBER[3]), (11.5, DOORDARK),
+                  (9.2, MINT), (4.8, FOLIAGE[2])):
         lo.blob(cx, cy, r_, r_, c)
-    lo.rect(cx, cy - 9, cx, cy + 9, TIMBER[5])             # tracery cross
-    lo.rect(cx - 9, cy, cx + 9, cy, TIMBER[5])
+    lo.rect(cx, cy - 11, cx, cy + 11, TIMBER[5])           # tracery cross
+    lo.rect(cx - 11, cy, cx + 11, cy, TIMBER[5])
     for sx_, sy_ in ((1, 1), (-1, 1), (1, -1), (-1, -1)):  # radial spokes
-        ln(lo, cx + 3 * sx_, cy + 3 * sy_, cx + 7 * sx_, cy + 7 * sy_, TIMBER[5])
+        ln(lo, cx + 4 * sx_, cy + 4 * sy_, cx + 9 * sx_, cy + 9 * sy_, TIMBER[5])
     lo.set(cx, cy, CRYSTAL)
-    lo.set(cx - 3, cy - 4, WATERL)                         # glass glint
+    lo.set(cx - 4, cy - 5, WATERL)                         # glass glint
     # the great door — open/welcoming in the festival era, sealed iron in the
-    # drained present; both share the arch rows at fy+30 and the fy+33 mouth
-    dx0, dx1 = w // 2 - 13, w // 2 + 12
+    # drained present; both share the arch rows at DT and the DT+3 mouth
+    DT = fy + 36
+    dx0, dx1 = w // 2 - 17, w // 2 + 16
     if open_door:
-        _arch_door(lo, dx0, dx1, fy + 27, h)
+        _arch_door(lo, dx0, dx1, DT - 3, h)
     else:
-        for ay, ah in ((fy + 32, 0), (fy + 31, 2), (fy + 30, 5)):
+        for ay, ah in ((DT + 2, 0), (DT + 1, 2), (DT, 5)):
             lo.rect(dx0 - 1 + ah, ay, dx1 + 1 - ah, ay, COPPER[2])
-        lo.rect(dx0 - 2, fy + 33, dx1 + 2, h - 1, TIMBER[4])   # casing
-        lo.rect(dx0, fy + 33, dx1, h - 1, DOORDARK)            # the dark mouth
-        for gy in range(fy + 36, h - 1, 5):
+        lo.rect(dx0 - 2, DT + 3, dx1 + 2, h - 1, TIMBER[4])    # casing
+        lo.rect(dx0, DT + 3, dx1, h - 1, DOORDARK)             # the dark mouth
+        for gy in range(DT + 6, h - 1, 5):
             lo.rect(dx0, gy, dx1, gy, TIMBER[5])               # plank lines
         for bx in range(dx0 + 3, dx1 - 1, 5):                  # the BARS
-            lo.rect(bx, fy + 34, bx, h - 3, IRON[2])
-            lo.set(bx, fy + 34, IRON[1])
-        for sy_ in (fy + 39, fy + 45):                         # iron straps + rivets
+            lo.rect(bx, DT + 4, bx, h - 3, IRON[2])
+            lo.set(bx, DT + 4, IRON[1])
+        for sy_ in (DT + 9, DT + 16):                          # iron straps + rivets
             lo.rect(dx0, sy_, dx1, sy_, IRON[3])
             for rx in range(dx0 + 2, dx1, 6):
                 lo.set(rx, sy_, IRON[1])
-        lo.set(cx, fy + 42, MINT); lo.set(cx, fy + 48, MINT)   # old-magic seams
-    lo.ball(104, fy + 14, 4.2, 4.0, BRASS)                 # brass gauge, right wall
-    lo.blob(104, fy + 14, 2.8, 2.6, PAPER)                 # its face (flat color —
+        lo.set(cx, DT + 12, MINT); lo.set(cx, DT + 19, MINT)   # old-magic seams
+    # tall lancet windows flanking the rose — the wall either side of it read
+    # as bare cement at this size, which is what made the old build look like
+    # a shed rather than a college hall
+    for wx in (56, w - 72):
+        lo.rect(wx - 1, fy + 13, wx + 16, fy + 38, TIMBER[4])   # frame
+        lo.rect(wx, fy + 14, wx + 15, fy + 37, DOORDARK)
+        lo.blob(wx + 7.5, fy + 15.0, 8.0, 5.0, TIMBER[4])       # arched head
+        lo.blob(wx + 7.5, fy + 16.5, 6.5, 4.0, DOORDARK)
+        for gy in range(fy + 16, fy + 37, 2):                   # leaded glass
+            lo.rect(wx + 1, gy, wx + 14, gy, MINT if gy % 4 else GLASS)
+        lo.rect(wx + 7, fy + 14, wx + 8, fy + 37, TIMBER[5])    # mullion
+        for i in range(6):                                      # sky-catch streak
+            lo.set(wx + 12 - i, fy + 19 + i, WATERL)
+        lo.rect(wx - 2, fy + 38, wx + 17, fy + 39, CEMENT[0])   # lit sill
+        lo.rect(wx - 2, fy + 40, wx + 17, fy + 40, CEMENT[4])
+    gx = 136                                               # brass gauge, right wall
+    lo.ball(gx, fy + 16, 4.6, 4.4, BRASS)
+    lo.blob(gx, fy + 16, 3.0, 2.8, PAPER)                  # its face (flat color —
                                                            # ball() needs a RAMP; a flat
                                                            # tuple indexes to raw ints)
-    ln(lo, 104, fy + 14, 106, fy + 12, IRON[1])
-    lo.set(104, fy + 14, IRON[2]); lo.set(103, fy + 13, SPEC)
+    ln(lo, gx, fy + 16, gx + 2, fy + 14, IRON[1])
+    lo.set(gx, fy + 16, IRON[2]); lo.set(gx - 1, fy + 15, SPEC)
     # stone basin (left of the door) + planter row (right), riser-fed
-    lo.rect(40, h - 8, 60, h - 3, STONER[3]); lo.rect(40, h - 8, 60, h - 8, STONER[1])
-    lo.rect(41, h - 7, 59, h - 5, WATER); lo.rect(41, h - 7, 59, h - 7, WATERL)
-    for bx0 in (98, 112):
-        bx1 = bx0 + 12
+    lo.rect(56, h - 8, 82, h - 3, STONER[3]); lo.rect(56, h - 8, 82, h - 8, STONER[1])
+    lo.rect(57, h - 7, 81, h - 5, WATER); lo.rect(57, h - 7, 81, h - 7, WATERL)
+    for bx0 in (144, 160):
+        bx1 = bx0 + 13
         lo.rect(bx0, h - 11, bx1, h - 6, TIMBER[3])
         lo.rect(bx0, h - 11, bx1, h - 11, TIMBER[1])
         lo.rect(bx0, h - 6, bx1, h - 6, TIMBER[5])
         for i, fx in enumerate(range(bx0 + 2, bx1, 4)):
             lo.rect(fx, h - 15, fx, h - 12, FOLIAGE[3])
             _leaf_dab(lo, fx - 1, h - 14); _leaf_dab(lo, fx + 1, h - 16)
-    _vine(lo, [(36, h - 3), (40, fy + 26), (34, fy + 8)])
-    _vine(lo, [(w - 34, h - 3), (w - 38, fy + 24), (w - 33, fy + 8)])
+    _vine(lo, [(50, h - 3), (56, fy + 30), (47, fy + 8)])
+    _vine(lo, [(w - 50, h - 3), (w - 56, fy + 28), (w - 47, fy + 8)])
     edge(lo, h)
     return _finish(lo, up, w, fy, h, composite, frames, _academy_anim)
 
