@@ -15,7 +15,7 @@ extends AIBrain
 func _combat(target: Node2D, intent: PartyMember.Intent) -> void:
 	var basil := member as Player
 	if basil.ammo <= 0:
-		if basil.beakers > 0:
+		if not basil.beakers.is_empty():
 			intent.secondary = true   # the reload ritual
 		else:
 			_follow(Party.leader.global_position - member.global_position, intent)

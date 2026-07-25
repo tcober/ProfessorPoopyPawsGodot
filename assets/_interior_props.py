@@ -650,6 +650,61 @@ def table(w, h, salt=59):
     return sp
 
 
+def coffee_counter(w, h, salt=89):
+    """A small timber serving counter carrying a BRASS COFFEE KETTLE on its
+    candle warmer and a waiting cup — Fuji's midnight coffee station
+    (library, 2026-07-19; brass-and-flask, candle-and-gear). Drawn for a
+    2-row footprint as a y-sorted entity (the table/workbench counter-walk
+    pattern): the TOP row is walkable so a body tucks in behind the counter
+    plane, legs hidden by the art; the bottom row stays solid."""
+    sp = S(w, h, salt)
+    # the counter plane (the desk idiom): lit back edge, surface, front lip
+    sp.rect(1, 8, w - 2, 9, TIMBER[0])
+    sp.rect(1, 10, w - 2, 17, TIMBER[1])
+    for gx in range(5, w - 5, 9):
+        sp.rect(gx, 14, gx + 4, 14, TIMBER[2])                # grain
+    sp.rect(1, 18, w - 2, 18, TIMBER[2])                      # front lip
+    sp.rect(1, 19, w - 2, 19, TIMBER[4])
+    # the brass kettle, pot-bellied, over its candle warmer (west half).
+    # KET is hand-pinned warm brass: ramp()'s violet law turns the BRASS
+    # seed's dark tones red, and a red-bottomed kettle reads as a tomato
+    # (the knapsack-stick lesson — hand-pin the warm metals)
+    KET = [(255, 226, 148, 255), (238, 186, 96, 255),
+           (191, 132, 72, 255), (128, 82, 70, 255)]
+    kx = 9
+    sp.rect(kx - 4, 10, kx + 3, 10, KET[2])                   # warmer tray
+    sp.set(kx - 4, 10, KET[1])
+    sp.ball(kx, 5, 4, 3.5, KET, sh=-0.08, power=1.8)          # belly volume
+    sp.rect(kx - 2, 1, kx + 1, 1, KET[0])                     # lid
+    sp.set(kx - 1, 0, KET[0])                                 # knob
+    ln(sp, kx + 4, 4, kx + 6, 2, KET[1])                      # gooseneck spout
+    sp.set(kx + 6, 1, KET[0])
+    ln(sp, kx - 5, 3, kx - 7, 6, KET[1])                      # side handle
+    sp.set(kx - 6, 4, TIMBER[2])                              # its wooden grip
+    sp.set(kx - 2, 3, SPEC)                                   # belly glint
+    sp.set(kx, 9, FLAME_IN)                                   # the candle tongue
+    # the waiting cup on its saucer (east half)
+    cx = w - 8
+    sp.rect(cx - 3, 10, cx + 3, 10, PAPERD)                   # saucer
+    sp.rect(cx - 2, 6, cx + 2, 9, PAPER)                      # cup
+    sp.rect(cx - 1, 6, cx + 1, 6, (150, 96, 60, 255))         # the coffee
+    sp.set(cx + 3, 7, PAPER)                                  # handle
+    # paneled cabinet front + plinth (the footprint's solid row)
+    sp.rect(1, 20, w - 2, 28, TIMBER[3])
+    for dx0, dx1 in ((3, w // 2 - 2), (w // 2 + 1, w - 4)):
+        sp.rect(dx0, 21, dx1, 27, TIMBER[2])
+        sp.rect(dx0, 21, dx1, 21, TIMBER[1])
+        sp.rect(dx0, 27, dx1, 27, TIMBER[4])
+        sp.set((dx0 + dx1) // 2, 24, BRASS[1])                # door knobs
+    sp.rect(1, 29, w - 2, 31, TIMBER[4])                      # plinth
+    sp.rect(1, 31, w - 2, 31, TIMBER[5])
+    edge(sp)
+    sp.set(kx + 7, 0, STEAM)                                  # steam AFTER the
+    sp.set(cx, 4, STEAM)                                      # outline: a lone
+    sp.set(cx + 1, 2, STEAM)                                  # outlined wisp px
+    return sp                                                 # reads as a blob
+
+
 # ====================================================================================
 # lab
 # ====================================================================================

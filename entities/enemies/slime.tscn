@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://entities/enemies/slime.gd" id="1_slime"]
 [ext_resource type="SpriteFrames" path="res://entities/enemies/slime_frames.tres" id="2_frames"]
 [ext_resource type="Script" path="res://components/health_component.gd" id="3_health"]
 [ext_resource type="Script" path="res://components/hurtbox_component.gd" id="4_hurtbox"]
 [ext_resource type="Script" path="res://components/hitbox_component.gd" id="5_hitbox"]
+[ext_resource type="Script" path="res://components/status_component.gd" id="6_status"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
 size = Vector2(16, 12)
@@ -28,6 +29,10 @@ shape = SubResource("RectangleShape2D_body")
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("3_health")
 max_health = 4
+
+[node name="StatusComponent" type="Node" parent="." node_paths=PackedStringArray("health_component")]
+script = ExtResource("6_status")
+health_component = NodePath("../HealthComponent")
 
 [node name="HurtboxComponent" type="Area2D" parent="." node_paths=PackedStringArray("health_component")]
 collision_layer = 16

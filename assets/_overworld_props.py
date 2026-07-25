@@ -735,101 +735,374 @@ def lone_tree(f, salt=157):
     return sp
 
 
+# THE BIG MOUNTAIN's peak stack, painter-sorted in DEPTH (the autotile's
+# south-over-north lobe logic at landmark scale): two high back shoulders
+# flanking ONE dominant off-center summit horn, wide outer shoulders, low
+# flat foothill ribs lapping over every foot. Each row: apex, west foot,
+# east foot, base_y, the arete polyline (apex -> base, the two-face split),
+# hatch phase, bright-crest flag, then that peak's OWN detail lines
+# (spur ridges / crevasse dog-legs, drawn before any nearer shape so
+# linework never crosses a depth boundary). The horn's crown (x~86..146
+# above y~56) belongs to the era topper.
+_BM_PEAKS = (
+    ((78, 36), 22, 124, 130, ((78, 36), (72, 130)), 1, True,     # NW back
+     (((70, 60), (64, 92), (58, 122)), 4)),                      # shoulder
+    ((152, 42), 114, 218, 128, ((152, 42), (158, 128)), 4, True,  # NE back
+     (((166, 70), (172, 100), (170, 126)), 5)),                  # shoulder
+    ((116, 8), 40, 192, 150,                                     # THE HORN
+     ((116, 8), (110, 60), (100, 150)), 2, True,
+     (((124, 40), (138, 96), (146, 148)), 4,                     # east spur
+      ((137, 95), (144, 146)), 3,                                # its catch
+      ((130, 66), (148, 122)), 5,
+      ((108, 70), (104, 118)), 1,                                # west spur
+      ((104, 44), (96, 84), (90, 128)), 4,                       # crevasses
+      ((60, 96), (52, 140)), 4)),
+    ((36, 86), 0, 98, 152, ((36, 86), (30, 152)), 3, False,      # SW outer
+     (((44, 116), (40, 148)), 3)),                               # shoulder
+    ((188, 90), 140, 223, 155, ((188, 90), (194, 155)), 0, False,  # E outer
+     (((180, 116), (186, 148)), 4)),                             # shoulder
+    ((70, 126), 8, 140, 154, ((70, 126), (64, 154)), 5, False,   # W foothill
+     (((44, 136), (40, 152)), 3)),                               # rib
+    ((150, 130), 100, 212, 157, ((150, 130), (156, 157)), 3, False,  # E
+     (((132, 142), (136, 156)), 5,                               # foothill rib
+      ((166, 140), (172, 154)), 4)))
+
+
+def _arete_x(pts, y):
+    """Face-split x at row y along a piecewise arete polyline."""
+    for (xa, ya), (xb, yb) in zip(pts, pts[1:]):
+        if ya <= y <= yb:
+            return xa + (xb - xa) * (y - ya) / max(1, yb - ya)
+    return pts[-1][0]
+
+
 def _mountain_body(sp, rock):
     """THE BIG MOUNTAIN's massif body (224x160 over the 14x10 'B' footprint
     — it DOMINATES Mountain Land, per the sketch) — shared verbatim by both
     era toppers: same canvas salt + same body means the Ebb swap changes
-    ONLY the summit. Two great shoulders under one vast cone, lit west
-    arris, strata hatch, crevasses, base scree. The summit region above
-    ~y58 belongs to the topper."""
-    sp.tri((60, 52), 152, 4, 122, rock, sh=0.06)           # west shoulder
-    sp.tri((164, 46), 152, 104, 220, rock, sh=0.14)        # east shoulder
-    sp.tri((112, 12), 154, 24, 200, rock)                  # the great cone
-    sp.tri((112, 12), 154, 24, 112, rock, sh=-0.16)        # sunlit west face
-    ln(sp, 112, 12, 60, 150, rock[0])                      # lit west arris
-    ln(sp, 112, 12, 168, 154, rock[4])                     # shaded east arris
-    for y in range(46, 148):                               # strata hatch
-        for x in range(6, 218):
-            if sp.get(x, y) is not None and _hatch_px(x, y, 7, 3, -1):
-                sp.set(x, y, sp.tone(rock, 0.62, x, y, jitter=0.4))
-    ln(sp, 102, 40, 86, 112, rock[4])                      # crevasses
-    ln(sp, 126, 44, 146, 108, rock[5])
-    ln(sp, 76, 84, 70, 136, rock[5])
-    ln(sp, 150, 80, 158, 132, rock[4])
-    for x, y in ((16, 148), (52, 154), (112, 157), (172, 152), (204, 146)):
-        sp.set(x, y, rock[5])                              # base scree
+    ONLY the summit. Seven overlapping peaks (_BM_PEAKS) each carrying the
+    autotile fabric's full vocabulary at landmark density: the hard
+    sunlit-west/shadow-east split at a kinked arete, a crest line down
+    every arete, spacing-4 strata hatch on every shadow face (the fabric's
+    own spacing), a dark AO band and jagged rubble lip at each foot, r5
+    cleft seams wherever a nearer shape overlaps a farther one, per-peak
+    spur/crevasse linework, and a talus foot of clumped scree + shaded
+    boulders."""
+    for (ax, ay), x0, x1, base_y, arete, ph, hi, details in _BM_PEAKS:
+        span = max(1, base_y - ay)
+        for y in range(ay, base_y + 1):
+            f = (y - ay) / span
+            xl = round(ax + (x0 - ax) * f)
+            xr = round(ax + (x1 - ax) * f)
+            xs = _arete_x(arete, y)
+            for x in range(xl, xr + 1):
+                fx = f + 0.017 * ((x - y + ph) % 4)        # strata-conformal
+                if x < xs:                                 # band boundaries
+                    i = 1 if fx < 0.45 else 2              # sunlit west face
+                else:                                      # shadow east face
+                    i = 3 if fx < 0.55 else 4
+                    if _hatch_px(x, y, 4, ph, -1):
+                        i += 1                             # engraved strata
+                    elif i == 4 and _hatch_px(x, y, 8, ph + 2, -1):
+                        i = 3                              # pale strata seam
+                if f > 0.94:
+                    i = max(i, 4)                          # foot AO band
+                if (x == xl or x == xr) and sp.get(x, y) is not None:
+                    i = 5                                  # cleft seam on the
+                sp.set(x, y, rock[min(5, i)])              # shape behind
+        for x in range(round(ax + (x0 - ax)), round(ax + (x1 - ax)) + 1):
+            if (x * 5 + ph) % 4 < 2:                       # jagged rubble lip
+                sp.set(x, base_y + 1,
+                       rock[4 if x < _arete_x(arete, base_y) else 5])
+        for (xa, ya), (xb, yb) in zip(arete, arete[1:]):   # crest line
+            ln(sp, xa, ya, xb, yb,
+               rock[0 if hi else 1] if ya < ay + span * 0.5 else
+               rock[1 if hi else 2])
+        sp.set(ax, ay, rock[0] if hi else rock[1])
+        it = iter(details)
+        for pts, tone_i in zip(it, it):                    # the peak's own
+            for (xa, ya), (xb, yb) in zip(pts, pts[1:]):   # spurs/crevasses
+                ln(sp, xa, ya, xb, yb, rock[tone_i])
+    # the talus foot: catchlit scree clumps over their own cast shadows
+    for x, y in ((30, 150), (44, 154), (58, 148), (70, 155), (84, 151),
+                 (100, 156), (116, 153), (130, 156), (142, 150), (158, 154),
+                 (172, 148), (186, 152), (200, 150), (210, 146)):
+        sp.set(x, y, rock[1])
+        sp.set(x + 1, y, rock[3])
+        sp.set(x, y + 1, rock[4])
+        sp.set(x + 1, y + 1, rock[5])
+    for cx, cy in ((48, 150), (122, 152), (178, 150)):     # shaded boulders
+        sp.ball(cx, cy, 3.2, 2.4, rock, sh=-0.04)
+        sp.rect(cx - 2, cy + 3, cx + 2, cy + 3, rock[5])
+
+
+def _horn_top(x):
+    """The summit horn's silhouette top row at column x (apex (116,8),
+    feet 40/192, base 150 — see _BM_PEAKS)."""
+    if x < 116:
+        return 8 + (116 - x) * 142.0 / 76.0
+    return 8 + (x - 116) * 142.0 / 76.0
+
+
+def _snow_dusting(sp, snow, ax, ay, x0, x1, base_y, cx0, cx1, depth, ph):
+    """A wind-dusted mini-cap on a shoulder peak: per-column snow from the
+    peak's silhouette top down a scalloped skirt, torn fingers on every
+    third column. Only paints over existing rock."""
+    span = max(1, base_y - ay)
+    for x in range(cx0, cx1 + 1):
+        top = ay + abs(x - ax) * span / max(1, (x1 - ax) if x >= ax
+                                            else (ax - x0))
+        u = (x - cx0 + ph) % 9
+        b = ay + depth + (3 - abs(u - 4)) + (5 if u % 3 == 0 else 0)
+        for y in range(int(top), int(b) + 1):
+            if sp.get(x, y) is not None:
+                sp.set(x, y, snow[0] if x < ax else snow[1])
+    sp.set(ax, ay, snow[0])
 
 
 def big_mountain(rock, snow, salt=197):
     """THE BIG MOUNTAIN, pre-Ebb (224x160 over 'B'): the world's proudest
     summit at the heart of Mountain Land — the shared massif body under a
-    deep permanent snowcap with wind-torn fingers. The overworld_bright
-    generator places this; after the Ebb it becomes crystal_summit."""
+    deep permanent snowcap. The cap hugs the horn's silhouette, its skirt
+    a scalloped cornice (the fabric's scalloped crest language) casting a
+    rock-dark shadow line, wind-torn fingers running down the aretes, and
+    the two high back shoulders wear smaller dustings. The
+    overworld_bright generator places this; after the Ebb it becomes
+    crystal_summit."""
     w, h = 224, 160
     sp = S(w, h, salt)
     _mountain_body(sp, rock)
-    sp.tri((112, 12), 58, 74, 150, snow)                   # the great snowcap
-    for fx_, fy_ in ((84, 68), (96, 78), (108, 86),        # wind-torn fingers
-                     (120, 82), (132, 72), (144, 64)):
-        sp.rect(fx_, 57, fx_ + 1, fy_, snow[1])
-        sp.set(fx_ + 1, fy_, snow[2])
-    sp.set(112, 11, snow[0])                               # sun-caught crest
-    sp.set(110, 14, SPEC)
+    # the great snowcap: per-column fill from the horn's top edge down a
+    # scalloped skirt; lit west of the crest, shaded east, cornice band
+    for x in range(88, 145):
+        top = _horn_top(x) - 1
+        u = (x - 88) % 12
+        b = 47 + (4 - (u - 5.5) * (u - 5.5) / 7.0)
+        for y in range(int(top), int(b) + 1):
+            if y > _horn_top(x) - 2:
+                xs = 112 - (y - 8) * 0.06                  # crest drift
+                if y > b - 2:
+                    c = snow[1] if x < xs else snow[2]     # cornice skirt
+                else:
+                    c = snow[0] if x < xs else snow[1]
+                sp.set(x, y, c)
+        yb = int(b) + 1                                    # cornice shadow on
+        if sp.get(x, yb) is not None:                      # the rock beneath
+            sp.set(x, yb, rock[5])
+    for fx_, fy_, dx_ in ((92, 54, -1), (99, 58, -1),      # wind-torn fingers
+                          (106, 62, 0), (113, 64, 0),      # down the aretes
+                          (120, 60, 1), (127, 57, 1),
+                          (134, 53, 1)):
+        ln(sp, fx_, 45, fx_ + dx_, fy_, snow[1])
+        sp.set(fx_ + dx_, fy_ + 1, snow[2])
+    _snow_dusting(sp, snow, 78, 36, 22, 124, 130, 68, 90, 8, 2)   # NW shoulder
+    _snow_dusting(sp, snow, 152, 42, 114, 218, 128, 146, 164, 8, 5)  # NE
+    sp.set(116, 7, snow[0])                                # sun-caught crest
+    sp.set(113, 12, SPEC)
+    # NO cluster_shade here: it merges any pixel with zero same-color
+    # 4-neighbors, which erases the deliberate 1px diagonal strata hatch
+    # (diagonal neighbors don't count) — the hand-banded body needs none
     sp.despeckle(2, 1)
-    sp.cluster_shade([rock, snow], passes=1)
     edge(sp, h)
     return sp
 
 
+def _shard(sp, west, east, a1=None, a2=None, chisel=0, ph=0, dense=False):
+    """One KINKED crystal shard: scanline fill between piecewise WEST/EAST
+    silhouette edges (shared tip point — every long edge carries at least
+    one hard angle break, never a straight base-to-tip cone edge).
+    Plane-flat facets with hard value jumps: a blazing CRYS[0] CHISEL face
+    for the top `chisel` rows (two planes meeting at the tip, the break
+    line slanted, not a symmetric point), then lit/mid/deep planes split
+    at the a1/a2 arris polylines (a1=None collapses lit+mid: the small
+    two-plane teeth). CRYS[0] rim light down the west edge, CRYS[4] dark
+    east rim, sparse fracture diagonals on the deep plane when `dense`."""
+    tx, ty = west[0]
+    y1 = max(west[-1][1], east[-1][1])
+    for y in range(ty, y1 + 1):
+        xl = round(_arete_x(west, y))
+        xr = round(_arete_x(east, y))
+        if xr < xl:
+            continue
+        s1 = _arete_x(a1, y) if a1 else None
+        s2 = _arete_x(a2, y) if a2 else (xl + xr) / 2.0
+        for x in range(xl, xr + 1):
+            if y < ty + chisel + (x - tx) // 3:            # the chisel face
+                c = CRYS[0] if x < s2 else CRYS[2]         # (slanted break)
+            elif s1 is not None and x < s1:
+                c = CRYS[1]                                # lit west plane
+            elif x <= s2:
+                c = CRYS[2] if s1 is not None else CRYS[1]
+            else:
+                c = CRYS[3]                                # deep east plane
+                if dense and (y - x + ph) % 11 == 0:
+                    c = CRYS[4]                            # hairline fracture
+            sp.set(x, y, c)
+        sp.set(xl, y, CRYS[0])                             # west rim light
+        sp.set(xr, y, CRYS[4])                             # dark east rim
+    sp.set(tx, ty, CRYS[0])
+
+
+def _splinter(sp, x, y, h, d):
+    """A tiny crystal splinter jutting from a crack: CRYS[0] tip over a
+    2px lit/deep body drifting `d` sideways as it descends. The summit's
+    crystallization spreading into the rock — sized down with distance."""
+    sp.set(x, y, CRYS[0])
+    for i in range(1, h + 1):
+        xx = x + d * (i // 2)
+        sp.set(xx, y + i, CRYS[1])
+        if i >= 2:
+            sp.set(xx + 1, y + i, CRYS[3])
+    sp.set(x + d * (h // 2), y + h + 1, CRYS[4])           # root contact
+
+
+def _heave(sp, rock, x, y, d):
+    """A broken rock plate heaved outward at the crystal's eruption: a
+    3-row angular slab tilting `d` (lit top edge, shadowed underside)."""
+    sp.rect(x, y, x + 1, y, rock[1])
+    sp.rect(x - 1 + d, y + 1, x + 2 + d, y + 1, rock[2])
+    sp.set(x + 2 + d, y + 1, rock[3])
+    sp.rect(x - 1 + 2 * d, y + 2, x + 2 + 2 * d, y + 2, rock[4])
+    sp.set(x + 2 * d, y + 3, rock[5])
+
+
+def _horn_half(sp, rock, west, east, arete, ph, inner_east):
+    """One leaning HALF of the old summit horn, split open by the quake —
+    drawn IN FRONT of the great crystal's lower third so the prism rises
+    from within the broken rock. Body-language shading (two-face split,
+    spacing-4 strata, crest line) plus a violet CRYS[3] inner rim on the
+    crystal-facing edge: reflected crystal light bridging the materials."""
+    ay = west[0][1]
+    y1 = max(west[-1][1], east[-1][1])
+    span = max(1, y1 - ay)
+    for y in range(ay, y1 + 1):
+        f = (y - ay) / span
+        xl = round(_arete_x(west, y))
+        xr = round(_arete_x(east, y))
+        xs = _arete_x(arete, y)
+        for x in range(xl, xr + 1):
+            if x < xs:
+                i = 1 if f < 0.5 else 2
+            else:
+                i = 3 if f < 0.5 else 4
+                if _hatch_px(x, y, 4, ph, -1):
+                    i = min(5, i + 1)
+            sp.set(x, y, rock[i])
+        inner, outer = (xr, xl) if inner_east else (xl, xr)
+        sp.set(outer, y, rock[5])                          # contact edge
+        sp.set(inner, y, CRYS[3] if f < 0.55 else rock[5])  # violet catch
+    for (xa, ya), (xb, yb) in zip(arete, arete[1:]):       # broken crest
+        ln(sp, xa, ya, xb, yb, rock[0] if ya < ay + span * 0.4 else rock[1])
+    sp.set(west[0][0], ay, rock[0])
+
+
 def crystal_summit(rock, salt=197):
     """THE BIG MOUNTAIN, post-Ebb (224x160 over 'B'): the SAME massif body —
-    same salt, byte-identical rock — but the summit is now the GIANT
-    CRYSTAL the world's magic drained into on the night of the Ebb: a
-    towering faceted prism seated in the cone's throat, side shards at the
-    collar, dark crystal veins running down the slopes (their glow rides
-    the additive overlay), and tiny shards floating around the tip."""
+    same salt, byte-identical rock — but the quake SPLIT the old horn open
+    and the GIANT CRYSTAL the world's magic drained into rose between the
+    leaning halves. A visibly TILTED, kink-edged great prism with a
+    blazing chisel tip; a druse of strongly unequal teeth splaying
+    outward (the two flanking teeth seated exactly on the glow overlay's
+    node points); the broken horn halves crossing IN FRONT of the
+    crystal's lower third; an erupted collar of heaved rock plates and
+    shard splinters; a transition zone of shrinking splinters feeding the
+    glow-vein fissures down the slopes; and violet reflected light pulled
+    onto the nearby rock crests. Same mountain — split, and wearing the
+    crystal that broke it."""
     w, h = 224, 160
     sp = S(w, h, salt)
     _mountain_body(sp, rock)
-    for y in range(8, 79):                                 # the great prism
-        f = (y - 8) / 70.0
-        cx, hw = 112, 4 + int(20 * f)
-        for x in range(cx - hw, cx + hw + 1):
-            if x < cx - hw // 2:
-                c = CRYS[1]                                # lit west facet
-            elif x <= cx:
-                c = CRYS[2]
-            else:
-                c = CRYS[3]                                # deep east facet
-            if (y - x) % 13 == 0 and x > cx:
-                c = CRYS[4]                                # internal fracture
-            elif (x + 2 * y) % 19 == 0 and x < cx:
-                c = CRYS[0]                                # inner fire vein
-            sp.set(x, y, c)
-        sp.set(cx - hw, y, CRYS[0])                        # bright rim
-        sp.set(cx + hw, y, CRYS[4])                        # dark rim
-    for i in range(8):                                     # the tip
-        for x in range(112 - i // 2, 112 + i // 2 + 1):
-            sp.set(x, i, CRYS[1] if x <= 112 else CRYS[2])
-    sp.set(112, 0, CRYS[0])
-    sp.set(111, 3, SPEC)                                   # tip glint
-    for x in range(86, 139):                               # collar seat shadow
-        if sp.get(x, 79) is not None:
-            sp.set(x, 79, rock[5])
-    _crystal(sp, 80, 52, 70, 93, 92)                       # collar shards
-    _crystal(sp, 146, 56, 132, 158, 96)
-    for pts in (((98, 82), (88, 108), (80, 140)),          # crystal veins down
-                ((126, 82), (140, 104), (150, 136)),       # the slopes (glow
-                ((112, 84), (108, 116), (102, 148))):      # dabs ride overlay)
+    # -- the druse teeth behind the great prism (strongly unequal, splayed)
+    _shard(sp, ((80, 26), (72, 44), (78, 78)),             # west tooth (~2/3
+           ((80, 26), (90, 42), (94, 80)),                 # scale, leans WEST;
+           a2=((80, 26), (83, 48), (86, 80)), chisel=7)    # holds node 80,52)
+    _shard(sp, ((156, 50), (146, 64), (144, 80)),          # east tooth (~2/5,
+           ((156, 50), (160, 66), (152, 82)),              # leans east)
+           a2=((156, 50), (151, 68), (148, 82)), chisel=5)
+    # -- THE GREAT PRISM: unmistakable east lean, hard shoulder breaks on
+    # every edge, chisel tip under the overlay's fixed blaze at B+(112,10)
+    _shard(sp, ((124, 2), (108, 20), (94, 42), (98, 76)),
+           ((124, 2), (130, 24), (136, 54), (126, 78)),
+           a1=((108, 22), (108, 46), (106, 78)),
+           a2=((124, 2), (124, 32), (118, 78)), chisel=16, ph=5, dense=True)
+    ln(sp, 116, 36, 128, 46, CRYS[4])                      # fracture planes
+    ln(sp, 110, 58, 124, 70, CRYS[4])
+    ln(sp, 104, 32, 100, 44, CRYS[0])                      # counter-light
+    sp.set(123, 4, SPEC)                                   # tip glint
+    sp.set(109, 21, SPEC)                                  # shoulder breaks
+    sp.set(135, 53, SPEC)
+    sp.set(80, 27, SPEC)                                   # west tooth tip
+    for x in range(96, 127):                               # seat shadow (the
+        for yb in (79, 80):                                # eruption breaks it)
+            p = sp.get(x, yb)
+            if p is not None and p not in CRYS:
+                sp.set(x, yb, rock[5])
+    # -- the SPLIT HORN: the old summit's halves lean apart in front of
+    # the crystal's lower third — it rises from WITHIN the mountain
+    _horn_half(sp, rock, ((90, 38), (78, 56), (74, 80)),   # west half leans
+               ((90, 38), (102, 54), (104, 80)),           # west
+               ((90, 38), (84, 58), (80, 80)), 3, inner_east=True)
+    _horn_half(sp, rock, ((144, 40), (132, 60), (126, 80)),  # east half leans
+               ((144, 40), (156, 62), (152, 80)),          # east
+               ((144, 40), (148, 62), (146, 80)), 1, inner_east=False)
+    sp.set(101, 54, CRYS[2])                               # reflected-light
+    sp.set(133, 59, CRYS[2])                               # catches on the
+    sp.set(99, 62, CRYS[2])                                # inner break edges
+    _heave(sp, rock, 108, 44, 0)                           # old-summit chunks
+    _heave(sp, rock, 121, 60, 1)                           # resting on faces
+    # -- the erupted collar: heaved plates + splinters around the base
+    _heave(sp, rock, 82, 82, -1)
+    _heave(sp, rock, 134, 80, 1)
+    _heave(sp, rock, 98, 86, -1)
+    _heave(sp, rock, 118, 84, 1)
+    for x, y in ((86, 88), (112, 92), (128, 86), (140, 84)):
+        sp.set(x, y, rock[5])                              # eruption rubble
+    _splinter(sp, 90, 70, 5, -1)                           # collar splinters
+    _splinter(sp, 130, 74, 6, 1)
+    _splinter(sp, 104, 82, 4, -1)
+    # -- the front tooth of the druse (~1/2 scale): crosses IN FRONT of
+    # the great prism's base and heaves out below the collar
+    _shard(sp, ((111, 54), (102, 70), (100, 88)),
+           ((111, 54), (118, 68), (114, 90)),
+           a2=((111, 54), (108, 72), (106, 88)), chisel=5, ph=2)
+    sp.set(110, 55, SPEC)
+    # -- glow-vein fissures through the overlay's fixed node points, fed
+    # by a transition zone of splinters sized down with distance
+    for pts in (((96, 80), (88, 108), (80, 130), (74, 146)),
+                ((130, 80), (140, 104), (146, 126), (152, 146)),
+                ((106, 90), (108, 116), (102, 142), (100, 154))):
         for (xa, ya), (xb, yb) in zip(pts, pts[1:]):
             ln(sp, xa, ya, xb, yb, CRYS[3])
-        for (xa, ya) in pts[1:]:
-            sp.set(xa, ya, CRYS[1])                        # lit vein nodes
-    for fx_, fy_ in ((90, 16), (136, 22), (122, 6)):       # floating shards
-        sp.set(fx_, fy_, CRYS[1])
-        sp.set(fx_, fy_ - 1, CRYS[0])
-    sp.despeckle(2, 1)
-    sp.cluster_shade([rock, CRYS], passes=1)
+        ln(sp, pts[0][0] + 1, pts[0][1], pts[1][0] + 1, pts[1][1], CRYS[4])
+        nx, ny = pts[1]                                    # the node the glow
+        sp.rect(nx, ny, nx + 1, ny + 1, CRYS[1])           # overlay lights
+        sp.set(nx, ny, CRYS[0])
+    _splinter(sp, 95, 84, 6, -1)                           # the crystallization
+    _splinter(sp, 89, 102, 5, -1)                          # spreading into the
+    _splinter(sp, 82, 122, 4, 0)                           # rock, shrinking as
+    _splinter(sp, 133, 86, 6, 1)                           # it descends
+    _splinter(sp, 141, 108, 5, 1)
+    _splinter(sp, 147, 128, 4, 0)
+    _splinter(sp, 109, 94, 5, 1)
+    _splinter(sp, 106, 120, 4, 0)
+    _splinter(sp, 146, 52, 6, 1)                           # cracks the east
+    _splinter(sp, 87, 58, 5, -1)                           # horn-half too (on
+    ln(sp, 91, 96, 96, 100, CRYS[3])                       # the glow nodes) +
+    ln(sp, 137, 92, 132, 96, CRYS[3])                      # branch ticks
+    ln(sp, 105, 128, 110, 132, CRYS[3])
+    # -- light bridging: violet reflected light on the nearby rock crests,
+    # fading with distance (crest px only — never the face fills)
+    for x0_, y0_, x1_, y1_, tones in ((98, 82, 114, 104, (rock[0], rock[1])),
+                                      (68, 36, 82, 56, (rock[0],)),
+                                      (148, 42, 158, 62, (rock[0],))):
+        for y in range(y0_, y1_ + 1):
+            for x in range(x0_, x1_ + 1):
+                if sp.get(x, y) in tones:
+                    sp.set(x, y, CRYS[2])
+    for fx_, fy_ in ((102, 8), (132, 12), (114, 4)):       # floating shards
+        sp.rect(fx_, fy_, fx_ + 1, fy_ + 1, CRYS[2])
+        sp.set(fx_, fy_, CRYS[0])
+    sp.despeckle(2, 1)                 # no cluster_shade: see big_mountain
     edge(sp, h)
     return sp
 

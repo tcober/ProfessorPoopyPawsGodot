@@ -10,6 +10,11 @@ extends Node2D
 
 const BeakerScene := preload("res://entities/pickups/beaker.tscn")
 const SlimeScene := preload("res://entities/enemies/slime.tscn")
+const BigSlimeScene := preload("res://entities/enemies/big_slime.tscn")
+
+## Odds a respawn comes back as the heavy. Kept low: the big slime is the
+## reason to spend darts, and it only reads as a threat if it stays uncommon.
+const BIG_SLIME_CHANCE := 0.3
 
 const MAP_PATH := "res://assets/maps/meadow.txt"
 const LAYOUT_PATH := "res://assets/tilesets/meadow_layout.txt"
@@ -51,8 +56,21 @@ func _track_beaker(beaker: Beaker) -> void:
 func _on_beaker_collected() -> void:
 	var beaker := BeakerScene.instantiate()
 	beaker.position = _random_spawn()
+	beaker.kind = _roll_kind()
 	world.add_child(beaker)
 	_track_beaker(beaker)
+
+
+## Green is the common drop; frost and flame turn up often enough to mix with.
+## PLASMA is deliberately absent — the only way to hold one is to make it, or
+## the premium compound would just be another thing you pick up off the grass.
+func _roll_kind() -> Compound.Kind:
+	var roll := randf()
+	if roll < 0.5:
+		return Compound.Kind.BASE
+	elif roll < 0.75:
+		return Compound.Kind.FROST
+	return Compound.Kind.FLAME
 
 
 func _track_slime(slime: Slime) -> void:
@@ -65,7 +83,10 @@ func _on_slime_died() -> void:
 
 
 func _spawn_slime() -> void:
-	var slime := SlimeScene.instantiate()
+	# BigSlime extends Slime, so everything downstream (the `is Slime` scan in
+	# _ready, _track_slime, the party brains' "enemies" targeting) is unchanged.
+	var scene := BigSlimeScene if randf() < BIG_SLIME_CHANCE else SlimeScene
+	var slime := scene.instantiate()
 	slime.position = _random_spawn()
 	world.add_child(slime)
 	_track_slime(slime)

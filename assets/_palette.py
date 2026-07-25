@@ -148,6 +148,16 @@ SCENES = {
             "floor": (150, 158, 190, 255),      # cool slate-blue boards
         },
     },
+    "library": {        # Fuji's Lanternwood library, the night of the Ebb:
+        "shadow": "violet",                 # a candle-lit timber-and-plum den —
+        "accent": (255, 188, 102, 255),     # firelight amber, the one warmth
+        # against the cold snow-blue night in the window glass (the glass
+        # ramp is hand data in the generator; glass is a light, not a mat).
+        "mats": {
+            "wall": (158, 104, 88, 255),    # rosewood planks (violet darks)
+            "floor": (112, 72, 118, 255),   # deep plum weave
+        },
+    },
     "overworld": {      # hot teal sea + minty continent, hot violet wastes
         "shadow": "teal",
         "accent": (196, 120, 255, 255),         # wastes crystal violet
@@ -475,4 +485,16 @@ SLIME = {
     "OUT": (24, 62, 40, 255),
     "EYE": (24, 34, 28, 255),
     "GLINT": (235, 250, 238, 255),
+}
+
+# Big slime — the heavy. A bruise-VIOLET gel rather than a scaled-up green one,
+# so "this one is tougher" reads at a glance from the colour alone (the duotone
+# rule: one hue field, one hot accent) instead of only from its size. Denser and
+# lower-L than SLIME across the ramp — it looks like it weighs more.
+SLIME_BIG = {
+    "GELR": [(196, 168, 246, 255), (150, 116, 214, 255), (108, 78, 172, 255), (72, 48, 124, 255)],
+    "OUT": (34, 22, 58, 255),
+    "EYE": (26, 20, 38, 255),
+    "GLINT": (244, 236, 255, 255),
+    "NUCR": [(126, 100, 190, 255), (96, 72, 158, 255), (70, 50, 126, 255), (48, 32, 96, 255)],
 }

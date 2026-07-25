@@ -48,8 +48,17 @@ func bind_party(party_members: Array) -> void:
 func bind_ammo(player: Player) -> void:
 	player.ammo_changed.connect(_on_ammo_changed)
 	player.beakers_changed.connect(_on_beakers_changed)
+	player.loaded_changed.connect(_on_loaded_changed)
+	_on_loaded_changed(player.loaded)
 	_on_ammo_changed(player.ammo, player.max_ammo)
 	_on_beakers_changed(player.beakers, player.max_beakers)
+
+
+## The loaded compound colours the PIP ROW rather than adding a fifth HUD row:
+## the pips already say how many shots are left, and tinting them says what
+## kind of shots they are in the same glance and the same pixels.
+func _on_loaded_changed(compound: Compound) -> void:
+	ammo_container.modulate = compound.tint if compound else Color.WHITE
 
 
 func _on_leader_swap(_leader: PartyMember) -> void:
@@ -83,15 +92,22 @@ func _on_ammo_changed(current: int, max_ammo: int) -> void:
 		_set_frame(pips[i] as TextureRect, frame, AMMO_CELL)
 
 
-func _on_beakers_changed(current: int, _max_beakers: int) -> void:
-	# Spares only — the loaded mag is the pip row. Plain icons, one per beaker.
-	while mags_container.get_child_count() < current:
+func _on_beakers_changed(spares: Array, _max_beakers: int) -> void:
+	# Spares only — the loaded mag is the pip row. One icon per beaker, each
+	# tinted to its compound, so the coat's contents are readable at a glance
+	# and you know what you have to mix with without opening the menu.
+	var count := spares.size()
+	while mags_container.get_child_count() < count:
 		var rect := TextureRect.new()
 		rect.texture = beaker_texture
 		rect.stretch_mode = TextureRect.STRETCH_KEEP
 		mags_container.add_child(rect)
-	while mags_container.get_child_count() > current:
+	while mags_container.get_child_count() > count:
 		mags_container.get_child(mags_container.get_child_count() - 1).free()
+	for i in count:
+		var compound: Compound = spares[i]
+		(mags_container.get_child(i) as TextureRect).modulate = \
+			compound.tint if compound else Color.WHITE
 
 
 func _ensure_count(box: HBoxContainer, count: int, tex: Texture2D, cell: int) -> void:

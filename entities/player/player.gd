@@ -7,9 +7,20 @@ extends PartyMember
 ## on. Beakers are the gun's magazines: pickups go into his coat as spares
 ## (max_beakers), and reloading (R, or pulling the trigger dry) plays the pour
 ## animation and empties one into the gun.
+##
+## Each beaker is a COMPOUND (resources/compound.gd), not a generic refill —
+## green base, blue frost, red flame, purple plasma — so what he pours decides
+## what the gun fires: damage, range, cadence, and the status the bolt carries.
+## Two spares can be mixed into one better beaker from the mix menu (M).
+##
+## The loadout itself lives on `Game`, not here: Party.spawn() rebuilds this
+## body on every scene load, so anything held on the instance resets at each
+## door. `_ready` adopts whatever Game is holding and writes back on every
+## change.
 
 signal ammo_changed(current: int, max_ammo: int)
-signal beakers_changed(current: int, max_beakers: int)
+signal beakers_changed(spares: Array, max_beakers: int)
+signal loaded_changed(compound: Compound)
 
 # Kit states (>= PartyMember.STATE_KIT).
 const STATE_SHOOT := 2
@@ -28,7 +39,10 @@ const LaserBoltScene := preload("res://entities/projectiles/laser_bolt.tscn")
 const MuzzleFlashScene := preload("res://entities/projectiles/muzzle_flash.tscn")
 
 var ammo: int = 0
-var beakers: int = 0
+
+## The compound currently in the gun. Its `charges` is what `max_ammo` means
+## for this magazine, so a 3-round plasma beaker really does empty in three.
+var loaded: Compound = null
 
 var _shoot_timer: float = 0.0
 var _reload_timer: float = 0.0
@@ -36,12 +50,36 @@ var _poured: bool = false
 var _recoil: Vector2 = Vector2.ZERO
 
 
+## Spares live on Game so they survive scene changes. Read through a property
+## rather than copied into a field, or a mix performed mid-scene would be
+## overwritten by a stale local list on the next pickup.
+var beakers: Array[Compound]:
+	get: return Game.spares
+
+
 func _ready() -> void:
 	super()
-	ammo = max_ammo
-	beakers = 1                      # one spare mag in the coat to start
+	if Game.loaded == null:
+		# Fresh run (or a chapter jump that reset the story): the gun starts
+		# loaded with plain green and one green spare in the coat, exactly as
+		# it did before compounds existed.
+		Game.loaded = Alchemy.make(Compound.Kind.BASE)
+		var start: Array[Compound] = [Alchemy.make(Compound.Kind.BASE)]
+		Game.spares = start
+		Game.ammo_left = Game.loaded.charges
+	loaded = Game.loaded
+	max_ammo = loaded.charges
+	# Rounds persist across scenes too, unlike HP. Once a magazine is something
+	# you MIXED, refilling it by walking out of the zone and back would be the
+	# cheapest exploit in the game.
+	ammo = clampi(Game.ammo_left, 0, max_ammo)
+	_emit_all()
+
+
+func _emit_all() -> void:
 	ammo_changed.emit(ammo, max_ammo)
 	beakers_changed.emit(beakers, max_beakers)
+	loaded_changed.emit(loaded)
 
 
 func _process_kit(delta: float) -> void:
@@ -60,11 +98,16 @@ func _process_kit(delta: float) -> void:
 			velocity = Vector2.ZERO
 			_reload_timer -= delta
 			if not _poured and _reload_timer <= reload_time - reload_pour_at:
+				# The single moment a beaker becomes ammo — and therefore the
+				# moment the gun's whole character changes, since the spare he
+				# pours decides what the next magazine fires.
 				_poured = true
-				beakers -= 1
-				beakers_changed.emit(beakers, max_beakers)
+				loaded = Game.spares.pop_front()
+				Game.loaded = loaded
+				max_ammo = loaded.charges
 				ammo = max_ammo
-				ammo_changed.emit(ammo, max_ammo)
+				_sync_game()
+				_emit_all()
 			if _reload_timer <= 0.0:
 				state = STATE_MOVE
 
@@ -88,9 +131,12 @@ func _try_fire() -> void:
 		return
 	# Everything lands on the trigger frame: bolt, flash, kick, recoil pose.
 	ammo -= 1
+	_sync_game()
 	ammo_changed.emit(ammo, max_ammo)
 	state = STATE_SHOOT
-	_shoot_timer = fire_recover
+	# Cadence is the compound's, not the gun's: the flame tincture sprays where
+	# the base reagent cracks off one heavy shot.
+	_shoot_timer = loaded.fire_recover
 	_recoil = -facing * recoil_push
 	velocity = _recoil
 	_spawn_bolt()
@@ -101,6 +147,9 @@ func _spawn_bolt() -> void:
 	var bolt := LaserBoltScene.instantiate()
 	bolt.direction = facing
 	bolt.shooter = self
+	# One bolt scene serves every compound: the loaded reagent sets the numbers
+	# and the colour on the instance, the same way direction/shooter already are.
+	bolt.apply_compound(loaded)
 	get_parent().add_child(bolt)
 	bolt.global_position = global_position + facing * muzzle_offset
 	# Blast at the gun root.
@@ -115,13 +164,20 @@ func _spawn_bolt() -> void:
 	flash.rotation = facing.angle()
 
 
-func collect_beaker() -> bool:
-	## A beaker is a spare magazine. False = paws full, leave it on the grass.
-	if beakers >= max_beakers:
+func collect_beaker(kind: Compound.Kind = Compound.Kind.BASE) -> bool:
+	## A beaker is a spare magazine, and now it has a KIND. False = paws full,
+	## leave it on the grass.
+	if beakers.size() >= max_beakers:
 		return false
-	beakers += 1
+	Game.spares.append(Alchemy.make(kind))
 	beakers_changed.emit(beakers, max_beakers)
 	return true
+
+
+## Mirror the instance's spendable state back onto the autoload that outlives
+## the scene. Spares are already Game's list, so only the round count needs it.
+func _sync_game() -> void:
+	Game.ammo_left = ammo
 
 
 func _try_reload() -> void:
@@ -129,7 +185,7 @@ func _try_reload() -> void:
 	# mag is topped up or his coat is empty. (Empty-click feedback comes later.)
 	if state != STATE_MOVE or _airborne:
 		return
-	if beakers <= 0 or ammo >= max_ammo:
+	if beakers.is_empty() or ammo >= max_ammo:
 		return
 	state = STATE_RELOAD
 	velocity = Vector2.ZERO

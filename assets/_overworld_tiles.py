@@ -384,8 +384,9 @@ class OverWorld(TileScene):
     # deliberate CT tufts (lit tip over a shaded V, one dark root) ...
     _TUFTS32 = ((4, 10), (13, 27), (20, 3), (28, 17), (9, 19), (24, 25))
     # ... singles: dark nicks / sunlit 2px dashes ...
-    _NICKS32 = ((9, 1), (30, 10), (1, 6), (13, 15), (19, 22), (26, 14))
-    _DASHES32 = ((8, 6), (30, 28), (17, 8), (22, 30))
+    _NICKS32 = ((9, 1), (30, 10), (1, 6), (13, 15), (19, 22), (26, 14),
+                (16, 28), (29, 5))
+    _DASHES32 = ((8, 6), (30, 28), (17, 8), (22, 30), (2, 18))
     # ... and two BROAD warm-green drift patches (lobe unions, wrapped) —
     # CT's two-green field: the second hue dithered in at matched value,
     # replacing the old stamped dark ellipses that tiled into a dot grid
@@ -434,10 +435,11 @@ class OverWorld(TileScene):
         # every tile carries quiet turf texture without reading as noise
         return _grain_dither(g, 0.40, w, z, 91, grain=3, jitter=1.15)
 
-    # 32-space hills: two soft turf knolls per 2x2 tiles riding the grass
-    # fabric — scattered rises read by their lit brow and thin base shadow,
-    # not an egg-carton of dark ovals stamped one per tile
-    _KNOLLS32 = ((8, 6, 7.0, 4.6), (22, 21, 6.2, 4.2))
+    # 32-space hills: turf knolls riding the grass fabric — scattered rises
+    # read by a DOUBLE lit brow (bright crown arc over a lit inner band)
+    # and a deep base shadow with a contact line, plus a third small knoll
+    # for density; still never an egg-carton of dark ovals
+    _KNOLLS32 = ((8, 6, 7.0, 4.6), (22, 21, 6.2, 4.2), (26, 6, 4.6, 3.2))
 
     def _px_hills(self, u, v, phase=0):
         g = self.GRASS
@@ -449,10 +451,11 @@ class OverWorld(TileScene):
                     q = dx * dx + dy * dy
                     if q > 1.0:
                         continue
-                    if dy < -0.30 and q > 0.45:
-                        return g[1]                        # sunlit brow arc
-                    if q > 0.72 and dy > 0.25:
-                        return g[4]                        # thin base shadow
+                    if dy < -0.25 and q > 0.40:            # sunlit double brow,
+                        return g[0] if q > 0.62 and dx < 0.15 \
+                            else g[1]                      # bright on the NW arc
+                    if q > 0.62 and dy > 0.20:
+                        return g[5] if q > 0.86 else g[4]  # base shadow + contact
                     # the raised body: a touch lighter than the field
                     return _grain_dither((g[1], g[2], g[2]), 0.5, w, z, 91,
                                          grain=3, jitter=0.9)
@@ -468,6 +471,9 @@ class OverWorld(TileScene):
         return self._px_grass(u, v, phase)
 
     def _px_beach(self, u, v):
+        """Sand: a quiet grain-dithered pan under faint wind-combed ripple
+        rows (the desert's crest language at whisper contrast) and the old
+        sparse shell/pebble speckles — texture, not pattern, at map zoom."""
         s = self.SAND
         if (u, v) in ((3, 5), (9, 2), (13, 9), (6, 12)):
             return s[2]
@@ -475,7 +481,11 @@ class OverWorld(TileScene):
             return s[0]
         if (u, v) == (14, 14):
             return s[3]
-        return s[1]
+        if v in (5, 13) and (u + (0 if v == 5 else 8)) % 16 < 5:
+            return s[0]                                    # lit ripple comb
+        if v in (6, 14) and 1 <= (u + (0 if v == 6 else 8)) % 16 < 5:
+            return s[2]                                    # its soft lee
+        return _grain_dither((s[1], s[2]), 0.22, u, v, 94, grain=3, jitter=0.6)
 
     # 32-space snow texture: wind-scour drift dashes (a lit crest over a lee
     # shadow) scattered like the grass tufts, plus rare single-px frost glints
@@ -485,10 +495,12 @@ class OverWorld(TileScene):
         s = self.SNOW
         w, z = u + 16 * (phase & 1), v + 16 * (phase >> 1)
         for cx, cy in self._SCOUR32:
-            if (w, z) in ((cx, cy), (cx + 1, cy), (cx + 2, cy)):
+            if (w, z) in ((cx, cy), (cx + 1, cy), (cx + 2, cy), (cx + 3, cy)):
                 return s[0]                                # lit drift crest
             if (w, z) in ((cx + 1, cy + 1), (cx + 2, cy + 1), (cx + 3, cy + 1)):
                 return s[2]                                # its lee shadow
+            if (w, z) == (cx + 4, cy + 1):
+                return s[3]                                # the scour heel
         if h2(w, z, 85) % 91 == 0:
             return self.SPARK                              # a frost glint
         # a bright field: mostly the base tone, sparse pale patches, rare dips
@@ -507,8 +519,10 @@ class OverWorld(TileScene):
         off = 7 * (phase & 1) + 3 * (phase >> 1)
         if v in (3, 11) and (u + off + (0 if v == 3 else 8)) % 16 < 6:
             return d[0]                                    # lit dune crest
-        if v in (4, 12) and 1 <= (u + off + (0 if v == 4 else 8)) % 16 < 6:
-            return d[3]                                    # its lee shadow
+        if v in (4, 12):
+            j = (u + off + (0 if v == 4 else 8)) % 16
+            if 1 <= j < 6:                                 # its lee shadow,
+                return d[4] if j < 4 else d[3]             # deep at the heel
         for px_, py_ in self._DPEBBLES32:
             if (w, z) == (px_, py_):
                 return d[0]                                # pebble catchlight
@@ -535,15 +549,18 @@ class OverWorld(TileScene):
 
     def _crown_px(self, nx, ny, q, w, z):
         """One canopy ball pixel: NW-lit — bright cap, dithered mid bands,
-        hard dark under-rim, near-black at the base."""
+        hard dark under-rim, near-black at the base. Same silhouette as
+        ever (the town hedges ride this class); the polish is value depth:
+        a slightly wider sun-glint cap, a CLEAN un-dithered under-rim band,
+        and mids pushed a step darker toward the SE."""
         f = self.FOREST
-        if q > 0.80 and ny > 0.15:
-            return f[5] if ny > 0.55 else f[4]
+        if q > 0.78 and ny > 0.12:
+            return f[5] if ny > 0.50 else f[4]             # clean under-rim
         lit = -ny * 0.85 - nx * 0.30 + (1.0 - q) * 0.35    # NW-high lambert
-        if lit > 0.72:
-            return f[0]                                    # rare sun-glint cap
-        t = max(0.0, min(1.0, (0.75 - lit) / 1.6))
-        return f[1 + _dither_i(4, t, w, z, 66, grain=2, jitter=0.55)]
+        if lit > 0.68:
+            return f[0]                                    # sun-glint cap
+        t = max(0.0, min(1.0, (0.72 - lit) / 1.45))
+        return f[1 + _dither_i(4, t, w, z, 66, grain=2, jitter=0.5)]
 
     def _lobe_win(self, u, v, lobes=None):
         """The winning wrapped lobe at a pixel — the SOUTHERNMOST instance
@@ -573,13 +590,13 @@ class OverWorld(TileScene):
         a tiered spruce top, with snow dusted along the upper shoulders (the
         massif snowcap idiom) and a hard under-rim like the forest's."""
         p = self.PINES
-        if ny < -0.45 and q > 0.30:                        # snow-dusted shoulder
-            s = self.SNOW
-            return s[1] if nx < 0.10 else s[2]
+        if ny < -0.42 and q > 0.26 and abs(nx) < 0.72:     # snow-dusted cap,
+            s = self.SNOW                                  # gapped per bough so
+            return s[0] if nx < 0.10 else s[1]             # rows don't stripe
         if q > 0.80 and ny > 0.15:
             return p[5] if ny > 0.55 else p[4]             # under-rim shadow
-        ring = int(q * 3.0)                                # tiered bough bands
-        lit = -ny * 0.70 - nx * 0.35 - ring * 0.18
+        ring = int(q * 3.0)                                # tiered bough bands:
+        lit = -ny * 0.70 - nx * 0.35 - ring * 0.26         # harder tier steps
         if lit > 0.55:
             return p[1]                                    # lit tip band
         t = max(0.0, min(1.0, (0.60 - lit) / 1.5))
@@ -594,36 +611,145 @@ class OverWorld(TileScene):
         return self._pine_px(win[0], win[1], win[2],
                              u + 16 * (phase & 1), v + 16 * (phase >> 1))
 
-    def _rock_px(self, nx, ny, q, w, z, snow=False):
-        """One massif pixel: the lobe shaded as a stylized PEAK — a hard
-        two-face split (sunlit west face, shadow east face with engraved
-        strata) under a bright vertical ridge crest, the classic SNES
-        world-map mountain; snowy cells whiten the summit arc."""
-        r = self.ROCK
+    # 16-periodic PEAK geometry (the mountain class's own lattice): an
+    # INTERLOCKED field in three clearly different sizes — one DOMINANT
+    # horn, one mid shoulder on the half-period diagonal (so the implied
+    # summit lattice reads as a diagonal checker, never rows/columns),
+    # two small teeth tucked between — each carved to a pointed summit by
+    # _peak_member with its OWN arete lean and edge slopes (see _CARVES:
+    # parallel cleft runs were the loudest wallpaper artifact), shaded
+    # with the big-mountain landmark's vocabulary so fabric and landmark
+    # read as one geology. Geometry wraps at 16 like every lobe lattice
+    # (the boxy-forest lesson): edge cells render phase 0, only the
+    # dither TEXTURE rides the 32-space.
+    _PEAKS16 = ((5, 4, 10.6), (13, 12, 7.4), (11, 1, 4.8), (8, 13, 4.4))
+    # chunky whole-tile peaks: the fallback for narrow massif arms (a 1-cell
+    # ridge renders as a bold tooth line instead of vanishing)
+    _PEAKSYNTH16 = ((4, 5, 5.7), (12, 11, 6.1), (11, 3, 4.5), (3, 12, 5.2))
+
+    # per-peak carve personality, keyed by the lobe RADIUS (every pool
+    # radius is unique, so the radius IS the peak's identity — a pure
+    # function of lattice configuration, dedupe-safe): (tilt, sw, se,
+    # apex, foot, tone). tilt leans the arete — the crest line and both
+    # silhouette edges run at per-peak angles, so no two peaks' cleft
+    # lines are parallel; sw/se are the west/east edge slopes
+    # (asymmetric on purpose); apex is the cone-tip height inside the
+    # disc; foot >= 1 drops the rounded disc foot (a pure triangle
+    # tooth); tone is the contrast tier _rock_px shades (0 = full
+    # crest + hard split + strata — the dominant horn ONLY; 1 = soft
+    # crest, sparse strata; 2 = quiet mid-tones). Keys are also entered
+    # at r*1.14 — _arc_cell probes the outline ring at that scale.
+    _CARVES = {}
+    for _r, _p in ((10.6, (-0.22, 1.55, 0.95, 0.95, 0.32, 0)),
+                   (7.4, (0.18, 0.80, 1.50, 1.05, 0.10, 1)),
+                   (4.8, (0.00, 1.30, 0.90, 0.90, 1.10, 2)),
+                   (4.4, (0.30, 1.00, 1.40, 0.90, 1.10, 2)),
+                   (5.7, (-0.15, 1.20, 0.85, 0.95, 0.30, 1)),
+                   (6.1, (0.12, 0.90, 1.30, 1.00, 0.20, 1)),
+                   (4.5, (-0.28, 1.35, 1.00, 0.90, 1.10, 2)),
+                   (5.2, (0.00, 0.95, 1.20, 0.92, 0.50, 2))):
+        for _rr in (_r, _r * 1.14):
+            _k = int(round(_rr * 10))
+            assert _k not in _CARVES, f"carve radius key clash: {_k}"
+            _CARVES[_k] = _p
+    del _r, _p, _rr, _k
+
+    @staticmethod
+    def _carve(r):
+        """The carve personality of the peak with radius r (KeyError on an
+        unregistered radius: add the pool entry to _CARVES)."""
+        return OverWorld._CARVES[int(round(r * 10))]
+
+    @staticmethod
+    def _peak_member(dx, dy, r):
+        """Peak silhouette membership inside a lobe disc: a triangular
+        summit with a per-peak leaning arete and asymmetric edge slopes
+        (over a rounded disc foot where the carve keeps one) — the carve
+        that turns round crowns into pointed peaks. Pixels a nearer peak
+        carves away fall through to the peak behind (painter's order), so
+        the field reads as overlapping summits, not scales."""
+        q = (dx * dx + dy * dy) / (r * r)
+        if q > 1.0:
+            return False
+        tilt, sw, se, apex, foot, _ = OverWorld._carve(r)
+        nx, ny = dx / r, dy / r
+        if ny >= foot:                                     # the rounded foot
+            return True
+        hw = ny + apex                                     # cone half-width
+        if hw <= 0.0:                                      # above the tip
+            return False
+        a = nx - tilt * (0.15 - ny)                        # arete-relative x
+        return -hw / sw <= a <= hw / se
+
+    def _peak_win(self, u, v, lobes=None):
+        """The winning wrapped PEAK at a pixel — the southernmost instance
+        whose carved silhouette contains it (painter's order over
+        _peak_member). (nx, ny, q, instance_key, r) or None."""
+        win, wkey = None, (-99, -99)
+        for cx, cy, r in (lobes or self._PEAKS16):
+            for oy in (-16, 0, 16):
+                for ox in (-16, 0, 16):
+                    dx, dy = u - (cx + ox), v - (cy + oy)
+                    if self._peak_member(dx, dy, r) and (cy + oy, cx + ox) > wkey:
+                        win = (dx / r, dy / r,
+                               (dx * dx + dy * dy) / (r * r),
+                               (cx + ox, cy + oy), r)
+                        wkey = (cy + oy, cx + ox)
+        return win
+
+    def _rock_px(self, nx, ny, q, w, z, snow=False, r=10.6):
+        """One massif pixel, shaded by the peak's SIZE TIER (calm field,
+        few accents — the CT massif read): the DOMINANT horn carries the
+        landmark's full vocabulary — bright crest line down its leaning
+        arete, hard sunlit-west/shadow-east split, spacing-4 strata hatch
+        CONFINED to the shadow face (with the pale seam variant); the mid
+        shoulders soften to a low crest and sparse strata; the small
+        teeth are quiet mid-tones. All tiers share the dark AO skirt at
+        the foot, and snowy cells whiten any summit cone."""
+        tilt, sw, se, apex, foot, tone = self._carve(r)
+        rk = self.ROCK
+        a = nx - tilt * (0.15 - ny)                        # arete-relative x
         if snow and ny < -0.30:                            # the summit cap
             s = self.SNOW
             if ny < -0.60:
-                return s[0] if nx < 0.15 else s[1]
-            return s[1] if nx < 0 else s[2]                # cap skirt
-        if q > 0.82 and ny > 0.18:
-            return r[5]                                    # under-rim shadow
-        if abs(nx) < 0.09 and ny < 0.40:
-            return r[0] if ny < -0.15 else r[1]            # the ridge crest
-        if nx < 0:                                         # sunlit west face
-            i = 1 if ny < -0.15 else 2
+                return s[0] if a < 0.15 else s[1]
+            return s[1] if a < 0 else s[2]                 # cap skirt
+        if q > 0.80 and ny > 0.30:
+            return rk[5]                                   # under-rim shadow
+        if tone == 0 and abs(a) < 0.10 and ny < 0.45:      # full crest line:
+            return rk[0] if ny < -0.05 else rk[1]          # the dominant only
+        if tone == 1 and abs(a) < 0.09 and ny < 0.05:
+            return rk[1]                                   # soft mid crest
+        f = (ny + 1.0) / 1.7                               # apex 0 -> foot 1,
+        fx = f + 0.02 * ((w - z) % 4)                      # strata-conformal
+        if a < 0:                                          # sunlit west face
+            i = 1 if tone == 0 and fx < 0.55 else 2
         else:                                              # shadow east face
-            i = 3 if ny < -0.15 else 4
-            if _hatch(w, z, 4, 1, -1):
-                i = min(5, i + 1)                          # engraved strata
-        return r[i]
+            if tone == 0:
+                i = 3 if fx < 0.45 else 4
+                if _hatch(w, z, 4, 1, -1):
+                    i = min(5, i + 1)                      # engraved strata
+                elif i == 4 and _hatch(w, z, 8, 3, -1):
+                    i = 3                                  # pale strata seam
+            elif tone == 1:
+                i = 3 if fx < 0.55 else 4
+                if _hatch(w, z, 8, 5, -1):
+                    i = min(5, i + 1)                      # sparse strata
+            else:
+                i = 3 if fx < 0.75 else 4                  # quiet tooth
+        if ny > 0.62:
+            i = max(i, 4)                                  # foot AO band
+        return rk[i]
 
     def _px_mountain(self, u, v, phase=0):
-        """Interior massif: painter-sorted peak lobes; clefts between."""
-        win = self._lobe_win(u, v)
+        """Interior massif: painter-sorted carved PEAKS; whatever no summit
+        claims is deep cleft shadow between them."""
+        win = self._peak_win(u, v)
         if win is None:
             return self.ROCK[5]                            # cleft shadow
         return self._rock_px(win[0], win[1], win[2],
-                             u + 16 * (phase & 1), v + 16 * (phase >> 1))
+                             u + 16 * (phase & 1), v + 16 * (phase >> 1),
+                             r=win[4])
 
     # 32-space cracked-pan texture: an ANGULAR crack graph — straight
     # segments meeting at Y-junctions, dividing the period into irregular
@@ -681,6 +807,11 @@ class OverWorld(TileScene):
         if d < 1.6:                                        # plate lip
             return _grain_dither((b[3], b[4]), 0.6, w, z, 84,
                                  grain=2, jitter=0.9)
+        if d < 2.4 and self._crack_d(w, z - 1) < d:
+            return b[1]                                    # raised plate edge:
+                                                           # NW light catches
+                                                           # the bevel south of
+                                                           # a fissure (relief)
         if d > 2.5 and _hatch(w, z, 6, 2, -1):
             return b[3]                                    # sparse strata, held
                                                            # off the cracks so
@@ -1116,16 +1247,25 @@ class OverWorld(TileScene):
             return x + 0.5
         return T - 0.5 - x                                 # E
 
-    def _arc_cell(self, X, Y, masks, phase, own, shade, gap, lobes=None):
+    def _arc_cell(self, X, Y, masks, phase, own, shade, gap, lobes=None,
+                  synth=None, member=None, union=False):
         """Shared silhouette machinery for lobed masses (forest crowns,
-        mountain rock lobes): build open-boundary segs from the `own`
+        mountain peak lobes): build open-boundary segs from the `own`
         neighbor classes, keep pattern instances whose whole disc stays
-        inside every boundary (small strip lobes as the fallback for
-        narrow runs), then paint kept lobes via shade(), a 1px `gap`
-        outline ring around the union, and the neighbor's fabric in the
-        bays — the silhouette follows the lobes, never the tile grid, and
-        everything stays on the LOWER canvas. Returns False for interior
-        cells (no open boundary): the caller paints its pure fabric."""
+        inside every boundary (small strip lobes — `synth`, default
+        _SYNTH16 — as the fallback for narrow runs), then paint kept lobes
+        via shade(), a 1px `gap` outline ring around the union, and the
+        neighbor's fabric in the bays — the silhouette follows the lobes,
+        never the tile grid, and everything stays on the LOWER canvas.
+        `member(dx, dy, r)` overrides plain disc membership (the mountain's
+        triangle-carved peaks): the silhouette and its outline ring follow
+        the carved shape. `union=True` keeps fitting instances from BOTH
+        pools instead of synth-as-fallback — the mountain needs it: a
+        carved big peak can leave a rim corner cell with zero covered
+        pixels (the corner wedge is exactly what the carve removes), which
+        dedupes to open ground = an invisible wall; the small teeth fill
+        those corners as foothills. Returns False for interior cells (no
+        open boundary): the caller paints its pure fabric."""
         segs = []                                          # (kind, geo, class)
         for c2, bits in masks.items():
             if c2.startswith("__") or c2 not in own:
@@ -1143,7 +1283,7 @@ class OverWorld(TileScene):
         if not segs:
             return False
         kept = []
-        for pool in (lobes or self._CROWNS16, self._SYNTH16):
+        for pool in (lobes or self._CROWNS16, synth or self._SYNTH16):
             for cx, cy, r in pool:
                 for oy in (-16, 0, 16):
                     for ox in (-16, 0, 16):
@@ -1151,22 +1291,28 @@ class OverWorld(TileScene):
                         if all(self._seg_dist(k, g, ax, ay) >= r - 1.0
                                for k, g, _ in segs):
                             kept.append((ax, ay, r))
-            if kept:                                       # synth only as fallback
-                break
+            if kept and not union:                         # synth only as fallback
+                break                                      # (union: both pools)
         w0, z0 = 16 * (phase & 1), 16 * (phase >> 1)
         for v in range(T):
             for u in range(T):
-                win, wkey, qmin = None, (-99, -99), 9.9
+                win, wkey, ring = None, (-99, -99), False
                 for ax, ay, r in kept:
                     dx, dy = u - ax, v - ay
                     q = (dx * dx + dy * dy) / (r * r)
-                    if q < qmin:
-                        qmin = q
-                    if q <= 1.0 and (ay, ax) > wkey:
+                    if member is None:
+                        inside = q <= 1.0
+                        if not inside and q <= 1.30:
+                            ring = True
+                    else:
+                        inside = member(dx, dy, r)
+                        if not inside and member(dx, dy, r * 1.14):
+                            ring = True
+                    if inside and (ay, ax) > wkey:
                         win, wkey = (dx / r, dy / r, q), (ay, ax)
                 if win is not None:
                     c = shade(u + w0, v + z0, win, kept)
-                elif qmin <= 1.30:
+                elif ring:
                     c = gap                                # silhouette outline +
                                                            # dark Vs between lobes
                 else:                                      # the open bay
@@ -1206,7 +1352,9 @@ class OverWorld(TileScene):
         shade = (lambda w, z, win, kept:
                  self._rock_px(win[0], win[1], win[2], w, z, snow))
         if not self._arc_cell(X, Y, masks, phase, MOUNT_OWN, shade,
-                              self.ROCK[5]):
+                              self.ROCK[5], lobes=self._PEAKS16,
+                              synth=self._PEAKSYNTH16,
+                              member=self._peak_member, union=True):
             for v in range(T):                             # interior massif
                 for u in range(T):
                     self.bg.put(X + u, Y + v, self._px_mountain(u, v, phase))
@@ -1292,12 +1440,32 @@ class OverWorld(TileScene):
                 for u, v in ((3, 2), (4, 2), (11, 10), (12, 11)):
                     self.bg.put(X + u, Y + v, self.FOREST[0])
         elif cls == "mountain":
-            if k % 13 == 3:                                # pale quartz seams
-                for u, v in ((4, 5), (5, 5), (11, 9), (12, 10), (7, 12)):
-                    self.bg.put(X + u, Y + v, self.ROCK[0])
-            elif k % 7 == 0:                               # a dark cave nick
-                self.bg.rect(X + 6, Y + 9, X + 9, Y + 10, self.ROCK[5])
-                self.bg.rect(X + 7, Y + 8, X + 8, Y + 8, self.ROCK[5])
+            # the sanctioned variety mechanism: hash-placed INTERIOR-only
+            # repaints keyed to the peak lattice (every interior cell shares
+            # the 16-periodic lobe layout, so lattice-aware repaints are
+            # safe) — a lone snowbound summit, a quartz seam down a shadow
+            # face, a dark couloir gully, a cave mouth in a foot.
+            if k % 19 == 7:                                # a snowbound summit:
+                for v in range(T):                         # cap the tile's big
+                    for u in range(T):                     # SE peak (13,10)
+                        win = self._peak_win(u, v)
+                        if win and win[3] == (13, 10) and win[1] < -0.30:
+                            self.bg.put(X + u, Y + v,
+                                        self._rock_px(win[0], win[1], win[2],
+                                                      u, v, snow=True))
+            elif k % 13 == 3:                              # a quartz seam down
+                r = self.ROCK                              # the NW peak's
+                for i, (u, v) in enumerate(((7, 1), (8, 2), (8, 3), (9, 4),
+                                            (9, 5), (10, 6), (10, 7))):
+                    self.bg.put(X + u, Y + v, r[0] if 1 <= i <= 5 else r[1])
+            elif k % 11 == 5:                              # a dark couloir
+                r = self.ROCK                              # gully west of the
+                for u, v in ((3, 4), (3, 5), (4, 6), (4, 7), (4, 8), (5, 9)):
+                    self.bg.put(X + u, Y + v, r[5])
+                    self.bg.put(X + u + 1, Y + v, r[4])
+            elif k % 7 == 0:                               # a dark cave mouth
+                self.bg.rect(X + 11, Y + 12, X + 14, Y + 13, self.ROCK[5])
+                self.bg.rect(X + 12, Y + 11, X + 13, Y + 11, self.ROCK[5])
         elif cls == "snow":
             if k % 7 == 2:                                 # a drift hummock
                 s = self.SNOW
