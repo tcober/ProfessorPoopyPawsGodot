@@ -19,7 +19,10 @@ const NO_EFFECT: Dictionary = {}
 @export var health_component: HealthComponent
 @export var invincible_time: float = 0.5
 
-var _invincible: bool = false
+## The i-frame window as a deadline, not an awaited timer: a hurtbox freed
+## mid-window (a slime splatting, a scene change) would resume a coroutine on
+## a dead instance just to clear a flag nobody reads again.
+var _invincible_until_ms: int = 0
 
 
 func _ready() -> void:
@@ -32,12 +35,12 @@ func _ready() -> void:
 
 
 func take_hit(damage: int, source: Node, effect: Dictionary = NO_EFFECT) -> void:
-	if _invincible:
+	if Time.get_ticks_msec() < _invincible_until_ms:
 		return
+	# Armed BEFORE the damage lands: a `hit` handler that swings back through
+	# this same hurtbox in the same frame must not stack a second hit.
+	if invincible_time > 0.0:
+		_invincible_until_ms = Time.get_ticks_msec() + int(invincible_time * 1000.0)
 	if health_component:
 		health_component.take_damage(damage)
 	hit.emit(damage, source, effect)
-	if invincible_time > 0.0:
-		_invincible = true
-		await get_tree().create_timer(invincible_time).timeout
-		_invincible = false

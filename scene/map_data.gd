@@ -34,6 +34,10 @@ static func load_map(path: String) -> Dictionary:
 	for y in lines.size():
 		var row := lines[y]
 		for x in row.length():
+			# a hand-typed grid char with no legend line is the most common map
+			# typo — name it instead of failing on a raw dictionary index
+			assert(legend.has(row[x]),
+					"%s row %d: map char '%s' has no legend entry" % [path, y, row[x]])
 			if legend[row[x]]["solid"]:
 				solid[Vector2i(x, y)] = true
 	return {

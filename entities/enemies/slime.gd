@@ -53,6 +53,9 @@ const FX_ZZZ := 15
 ## body height, or the Zs detach and read as belonging to nothing.
 @export var zzz_lift: float = 12.0
 
+## How long the white hit flash holds.
+const FLASH_TIME := 0.08
+
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var health: HealthComponent = $HealthComponent
 @onready var hurtbox: HurtboxComponent = $HurtboxComponent
@@ -63,6 +66,7 @@ const FX_ZZZ := 15
 var _knockback: Vector2 = Vector2.ZERO
 var _dying: bool = false
 var _flashing: bool = false
+var _flash_tw: Tween
 var _zzz: Sprite2D = null
 var _zzz_t: float = 0.0
 
@@ -137,16 +141,31 @@ func _play_keeping_frame(anim: String) -> void:
 
 
 func _on_hit(_damage: int, source: Node, effect: Dictionary) -> void:
+	# The killing blow emits `died` before `hit`, so the splat is already
+	# running — don't flash over its first frames or shove the corpse.
+	if _dying:
+		return
 	if source is Node2D:
 		_knockback = (global_position - (source as Node2D).global_position).normalized() * knockback_speed
 	status.apply(effect)
-	# Brief white flash to telegraph the hit.
+	# Brief white flash to telegraph the hit. The tween hangs off the sprite,
+	# so it dies with the slime — a scene-tree timer would come back to a
+	# freed instance when the splat frees us mid-flash.
 	_flashing = true
 	sprite.modulate = Color(2.0, 2.0, 2.0)
-	await get_tree().create_timer(0.08).timeout
+	if _flash_tw:
+		_flash_tw.kill()
+	_flash_tw = sprite.create_tween()
+	_flash_tw.tween_interval(FLASH_TIME)
+	_flash_tw.tween_callback(_end_flash)
+
+
+## The flash restore goes through `_refresh_tint`, never straight to white:
+## whitening on the way out would wipe an active ailment's tell every time the
+## sleeper took a hit. Named rather than a lambda because it is two statements.
+func _end_flash() -> void:
 	_flashing = false
-	if is_instance_valid(sprite) and not _dying:
-		_refresh_tint()
+	_refresh_tint()
 
 
 ## Sleep and freeze both stop the body dealing contact damage. The Hitbox's
@@ -208,6 +227,8 @@ func _on_died() -> void:
 	hitbox.set_deferred("monitoring", false)
 	hurtbox.set_deferred("monitorable", false)
 	$CollisionShape2D.set_deferred("disabled", true)
+	if _flash_tw:
+		_flash_tw.kill()          # a live flash would re-whiten mid-splat
 	sprite.modulate = Color.WHITE
 	sprite.play("death")
 	await sprite.animation_finished

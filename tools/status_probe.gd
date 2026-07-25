@@ -121,7 +121,10 @@ func _basil() -> Node2D:
 ## travel time and the aim.
 func _hit(slime: Node2D, damage: int, effect: Dictionary) -> void:
 	var hurtbox = slime.get_node("HurtboxComponent")
-	hurtbox._invincible = false            # skip the i-frame wait between probes
+	# skip the i-frame wait between probes. The window is a DEADLINE, not a
+	# flag, so retiring it means pushing it into the past — clearing to 0 is
+	# enough, since the guard is `get_ticks_msec() < _invincible_until_ms`.
+	hurtbox._invincible_until_ms = 0
 	hurtbox.take_hit(damage, _party_leader(), effect)
 	await process_frame
 

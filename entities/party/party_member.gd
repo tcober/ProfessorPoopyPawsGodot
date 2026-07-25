@@ -53,6 +53,7 @@ var state: int = STATE_MOVE
 var intent := Intent.new()
 
 var _knockback: Vector2 = Vector2.ZERO
+var _hurt_timer: float = 0.0
 var _jump_dir: Vector2 = Vector2.DOWN
 var _airborne: bool = false
 var _air_elapsed: float = 0.0
@@ -84,6 +85,9 @@ func _physics_process(delta: float) -> void:
 		STATE_HURT:
 			velocity = _knockback
 			_knockback = _knockback.move_toward(Vector2.ZERO, knockback_speed * 4.0 * delta)
+			_hurt_timer -= delta
+			if _hurt_timer <= 0.0:
+				state = STATE_MOVE
 		_:
 			_process_kit(delta)
 	_update_hop(delta)
@@ -178,10 +182,11 @@ func _on_hurt(_damage: int, source: Node, _effect: Dictionary) -> void:
 		_knockback = Vector2.ZERO
 	_hurt_interrupt()
 	state = STATE_HURT
+	# Counted down in _physics_process with every other kit timer, not awaited:
+	# an awaited timer both resumes on a freed body (scene changes mid-stagger)
+	# and lets an earlier hit's coroutine end a later hit's stagger early.
+	_hurt_timer = hurt_time
 	sprite.play("hurt")
-	await get_tree().create_timer(hurt_time).timeout
-	if state == STATE_HURT:
-		state = STATE_MOVE
 
 
 func _on_died() -> void:

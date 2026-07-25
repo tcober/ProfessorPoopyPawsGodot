@@ -87,13 +87,13 @@ static func _component_rects(map: Dictionary, chars: String) -> Array[Rect2]:
 	for c in cells:
 		pending[c] = true
 	var rects: Array[Rect2] = []
-	for seed in cells:
-		if not pending.has(seed):
+	for start in cells:     # not `seed` — that shadows the global seed()
+		if not pending.has(start):
 			continue
-		pending.erase(seed)
-		var comp: Array[Vector2i] = [seed]
-		var lo := seed
-		var hi := seed
+		pending.erase(start)
+		var comp: Array[Vector2i] = [start]
+		var lo := start
+		var hi := start
 		var i := 0
 		while i < comp.size():
 			var c := comp[i]

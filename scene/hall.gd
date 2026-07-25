@@ -150,11 +150,12 @@ func _naming_cutscene() -> void:
 	player.sprite.play("defeat_walk")
 	player.sprite.flip_h = true
 	var trip := player.global_position.distance_to(wing) / 20.0
+	# the fade rides the LAST 0.6s of the trudge — clamped, because a negative
+	# delay is a tween error (and a short trip just fades the whole way)
+	var fade_dur := minf(0.6, trip)
 	var flee := create_tween().set_parallel()
 	flee.tween_property(player, "global_position", wing, trip)
-	# fade the last 0.6s of the walk; maxf guards a negative delay if he ever
-	# flees from within ~12px of the wing (the fade would otherwise start early)
-	flee.tween_property(player, "modulate:a", 0.0, 0.6).set_delay(maxf(0.0, trip - 0.6))
+	flee.tween_property(player, "modulate:a", 0.0, fade_dur).set_delay(trip - fade_dur)
 	await theater.say("Gallery", "Poopy Paws! POOPY PAWS! POOPY PAWS!")
 	theater.close_dialog()
 	# the chant can outrun the trudge (or the reverse) — wait the walk out

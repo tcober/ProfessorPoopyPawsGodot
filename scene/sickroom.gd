@@ -39,23 +39,15 @@ func _ready() -> void:
 
 func _spawn_cast() -> void:
 	# Kitty in the bed: her sprite sits at the pillow; the frame cols are the
-	# rest/vacant/polite trio (frame_cols=6 = [rest x2, vacant x2, polite x2])
-	_kitty = NPCScene.instantiate()
-	_kitty.display_name = "Kitty"
-	_kitty.sheet = SHEET_KITTY
-	_kitty.frame_cols = 6
+	# rest/vacant/polite trio (frame_cols=6 = [rest x2, vacant x2, polite x2]).
 	# +8 centers her on the 4-cell bed's pillow (the anchor is the west
 	# walk cell); -14 sets her head ON the pillow volume with the gown
 	# meeting the folded sheet — the 2026-07-16 small-room geometry
-	_kitty.position = MapData.anchor_px(map, "kitty_bed") + Vector2(8.0, -14.0)
-	$World.add_child(_kitty)
+	_kitty = _make_npc("Kitty", SHEET_KITTY,
+			MapData.anchor_px(map, "kitty_bed") + Vector2(8.0, -14.0))
 	_kitty.sprite.play("act")             # 'vacant' pair = act (cols 2-3)
-	_doctor = NPCScene.instantiate()
-	_doctor.display_name = "Dr. Ciconia"
-	_doctor.sheet = SHEET_STORK
-	_doctor.frame_cols = 6
-	_doctor.position = MapData.anchor_px(map, "doctor_spot")
-	$World.add_child(_doctor)
+	_doctor = _make_npc("Dr. Ciconia", SHEET_STORK,
+			MapData.anchor_px(map, "doctor_spot"))
 
 
 func _make_npc(nm: String, sheet: Texture2D, pos: Vector2) -> NPC:
