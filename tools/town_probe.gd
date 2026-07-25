@@ -41,6 +41,19 @@ func _run() -> void:
 		await process_frame
 	print("settled leader=", party.leader_id, " members=",
 		  party.members.map(func(m): return "%s %s" % [m.member_id, m.global_position]))
+	# Step SOUTH clear of the door marker before walking back into it. The
+	# arrival lands the body dead-centre on the 16x12 marker with _standing
+	# latched true, and the marker is enter-triggered: pressing up from there
+	# only walks into the building wall, never leaves the area, so body_exited
+	# never fires and the door can't re-arm. Whether the arrival's residual
+	# drift happened to carry the body out on its own is what used to make
+	# this probe pass ~2 runs in 8.
+	Input.action_press("move_down")
+	for i in 40:
+		await process_frame
+	Input.action_release("move_down")
+	for i in 30:
+		await process_frame
 	# walk back up through Basil's door — should land in the downstairs
 	Input.action_press("move_up")
 	frames = 0
