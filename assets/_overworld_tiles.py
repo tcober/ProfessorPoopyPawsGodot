@@ -709,9 +709,13 @@ class OverWorld(TileScene):
         tilt, sw, se, apex, foot, tone = self._carve(r)
         rk = self.ROCK
         a = nx - tilt * (0.15 - ny)                        # arete-relative x
-        if snow and ny < -0.30:                            # the summit cap
+        # Snowline, and ONLY on the peaks tall enough to hold it: capping every
+        # tier — the small tone-2 teeth included — turned a rim cell into a row
+        # of identical white triangles, and the rim into a bunting ribbon
+        # strung along the massif rather than snow sitting on summits.
+        if snow and tone <= 1 and ny < -0.42:              # the summit cap
             s = self.SNOW
-            if ny < -0.60:
+            if ny < -0.66:
                 return s[0] if a < 0.15 else s[1]
             return s[1] if a < 0 else s[2]                 # cap skirt
         if q > 0.80 and ny > 0.30:
@@ -1348,7 +1352,12 @@ class OverWorld(TileScene):
                 hot = True
             if c2 in MOUNT_OWN:
                 open_ |= bits
-        snow = bool(open_ & (N | NE | NW)) and not hot
+        # A snowline follows the height the cell fronts, not any open ground
+        # near it: keying on NE/NW alone put a vertical chain of caps down the
+        # EAST and WEST rims — a zipper of white running top to bottom, which
+        # no snowline does. Direct-north exposure only; the top corners still
+        # qualify (they carry N as well), so the crest stays continuous.
+        snow = bool(open_ & N) and not hot
         shade = (lambda w, z, win, kept:
                  self._rock_px(win[0], win[1], win[2], w, z, snow))
         if not self._arc_cell(X, Y, masks, phase, MOUNT_OWN, shade,
@@ -1445,14 +1454,18 @@ class OverWorld(TileScene):
             # the 16-periodic lobe layout, so lattice-aware repaints are
             # safe) — a lone snowbound summit, a quartz seam down a shadow
             # face, a dark couloir gully, a cave mouth in a foot.
-            if k % 19 == 7:                                # a snowbound summit:
-                for v in range(T):                         # cap the tile's big
-                    for u in range(T):                     # SE peak (13,10)
-                        win = self._peak_win(u, v)
-                        if win and win[3] == (13, 10) and win[1] < -0.30:
-                            self.bg.put(X + u, Y + v,
-                                        self._rock_px(win[0], win[1], win[2],
-                                                      u, v, snow=True))
+            if k % 19 == 7:                                # a TALUS fan of loose
+                r = self.ROCK                              # scree off the SE
+                for i in range(4):                         # peak's foot.
+                    vy = 10 + i                            # (This slot used to
+                    hw = 1 + i                             # cap that peak with
+                    for u in range(13 - hw, 14 + hw):      # SNOW. Interior cells
+                        if not 0 <= u < T:                 # front no open ground,
+                            continue                       # so it landed a lone
+                        if (u * 3 + vy * 5) % 4 == 0:      # white triangle in the
+                            continue                       # middle of the massif
+                        self.bg.put(X + u, Y + vy,         # with no snowline
+                                    r[3] if (u + vy) & 1 else r[2])   # near it.)
             elif k % 13 == 3:                              # a quartz seam down
                 r = self.ROCK                              # the NW peak's
                 for i, (u, v) in enumerate(((7, 1), (8, 2), (8, 3), (9, 4),
@@ -1494,17 +1507,67 @@ class OverWorld(TileScene):
                 for u, v in ((5, 5), (11, 8), (8, 12)):
                     self.bg.put(X + u, Y + v, self.SPARK)
         elif cls == "desert":
+            # The pan is the single biggest stretch of the map (900+ cells) and
+            # the base fabric is one strict 16-periodic ripple lattice, so
+            # without features of REAL size it reads as flat lavender paper.
+            # The two original variants (a 7px crescent, two pebbles) are far
+            # too small to register at travel zoom — these carry most of the
+            # relief now, and each spans enough of the tile to be legible.
+            d = self.DESERT
             if k % 7 == 1:                                 # a crescent dune
-                d = self.DESERT
                 for i, (u, v) in enumerate(((4, 9), (5, 8), (6, 7), (8, 6),
                                             (10, 7), (11, 8), (12, 9))):
                     self.bg.put(X + u, Y + v, d[1])
                     self.bg.put(X + u, Y + v + 1, d[3])
             elif k % 11 == 5:                              # pebble pair
-                d = self.DESERT
                 for u, v in ((6, 10), (10, 5)):
                     self.bg.put(X + u, Y + v, d[0])
                     self.bg.put(X + u, Y + v + 1, d[4])
+            elif k % 13 == 4:                              # a BARCHAN dune: long
+                for u in range(2, 14):                     # arced crest, lit brow
+                    t = (u - 6.0) / 7.0                    # over a lee heel. The
+                    vy = 6 + int(3.4 * t * t * (1.3 if t > 0 else 1.0))   # apex
+                    if not 0 <= vy < T - 2:                # sits WEST of centre:
+                        continue                           # a barchan is gentle
+                    self.bg.put(X + u, Y + vy, d[0])       # windward, steep lee,
+                    self.bg.put(X + u, Y + vy + 1, d[2])   # and a symmetric V
+                    if 3 <= u <= 12:                       # reads as a pitched
+                        self.bg.put(X + u, Y + vy + 2, d[3])   # tent, not sand.
+                                                           # Edges stay clear so
+                                                           # the crest can't break
+                                                           # against a plain cell
+            elif k % 17 == 9:                              # a DEFLATION HOLLOW
+                for v in range(3, 13):                     # scoured shallow by
+                    for u in range(3, 14):                 # the wind. Shaded in
+                        dx, dy = (u - 8.0) / 5.2, (v - 8.0) / 4.4   # SAND tones
+                        q = dx * dx + dy * dy              # only: d[3] and below
+                        if q > 1.0:                        # are hard periwinkle
+                            continue                       # (the violet shadow
+                        if dy < -0.34 and q > 0.42:        # law), and a dish
+                            self.bg.put(X + u, Y + v, d[0])    # filled with them
+                        else:                              # reads as a PUDDLE.
+                            self.bg.put(X + u, Y + v, d[2])    # Floor sits BELOW
+                                                           # the pan's own tone —
+                for u in range(5, 12):                     # a dish whose floor
+                    self.bg.put(X + u, Y + 12, d[3])       # matches the ground
+                                                           # is just a pale dot
+            elif k % 29 == 3:                              # a wind-cut BUTTE, the
+                r = self.ROCK                              # one hard silhouette
+                self.bg.rect(X + 3, Y + 5, X + 12, Y + 12, r[1])   # out here, so
+                self.bg.rect(X + 4, Y + 4, X + 11, Y + 4, r[0])    # the eye has
+                self.bg.rect(X + 3, Y + 5, X + 5, Y + 12, r[0])    # something to
+                self.bg.rect(X + 10, Y + 5, X + 12, Y + 12, r[2])  # measure the
+                self.bg.rect(X + 6, Y + 9, X + 9, Y + 9, r[2])     # dunes against
+                self.bg.rect(X + 3, Y + 13, X + 12, Y + 13, r[3])  # — ONE bedding
+                for u in range(2, 14):                     # line, not stacked
+                    self.bg.put(X + u, Y + 14, d[0] if u % 2 else d[1])   # bands:
+                                                           # striping the face
+                                                           # read as a crate. Only
+                                                           # the TOP of the rock
+                                                           # ramp is used; r[3] and
+                                                           # are near-black against
+                                                           # a pale pan and read as
+                                                           # a bollard, not a mesa
         elif cls == "basalt":
             if k % 7 == 3:                                 # gas-bubble ring
                 b = self.BASALT
