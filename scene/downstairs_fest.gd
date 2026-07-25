@@ -84,9 +84,9 @@ func _spawn_mom() -> void:
 		])
 	else:
 		_mom.lines = PackedStringArray([
-			"There's my little tinkerer! Up with the birds for once.",
-			"It's the Founding Festival, sweetheart. The WHOLE town's out - even the Academy has its window lit.",
-			"Go see the ribbons. I'll be along when the pies are done. Scoot!",
+			"Morning Sunshine!",
+			"It's the Founding Festival, sweetheart. Everyone's out",
+			"I think I saw Sage out there. Go play with your friends!",
 		])
 	# by the hearth, flour on her paws
 	_mom.position = Vector2(4.0 * 16.0 + 8.0, 5.0 * 16.0 + 8.0)
