@@ -40,6 +40,15 @@ const FEST_HOMESICK := ["prologue_saw_mom", "prologue_left_home",
 		"prologue_festival_done", "prologue_ribbon",
 		"prologue_ribbon_returned", "prologue_want_home"]
 
+## Everything the whirligig beat leaves behind, for the three legs that follow
+## it (the brew / the walk across town / the recital). NOTE prologue_gate_open:
+## without it downstairs_fest._on_exit_door refuses forever ("I came home to
+## talk to Mom") and a jump straight into the brew is trapped in the lab.
+## static var for the same reason BEATS is — array `+` can't be const-folded.
+static var FEST_WHIRLIGIG: Array = FEST_HOMESICK + ["prologue_gate_open",
+		"prologue_met_kitty", "prologue_part_gear", "prologue_part_spring",
+		"prologue_part_crank", "prologue_whirligig_done"]
+
 ## static var, not const: the flag ladders above are concatenated per beat and
 ## GDScript can't constant-fold array `+`. Static initializers run at class load,
 ## so `Chapters.BEATS` reads the same either way.
@@ -111,6 +120,24 @@ static var BEATS: Array[Dictionary] = [
 		flags = ["prologue_met_kitty", "prologue_part_gear",
 				"prologue_part_spring", "prologue_part_crank"],
 	},
+	{
+		# Mom is home for this one (_mom_home: left_home AND want_home are both
+		# in the ladder) and has her own brew lines
+		name = "A12 - THE BREW", scene = "res://scene/downstairs_fest.tscn",
+		roster = KID, lead = &"kid_basil",
+		state = {interior_spawn = "front_door"}, flags = FEST_WHIRLIGIG,
+	},
+	{
+		# the leg where the Academy door is LIVE and the south gate refuses
+		name = "A13 - ACROSS TOWN", scene = "res://scene/town_fest.tscn",
+		roster = KID, lead = &"kid_basil", state = {town_spawn = "home"},
+		flags = FEST_WHIRLIGIG + ["prologue_potion_made"],
+	},
+	{
+		name = "A14 - THE RECITAL", scene = "res://scene/hall.tscn",
+		roster = KID, lead = &"kid_basil", state = {hall_phase = "recital"},
+		flags = FEST_WHIRLIGIG + ["prologue_potion_made"],
+	},
 
 	# group headings are clipped to one column (~30 chars) — keep them short
 	{group = "PROLOGUE B - POOPY PAWS"},
@@ -146,6 +173,10 @@ static var BEATS: Array[Dictionary] = [
 		state = {town_thesis_phase = "dash"}, flags = [],
 	},
 	{
+		# state = {} is LOAD-BEARING: the hall routes on Game.hall_phase now,
+		# and this beat relies on reset_story() blanking it back to "". Without
+		# that, a jump down from A14 would play the kid recital with the
+		# student roster — the wrong SpriteFrames contract.
 		name = "B6 - THE NAMING", scene = "res://scene/hall.tscn",
 		roster = STUDENT, lead = &"basil_student", state = {}, flags = [],
 	},
@@ -198,6 +229,15 @@ static var BEATS: Array[Dictionary] = [
 		scene = "res://scene/lanternwood.tscn",
 		roster = FUJI, lead = &"fuji",
 		state = {town_spawn = "library"}, flags = ["ebb_done"],
+	},
+	{
+		# Act 1 beat 2: the ledger, the three stacks, the uncatalogued thesis.
+		# asked_around is what the Ebb-night street sets once every neighbour
+		# has been asked — the flag the library door reads to open this.
+		name = "THE RESEARCH NIGHT", scene = "res://scene/library.tscn",
+		roster = FUJI, lead = &"fuji",
+		state = {library_phase = "research"},
+		flags = ["ebb_done", "asked_around"],
 	},
 
 	{group = "SANDBOX"},

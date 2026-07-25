@@ -20,7 +20,9 @@ extends Node2D
 ##   meet    (day)     from town_fest's south gate: Prologue A — kid Basil
 ##                     finds a girl cat wrestling a whirligig on the bluff.
 ##                     Gear/spring/crank fetch, the crank-up mash, the
-##                     flight. Cards ("THREE SUMMERS LATER.") -> romance.
+##                     flight — and THE IDEA (2026-07-25): what if it could
+##                     carry a flask? -> downstairs_fest (the brew), then the
+##                     recital, which owns the cards to romance now.
 ##   romance (sunset)  college Kitty summons Basil up here with the
 ##                     acceptance letter news — the watch gift. It EXPLODES
 ##                     on the handoff, the three pieces scatter across the
@@ -103,6 +105,7 @@ var _busy_scene := false
 var _flying := false
 var _kitty: NPC
 var _whirligig: Sprite2D
+var _rotor_t := 0.0
 var _hint_tw: Tween
 var _hour_tw: Tween
 
@@ -294,69 +297,28 @@ func _flight_finale() -> void:
 	await theater.say("Kitty", "Hi Basil!")
 	theater.close_dialog()
 	await theater.wait(1.2)
-	await _montage_and_handoff()
+	await _the_idea()
 
 
 ## The crank-up mash (2026-07-12 pacing pass): E presses wind the crank, the
 ## meter decays a little between presses, and the rotor wakes with the fill.
-## The party stays locked, so the mashed E can't leak into NPC talks (npc.gd
-## refuses conversations while a body is physics-frozen).
+## The meter itself moved to Theater.mash_meter (2026-07-25) so the brew's
+## stir could reuse it; only the rotor is the bluff's own.
 func _crank_minigame() -> void:
-	var back := ColorRect.new()
-	back.offset_left = 128.0
-	back.offset_top = 120.0
-	back.offset_right = 256.0
-	back.offset_bottom = 134.0
-	back.color = Color(0.055, 0.04, 0.115, 0.9)
-	var fill_rect := ColorRect.new()
-	fill_rect.offset_left = 130.0
-	fill_rect.offset_top = 122.0
-	fill_rect.offset_right = 130.0
-	fill_rect.offset_bottom = 132.0
-	fill_rect.color = Color(0.91, 0.74, 0.38)
-	var label := Label.new()
-	label.text = "CRANK IT! MASH E"
-	label.offset_left = 128.0
-	label.offset_top = 106.0
-	label.offset_right = 256.0
-	label.offset_bottom = 118.0
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_override("font", preload("res://assets/font/pixel_font.fnt"))
-	label.add_theme_font_size_override("font_size", 8)
-	label.add_theme_color_override("font_shadow_color", Color.BLACK)
-	for node in [back, fill_rect, label]:
-		$UI.add_child(node)
-	var fill := 0.0
-	var rotor_t := 0.0
-	var was_down := false
-	while fill < 1.0:
-		var delta := get_process_delta_time()
-		# level-edge detection, NOT is_action_just_pressed: this coroutine
-		# resumes on the tree's process_frame signal, which can run before
-		# the same-frame press lands — a just_pressed edge would be missed
-		# every time (found by the prologue probe, 2026-07-12)
-		var down := Input.is_action_pressed("interact") \
-				or Input.is_action_pressed("attack")
-		if down and not was_down:
-			fill = minf(1.0, fill + 0.09)
-			if fill >= 1.0:
-				break     # full NOW — the decay below must never gnaw it back
-		was_down = down
-		fill = maxf(0.0, fill - delta * 0.05)
-		fill_rect.offset_right = 130.0 + 124.0 * fill
-		# the rotor wakes with the fill: dead below a nudge, then flickering
-		# faster and faster
-		rotor_t += delta
-		if fill < 0.12:
-			_whirligig.frame = FX_WHIRL_DROOP
-		elif rotor_t >= 0.30 - 0.24 * fill:
-			rotor_t = 0.0
-			_whirligig.frame = FX_WHIRL_SPIN0 if _whirligig.frame != FX_WHIRL_SPIN0 \
-					else FX_WHIRL_SPIN0 + 1
-		await get_tree().process_frame
-	fill_rect.offset_right = 254.0
-	for node in [back, fill_rect, label]:
-		node.queue_free()
+	_rotor_t = 0.0
+	await theater.mash_meter("CRANK IT! MASH E", _rotor_tick)
+
+
+## The rotor wakes with the fill: dead below a nudge, then flickering faster
+## and faster.
+func _rotor_tick(fill: float) -> void:
+	_rotor_t += get_process_delta_time()
+	if fill < 0.12:
+		_whirligig.frame = FX_WHIRL_DROOP
+	elif _rotor_t >= 0.30 - 0.24 * fill:
+		_rotor_t = 0.0
+		_whirligig.frame = FX_WHIRL_SPIN0 if _whirligig.frame != FX_WHIRL_SPIN0 \
+				else FX_WHIRL_SPIN0 + 1
 
 
 ## Rotor flicker while the whirligig is airborne (scene-lifetime loop). The
@@ -382,20 +344,34 @@ func _orbit_whirligig() -> void:
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 
-func _montage_and_handoff() -> void:
-	# Prologue A closes into the romance IN PLACE (2026-07-18, the meet
-	# moved up here): the cards skip to the college years, the roster swaps
-	# to basil_student, and the scene reloads itself in the sunset —
-	# the acceptance-letter evening, the watch, the kiss — before its own
-	# cards hand to thesis day.
+## THE IDEA (2026-07-25) — the flight's real payoff isn't that it flies, it's
+## what he decides to hang under it. Runs with the party still locked and the
+## whirligig still orbiting overhead: Prologue A no longer skips three summers
+## from here, it goes to his mother's kitchen and then to the recital
+## Schweinler barred him from (town_fest.gd's "you can't even participate").
+## The cards moved with it — hall.gd's recital owns "THREE SUMMERS LATER." now.
+func _the_idea() -> void:
+	theater.face(player, Vector2.RIGHT)
+	_kitty.play_idle()
+	await theater.say("Basil", "Kitty. It's carrying its own weight up there. Could it carry more?")
+	await theater.say("Kitty", "More like a pebble, or more like my brother?")
+	await theater.say("Basil", "More like a flask.")
+	await theater.say("Kitty", "...Why.")
+	await theater.say("Basil", "There's a recital tonight. Schweinler made sure I knew I can't be in it. You have to make a colour appear in the air.")
+	await theater.say("Basil", "I can't do that. But I know four things that make a colour when they get hot enough.")
+	_kitty.play_emote()
+	await theater.say("Kitty", "...You want to load my whirligig.")
+	await theater.say("Basil", "I want to load your whirligig.")
+	await theater.say("Kitty", "Basil. Where do you LIVE.")
+	theater.close_dialog()
+	await theater.wait(0.6)
 	await theater.black(1.0)
-	# one TIME card only (the 2026-07-18 card purge: commentary cards are
-	# cut everywhere, cards may only say how much time passed)
-	await theater.card("THREE SUMMERS LATER.", 2.0)
+	# NO card: nothing happens here but a walk across town, and a card may only
+	# say how much time PASSED (the 2026-07-18 purge; the library -> Lanternwood
+	# hand-off is the same shape — same night, no card)
 	Game.set_flag("prologue_whirligig_done")
-	Party.set_roster([&"basil_student"])
-	Game.bluff_phase = "romance"
-	get_tree().change_scene_to_file("res://scene/bluff.tscn")
+	Game.interior_spawn = "front_door"
+	get_tree().change_scene_to_file("res://scene/downstairs_fest.tscn")
 
 
 # ---- romance (sunset): the watch — explode, gather, fix, the kiss ------------------
@@ -425,6 +401,10 @@ func _phase_romance() -> void:
 	_kitty.play_back()
 	await theater.wait(1.4)
 	await theater.say("Kitty", "In on CRAFT alone. Wiggle-fingers: zero. Paws: ONE. I could BURST.")
+	# the letter is the RECITAL's payoff, three summers on (2026-07-25) — the
+	# old beat had an Academy that files him as 'no aptitude' admitting him for
+	# no stated reason
+	await theater.say("Kitty", "Three summers that old owl sat on it. He said he'd know the name. He KNEW the name.")
 	# she turns to him; he turns to her — every big line is said face to face
 	_kitty.play_side()
 	theater.face(player, Vector2.RIGHT)

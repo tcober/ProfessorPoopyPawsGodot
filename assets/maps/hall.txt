@@ -4,10 +4,14 @@
 ; Academy palette. Restaged 2026-07-18 as a COLLEGE lecture hall with a
 ; full STAGE: the whole north band (rows 3-4) is a raised platform closed
 ; off by the STAGE APRON riser (D — a one-row y-sorted StageFront entity,
-; fully opaque across its footprint), so the stage is its own region: the
-; only ways on or off are the WINGS at its west end — Basil enters from
-; STAGE RIGHT (player_spawn, the west wing) and flees back out the same
-; wing when the laughing starts (wing_exit). The speaker's PODIUM (lectern
+; fully opaque across its footprint), so the stage is its own SEALED region:
+; the riser runs the full room width and rows 3-4 have NO walkable link to
+; the house at all. Nobody ever walks on or off it — Basil SPAWNS up there
+; (player_spawn, stage right behind the curtain leg) and FADES OUT up there
+; (wing_exit) when the laughing starts. Prologue A's recital, twenty years
+; earlier, is staged on the house floor for exactly that reason: the boy is
+; not allowed up on the platform, so he sets up on row 6 with the faculty
+; looking down over the rail (see scene/hall.gd). The speaker's PODIUM (lectern
 ; L, walkable l twins under its overhanging top corners) stands
 ; front-CENTER, Basil presenting from the tuck row BEHIND it (the desk
 ; idiom — the podium plane hides his legs). The JUDGING PANEL's desk (J,
@@ -18,7 +22,8 @@
 ; read, audience NPCs stand on E so their legs tuck under the seat), three
 ; to a bench, six benches, ALL FACING THE STAGE — the audience is rows of
 ; BACKS (npc back cells, sheet cols 6-7). The south doors (-) are the
-; house's own; Basil never uses them now. STAGE DRESSING (2026-07-18, the
+; house's own — Prologue B never uses them, Prologue A's recital comes in
+; through them (`door`, on the centre-aisle column). STAGE DRESSING (2026-07-18, the
 ; curtain pass): a theater-red WEST CURTAIN LEG (c — a y-sorted entity on
 ; its one solid cell beside the wing, so a body on the tuck row is hidden
 ; BEHIND it: Basil "appears from behind the curtain" walking on, and the

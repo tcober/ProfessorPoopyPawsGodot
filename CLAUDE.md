@@ -170,8 +170,10 @@ face-to-face lines — with FOUR `Game.bluff_phase` beats over one warm
 painting — **meet** (DAY, kid roster: Prologue A's whirligig quest lives
 here now — kid Kitty + the whirligig at `whirligig`, gear/spring/crank at
 the `part_*` anchors, `prologue_part_*` flags, the crank-up mash minigame
-(LEVEL-edge input — see the GOTCHA below) + flight finale + montage
-cards, `prologue_whirligig_done`, then the scene RELOADS ITSELF as)
+(LEVEL-edge input — see the GOTCHA below) + flight finale, and since
+2026-07-25 **THE IDEA** — "could it carry a flask?" —
+`prologue_whirligig_done`, handing to the THE RECITAL CHAIN below rather
+than to the cards; that chain reloads the bluff as)
 **romance** (sunset, `basil_student`: the watch gift EXPLODES on the
 handoff, pieces fly to the SAME `part_*` anchors — the whirligig recipe
 on purpose — the pickup gather, the AWAITED refit, Basil's first
@@ -185,6 +187,52 @@ call1 deepening dusk→late un-awaited under the talk, call2 opening late
 and AWAITING the fall to full night on screen before one line — Basil's
 "...Where is she?" — and ending on a REAL bolt back down the headland,
 mid-run at the cut (the old beat played walk_side standing in place)).
+**THE RECITAL CHAIN (2026-07-25) — WHY THE ACADEMY EVER LET HIM IN:**
+Prologue A no longer jumps three summers off the bluff. Two shipped
+setups finally pay off — Schweinler's fest-square taunt ("See you at the
+recital... no magic so I guess you can't even participate!") and the
+Academy door's own `locked_text` ("RECITAL IN PROGRESS") — in three legs
+between the flight and the cards: **THE IDEA** (bluff `_the_idea()`,
+party still locked, whirligig still orbiting) → **THE BREW**
+(`downstairs_fest.tscn`, a FLAG-gated phase — `prologue_whirligig_done
+and not prologue_potion_made` — the one-scene/N-phases idiom: Mom's
+kitchen, kid Kitty as an NPC, a walk-gate on the walkable workbench top
+`E` whose pocket has exactly ONE entrance so the band is unavoidable,
+then a STIR mash that cycles the flask through the four `Alchemy` tints)
+→ across the fest town, where the SOUTH GATE now REFUSES (it re-enters
+bluff "meet" with every part flag set and would replay the finale) and
+the ACADEMY DOOR GOES LIVE → **THE RECITAL** (`hall.tscn` phase
+`"recital"` on the new `Game.hall_phase` router). The kid beat is the
+DELIBERATE INVERSE of Prologue B's naming in the same room: the stage is
+a SEALED region (the row-5 apron riser runs the full width; nobody ever
+walks on or off it — adult Basil only spawns and fades up there), so the
+boy isn't ALLOWED on the platform and sets up on the house floor, row 6,
+with the faculty looking down over the rail; he comes in the south doors
+(`door`, the long-declared unused anchor, on the centre-aisle column),
+the walk-gate is a full-width band across row 6, and the whirligig flies
+with a FLASK PINNED UNDER THE POD and pops four fireworks in the four
+COMPOUND colours — the kid's first potion is the literal ancestor of the
+adult's ammo. `_laugh_bob` carries it: the same helper that shook the
+gallery with laughter, slowed and flattened, is the awed sway, then
+speeds up into the eruption. Professor Strix ("Dean" only twenty years
+later) says "It is POTIONS is what it is." and the ten-year-old answers
+"...It's chemistry, sir." — the exact line the adult says at that same
+podium. Owns `prologue_potion_made`/`prologue_recital` and the moved
+"THREE SUMMERS LATER." card, so the romance's letter is now this beat's
+payoff. GOTCHAS this cost: (1) a Sprite2D's `offset` moves only its OWN
+texture, so a pinned child stays planted while the parent's art climbs —
+give both the same offset (`_set_rig_offset`); flying by `position:y`
+instead would raise the y-sort key past the opaque apron entity and the
+whirligig would vanish behind it; (2) `_laugh_bob` captures its rest `y`
+at call time and killing a looped tween mid-bob leaves the head sunk, so
+a SECOND bob set treats that as rest and the tier sinks — reset
+`sprite.position.y` after every kill (`_kill_bobs`); (3) the fireworks
+are MIX, not the additive magic-mote idiom — cream at ~250 added onto the
+hall's plum saturates every channel and all four colours arrive the same
+pale white, and which colour it is IS the beat. A door that must change
+from announce to travel FLIPS `target_scene` on the same
+`OverworldLocation` — never a second zone on the anchor (the
+`_free_home_location` softlock).
 **THE NARRATION PURGE (2026-07-18):** every `say("")` narrator box was
 CUT chapter-wide — environment cues and in-character dialogue carry
 those beats now (the sky does the nightfall, the hop does the squelch,
@@ -285,7 +333,10 @@ Schweinler, badger, stork, Kitty-in-bed, Kitty's mother), `prologue_fx.png`
 now TWO 16-cell
 rows (256×32 — row 0 frozen byte-identical, row 1 = watch/poof/motion-lines
 + the kiss HEART at cell 19 + the Ebb magic sparks at 20-21 (bright/dim,
-2026-07-19); `WorldFx.sheet_sprite` infers vframes from
+2026-07-19) + the recital's chemistry at 22-24 (firework mote / burst
+ring / the flask, 2026-07-25 — the bursts drawn WHITE-HOT AND COLOURLESS
+so one pair of cells modulate-tints to all four compound colours; cells
+25-31 free); `WorldFx.sheet_sprite` infers vframes from
 sheet height so old frame indices survive; NEVER widen a row). Adult
 Basil's sheet gained row 8 (2026-07-17, `basil_gen.png`; the tres
 only APPENDS): `look_watch` (the raised-wrist call gesture that replaced
@@ -321,8 +372,21 @@ additive spark motes sucked home to the summit, held silence; polled
 LEVEL-detect skip on accept/cancel/attack, armed after 1s; sets
 `ebb_done`) → `scene/library.tscn` phase "ebb" (the `Game.library_phase`
 read-and-clear router): **FUJI'S FIRST APPEARANCE** — her Lanternwood
-reading room at night (`maps/library.txt` + `_gen_tileset_library.py`, the
-`library` palette), wand-made coffee whose sparks keep missing the kettle
+reading HALL at night (`maps/library.txt` + `_gen_tileset_library.py`, the
+`library` palette — REBUILT 2026-07-25 from a 10-tile closet onto the
+18-tile downstairs-diorama frame, because the building outside became a
+civic hall and a research puzzle needs somewhere to search: hearth, then a
+strict alternation of four wall bookshelves and three high night windows,
+the clock; on the floor the coffee counter before the fire, THREE
+free-standing STACKS with walkable aisles, the reading desk under the
+clock, the armchair nook, the rug at the door. New `stack()` prop — 32x48
+on a 2x2 footprint, a y-sorted entity NEVER baked because a body walks both
+sides of one, and one cell taller than its footprint so whoever is in the
+aisle behind it reads as a head above the books. Both wall runs use
+`place_each`; a combined bbox blits one sprite across the lot. A second lit
+pool sits under the desk lamp — an 18-tile hall lit by one corner fire
+leaves the reading end unreadable, and the aisles are MEANT to be dim),
+wand-made coffee whose sparks keep missing the kettle
 (wild motes pop poof decals — the mess; hits INTERLEAVE with misses).
 **THE SYNC (2026-07-24):** the third cast lands ON the quake — she flicks,
 the ground goes, she holds the follow-through ~0.6s into it, and is
@@ -349,23 +413,50 @@ downstairs.txt `front_door`/`exit_door` split, so the exit zone and the
 arrival cell can never overlap and no `_standing` suppression is needed;
 x comes off the `-` bbox because the anchor column sits 8px west of the
 2-cell arch. ANY library_phase other than ""/"ebb" skips the cutscene and
-just opens the room. Probe: **`tools/library_probe.gd`** (14 checks, the
+just opens the room -- but `""` still MEANS "ebb" (it is the boot default a
+bare scene load lands on), so the town door always names its phase
+explicitly or walking in the front door replays the cutscene.
+**THE RESEARCH GATE (2026-07-25), phase `"research"` = Act 1 beat 2:** the
+same room weeks later, opened by walking in her own door once the Ebb-night
+street has been asked out (`asked_around`, set by talking to all three
+villagers). One card -- "SOME WEEKS LATER." -- then control straight back:
+a GATE, not a cutscene. The accession LEDGER on the desk vs the THREE
+STACKS in the aisles; each stack reads its brass plate (shelf THREE
+husbandry / SIX histories / NINE enchantment-theory) and shelf nine is just
+books until the ledger says why -- the catalogue lists ELEVEN titles and
+she has counted TWELVE spines for six weeks. The twelfth is unbound paper,
+string-tied, no spine, NO ACCESSION STAMP: Basil's thesis, with "Laughed
+out of the Academy." in another hand. She carries it to the desk lamp
+(`walk_via`, dog-legging the aisle) and reads it. Flags `ledger_read` then
+`thesis_found`; after that the Ebb-night villagers stop casting. The
+uncatalogued bundle IS the answer to "how did it cross an ocean" and the
+refusal to answer it -- nobody wrote that down either.
+Probe: **`tools/library_probe.gd`** (28 checks, the
 SCENE alone — the standing rule is to verify the scene you changed, not
-re-run the whole chapter probe). **The story STAYS WITH HER**
+re-run the whole chapter probe). PROBE GOTCHA: `_mash_until` advances
+dialog with ATTACK, and the press landing on the frame control returns is a
+REAL attack — Fuji's tome swing lunges her out of the interact zone before
+the button fires; probe teleports settle, zero `velocity`, and re-park. **The story STAYS WITH HER**
 (2026-07-20, NO card: no time passes between her floor and the street) →
 `scene/lanternwood.tscn`, whose `_ebb_night_town()` (gated on `ebb_done`)
-lands her a step south of her own library door under a deep night tint the
+lands her ON her own library door marker (the door-mouth arrival doctrine;
+`_standing` suppression is LOAD-BEARING now the marker travels — without it
+the body standing in the zone when the entry lock lifts walks straight back
+inside, forever) under a deep night tint the
 fire-lit windows and oil lanterns burn straight through — Lanternwood's
 name made diegetic, honest flame owes magic nothing — with three
 interact-to-talk villagers comparing charms that all died at once (Bramble
 the snow hare / Alder the elderly beaver / Pip the fox kid; nobody blames
-anybody — the Ebb has no author). **THE STORY RESTS HERE: playable solo
-Fuji**; the adult Basil sandbox is reached only via prologue_open's ESC
+anybody — the Ebb has no author; asking all THREE sets `asked_around`,
+which opens the research beat behind the library door — the street's own
+wander gate, and once `thesis_found` is set they stop casting). **THE STORY
+RESTS HERE: playable solo Fuji**; the adult Basil sandbox is reached only via prologue_open's ESC
 skip, which also sets `ebb_done`. **FUJI CANON (2026-07-19):** she is the
 LANTERNWOOD librarian — keeper of the little library in her snow town —
-NEVER the Alembic Academy archivist (superseded); how his thesis reached a
-Lanternwood shelf + how she crosses the ocean (the boat) are open Act 1
-hooks. New art: `npc_fuji_gen.png` (480×48, 10-col NPC sheet: idle /
+NEVER the Alembic Academy archivist (superseded). How the thesis reached a
+Lanternwood shelf now has its honest non-answer ON SCREEN — it was never
+accessioned, so nobody wrote that down either; how she crosses the ocean
+(the boat) is still an open Act 1 hook. New art: `npc_fuji_gen.png` (480×48, 10-col NPC sheet: idle /
 act=wand-cast / emote=startled / back / side) + the fx sparks above. New
 Game state: `ebb_done` flag + `library_phase` router + the
 `town_spawn="library"` route.
@@ -384,8 +475,20 @@ creeps). **The stall canon was CUT (2026-07-18):** the fountain-rim `m`
 stall is generic scenery again; Kitty's wheel WORKSHOP is off-screen,
 never seen — the busted-axle job there is why she misses the naming and
 why she's on the dusk road, and the excuse is told ONLY in her call1
-apology on the bluff. Probe: 45
-checks (2026-07-24 — the tail asserts the Ebb → library → Lanternwood
+apology on the bluff. Probe: 56
+checks (2026-07-25 — the middle now drives the whole recital chain: the
+idea's route home, the workbench gate, the stir mash, the SPENT south
+gate refusing, the live Academy door, the aisle gate and the four
+colours. **`tools/recital_probe.gd` (13 checks) drives those three legs
+ALONE** — stage a beat by NAME out of `chapters.gd` so the flag ladder
+can't drift from the dev menu's, and a failure names itself in ~2min
+instead of cascading through the full probe's frame budgets; it also
+asserts B6 still routes to the NAMING, the `reset_story()` regression.
+GOTCHA it caught: a location zone is a 16×12 rect on its anchor, so the
+`anchor + (0,40)` teleport the B6 leg uses lands OUTSIDE it — that offset
+belongs to town_thesis's separate dash GOAL area. And a `_party_free`
+predicate must be gated on the scene you're waiting FOR, or it passes
+trivially in the scene you just left; 2026-07-24 — the tail asserts the Ebb → library → Lanternwood
 chain, the solo-Fuji roster, and a peopled Ebb-night street; the library
 leg is now a WALK-GATE, driven like every other by teleporting to the
 anchor, because a mash alone just makes Fuji swing her tome in place).
@@ -458,7 +561,7 @@ byte-identical) — but never open a walkable pocket inside a chase leash
 frame budgets burn in real seconds while wall-clock cutscene timers don't
 advance any faster; the 2026-07-16 harness gotcha).
 **THE DEV CHAPTER SELECTOR (2026-07-20): press `0` ANYWHERE** — title,
-cutscene, mid-meadow — for a paused two-column menu of all 33 story beats;
+cutscene, mid-meadow — for a paused two-column menu of all 37 story beats;
 pick one and land in it with roster/phase/spawn/flags staged. `scene/dev_menu.gd`
 (autoload `DevMenu`, third after Game/Party; overlay built in code on
 CanvasLayer 100, `PROCESS_MODE_ALWAYS`, one of the project's only TWO
@@ -524,10 +627,26 @@ ablaze on the glow overlay. NW ICE/SNOW LAND = a pine-forested winter
 island (`i` snow, `P` pines) carrying LANTERNWOOD (`L` cluster icon, `d`
 gate → `scene/lanternwood.tscn`) — Fuji's hometown: visible but
 ocean-locked until the boat; the zone itself is walkable — log cabins as
-4-frame T3 sheets with fire-lit flickering windows + woodsmoke, conifers,
+8-frame T3 sheets with softly PULSING fire-lit windows + woodsmoke, conifers,
 a frozen pond (Tier-1 ice over WALKABLE pond cells — never sea/river,
-those animate), announce-only banners (THE LANTERNWOOD LIBRARY / FUJI'S
-FAMILY HOME / three cabins), `road_verge="snow"` lanes. NE PURPLE DESERT
+those animate), `road_verge="snow"` lanes, and announce-only banners on
+FUJI'S FAMILY HOME + three cabins. **THE LIBRARY (2026-07-25) is the one
+door in town that TRAVELS** (`target_scene` -> `scene/library.tscn`;
+`lanternwood.gd::_on_travel` names the phase) and the one building that
+isn't a cabin: `town_library()`, 144x112 over a 9x7 footprint -- log walls
+on a coursed fieldstone plinth, a keystoned stone portal with a lit
+fanlight, four TALL ARCHED reading windows, a street-facing cross gable
+with a rose window, and the glazed LANTERN CUPOLA on the ridge (the town's
+name made a landmark). Seven apertures on the one hearth breath. It backs
+onto the north pines (nothing walkable hides behind a 112px sheet) over a
+shoveled forecourt. GOTCHAS it cost: `_arch_rows` springs off the CROWN,
+never the sill (keyed to the sill, a tall window loses its whole head); a
+cupola is drawn DOWN from the canvas top (the pad rows belong to the smoke,
+so a finial at negative y clips); BRASS[2..3] are the ramp's violet law
+gone hot RED/magenta, so brass is 0/1 only and darks are IRON; and the glow
+overlay renders UNDER the y-sorted World, so a building's light has to land
+on the SNOW AT ITS FEET (one continuous wash — spaced per-aperture dabs
+scallop the snow into circles). NE PURPLE DESERT
 (`b`) + E/SE LAVA LAND (basalt `a`, ANIMATED lava pools `l` — the
 LAVA-RING LAW: every lava cell's neighbors must be lava or basalt,
 asserted at build) share one eastern landmass split by a volcanic ridge;
@@ -633,8 +752,13 @@ actions must be POLLED (`Party` polls `swap_member` in `_process`).
   winter kit: `town_cabin` (log walls, snow gable, stone chimney,
   `wide=True` library-hall variant), `town_conifer` T3 trunk/crown pair,
   `frozen_pond`, `town_lamp(mantle=)`; `_anim_building` gained `windows=`
-  (baked 4-frame warm flicker) + `wood_flues=` (grey lazy woodsmoke) +
-  `_finish(pad=)`, all default-off — town/fest sheets proven
+  (the baked HEARTH BREATH — `WIN_PULSE`/`_breathe`, DESIGN.md "Window
+  breath": a lit pane PULSES, never travels — symmetric level curve over the
+  whole sheet, every pane of a house IN PHASE, no wandering glint, two warm
+  ladders + a two-ring bloom onto the logs; step 0 = the art as drawn, so
+  the still bake is byte-identical; 8-frame cabin sheets ≈ 1.4s per breath
+  while the smoke stays periodic in 4) + `wood_flues=` (grey lazy woodsmoke)
+  + `_finish(pad=)`, all default-off — town/fest sheets proven
   byte-identical) + `assets/_meadow_props.py`
   (the meadow's per-cell boulder domes + the trailhead cairn).
   A generator (`assets/_gen_tileset_house.py`, `_gen_tileset_downstairs.py`,

@@ -1,4 +1,5 @@
 ; y-sorted World props from assets/maps/library.txt — see scene/prop_spawner.gd
+prop Stack S library_stack.png each
 prop Desk d library_desk.png
 prop Armchair r library_armchair.png
 prop Counter cC library_counter.png

@@ -426,6 +426,70 @@ def bed_parts(w, h, quilt, linen, cover_span=(24, 58), salt=3):
     return low, cov
 
 
+def _shelf_run(sp, x0, x1, base, spines, row, salt):
+    """One shelf's worth of books along `base`: upright spines of varied
+    height and colour, an occasional lean, an occasional flat stack, an
+    occasional gap where something has been taken out and not put back."""
+    sx = x0
+    slot = 0
+    while sx + 2 <= x1:
+        k = h2(slot, row, salt)
+        slot += 1
+        if k % 9 == 0:                                        # a gap: a book
+            sx += 3                                           # someone kept
+            continue
+        if k % 7 == 0 and sx + 6 <= x1:                       # a flat stack
+            for i in range(2):
+                col = spines[(k + i) % len(spines)]
+                sp.rect(sx, base - 2 * i - 1, sx + 5, base - 2 * i, col)
+            sx += 7
+            continue
+        hgt = 5 + k % 5
+        col = spines[k % len(spines)]
+        lean = 1 if k % 6 == 0 else 0
+        for yy in range(base - hgt, base + 1):
+            off = lean * ((base - yy) // 3)
+            sp.rect(sx + off, yy, sx + 1 + off, yy, col)
+        top = tuple(lerp(col[:3], (255, 255, 255), 0.35)) + (255,)
+        sp.rect(sx + lean * (hgt // 3), base - hgt,
+                sx + 1 + lean * (hgt // 3), base - hgt, top)
+        sx += 3
+
+
+def stack(w, h, spines, salt=11):
+    """A free-standing library STACK — 32x48 over a 2x2 SOLID footprint, a
+    y-sorted entity (never baked): the aisle furniture of a real reading
+    hall, which a body walks BOTH sides of. Taller than its footprint by one
+    cell, so someone in the aisle behind it reads as a head above the shelves
+    — the CT walk-behind, earned by y-sort rather than an upper-layer tile.
+
+    A heavy oak carcass: a projecting cornice with a sliver of the dusty top
+    surface catching the candlelight, three shelves of mismatched spines with
+    gaps where books never came back, a brass shelfmark plate on the top rail,
+    and a plinth dark enough to sit the whole thing on the floor."""
+    sp = S(w, h, salt)
+    sp.rect(1, 3, w - 2, h - 2, TIMBER[5])                    # the carcass
+    sp.rect(2, 5, w - 3, h - 5, TIMBER[4])
+    sp.rect(0, 3, w - 1, 4, TIMBER[3])                        # cornice, proud of
+    sp.rect(0, 3, w - 1, 3, TIMBER[1])                        # the case both sides
+    sp.rect(0, 0, w - 1, 2, TIMBER[2])                        # the dusty top slab
+    sp.rect(0, 0, w - 1, 0, TIMBER[1])                        # seen edge-on
+    for dx in range(3, w - 3, 6):
+        sp.set(dx, 2, TIMBER[4])                              # plank seams on it
+    sp.rect(4, 1, 11, 1, BRASS[1])                            # the shelfmark plate
+    sp.rect(4, 1, 4, 1, BRASS[0])
+    shelves = (16, 27, 38)                                    # three book rows
+    for row, base in enumerate(shelves):
+        _shelf_run(sp, 3, w - 4, base, spines, row, salt)
+        sp.rect(2, base + 1, w - 3, base + 2, TIMBER[3])      # the shelf board
+        sp.rect(2, base + 1, w - 3, base + 1, TIMBER[1])
+    sp.rect(1, h - 4, w - 2, h - 2, TIMBER[5])                # the plinth, dark
+    sp.rect(1, h - 4, w - 2, h - 4, TIMBER[3])                # enough to sit on
+    sp.rect(1, h - 1, w - 2, h - 1, TIMBER[5])                # the floor
+    edge(sp, h)
+    return sp
+
+
 def bookshelf(w, h, spines, salt=7):
     sp = S(w, h, salt)
     sp.rect(1, 1, w - 2, h - 2, TIMBER[4])                    # case

@@ -164,3 +164,64 @@ func walk_gate(goal: Vector2, size := Vector2(32.0, 24.0), relock := true) -> vo
 	gate.queue_free()
 	if relock:
 		lock_party()
+
+
+## The mash meter (extracted from the bluff crank-up, 2026-07-25 — the brew's
+## stir wants it verbatim): a draining fill bar under a prompt, resolved when
+## the fill tops out. `tick` is called every frame with the current fill so the
+## caller drives its own art off it (the whirligig's rotor waking, the flask
+## coming to the boil).
+##
+## Children of THIS CanvasLayer, so a caller needs no $UI of its own (hall.tscn
+## has none). The party must ALREADY be locked — npc.gd only refuses
+## conversations while a body is physics-frozen, so an unlocked mash leaks E
+## presses into whatever villager is standing nearby.
+func mash_meter(prompt: String, tick := Callable(), gain := 0.09,
+		decay := 0.05) -> void:
+	var back := ColorRect.new()
+	back.offset_left = 128.0
+	back.offset_top = 120.0
+	back.offset_right = 256.0
+	back.offset_bottom = 134.0
+	back.color = Color(0.055, 0.04, 0.115, 0.9)
+	var fill_rect := ColorRect.new()
+	fill_rect.offset_left = 130.0
+	fill_rect.offset_top = 122.0
+	fill_rect.offset_right = 130.0
+	fill_rect.offset_bottom = 132.0
+	fill_rect.color = Color(0.91, 0.74, 0.38)
+	var label := Label.new()
+	label.text = prompt
+	label.offset_left = 128.0
+	label.offset_top = 106.0
+	label.offset_right = 256.0
+	label.offset_bottom = 118.0
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_override("font", preload("res://assets/font/pixel_font.fnt"))
+	label.add_theme_font_size_override("font_size", 8)
+	label.add_theme_color_override("font_shadow_color", Color.BLACK)
+	for node in [back, fill_rect, label]:
+		add_child(node)
+	var fill := 0.0
+	var was_down := false
+	while fill < 1.0:
+		var delta := get_process_delta_time()
+		# level-edge detection, NOT is_action_just_pressed: this coroutine
+		# resumes on the tree's process_frame signal, which can run before
+		# the same-frame press lands — a just_pressed edge would be missed
+		# every time (found by the prologue probe, 2026-07-12)
+		var down := Input.is_action_pressed("interact") \
+				or Input.is_action_pressed("attack")
+		if down and not was_down:
+			fill = minf(1.0, fill + gain)
+			if fill >= 1.0:
+				break     # full NOW — the decay below must never gnaw it back
+		was_down = down
+		fill = maxf(0.0, fill - delta * decay)
+		fill_rect.offset_right = 130.0 + 124.0 * fill
+		if tick.is_valid():
+			tick.call(fill)
+		await get_tree().process_frame
+	fill_rect.offset_right = 254.0
+	for node in [back, fill_rect, label]:
+		node.queue_free()

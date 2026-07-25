@@ -31,6 +31,7 @@ const GATE_TALKS := 3
 
 var _talked := {}
 var _gate_hinted := false
+var _refusing := false
 var _npcs := {}
 ## the bobbing square ribbons — the theft snatches one, so keep the refs
 var _ribbons: Array[Sprite2D] = []
@@ -87,6 +88,35 @@ func _extra_setup() -> void:
 	_spawn_ribbons()
 	if not Game.flag("prologue_festival_done"):
 		_spawn_fountain_zone()
+	_open_academy()
+
+
+## THE ACADEMY DOOR GOES LIVE (2026-07-25). With the flask brewed, the recital
+## Schweinler barred him from is the objective, and the Academy stops being
+## scenery: the SAME OverworldLocation flips from announce to travel, because
+## travel_scene._on_location_entered branches on target_scene alone and reads
+## it at step-on time.
+##
+## The same node, never a second zone on the anchor — that is the whole lesson
+## of _free_home_location() below: two zones sharing an anchor can both fire in
+## one physics flush, and an awaited _announce then holds _busy through the
+## other's body_entered until the refused body is standing inside a zone that
+## never re-fires. One node cannot overlap itself.
+func _open_academy() -> void:
+	if not Game.flag("prologue_potion_made") or Game.flag("prologue_recital"):
+		return
+	var loc := $Locations.get_node_or_null("School")
+	if loc == null:
+		return
+	loc.target_scene = "res://scene/hall.tscn"
+	_show_banner("THE RECITAL - THE ACADEMY, UP THE STAIR", BANNER_HOLD)
+
+
+## TravelScene's per-scene travel hook: set the read-and-cleared router and let
+## the base class change the scene.
+func _on_travel(loc: OverworldLocation) -> void:
+	if loc.id == "school":
+		Game.hall_phase = "recital"
 
 
 ## The gate-mouth road runs to the map's last row and the collision layer
@@ -339,8 +369,10 @@ func _festival_cutscene() -> void:
 	Game.set_flag("prologue_festival_done")
 	_npcs["Sage"].lines = _sage_lines()
 	theater.unlock_party()
-	await _show_banner("THE GOOSE FLED EAST - OVER THE BRIDGE", BANNER_HOLD)
-	_show_banner("TALK TO THE TOWNSFOLK - E TO TALK", BANNER_HOLD)
+	# ONE objective at a time (2026-07-25): the goose is the whole job here.
+	# "TALK TO THE TOWNSFOLK" used to fire on its heels and now waits for
+	# _ribbon_return(), which is the beat that actually ends this thread.
+	_show_banner("THE GOOSE FLED EAST - OVER THE BRIDGE", BANNER_HOLD)
 
 
 ## The goose FLIES BY (the sneak restage, 2026-07-18: the old announced
@@ -376,6 +408,10 @@ func _goose_theft() -> void:
 	(_npcs["Sage"] as NPC).play_emote()
 	await theater.say("Sage", "...did that goose just steal my RIBBON!?")
 	await theater.say("Sage", "It went over the BRIDGE! Basil, you're the fast one!")
+	# DROP THE BOX before the caller's objective banner: the two share the
+	# bottom of the frame, and a beat that opens the dialog owes it a close —
+	# leaving Sage's last line up painted the banner out from under it
+	theater.close_dialog()
 	# respawn as the hidden orchard goose (the talkable startle state)
 	Game.set_flag("prologue_goose_hidden")
 	goose.queue_free()
@@ -405,16 +441,30 @@ func _goose_fly_clip(goose: NPC) -> void:
 func _on_npc_talked(npc: NPC) -> void:
 	if not Game.flag("prologue_festival_done"):
 		return
+	var returned_ribbon := false
 	if npc.display_name == "Sage" and Game.flag("prologue_ribbon") \
 			and not Game.flag("prologue_ribbon_returned"):
 		# AWAIT it: if this Sage talk is also the third distinct talk, the
 		# fall-through would start _want_home_line on the same DialogBox and
 		# one advance press would resume BOTH pending say() awaits
 		await _ribbon_return()
+		returned_ribbon = true
 	_talked[npc.display_name] = true
 	if _talked.size() >= GATE_TALKS and not Game.flag("prologue_want_home"):
 		Game.set_flag("prologue_want_home")
 		_want_home_line()
+	elif returned_ribbon:
+		# The ribbon thread just closed with the box down, so the wander gate's
+		# objective finally gets the frame to itself (2026-07-25 — it used to
+		# fire on the heels of the THEFT, where Sage was still mid-sentence over
+		# it and the goose was the actual job). Announced from HERE, not from
+		# _ribbon_return, because only this scope knows the gate is still open:
+		# when that Sage talk is ALSO the third one, _want_home_line owns the
+		# next line and two objectives in one flush just paint over each other.
+		# A player who never chases the goose never sees this and doesn't need
+		# to — reaching the gate without the ribbon means they were already
+		# talking to townsfolk.
+		_show_banner("TALK TO THE TOWNSFOLK - E TO TALK", BANNER_HOLD)
 
 
 func _want_home_line() -> void:
@@ -488,6 +538,13 @@ func _ribbon_return() -> void:
 func _on_exit_south(body: Node) -> void:
 	if not body.is_in_group("player") or _busy:
 		return
+	# The headland is SPENT once the whirligig has flown (2026-07-25). This
+	# road re-enters bluff "meet", where every prologue_part_* flag is already
+	# set and _on_kitty_zone would fire the flight finale a SECOND time. The
+	# story points north now, at the Academy.
+	if Game.flag("prologue_whirligig_done") and not Game.flag("prologue_recital"):
+		_recital_refusal()
+		return
 	if not Game.flag("prologue_gate_open"):
 		if not _gate_hinted:
 			_gate_hinted = true
@@ -499,6 +556,22 @@ func _on_exit_south(body: Node) -> void:
 	# the bluff; the fest meadow scene was cut)
 	Game.bluff_phase = "meet"
 	get_tree().change_scene_to_file("res://scene/bluff.tscn")
+
+
+## Not _gate_hinted's one-shot latch: this is a hard REFUSAL for the rest of
+## the chapter, and a silent wall walked into three times reads as a bug. Its
+## own re-entrancy latch instead — lock_party() freezes the body INSIDE the
+## zone, so without one a second body_entered could stack a coroutine on the
+## same DialogBox.
+func _recital_refusal() -> void:
+	if _refusing:
+		return
+	_refusing = true
+	theater.lock_party()
+	await theater.say("Basil", "Not the bluff. The ACADEMY. It's the other way, and they've already started.")
+	theater.close_dialog()
+	theater.unlock_party()
+	_refusing = false
 
 
 func _gate_hint() -> void:

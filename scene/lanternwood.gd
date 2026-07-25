@@ -1,10 +1,12 @@
 extends TravelScene
 
 ## Lanternwood, walkable at zone scale — Fuji's winter pine-forest hometown
-## on the ice land (see TravelScene for the shared machinery). Every door is
-## announce-only for now: the library, Fuji's family home and the three
-## snow-banked cabins read their banner lines; the south gate lane exits to
-## the overworld at Lanternwood's icon marker.
+## on the ice land (see TravelScene for the shared machinery). THE LIBRARY
+## DOOR TRAVELS (2026-07-25): the hall on the north side of the square is
+## where Fuji works, and its arch opens into scene/library.tscn. Every other
+## door — Fuji's family home, the three snow-banked cabins — is still
+## announce-only; the south gate lane exits to the overworld at Lanternwood's
+## icon marker.
 ##
 ## Once the Ebb has happened (`ebb_done` — the story's current resting
 ## state: solo Fuji, stepped out of her library into the SAME night), the
@@ -26,6 +28,14 @@ const SHEET_FOXKID := preload("res://assets/npc_foxkid_gen.png")
 ## but deep enough that the additive window/lantern glow carries the town.
 const NIGHT := Color(0.38, 0.4, 0.66)
 
+## How many of the Ebb-night neighbours she has to ask before the library
+## door opens onto the research beat (all three — the point of the gate is
+## that the whole street tells her the same nothing).
+const ASK_GATE := 3
+
+## Ebb-night villagers already talked to, by name.
+var _asked: Dictionary = {}
+
 
 func _player_node() -> Node2D:
 	return Party.spawn($World, Vector2.ZERO)   # placed for real in _place_player
@@ -43,10 +53,13 @@ func _place_player() -> void:
 	var spawn := Game.town_spawn
 	Game.town_spawn = ""
 	if spawn == "library":
-		# the Ebb-night arrival: she steps out of her own library door —
-		# landed a step south of the announce zone so the banner waits for
-		# her to turn back to it
-		Party.place(MapData.anchor_px(map, "library") + Vector2(0.0, 18.0))
+		# Land ON the door marker — feet on the lane right under the arch
+		# (the door-mouth arrival doctrine). Now that the marker TRAVELS,
+		# _standing is not cosmetic: without it, the body standing in the
+		# zone at the end of the entry lock fires it and walks straight back
+		# into the room it just left, forever.
+		Party.place(MapData.anchor_px(map, "library"))
+		_standing["library"] = true
 	else:
 		Party.place(MapData.anchor_px(map, "player_start"))
 
@@ -73,6 +86,18 @@ func _on_exit_south(body: Node) -> void:
 		_exit_to_overworld("lanternwood")
 
 
+## Through the library arch. The phase is ALWAYS named explicitly — "" is the
+## boot default library.gd reads as the Ebb-night cutscene, and walking in
+## the front door must never replay it. The research beat opens once the
+## street has told her everything it can (every neighbour asked) and closes
+## once she has the thesis.
+func _on_travel(loc: OverworldLocation) -> void:
+	if loc.id != "library":
+		return
+	Game.library_phase = "research" if Game.flag("asked_around") \
+			and not Game.flag("thesis_found") else "open"
+
+
 ## The night the magic left, from the street: night falls over the snow
 ## (the fire-lit windows and oil lanterns burn straight through it) and the
 ## neighbors are out comparing notes. Interact-to-talk villagers — every
@@ -80,9 +105,8 @@ func _on_exit_south(body: Node) -> void:
 ## no author).
 func _ebb_night_town() -> void:
 	$Dim.color = NIGHT
-	# she just stepped OUT of this door — the day-state "bolted against the
-	# cold" banner would contradict the scene she left seconds ago
-	$Locations/Library.locked_text = "THE LAMPS STILL BURN. THE KETTLE NEVER GOT ITS COFFEE."
+	if Game.flag("thesis_found"):
+		return                           # weeks on; the street went back in
 	_villager("Bramble", SHEET_HARE, Vector2(440.0, 216.0), [
 		"My warming-wand died mid-stir! I held it to my ear like a fool. Nothing. Not even a hum.",
 		"Every charm on my washing line, cold as river stones. All at ONCE. What takes everything at once?",
@@ -104,5 +128,15 @@ func _villager(nm: String, sheet: Texture2D, pos: Vector2, npc_lines: PackedStri
 	npc.frame_cols = 6
 	npc.position = pos
 	npc.lines = npc_lines
+	npc.talked.connect(_on_villager_talked)
 	$World.add_child(npc)
 	return npc
+
+
+## The street's own wander gate: once she has asked every neighbour and been
+## told the same nothing three times over, the only place left to look is her
+## own shelves — and the library door starts opening onto the research beat.
+func _on_villager_talked(npc: NPC) -> void:
+	_asked[npc.display_name] = true
+	if _asked.size() >= ASK_GATE:
+		Game.set_flag("asked_around")

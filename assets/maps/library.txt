@@ -1,40 +1,54 @@
-; THE LANTERNWOOD LIBRARY — Fuji's small library, the night of the Ebb
-; (24x14 tiles, 384x224 px; the view clamps to 384x216). The loft-diorama
-; recipe: a SMALL dense timber reading room floating in void (10-tile
-; interior, 6-tile margins), every wall stretch occupied. NORTH WALL, west
-; to east: the stone HEARTH (H, 48x48 — the room's hot light source; the
-; scene stamps the animated library_fire.png over the cold firebox, the
-; downstairs idiom), a tall BOOKSHELF (K, 32x48), the WINDOW (W, high
-; 32x32 — cold snow-blue night glass over wainscot), a second BOOKSHELF,
-; the wall CLOCK (o). FLOOR: the coffee COUNTER (c/C — the counter-walk
-; table pattern: top row c is the walkable TUCK row, the brass kettle +
-; waiting cup ride the countertop art, bottom row C stays solid; a
-; y-sorted entity from library_props.txt), the reading DESK (d — one-row
-; footprint, stand on the row behind and it hides your legs), the rust
-; ARMCHAIR (r) reading nook by the east wall, a plum rug before the south
-; DOOR. This file is BOTH the collision grid and the room layout:
-; assets/_gen_tileset_library.py places its props from the feature chars,
-; so moving a feature here moves it in the game.
-; ANCHORS the shipped "ebb" phase consumes: kettle (the counter's walkable
-; tuck-row cell — the kettle art lives on that cell; Fuji stands ON the
-; cell one east of it, so moving the kettle anchor moves HER and the spark
-; target together) and mess_a / mess_b (open floor cells flanking the
-; counter, for splash decals). The scene also derives the fire overlay from
-; the H bbox. Since 2026-07-24 the room is PLAYABLE after the dead-wand
-; beat (she has to walk out and investigate), so it also consumes
-; exit_door — the DOOR-MOUTH cell BELOW the south wall, the downstairs.txt
-; front_door/exit_door split: the arrival cell (player_spawn, row 8) sits
-; inside the room and the exit zone (row 10) sits in the mouth, so they can
-; never overlap and the zone needs no re-fire suppression. The anchor
-; column is 8px west of the 2-cell arch — the scene x-centers both on the
-; '-' bbox. RESERVED for the Act 1 research phase (declared, not yet read
-; by any code): fuji_spot, desk_spot, door.
+; THE LANTERNWOOD LIBRARY, inside — Fuji's reading HALL (24x14 tiles,
+; 384x224 px; the view clamps to 384x216, so the camera is pinned dead
+; still). REBUILT 2026-07-25 from the 10-tile closet it used to be into the
+; full 18-tile diorama the downstairs great room uses, because the building
+; outside grew into a civic hall and a one-room library can't hold a
+; research puzzle: three free-standing STACKS with walkable aisles between
+; them are the thing Act 1 makes you search.
+;
+; NORTH WALL, west to east, every stretch occupied: the stone HEARTH
+; (H, 48x48 — the room's hot light source; the scene stamps the animated
+; library_fire.png over the cold firebox, the downstairs idiom), then a
+; strict alternation of tall wall BOOKSHELVES (K, 32x48) and high night
+; WINDOWS (W, 32x32 — cold snow-blue glass over wainscot), and the wall
+; CLOCK (o). Each K run must stay a SEPARATE connected component: they are
+; placed with place_each, which blits one 32x48 sprite per component, so two
+; adjacent runs would share a bbox and misplace the art.
+;
+; FLOOR: the coffee COUNTER (c/C — the counter-walk table pattern: top row c
+; is the walkable TUCK row, the brass kettle + waiting cup ride the
+; countertop art, bottom row C stays solid) before the fire; THE THREE
+; STACKS (S, 32x48 art on a 2x2 solid footprint — a y-sorted entity, so a
+; body in the aisle NORTH of one reads as a head above the shelves); the
+; reading DESK (d — one-row footprint, stand on the row behind and it hides
+; your legs) under the clock, where the LEDGER lives; the rust ARMCHAIR (r)
+; nook in the SE corner; a plum rug before the south DOOR.
+;
+; This file is BOTH the collision grid and the room layout:
+; assets/_gen_tileset_library.py places its props from the feature chars, so
+; moving a feature here moves it in the game.
+;
+; ANCHORS. The "ebb" phase consumes: kettle (the counter's WALKABLE tuck-row
+; cell — the kettle art lives on that cell; Fuji stands ON the cell one east
+; of it, so moving the kettle anchor moves HER and the spark target
+; together) and mess_a / mess_b (open floor cells flanking the counter, for
+; splash decals). The "research" phase consumes: desk_spot (the cell she
+; reads at, in front of the desk) and stack_a / stack_b / stack_c (the cell
+; a body stands in to search each stack — its SOUTH aisle cell, so the
+; interact zone can never sit inside the footprint). Both phases use
+; player_spawn / exit_door, and the scene derives the fire overlay from the
+; H bbox. The door is the downstairs.txt front_door/exit_door split: the
+; arrival cell (player_spawn, row 9) sits inside the room and the exit zone
+; (row 11) sits in the mouth, so they can never overlap and the zone needs
+; no re-fire suppression. The anchor column is 8px west of the 2-cell arch —
+; the scene x-centers both on the '-' bbox.
 legend V void solid
 legend # wall solid
 legend H hearth solid
 legend K bookshelf solid
 legend W window solid
 legend o clock solid
+legend S stack solid
 legend d desk solid
 legend r armchair solid
 legend C counter solid
@@ -42,26 +56,29 @@ legend c countertop walk
 legend . floor walk
 legend g rug walk
 legend - door walk
-anchor player_spawn 11 8
-anchor door 11 9
-anchor exit_door 11 10
-anchor fuji_spot 8 8
-anchor kettle 8 6
-anchor desk_spot 14 6
-anchor mess_a 7 7
-anchor mess_b 10 7
+anchor player_spawn 11 9
+anchor door 11 10
+anchor exit_door 11 11
+anchor kettle 4 6
+anchor mess_a 3 7
+anchor mess_b 6 7
+anchor stack_a 7 8
+anchor stack_b 11 8
+anchor stack_c 15 8
+anchor desk_spot 19 6
+anchor nook 18 8
 map
 VVVVVVVVVVVVVVVVVVVVVVVV
 VVVVVVVVVVVVVVVVVVVVVVVV
-VVVVVV#HHHKKWWKK##VVVVVV
-VVVVVV#HHHKKWWKKo#VVVVVV
-VVVVVV#HHHKK##KK##VVVVVV
-VVVVVV#..........#VVVVVV
-VVVVVV#.cc.ddd.rr#VVVVVV
-VVVVVV#.CC.ggg.rr#VVVVVV
-VVVVVV#....ggg...#VVVVVV
-VVVVVV#####--#####VVVVVV
-VVVVVVVVVV#--#VVVVVVVVVV
-VVVVVVVVVVVVVVVVVVVVVVVV
+VV#HHHKKWWKKWWKKWW#KK#VV
+VV#HHHKKWWKKWWKKWWoKK#VV
+VV#HHHKK##KK##KK###KK#VV
+VV#..................#VV
+VV#.cc.SS..SS..SS....#VV
+VV#.CC.SS..SS..SS.ddd#VV
+VV#.......gggg.....rr#VV
+VV#.......gggg.....rr#VV
+VV#########--#########VV
+VVVVVVVVVVV--VVVVVVVVVVV
 VVVVVVVVVVVVVVVVVVVVVVVV
 VVVVVVVVVVVVVVVVVVVVVVVV

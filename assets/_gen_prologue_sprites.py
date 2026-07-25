@@ -123,6 +123,9 @@ SPARK_D = (238, 202, 120, 255)
 MSPARK_W = (255, 255, 255, 255)                    # magic spark: white-hot heart
 MSPARK = (214, 246, 248, 255)                      # mint-white body (the Ebb night)
 MSPARK_V = (156, 112, 220, 255)                    # violet fringe (the violet law)
+BURST_W = (255, 255, 255, 255)                     # firework: white-hot core
+BURST_C = (255, 250, 236, 255)                     # firework: cream body
+BURST_D = (226, 214, 190, 255)                     # firework: dim outer specks
 
 OUT_DARK = (10, 7, 16, 255)
 OUT_LIGHT = (66, 58, 78, 255)
@@ -2531,6 +2534,64 @@ def fx_magic_spark(s, big):
         s.set(c, c, MSPARK)                        # dimmer: no pure white
 
 
+def fx_burst(s, big):
+    """The recital firework (frames 22-23): big=False the rising ember and
+    its trailing sparks, big=True the burst ring.
+
+    Drawn WHITE-HOT AND COLOURLESS on purpose. scene/hall.gd modulate-tints
+    each instance to one of Alchemy's four compound tints on an ADDITIVE
+    material, so this one pair of cells makes all four colours — the kid's
+    first potion is the same green/blue/red/purple he'll be firing two
+    decades later. Do NOT reuse the sparkle cells (2-3) for this: SPARK_D is
+    warm gold, and gold multiplied by a blue tint is mud. Bare hand-set
+    pixels like the sibling sparkle/magic-spark cells — an outline pass
+    fights an additive blend."""
+    c = 8
+    if big:
+        for d in (5, 6):                           # the ring: axes...
+            for (x, y) in ((c, c - d), (c, c + d), (c - d, c), (c + d, c)):
+                s.set(x, y, BURST_C if d == 5 else BURST_D)
+        for d in (3, 4):                           # ...and diagonals
+            for (sx, sy) in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
+                s.set(c + sx * d, c + sy * d, BURST_C if d == 3 else BURST_D)
+        for d in range(1, 3):                      # the collapsing arms
+            for (x, y) in ((c, c - d), (c, c + d), (c - d, c), (c + d, c)):
+                s.set(x, y, BURST_C)
+        for (sx, sy) in ((-1, -1), (1, -1), (-1, 1), (1, 1)):
+            s.set(c + sx, c + sy, BURST_W)         # core diamond
+        s.set(c, c, BURST_W)
+    else:
+        for d in (1, 2):                           # a 4-point mote
+            col = BURST_C if d == 1 else BURST_D
+            for (x, y) in ((c, c - d), (c, c + d), (c - d, c), (c + d, c)):
+                s.set(x, y, col)
+        s.set(c, c, BURST_W)
+
+
+FLASKG = ramp((176, 226, 234), "teal", 4)          # fx: pale reagent glass
+
+
+def fx_beaker(s):
+    """The recital potion (frame 24): a stoppered conical flask — brewed at
+    the workbench, then pinned under the whirligig's pod as its payload.
+
+    The fill is drawn in a LIGHT cream so downstairs_fest can modulate-cycle
+    it through Alchemy's four tints while the stir meter fills (the player
+    literally stirs the four sky colours in), and hall.gd can fade its alpha
+    across the four bursts so the flask visibly empties."""
+    s.rect(6, 2, 9, 3, BRASSF[2])                   # the stopper
+    s.rect(6, 1, 9, 1, BRASSF[1])
+    s.rect(7, 4, 8, 6, FLASKG[1])                   # the neck
+    for (x0, x1, y) in ((6, 9, 7), (5, 10, 8), (5, 10, 9),
+                        (4, 11, 10), (4, 11, 11), (4, 11, 12), (5, 10, 13)):
+        s.rect(x0, y, x1, y, FLASKG[1])             # the cone
+    for (x0, x1, y) in ((5, 10, 10), (5, 10, 11), (5, 10, 12), (6, 9, 13)):
+        s.rect(x0, y, x1, y, BURST_C)               # the reagent, tintable
+    s.set(5, 8, BURST_W)                            # glass glint
+    s.despeckle(passes=1)
+    s.outline(outs_for((FLASKG, OUT_DARK), (BRASSF, OUT_DARK)), OUT_DARK)
+
+
 def accident_bg():
     """The dusk road backdrop for scene/accident.tscn — one 384x216 painting
     (a one-off set, not a tileset): banded violet-to-rose dusk, a half-set
@@ -2847,8 +2908,9 @@ write_cells(os.path.join(HERE, "bluff_kiss_gen.png"), kc, 96)
 # address it by frame index; sheet_sprite infers vframes from the sheet, so
 # row-0 indices survive the second row). Row 1: the accident set-piece
 # (watch call, impact poof, motion lines) at cells 16+, the bluff kiss heart
-# (19), and the Ebb-night magic sparks (20 bright / 21 dim trail) — only
-# APPEND here, NEVER widen a row.
+# (19), the Ebb-night magic sparks (20 bright / 21 dim trail), and the
+# recital's chemistry (22 firework mote / 23 burst / 24 the flask) — only
+# APPEND here, NEVER widen a row. Cells 25-31 are FREE.
 fx = [[Sprite(16, grain=1, salt=3, jitter=0.0) for _ in range(16)],
       [Sprite(16, grain=1, salt=3, jitter=0.0) for _ in range(16)]]
 fx_ribbon(fx[0][0], RIBBON_M)
@@ -2873,6 +2935,9 @@ fx_lines(fx[1][2])                  # frame 18
 fx_heart(fx[1][3])                  # frame 19 — the bluff kiss
 fx_magic_spark(fx[1][4], True)      # frame 20 — the Ebb-night magic mote
 fx_magic_spark(fx[1][5], False)     # frame 21 — dim 2px trail flicker
+fx_burst(fx[1][6], False)           # frame 22 — firework mote / trail spark
+fx_burst(fx[1][7], True)            # frame 23 — the burst ring
+fx_beaker(fx[1][8])                 # frame 24 — the recital potion / payload
 write_cells(os.path.join(HERE, "prologue_fx.png"), fx, 16)
 
 # the accident set-piece: side-view sheets + the dusk road backdrop

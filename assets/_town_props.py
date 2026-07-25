@@ -33,7 +33,19 @@ CEMENT = ramp((186, 190, 178), "violet", 6)       # light grey cement wall
 WATERL = (196, 232, 226, 255)                     # lit water
 SMOKEG = (198, 200, 212, 255)                     # winter woodsmoke, grey
 SMOKEGD = (162, 164, 180, 255)
-WGLINT = (255, 236, 170, 255)                     # window-flicker glint
+WGLINT = (255, 236, 170, 255)                     # a pane at the top of its breath
+
+# The hearth BREATH (a fire-lit pane's soft pulsing glow). The glass body and
+# the fire's throw band each climb their OWN warm ladder, one step per beat, so
+# the swell reads as LIGHT rising and never as a hue slide; step 0 is the art as
+# drawn, which keeps the baked still frame identical to the un-animated build.
+WGLASS = (WARMD, (242, 172, 98, 255), (248, 186, 108, 255), (252, 198, 116, 255))
+WTHROW = (WARM, (255, 218, 136, 255), (255, 228, 152, 255), WGLINT)
+WIN_BLOOM = (0.0, 0.06, 0.14, 0.24)               # spill onto frame + logs
+WIN_PULSE = (0, 1, 2, 3, 3, 2, 1, 0)              # ONE symmetric breath per
+                                                  # 8-frame sheet: swell, hold,
+                                                  # ebb, rest — no direction, so
+                                                  # it can never read as travel
 
 
 def _leaf_dab(sp, x, y):
@@ -86,6 +98,44 @@ def _pad_top(sp, pad):
     return c
 
 
+def _wash(c, t):
+    """Blend a pixel t of the way toward candlelight — the spill a lit pane
+    throws onto its own frame and the logs around it."""
+    if c is None:
+        return None
+    a = c[3] if len(c) > 3 else 255
+    return tuple(int(c[i] + (WARM[i] - c[i]) * t) for i in range(3)) + (a,)
+
+
+def _breathe(sp, wx, wy, ww, hh, lvl):
+    """One pane at breath level `lvl`: the glass steps up its ladder and the
+    light spills two rings out onto the pane's frame and the logs. The BLOOM is
+    what reads as a glow instead of a recolour — a pane that only changes
+    colour reads as a lamp being switched, one that lights its surroundings
+    reads as a fire breathing. Mullions stay dark: wood backlit by a hearth is
+    a silhouette, and only the glass is the source."""
+    for y in range(wy, wy + hh):
+        for x in range(wx, wx + ww):
+            c = sp.get(x, y)
+            if c == WARMD:
+                sp.set(x, y, WGLASS[lvl])
+            elif c == WARM:
+                sp.set(x, y, WTHROW[lvl])
+    t = WIN_BLOOM[lvl]
+    if t <= 0.0:
+        return
+    for d in (1, 2):                                      # concentric rings out
+        td = t if d == 1 else t * 0.45                    # from the glass, the
+        x0, x1 = wx - d, wx + ww - 1 + d                  # spill falling off
+        y0, y1 = wy - d, wy + hh - 1 + d
+        for x in range(x0, x1 + 1):
+            for y in (y0, y1):
+                sp.set(x, y, _wash(sp.get(x, y), td))
+        for y in range(y0 + 1, y1):
+            for x in (x0, x1):
+                sp.set(x, y, _wash(sp.get(x, y), td))
+
+
 def _anim_building(facade, canopy, f, flues=(), streams=(), basins=(),
                    barrels=(), drips=(), windows=(), wood_flues=(), dy=0):
     """Frame-f animated water + smoke for ANY building. `facade` takes the
@@ -112,21 +162,14 @@ def _anim_building(facade, canopy, f, flues=(), streams=(), basins=(),
         facade.set(x0 + (f * 3) % max(1, x1 - x0), y + dy, WATERL)
     for nx, ny in drips:                                  # falling drips
         facade.set(nx, ny + dy + (f % 4), WATER)
-    for i, (wx, wy, ww, hh) in enumerate(windows):        # fire-lit windows:
-        st = (f + 2 * i) % 4                              # a subtle 4-beat
-        if st == 0:                                       # flicker; the baked
-            continue                                      # frame stays put
-        for y in range(wy + dy, wy + dy + hh):
-            for x in range(wx, wx + ww):
-                c = facade.get(x, y)
-                if c == WARM and st == 2:
-                    facade.set(x, y, WARMD)               # the dim beat
-                elif c == WARMD and st == 3:
-                    facade.set(x, y, WARM)                # the flare beat
-        gx = wx + (0 if st == 1 else ww - 1)              # a wandering glint
-        gy = wy + dy + (0 if st < 2 else hh - 1)
-        if facade.get(gx, gy) in (WARM, WARMD):
-            facade.set(gx, gy, WGLINT)
+    lvl = WIN_PULSE[f % len(WIN_PULSE)]                   # fire-lit windows: ONE
+    if lvl:                                               # hearth breath the whole
+        for wx, wy, ww, hh in windows:                    # house shares. Panes are
+            _breathe(facade, wx, wy + dy, ww, hh, lvl)    # IN PHASE — the old
+                                                          # half-cycle offset and
+                                                          # its corner-marching
+                                                          # glint read as light
+                                                          # ROLLING along the wall
     for mx, my in wood_flues:                             # winter woodsmoke:
         for p in range(5):                                # taller, lazier and
             ph = (f - p) % 4                              # greyer than steam —
@@ -1049,11 +1092,18 @@ def _lit_window(lo, x0, y0, ww, hh):
     return (x0, y0, ww, hh)
 
 
-def _snow_roof(up, w, fy, roof, snow):
+def _snow_roof(up, w, fy, roof, snow, ridge=0, ridge_half=None):
     """A steep side-gable roof under a deep snow blanket: the pitched slope
     is drawn, then all but its lowest rows recolor to drifted snow with sag
-    lines; icicle teeth hang under the eave."""
-    _hip_roof(up, 0, w - 1, 0, fy - 1, max(4, w // 2 - 10), roof)
+    lines; icicle teeth hang under the eave.
+
+    `ridge` drops the ridge line off the canvas top, leaving clear sky above
+    it for something that rises THROUGH the roof (the library's lantern
+    cupola); `ridge_half` narrows the ridge for a steeper hip. Both default
+    to the cabins' geometry, whose sheets stay byte-identical."""
+    if ridge_half is None:
+        ridge_half = max(4, w // 2 - 10)
+    _hip_roof(up, 0, w - 1, ridge, fy - 1, ridge_half, roof)
     for y in range(0, fy - 3):                             # the snow blanket
         for x in range(w):
             if up.get(x, y) is None:
@@ -1083,13 +1133,20 @@ def _stone_chimney(up, x, y0, y1, snow):
     up.set(x + 5, y0, snow[1])
 
 
-def town_cabin(roof, snow, salt=311, composite=True, frames=4, wide=False):
+def town_cabin(roof, snow, salt=311, composite=True, frames=8, wide=False):
     """A Lanternwood log cabin — 80x64 over 5x4 (or 96x80 over 6x5 with
     `wide`, the library hall): stacked-log walls, a deep snow-blanketed
-    gable roof, fire-lit windows (the 4-frame sheet flickers them via
+    gable roof, fire-lit windows softly PULSING (the sheet breathes them via
     _anim_building's `windows`), a plank door spilling lamplight, a hooded
     stoop lantern, and a snow-capped stone chimney breathing lazy grey
-    WOODSMOKE (`wood_flues`, pad=18 headroom)."""
+    WOODSMOKE (`wood_flues`, pad=18 headroom).
+
+    EIGHT frames, not the woodsmoke's four: the hearth breath wants a slow
+    ~1.4s cycle (travel_scene's ANIM_STEP is 0.18s) and WIN_PULSE spans the
+    whole sheet, while every smoke term stays periodic in 4 and simply loops
+    twice — so the sheet is seamless either way."""
+    assert frames < 2 or frames % len(WIN_PULSE) == 0, \
+        "an animated cabin sheet must hold whole window-breath cycles"
     w, h, fy = (96, 80, 40) if wide else (80, 64, 30)
     lo, up = S(w, h, salt), S(w, h, salt + 1)
     _snow_roof(up, w, fy, roof, snow)
@@ -1117,6 +1174,223 @@ def town_cabin(roof, snow, salt=311, composite=True, frames=4, wide=False):
     edge(lo, h)
     anim = (lambda fa, ca, f2, dy=0: _anim_building(
         fa, ca, f2, wood_flues=((mx + 1, 3),), windows=tuple(wins), dy=dy))
+    return _finish(lo, up, w, fy, h, composite, frames, anim, pad=18)
+
+
+def _arch_rows(cx, y0, y1, r):
+    """Rows of a round-headed opening `y0` (the CROWN) to `y1`: a semicircular
+    head of radius r springing at y0+r-1, then a straight shaft. Yields
+    (y, xl, xr) — the one geometry the library's windows, its door arch and
+    its fanlight all cut themselves from, so a frame drawn by dilating these
+    rows can never drift off its own glass. Springing off the crown, never off
+    the sill: keyed to the sill instead, a tall window loses its whole head."""
+    spring = y0 + r - 1
+    for y in range(y0, y1 + 1):
+        if y >= spring:
+            hw = r
+        else:
+            d = (spring - y) / float(r)
+            hw = r * max(0.0, 1.0 - d * d) ** 0.5
+        yield y, int(round(cx - hw)), int(round(cx + hw))
+
+
+def _arch_window(lo, cx, y0, y1, r, mullions=True):
+    """A tall arched READING window — the library's one loud break from the
+    cabins' little square panes. Timber frame dilated off the opening, warm
+    glass on the WARM/WARMD ladders the hearth breath recolors, leaded
+    mullions dividing it into small panes, a stone sill. Returns the rect for
+    the breath list."""
+    rows = list(_arch_rows(cx, y0, y1, r))
+    for y, xl, xr in rows:                                 # frame: the opening
+        lo.rect(xl - 1, y, xr + 1, y, TIMBER[4])           # dilated one pixel
+    lo.rect(rows[0][1] - 1, y0 - 1, rows[0][2] + 1, y0 - 1, TIMBER[4])
+    for y, xl, xr in rows:
+        lo.rect(xl, y, xr, y, WARMD)                       # the glass
+    for y, xl, xr in rows[:4]:                             # the fire's throw,
+        lo.rect(xl, y, xr, y, WARM)                        # pooled in the head
+    if mullions:
+        for y, xl, xr in rows:                             # leaded panes: one
+            if y > y0 + r // 2:                            # mullion, transoms
+                lo.set(cx, y, TIMBER[4])                   # every 8 rows
+            if (y - y0 - r) % 8 == 0 and y > y0 + r:
+                lo.rect(xl, y, xr, y, TIMBER[4])
+    lo.rect(rows[-1][1] - 3, y1 + 1, rows[-1][2] + 3, y1 + 2, STONER[3])  # sill
+    lo.rect(rows[-1][1] - 3, y1 + 1, rows[-1][2] + 3, y1 + 1, STONER[1])
+    return (rows[0][1] - 1, y0 - 1, rows[-1][2] - rows[0][1] + 3, y1 - y0 + 3)
+
+
+def _rose_window(up, cx, cy, r):
+    """The gable's round window: a timber wheel of warm glass with radial
+    spokes and a hub — a library front's one flourish, and the highest lit
+    thing on the street after the cupola. Returns its rect for the breath."""
+    for dy in range(-r - 1, r + 2):
+        for dx in range(-r - 1, r + 2):
+            q = (dx * dx + dy * dy) / float(r * r)
+            if q <= 1.0:
+                up.set(cx + dx, cy + dy, WARMD if q > 0.34 else WARM)
+            elif q <= 1.44:
+                up.set(cx + dx, cy + dy, TIMBER[4] if q > 1.1 else TIMBER[2])
+    for ax, ay in ((0, -1), (0, 1), (-1, 0), (1, 0),       # eight spokes
+                   (-0.7, -0.7), (0.7, -0.7), (-0.7, 0.7), (0.7, 0.7)):
+        ln(up, cx + ax * 2, cy + ay * 2, cx + ax * r, cy + ay * r, TIMBER[4])
+    up.set(cx, cy, TIMBER[2])                              # the hub
+    return (cx - r - 1, cy - r - 1, 2 * r + 3, 2 * r + 3)
+
+
+def _lantern_cupola(up, cx, y1, snow):
+    """The ridge LANTERN — a glazed belfry standing clear above the roofline,
+    burning all night. Lanternwood's name made into a landmark: the library is
+    the lamp the town is named for, and this is the one silhouette no cabin
+    can grow. Drawn DOWN from the canvas top (there is no headroom above a
+    prop sheet — the pad rows belong to the smoke), so the finial can't clip.
+    Returns the glass rect for the breath."""
+    hw = 13
+    up.rect(cx - 1, 0, cx, 2, BRASS[1])                    # the brass finial
+    up.set(cx - 1, 0, BRASS[0])
+    up.tri((cx, 2), 10, cx - hw - 2, cx + hw + 3, snow)    # its snow cap
+    up.rect(cx - hw - 2, 10, cx + hw + 2, 11, TIMBER[4])   # the cap's eave
+    gy0, gy1 = 12, y1 - 4                                  # the glazed body:
+    up.rect(cx - hw + 3, gy0 - 1, cx + hw - 3, gy1 + 1, TIMBER[4])
+    up.rect(cx - hw + 4, gy0, cx + hw - 4, gy1, WARM)      # the brightest thing
+    up.rect(cx - hw + 4, gy1 - 1, cx + hw - 4, gy1, WARMD)  # on the street
+    for px_ in (cx - hw + 7, cx, cx + hw - 7):             # slim glazing bars
+        up.rect(px_, gy0, px_, gy1, TIMBER[4])
+    up.rect(cx - hw - 1, y1 - 3, cx + hw + 1, y1 - 2, TIMBER[2])   # the deck it
+    up.rect(cx - hw - 1, y1 - 1, cx + hw + 1, y1, TIMBER[4])       # stands on
+    return (cx - hw + 3, gy0 - 1, 2 * hw - 5, gy1 - gy0 + 3)
+
+
+def _gable_front(up, cx, apex, eave, half, snow, salt):
+    """The cross-gable over the entry: a board-and-batten gable END facing the
+    camera off the main ridge, snow banked along both rakes. The cabins are
+    one long roof each; a gable turned to face the street is what tells a
+    passer-by this building has a FRONT."""
+    span = float(eave - apex)
+    for y in range(apex, eave + 1):
+        hw = int(round(half * (y - apex) / span))
+        for x in range(cx - hw, cx + hw + 1):
+            t = 0.30 + 0.34 * ((x - cx + hw) / max(1.0, 2.0 * hw))
+            if (x - cx) % 7 == 0:
+                t += 0.22                                  # batten shadows
+            up.set(x, y, up.tone(TIMBER, t, x, y, jitter=0.35))
+    for y in range(apex, eave + 1):                        # the snow-banked
+        hw = half * (y - apex) / span                      # rakes: a 4px band
+        for k in range(5):                                 # riding each slope
+            for sx in (cx - hw + k, cx + hw - k):
+                up.set(int(round(sx)), y - 3 + k // 2,
+                       snow[0] if k < 3 else snow[1])
+    up.rect(cx - 4, apex - 4, cx + 3, apex + 2, TIMBER[2])         # ridge board
+    up.rect(cx - 4, apex - 4, cx + 3, apex - 3, snow[0])
+    up.rect(cx - half + 6, eave - 5, cx + half - 6, eave - 4, TIMBER[1])  # tie
+    up.rect(cx - half + 6, eave - 3, cx + half - 6, eave - 3, TIMBER[5])
+
+
+def _portal(lo, cx, y0, y1, half, salt):
+    """The great arched doorway: a coursed-stone frontispiece standing proud
+    of the log walls, a keystoned round arch, a lit fanlight over double plank
+    doors. Returns the fanlight rect for the breath list."""
+    _coursed_wall(lo, cx - half, y0, cx + half, y1, STONER, salt=salt,
+                  course=6, joint=9, t0=0.26)
+    lo.rect(cx - half - 2, y0, cx + half + 2, y0 + 2, STONER[1])   # the cornice
+    lo.rect(cx - half - 2, y0 + 3, cx + half + 2, y0 + 3, STONER[4])
+    r, ay0 = 12, y0 + 6
+    door_top = ay0 + 18                                    # the transom line
+    rows = list(_arch_rows(cx, ay0, y1, r))
+    for y, xl, xr in rows:                                 # voussoir ring
+        lo.rect(xl - 2, y, xr + 2, y, STONER[0])
+        if y < door_top:
+            lo.rect(xl, y, xr, y, WARMD)                   # the lit fanlight
+    for y, xl, xr in rows[:4]:
+        lo.rect(xl, y, xr, y, WARM)
+    lo.rect(cx - 3, ay0 - 5, cx + 2, ay0 + 1, STONER[1])   # the keystone,
+    lo.rect(cx - 3, ay0 - 5, cx + 2, ay0 - 5, STONER[0])   # straddling the
+    lo.rect(cx - 4, ay0 - 5, cx - 4, ay0 + 1, STONER[4])   # crown, not sunk
+    lo.rect(cx + 3, ay0 - 5, cx + 3, ay0 + 1, STONER[4])   # through the glass
+    for ax, ay in ((-1.0, 0.0), (-0.7, -0.7), (0.0, -1.0),  # the fan's leading
+                   (0.7, -0.7), (1.0, 0.0)):
+        ln(lo, cx, door_top, cx + ax * r, door_top + ay * r, TIMBER[4])
+    lo.rect(cx - r, door_top, cx + r, door_top + 1, TIMBER[4])     # the transom
+    lo.rect(cx - r, door_top + 2, cx + r, y1, TIMBER[2])           # the doors
+    for gx in range(cx - r + 2, cx + r, 4):
+        lo.rect(gx, door_top + 3, gx, y1 - 1, TIMBER[4])           # plank seams
+    lo.rect(cx - 1, door_top + 2, cx, y1, TIMBER[4])               # meeting stile
+    for hy in (door_top + 15, door_top + 16):                      # brass rings
+        lo.rect(cx - 5, hy, cx - 4, hy, BRASS[1])
+        lo.rect(cx + 4, hy, cx + 5, hy, BRASS[1])
+    lo.rect(cx - r + 1, y1 - 1, cx + r - 1, y1, WARMD)             # the light
+    lo.rect(cx - 4, y1 - 1, cx + 3, y1, WARM)                      # under the door
+    return (cx - r - 1, ay0 - 1, 2 * r + 3, door_top - ay0 + 2)
+
+
+def _bracket_lamp(lo, x, y, face):
+    """A hooded oil lamp on a scrolled iron bracket off the facade — the pair
+    that flank the library door, and the reason nobody in Lanternwood needs
+    magic to find their way home. `face` is the side it reaches out to."""
+    gx = x + 5 * face
+    ln(lo, x, y, gx, y, IRON[2])                           # the bracket arm
+    ln(lo, x, y + 3, x + 3 * face, y + 1, IRON[3])         # its scrolled stay
+    lo.set(gx, y + 1, IRON[2])
+    # BRASS runs out after index 1 (2-3 are the ramp's violet law gone hot
+    # red/magenta — the cabins' stoop lantern wears that as a stray red pixel);
+    # brass here is 0/1 only, and every dark is IRON.
+    lo.rect(gx - 2, y + 2, gx + 2, y + 2, BRASS[1])        # the hood, wider
+    lo.set(gx - 2, y + 2, IRON[2])                         # than the flame it
+    lo.set(gx + 2, y + 2, IRON[2])                         # keeps the snow off
+    lo.rect(gx - 1, y + 3, gx + 1, y + 7, WARMD)           # its little flame
+    lo.rect(gx - 1, y + 4, gx + 1, y + 6, WARM)
+    lo.rect(gx - 2, y + 8, gx + 2, y + 8, IRON[2])         # the pan it sits in
+    lo.set(gx, y + 8, BRASS[1])
+    return (gx - 1, y + 3, 3, 5)
+
+
+def town_library(roof, snow, salt=341, composite=True, frames=8):
+    """THE LANTERNWOOD LIBRARY — the town's one civic building and Fuji's
+    workplace, 144x112 over a 9x7 footprint: nearly twice a cabin in every
+    direction, and deliberately built of different STUFF. Log walls like its
+    neighbours, but standing on a coursed fieldstone plinth, fronted by a
+    keystoned stone portal with a lit fanlight, lit by four tall arched
+    reading windows instead of little square panes, gabled toward the street
+    with a rose window in the peak — and crowned by the glazed LANTERN CUPOLA
+    that gives the town its name. Seven warm apertures share the one hearth
+    breath, so the whole front swells and ebbs together: from the lane it
+    reads as the only building in Lanternwood that is still awake.
+
+    (It was a `wide=True` cabin until 2026-07-25 — a five-window shed nobody
+    could pick out of a snowy street, let alone believe a scholar worked in.)
+    """
+    assert frames < 2 or frames % len(WIN_PULSE) == 0, \
+        "an animated cabin sheet must hold whole window-breath cycles"
+    w, h, fy = 144, 112, 56
+    cx = w // 2
+    RIDGE = 18                                             # clear sky above it
+    lo, up = S(w, h, salt), S(w, h, salt + 1)
+    # ---- roof: a long hall ridge, a gable turned to the street, the cupola
+    _snow_roof(up, w, fy, roof, snow, ridge=RIDGE, ridge_half=50)
+    _gable_front(up, cx, 26, fy - 1, 30, snow, salt)
+    rose = _rose_window(up, cx, 42, 9)
+    lantern = _lantern_cupola(up, cx, RIDGE + 3, snow)
+    mx = w - 32                                            # a tall stack, well
+    _stone_chimney(up, mx, 6, 34, snow)                    # clear of the ridge
+    edge(up, fy + 2)                                       # keep the icicles
+    # ---- facade: logs on a stone plinth
+    _log_wall(lo, w, h, fy, snow)
+    _coursed_wall(lo, 0, h - 16, w - 1, h - 3, STONER, salt=salt + 2,
+                  course=6, joint=11)
+    lo.rect(0, h - 17, w - 1, h - 16, STONER[1])           # the water table
+    lo.rect(0, h - 2, w - 1, h - 1, snow[1])               # drifted footing
+    wins = [_arch_window(lo, x, 62, 93, 8) for x in (14, 34, w - 35, w - 15)]
+    wins.append(_portal(lo, cx, 58, h - 4, 19, salt + 3))
+    wins.append(_bracket_lamp(lo, cx - 21, 70, -1))
+    wins.append(_bracket_lamp(lo, cx + 21, 70, 1))
+    lo.rect(cx - 26, h - 5, cx + 25, h - 1, STONER[2])     # two broad steps up
+    lo.rect(cx - 26, h - 5, cx + 25, h - 5, STONER[0])     # out of the snow
+    lo.rect(cx - 21, h - 9, cx + 20, h - 6, STONER[2])
+    lo.rect(cx - 21, h - 9, cx + 20, h - 9, STONER[0])
+    wins.append(rose)
+    wins.append(lantern)
+    edge(lo, h)
+    anim = (lambda fa, ca, f2, dy=0: _anim_building(
+        fa, ca, f2, wood_flues=((mx + 1, 6),), windows=tuple(wins), dy=dy))
     return _finish(lo, up, w, fy, h, composite, frames, anim, pad=18)
 
 

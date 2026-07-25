@@ -7,9 +7,15 @@
 ; "snow", pond = WALKABLE pond cells under a baked Tier-1 ice prop - never
 ; sea/river, those animate), collision/markers by scene/lanternwood.gd.
 ; Cabins span roof+body char pairs (all solid, footprint bbox + collision
-; only - the whole cabin is a Tier-3 y-sorted 4-frame sheet). Standalone
+; only - the whole cabin is a Tier-3 y-sorted 8-frame sheet). Standalone
 ; conifers alternate Y/y so adjacent 2x4 blocks stay separate components.
 ; The south gate lane exits to the overworld at Lanternwood's icon marker.
+;
+; THE LIBRARY (k/K, 2026-07-25) is the exception and the point: a 9x7
+; footprint - nearly 2x a cabin each way - backed against the north pines so
+; nothing walkable hides behind its 112px sheet, with a shoveled forecourt
+; widening out of the lane at its door. Its D cell TRAVELS (scene/library.tscn),
+; the only enterable door in town; every other banner is announce-only.
 
 legend # pines solid
 legend . snow walk
@@ -40,15 +46,15 @@ anchor cabin_c 15 22
 map
 ############################################
 ############################################
-##########################yy################
-#######.....#...........#.yy########YY######
-####YY............kkkkkk..yy#.######YY######
-###.YY............kkkkkk.#yy##......YY..####
-####YY###.........kkkkkk..###.......YY..####
-####YY####........KKKKKK................####
-####.#####........KKKKKK...............#####
+################kkkkkkkkk#yy################
+#######.....####kkkkkkkkk#yy########YY######
+####YY..........kkkkkkkkk.yy#.######YY######
+###.YY..........kkkkkkkkk#yy##......YY..####
+####YY###.......kkkkkkkkk.###.......YY..####
+####YY####......KKKKKKKKK...............####
+####.#####......KKKKKKKKK..............#####
 ####.#####..........D........wwwww..###.####
-####..###...........-........wwwww.#########
+####..###........-----.......wwwww.#########
 ###.....qqqqq.......-........WWWWW.#########
 ###.....qqqqq.....L.-........WWWWW.#####.###
 ###yy...QQQQQ.....l.-oooo......D....###..###

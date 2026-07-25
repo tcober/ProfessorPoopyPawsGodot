@@ -9,6 +9,11 @@ extends Node2D
 ## as the drained-era downstairs (the workshop corner has always been
 ## half-built — this family tinkers), brighter tint, fire and boiler alive.
 ## Out the front door lies the festival town at Basil's home door.
+##
+## THE BREW (2026-07-25) is this room's third beat, gated on flags rather than
+## a router: back off the bluff with Kitty and an idea, Basil mixes the four
+## reagents that go up over the recital. The workshop corner has always been
+## half-built — this is the day it gets used.
 
 const MAP_PATH := "res://assets/maps/downstairs.txt"
 const LAYOUT_PATH := "res://assets/tilesets/downstairs_layout.txt"
@@ -16,15 +21,28 @@ const PROPS_PATH := "res://assets/tilesets/downstairs_props.txt"
 
 const NPCScene := preload("res://entities/npcs/npc.tscn")
 const SHEET_MOM := preload("res://assets/npc_mom_gen.png")
+const SHEET_KITTY_KID := preload("res://assets/npc_kitty_gen.png")
+const FX_SHEET := preload("res://assets/prologue_fx.png")
+
+const FX_POOF := 17
+const FX_BEAKER := 24
 
 const DIM_MORNING := Color(0.9, 0.85, 0.9)     # festival daylight indoors
 const FIRE_OFFSET := Vector2(10.0, 20.0)       # see scene/downstairs.gd
+
+## The four reagent colours the stir cycles through, straight off the compound
+## registry — this flask is the literal ancestor of the beakers the adult pours
+## into his gun, so the four colours must never be re-typed as Color() literals
+## here and drift apart from Alchemy's.
+const REAGENTS := [Alchemy.GREEN, Alchemy.BLUE, Alchemy.RED, Alchemy.PURPLE]
 
 var map: Dictionary
 var player: Node2D
 var _anim_t := 0.0
 var _busy := false
 var _mom: NPC
+var _kitty: NPC
+var _flask: Sprite2D
 var _hint_tw: Tween
 
 @onready var theater: Theater = $Theater
@@ -35,6 +53,14 @@ var _hint_tw: Tween
 ## her big scene read as a continuity hole.
 func _mom_home() -> bool:
 	return not Game.flag("prologue_left_home") or Game.flag("prologue_want_home")
+
+
+## THE BREW (2026-07-25) — the third beat this one room plays, gated on flags
+## rather than a router (the town_thesis / bluff / library idiom: one scene,
+## N phases). Back off the bluff with Kitty and an idea, Basil mixes the four
+## reagents that will go up over the recital.
+func _brewing() -> bool:
+	return Game.flag("prologue_whirligig_done") and not Game.flag("prologue_potion_made")
 
 
 func _ready() -> void:
@@ -60,7 +86,9 @@ func _ready() -> void:
 		_spawn_mom()
 	$ExitDoor.position = Vector2(door_x, MapData.anchor_px(map, "exit_door").y)
 	$ExitDoor.body_entered.connect(_on_exit_door)
-	if not Game.flag("prologue_saw_mom"):
+	if _brewing():
+		_brew()
+	elif not Game.flag("prologue_saw_mom"):
 		_show_hint("SAY GOOD MORNING TO MOM - E TO TALK")
 	elif Game.flag("prologue_want_home") and not Game.flag("prologue_gate_open"):
 		_show_hint("MOM'S BY THE HEARTH")
@@ -71,7 +99,20 @@ func _spawn_mom() -> void:
 	_mom.display_name = "Mom"
 	_mom.sheet = SHEET_MOM
 	_mom.frame_cols = 6
-	if Game.flag("prologue_gate_open"):
+	if _brewing():
+		# elbow-deep in pie and now sharing her kitchen with a chemistry set.
+		# Checked BEFORE the gate_open branch, which would otherwise hand her
+		# the go-to-the-meadow lines while there's a flask on her workbench.
+		_mom.lines = PackedStringArray([
+			"That is my GOOD copper pot. ...Fine. FINE. Just not on the ceiling.",
+			"Hello, dear. Are you the one who's been keeping him out on that headland?",
+			"He's been quiet all week. Quiet means he's THINKING. Take cover.",
+		])
+	elif Game.flag("prologue_potion_made") and not Game.flag("prologue_recital"):
+		_mom.lines = PackedStringArray([
+			"GO. You will be late for your own recital.",
+		])
+	elif Game.flag("prologue_gate_open"):
 		# post-blessing: she's still here, elbow-deep in pie
 		_mom.lines = PackedStringArray([
 			"Still here? The meadow won't sulk FOR you, sweetheart.",
@@ -124,6 +165,96 @@ func _mom_blessing() -> void:
 	_show_hint("THE SOUTH GATE IS OPEN - THE MEADOW")
 
 
+# ---- the brew ---------------------------------------------------------------------
+
+## The workbench pocket has exactly ONE entrance — the bench base (row 8) is
+## solid below it, the armchair and boiler wall off row 6, and the plant seals
+## row 5's east end — so the only route in is x17 down the row-5 lane. A band
+## over the whole bench top therefore cannot be walked around: the gate is
+## unavoidable for its objective, which is the law.
+func _brew() -> void:
+	theater.lock_party()                   # before any await — a probe polling
+	                                       # the unlock must not see frame 1 free
+	_spawn_kitty()
+	var bench := MapData.bbox_rect(map, "E")
+	await theater.wait(0.6)
+	# she is always here in the real chain (_mom_home is true — the brew's flag
+	# ladder carries both left_home and want_home), but posing a null Mom would
+	# be a hard crash rather than a missing line, so the greeting is guarded
+	if _mom != null:
+		_mom.play_emote()
+		await theater.say("Mom", "BASIL. And a friend. Wipe your paws, both of - is that a PROPELLER?")
+		await theater.say("Kitty", "It's a whirligig. It flies. I'm Kitty.")
+		await theater.say("Basil", "Mom, I need the bench.")
+		_mom.play_act()
+		await theater.say("Mom", "...You have that face. Go on, then. Not the good pot.")
+	theater.close_dialog()
+	# she heads for the bench while he walks himself there (NPCs have no walk
+	# clip by design — scripted NPC movement glides, the project convention)
+	theater.walk_via(_kitty, [
+			Vector2(208.0, 88.0),          # x13, the clear vertical lane
+			Vector2(280.0, 88.0),          # east along row 5 to the pocket mouth
+			Vector2(280.0, 120.0),         # down onto the bench top
+			MapData.anchor_px(map, "kitty_pos")], 70.0)
+	_show_hint("THE WORKBENCH - THE EAST CORNER")
+	await theater.walk_gate(bench.get_center(), bench.size + Vector2(0.0, 8.0))
+	# he takes the middle of the bench: she is parked at its EAST end (the
+	# pocket's only entrance is its west cell, so she can never be the one
+	# standing in it) and the flask goes between them
+	await theater.walk(player, Vector2(bench.position.x + 24.0, bench.get_center().y), 45.0)
+	theater.face(player, Vector2.DOWN)     # tucked in BEHIND the counter, the
+	                                       # workbench art drawing over his legs
+	_kitty.play_act()
+	await theater.say("Basil", "Everyone at that recital is going to make a colour appear in the air.")
+	await theater.say("Basil", "I can't. But I know four things that make a colour when they get hot enough.")
+	await theater.say("Kitty", "And you can't set them off... but my whirligig can carry them up where nobody has to hold them.")
+	theater.close_dialog()
+	# the stir: the four reagents go in one at a time, and the flask takes the
+	# colour of whichever is on top
+	_flask = WorldFx.airborne($World, FX_SHEET, FX_BEAKER,
+			bench.get_center() + Vector2(12.0, 16.0), 26.0)
+	_flask.modulate = REAGENTS[0]
+	await theater.mash_meter("STIR IT! MASH E", _flask_tick)
+	Game.set_flag("prologue_potion_made")
+	var poof := WorldFx.airborne($World, FX_SHEET, FX_POOF,
+			_flask.position, 26.0)
+	await theater.wait(0.5)
+	poof.queue_free()
+	_flask.modulate = REAGENTS[3]
+	player.sprite.play("happy")
+	_kitty.play_emote()
+	await theater.say("Kitty", "...Basil. That's four.")
+	await theater.say("Basil", "That's four.")
+	if _mom != null:
+		_mom.play_emote()
+		await theater.say("Mom", "Whatever that is, it is not staying in my kitchen.")
+	await theater.say("Kitty", "It isn't. It's going to the Academy.")
+	theater.close_dialog()
+	player.sprite.play("idle_down")
+	theater.unlock_party()
+	_show_hint("THE ACADEMY - ACROSS TOWN, UP THE STAIR")
+
+
+## The flask takes each reagent's colour as it goes in — green, blue, red, and
+## the purple that only exists because the first two went in together.
+func _flask_tick(fill: float) -> void:
+	if is_instance_valid(_flask):
+		_flask.modulate = REAGENTS[mini(int(fill * REAGENTS.size()), REAGENTS.size() - 1)]
+
+
+func _spawn_kitty() -> void:
+	_kitty = NPCScene.instantiate()
+	_kitty.display_name = "Kitty"
+	_kitty.sheet = SHEET_KITTY_KID
+	_kitty.frame_cols = 6                  # idle/act/emote only — no back, no side
+	_kitty.position = Vector2(208.0, 152.0)
+	_kitty.lines = PackedStringArray([
+		"Your mother is TERRIFYING. I love her.",
+		"Crank's wound. Say when.",
+	])
+	$World.add_child(_kitty)
+
+
 func _process(delta: float) -> void:
 	# the room's little life (see scene/downstairs.gd)
 	_anim_t += delta
@@ -141,6 +272,11 @@ func _on_exit_door(body: Node) -> void:
 	# blessing opens the gate
 	if Game.flag("prologue_want_home") and not Game.flag("prologue_gate_open"):
 		_door_hint("No. I came home to talk to Mom. She's by the hearth.")
+		return
+	# same softlock guard, one beat later: out there the south gate now refuses
+	# and the Academy door is still dead, so leaving mid-brew is a dead wander
+	if _brewing():
+		_door_hint("Not yet. The flask first - Kitty's holding the crank.")
 		return
 	_busy = true
 	Game.set_flag("prologue_left_home")

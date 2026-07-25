@@ -8,9 +8,13 @@ extends SceneTree
 ##   home start (bedroom -> Mom gates the front door) -> the fountain
 ##   proximity trigger fires the teasing -> 3 villager talks open the gate ->
 ##   the BLUFF meet (2026-07-18: the meadow scene was cut — kid Basil meets
-##   Kitty on the headland) -> 3 whirligig parts -> flight finale ->
-##   montage -> the same bluff reloads as the SUNSET ROMANCE (the watch
-##   explodes, 3 pieces, the refit + the kiss) -> Prologue B: plant's walk
+##   Kitty on the headland) -> 3 whirligig parts -> flight finale -> THE IDEA
+##   (2026-07-25) -> the BREW back home (the workbench gate + the stir mash)
+##   -> across town, where the south gate now REFUSES and the Academy door is
+##   live -> the RECITAL (the aisle gate, four compound colours over the
+##   house, the invitation) -> montage -> the same bluff reloads as the
+##   SUNSET ROMANCE (the watch explodes, 3 pieces, the refit + the kiss) ->
+##   Prologue B: plant's walk
 ##   home -> the dash -> the hall naming (auto walk-of-shame) -> bluff
 ##   call1 -> the accident (loop-and-land) -> bluff call2 -> the sickroom
 ##   verdict -> the clinic-steps scolding + the scripted leaving -> the Ebb
@@ -243,13 +247,68 @@ func _run() -> void:
 		ok = await _mash_until(box_closed, 1200)
 		await _wait_frames(20)
 
-	# ---- the flight finale + montage -> the same bluff, years later ----------
+	# ---- the flight finale + THE IDEA -> his mother's kitchen ----------------
 	_player().global_position = MapData.anchor_px(bluff_map, "kitty_pos") + Vector2(0.0, 40.0)
 	var whirligig_done := func() -> bool: return game.flag("prologue_whirligig_done")
 	ok = await _mash_until(whirligig_done, 9000)
-	_check("Prologue A flight finale + montage complete", ok)
-	ok = await _mash_until(in_bluff, 1200)
-	_check("A hands off to the sunset romance", ok)
+	_check("Prologue A flight finale + the idea", ok)
+	ok = await _mash_until(back_down, 2400)
+	_check("the idea routes home to the fest downstairs", ok)
+	await _wait_frames(40)
+
+	# ==== THE BREW (2026-07-25) ===============================================
+	# the workbench walk-gate, then the stir mash. The bench top is the map's
+	# only `E` block and its pocket has one entrance, so the band is
+	# unavoidable — derived from the map, never re-hardcoded.
+	ok = await _mash_until(_party_free, 4000)
+	_check("the brew beat hands over the walk to the bench", ok)
+	_player().global_position = MapData.bbox_rect(down_map, "E").get_center()
+	var potion := func() -> bool: return game.flag("prologue_potion_made")
+	ok = await _mash_until(potion, 8000)
+	_check("the stir mash brews the potion", ok)
+	ok = await _mash_until(_party_free, 4000)
+	_check("the brew hands control back", ok)
+	await _wait_frames(20)
+
+	# ---- out the front door, across town, up to the Academy -----------------
+	_player().global_position = MapData.anchor_px(down_map, "exit_door")
+	ok = await _mash_until(in_town, 1600)
+	_check("the flask leaves by the front door", ok)
+	await _wait_frames(70)                # entry fade + the entry lock
+	# the south gate is SPENT now — it must refuse rather than replay the meet
+	_player().global_position = MapData.anchor_px(town_map, "exit_south")
+	await _wait_frames(60)
+	_check("the spent south gate refuses", _scene_is("res://scene/town_fest.tscn"))
+	ok = await _mash_until(_party_free, 2400)
+	await _wait_frames(20)
+	# the Academy door is LIVE: the same location node, flipped to travel. Land
+	# ON the zone — a 16x12 rect centred on its anchor, NOT anchor+40, which is
+	# town_thesis's separate dash GOAL area further down the plaza.
+	_player().global_position = MapData.anchor_px(town_map, "school")
+	var in_hall := func() -> bool: return _scene_is("res://scene/hall.tscn")
+	ok = await _mash_until(in_hall, 4000)
+	_check("the Academy door travels to the recital", ok)
+	await _wait_frames(60)
+
+	# ==== THE RECITAL =========================================================
+	# the aisle gate, four colours, then the montage that used to live on the
+	# bluff hands to the sunset romance.
+	var hall_map: Dictionary = MapData.load_map("res://assets/maps/hall.txt")
+	# gated on being in the HALL: _party_free alone is trivially true back in
+	# the town we just left (the 2026-07-18 lesson about preds that are already
+	# satisfied before the beat begins)
+	var aisle_open := func() -> bool: return in_hall.call() and _party_free()
+	ok = await _mash_until(aisle_open, 4000)
+	_check("the recital hands over the walk up the aisle", ok)
+	# the band across row 6 — the open strip south of the apron riser, the only
+	# row touching it (the stage itself is a sealed region)
+	var apron: Rect2 = MapData.bbox_rect(hall_map, "D")
+	_player().global_position = Vector2(apron.get_center().x, apron.end.y + 8.0)
+	var recital := func() -> bool: return game.flag("prologue_recital")
+	ok = await _mash_until(recital, 16000)
+	_check("the recital plays out (four colours, four bursts)", ok)
+	ok = await _mash_until(in_bluff, 4000)
+	_check("the recital hands off to the sunset romance", ok)
 	_check("swapped to the student roster", party.roster.size() == 1
 			and party.roster[0] == &"basil_student")
 	await _wait_frames(30)
@@ -325,7 +384,6 @@ func _run() -> void:
 	ok = await _mash_until(dashing, 4000)         # squelch beat
 	await _wait_frames(20)
 	_player().global_position = MapData.anchor_px(town_map, "school") + Vector2(0.0, 40.0)
-	var in_hall := func() -> bool: return _scene_is("res://scene/hall.tscn")
 	ok = await _mash_until(in_hall, 5000)
 	_check("dash -> the lecture hall", ok)
 	await _wait_frames(40)
@@ -338,7 +396,6 @@ func _run() -> void:
 	# the walk-in gate is the band across the stage rows just west of the
 	# podium (2026-07-18: the wing corridor is the only route onto the
 	# stage) — land inside it, derived from the map, never re-hardcoded
-	var hall_map: Dictionary = MapData.load_map("res://assets/maps/hall.txt")
 	_player().global_position = Vector2(
 			MapData.bbox_rect(hall_map, "L").position.x - 24.0,
 			MapData.anchor_px(hall_map, "lectern_spot").y + 8.0)

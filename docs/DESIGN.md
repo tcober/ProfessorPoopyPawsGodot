@@ -172,8 +172,44 @@ mock him for exactly that, no nickname.)*
    the point, crank in the flowers — the SAME anchors the watch scatters
    over years later) — teaches interact/explore verbs, no combat. The
    crank-up mash, the flight. First friend — on the same cliff where
-   everything else will happen.
-5. **Montage cards → THE SUNSET ROMANCE** *(semi-playable, 2026-07-17 —
+   everything else will happen. It ends on **THE IDEA** (2026-07-25):
+   watching it hold its own weight up there, Basil asks whether it could
+   carry more. *"More like a pebble, or more like my brother?" / "More
+   like a flask."*
+5. **The brew → THE RECITAL** *(2026-07-25 — the answer to the question
+   Prologue B could never answer: why would an Academy that files him as
+   "no aptitude" ever let him in?)*. It pays off two things the build had
+   already set up and never cashed: Schweinler's taunt in the fountain
+   square (*"See you at the recital, Basil. Oh wait - no magic so I guess
+   you can't even participate!"*) and the Academy door's own refusal
+   (*"RECITAL IN PROGRESS. EVERY WARD IS ABLAZE."*).
+   **The brew** *(playable, `downstairs_fest.tscn`)*: Basil brings Kitty
+   home to his mother's kitchen and the half-built workshop corner finally
+   gets used. Mom is appalled and permits it anyway (*"You have that face.
+   Go on, then. Not the good pot."*). At the bench he names the whole
+   thesis twenty years early — *"I can't make a colour appear in the air.
+   But I know four things that make a colour when they get hot enough"* —
+   and the stir mixes **the four compound reagents**: green, blue, red,
+   and the purple that only exists because the first two went in together.
+   **The recital** *(`hall.tscn` phase `recital` — the SAME hall as the
+   naming, staged as its exact inverse)*: the stage is sealed and the boy
+   is not allowed on it, so he sets up on the house floor with the faculty
+   looking down over the rail. Professor Strix reads the note against his
+   name ("no aptitude") and gives him the floor anyway. Schweinler: *"What's
+   he going to do, WIND something at us?"* Basil: *"...Yes."* Kitty cranks,
+   the loaded whirligig climbs over the house, and it throws four small
+   fireworks in the four reagent colours — the gallery that will one day
+   laugh him out of this room leans back as one instead, and Kitty whoops
+   from the front row (which is the promise she makes again, and calls a
+   promise, in the romance below). Strix: *"It is POTIONS is what it is."*
+   Basil: *"...It's chemistry, sir."* — **the exact line the adult says at
+   that same podium**, planted here in a ten-year-old's mouth. *"Apply to
+   this Academy the year you are old enough. I will know the name."* /
+   *"It's Basil. Write it down."*
+   Owns `prologue_potion_made` + `prologue_recital`. The kid's first potion
+   is the literal ancestor of the beaker compounds the adult loads into his
+   gun — the tie-in reaches all the way forward into combat.
+6. **Montage cards → THE SUNSET ROMANCE** *(semi-playable, 2026-07-17 —
    the romance made playable; `scene/bluff.gd/.tscn`, the same scene
    reloading itself in phase `romance`;
    replaces the retired workshop interlude)*: one TIME card — "THREE
@@ -365,14 +401,28 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
    Fuji SOLO, landing at the library door, free to walk her snow town
    among its first villagers — every line about the magic suddenly gone,
    while Lanternwood's honest firelight still burns.
-2. **The library** *(playable Fuji — the SAME Lanternwood room, reused via
-   `Game.library_phase`)*: weeks
-   later. Fuji hunts by candlelight for *anything* about magic leaving.
-   **Research gate**: find the right stack (light exploration puzzle),
-   unearth a dusty thesis — *On Re-Enchantment: Why Science Is Magic's
-   Equal* — B. Basil. Marginal note: laughed out of the Academy. (HOW the
-   thesis crossed an ocean to a Lanternwood shelf is an open hook —
-   deliberately unanswered until it can land.)
+2. **The library** *(BUILT 2026-07-25 — playable Fuji, the SAME Lanternwood
+   room, reused via `Game.library_phase = "research"`)*: reached by walking
+   in her own front door once the Ebb-night street has been asked out
+   (`asked_around`), and opening on the one card the rule allows — **"SOME
+   WEEKS LATER."** She has read everything in the room and found nothing,
+   and the beat hands control straight back: this is a GATE, not a cutscene.
+   **The research gate** is the accession **LEDGER** on her desk against the
+   **three stacks** in the aisles. Each stack reads its brass plate — shelf
+   THREE husbandry, shelf SIX histories, shelf NINE *enchantment, theory* —
+   and shelf nine is just books until the ledger tells her why: the
+   catalogue lists **eleven** titles on it, and she has counted **twelve
+   spines** every week for six weeks and never once counted the ledger. The
+   twelfth isn't a book. It is unbound paper, string-tied, shoved in behind
+   the rest — no spine, no binding, **no accession stamp**. She carries it
+   to the desk lamp to read it: *On Re-Enchantment: Why Science Is Magic's
+   Equal* — B. Basil, with a marginal note in another hand, pressed hard
+   enough to dent the page: *"Laughed out of the Academy."* Then "...Magic
+   isn't gone. It's asleep. And it can be woken, and here is HOW." →
+   "...Where are you, B. Basil?" (sets `ledger_read`, then `thesis_found`).
+   The uncatalogued bundle IS the answer to the open hook and the refusal to
+   answer it: nobody wrote down how it got here either. HOW it crossed an
+   ocean stays deliberately unanswered until it can land.
 3. **The crossing → asking around** *(the boat, then a wander gate)*: every
    land is ocean-separated — how Fuji gets across is the Act 1 boat hook
    (open). Landing near Alembic Town: nobody knows a "Basil."
@@ -636,17 +686,37 @@ opens HERE, not onto the overworld).
 2026-07-19) — Fuji's winter pine-forest town at zone scale, riding the same
 OverWorld tile driver (pines border, packed-snow lanes via
 `road_verge="snow"`, the frozen pond as walkable cells under a baked
-Tier-1 ice prop): quaint log cabins as Tier-3 y-sorted 4-frame sheets with
-**fire-lit flickering windows and lazy woodsmoke** (cycled with per-cabin
-phase offsets), big standalone conifers, mantle lamps, and announce-only
-door banners — **THE LANTERNWOOD LIBRARY**, **FUJI'S FAMILY HOME**, and
-three snow-banked cabins. The south gate lane exits to the overworld at the
-`lanternwood` icon. Once `ebb_done` is set the town dresses for the Ebb
-night (`_ebb_night_town()` — the story's current resting state, playable
-solo Fuji): deep night tint the firelight burns through, and the first
-villagers out in the snow — Bramble the snow hare, Alder the elderly
-beaver, Pip the fox kid — comparing charms that all died at once (see the
-Ebb event block in "Current Milestone").
+Tier-1 ice prop): quaint log cabins as Tier-3 y-sorted 8-frame sheets with
+**softly pulsing fire-lit windows and lazy woodsmoke** (cycled with
+per-cabin phase offsets — see "Window breath" below), big standalone
+conifers, mantle lamps, and announce-only
+door banners for **FUJI'S FAMILY HOME** and three snow-banked cabins. The
+south gate lane exits to the overworld at the `lanternwood` icon. Once
+`ebb_done` is set the town dresses for the Ebb night (`_ebb_night_town()` —
+the story's current resting state, playable solo Fuji): deep night tint the
+firelight burns through, and the first villagers out in the snow — Bramble
+the snow hare, Alder the elderly beaver, Pip the fox kid — comparing charms
+that all died at once (see the Ebb event block in "Current Milestone").
+Asking all three sets **`asked_around`**, the street's own wander gate: the
+whole neighbourhood tells her the same nothing, so the only place left to
+look is her own shelves, and the library door starts opening onto the
+research beat.
+
+**THE LANTERNWOOD LIBRARY** (2026-07-25) is the town's one civic building
+and the **only door in Lanternwood that travels** — Fuji works there, so
+its arch opens into `scene/library.tscn` rather than reading a banner.
+`town_library()` in `_town_props.py`, **144×112 over a 9×7 footprint** —
+nearly twice a cabin each way, and deliberately built of different stuff:
+log walls on a coursed fieldstone plinth, a keystoned stone portal with a
+lit fanlight over double doors, **four tall arched reading windows** instead
+of little square panes, a street-facing cross gable with a **rose window**
+in the peak, and the glazed **LANTERN CUPOLA** on the ridge that gives the
+town its name — the one silhouette no cabin can grow. Seven warm apertures
+share the one hearth breath, so the whole front swells and ebbs together.
+It backs onto the north pines (nothing walkable hides behind a 112px sheet)
+over a shoveled forecourt widening out of the lane. It was a `wide=True`
+cabin until this pass — a five-window shed nobody could pick out of a snowy
+street, let alone believe a scholar worked in.
 
 History: the 2026-07 town carve absorbed the old standalone "Basil's Bluff"
 into Alembic Town and moved the town from its old NE-forest anchor onto the SW
@@ -937,6 +1007,60 @@ chapter, in flow order:
   pinched cinch pucker);
   `accident_kitty_gen` grew a 5th `tumble` frame (the loop-and-land curl).
 
+**THE LIBRARY, FOR REAL (2026-07-25)** — Lanternwood's library was a
+`wide=True` log cabin with a banner on it, and the story asks it to be the
+place Fuji WORKS and the place Basil's thesis is FOUND. Both halves of that
+now exist.
+- **The building** — `town_library()` in `_town_props.py`, 144×112 over a
+  9×7 footprint (see "Lanternwood, walkable" above for the full
+  description). New shared pieces it introduced: `_arch_rows()` (the one
+  round-headed-opening geometry its windows, door arch and fanlight all cut
+  themselves from — **springing off the CROWN, never off the sill**: keyed
+  to the sill instead, a tall window loses its entire head, which is exactly
+  the bug the first build shipped), `_arch_window()`, `_rose_window()`,
+  `_lantern_cupola()` (drawn DOWN from the canvas top — there is no headroom
+  above a prop sheet, the pad rows belong to the smoke, and a finial drawn
+  at negative y just clips), `_gable_front()`, `_portal()` and
+  `_bracket_lamp()`; `_snow_roof()` gained `ridge`/`ridge_half` so a taller
+  building can leave clear sky above its ridge for the cupola (defaults keep
+  every cabin sheet byte-identical). **BRASS runs out after index 1** —
+  BRASS[2..3] are the ramp's violet law gone hot red/magenta, which is why
+  the cabins' stoop lantern wears a stray red pixel; the library's brass is
+  0/1 only and every dark is IRON.
+- **Its light at night** — the glow overlay renders UNDER the y-sorted
+  World, so a blob at window height is simply hidden behind the building.
+  The library's glow is therefore a continuous wash on the SNOW AT ITS FEET
+  (overlapping dabs the length of the frontage — spaced one-per-aperture
+  dabs scallop the snow into circles) with the doorway pooling brightest on
+  the forecourt.
+- **The room** — `maps/library.txt` rebuilt from a 10-tile closet into the
+  18-tile downstairs-diorama frame: hearth, then a strict alternation of
+  four wall bookshelves and three high night windows, the clock; on the
+  floor the coffee counter before the fire, **three free-standing STACKS**
+  with walkable aisles, the reading desk under the clock, the armchair nook,
+  the rug at the door. New `stack()` prop (32×48 on a 2×2 footprint — a
+  y-sorted entity, never baked, because a body walks BOTH sides of one, and
+  one cell taller than its footprint so whoever is in the aisle behind it
+  reads as a head above the books). Both wall runs use `place_each`: a
+  combined bbox would blit one sprite across the lot. Second lit pool under
+  the desk lamp — an 18-tile hall lit by one fire in its west corner leaves
+  the reading end unreadable, and the aisles are MEANT to be dim.
+- **The research gate** — `Game.library_phase = "research"`, Act 1 beat 2,
+  described in full in the Act 1 outline above. Flags `ledger_read` and
+  `thesis_found`; the street's `asked_around` is what opens it.
+- **The door travels** — the library `OverworldLocation` got a
+  `target_scene`, making it the only enterable door in Lanternwood, and
+  `lanternwood.gd::_on_travel` names the phase.
+- **Probe**: `tools/library_probe.gd` 14 → **28 checks**, now covering the
+  street gate, the four-search ordering of the research puzzle (shelf nine
+  before the ledger must NOT give up the thesis), the arch travelling into
+  the research beat rather than the Ebb replay, and the step not bouncing
+  her back inside. **Harness gotcha it cost:** `_mash_until` advances dialog
+  with ATTACK, and the press that lands on the frame control comes back is a
+  REAL attack — Fuji swings her tome, and the swing's forward lunge walks
+  her out of the interact zone before the button can fire. Probe teleports
+  now settle, zero `velocity`, and re-park.
+
 **THE EBB EVENT (2026-07-19)** — the Act 1 opener, shipped and wired into
 the live flow: Prologue B's leaving cards now hand to the Ebb night before
 the adult build wakes.
@@ -990,17 +1114,19 @@ the adult build wakes.
   downstairs.txt `front_door`/`exit_door` split, so the exit zone and the
   arrival cell can never overlap). Phase `"ebb"`
   routes via **`Game.library_phase`** (read-and-clear, the town_thesis
-  pattern); ANY other phase skips the cutscene and just opens the room —
-  Act 1's playable research phase will reuse it. Probe:
-  **`tools/library_probe.gd`** (14 checks — the scene alone, not the
-  chapter: the forced solo roster, the locked body under the puppet, the
-  beat reaching the unlock, the recentered camera, a look-at zone
-  answering, and her door landing her in Ebb-night Lanternwood).
+  pattern); `"research"` is Act 1 beat 2 in the same room (below), and ANY
+  other phase — including the plain visit the town door names — skips the
+  cutscene and just opens the room. `""` still means the Ebb beat, because
+  it is the boot default a bare scene load lands on; the town door
+  therefore ALWAYS names its phase explicitly, or walking in the front door
+  would replay the cutscene. Probe: **`tools/library_probe.gd`** (28 checks
+  — the scene alone, not the chapter).
 - **The Ebb-night street** (`scene/lanternwood.gd` `_ebb_night_town()`,
-  gated on `ebb_done` — the story's CURRENT RESTING STATE: playable solo
-  Fuji on the same night): the `town_spawn="library"` arrival lands her a
-  step south of her own library door (so the announce banner waits for her
-  to turn back to it), a deep indigo night tint the fire-lit windows and
+  gated on `ebb_done`): the `town_spawn="library"` arrival lands her ON her
+  own library door marker (the door-mouth arrival doctrine; `_standing`
+  suppression is now load-bearing, not cosmetic — the marker TRAVELS, and
+  without it the body standing in the zone when the entry lock lifts walks
+  straight back into the room it just left, forever), a deep indigo night tint the fire-lit windows and
   oil lanterns burn straight through — **Lanternwood earns its name
   diegetically: honest flame owes magic nothing** — and the neighbors out
   in the snow comparing charms that all died at once: **Bramble the snow
@@ -1010,8 +1136,11 @@ the adult build wakes.
   The lanterns still burn."), **Pip the fox kid** ("It is NOT hiding. I
   checked under the ice. TWICE."). Interact-to-talk NPC-kit villagers;
   every line is about the sudden dead charms and **nobody blames anybody**
-  — the Ebb has no author. The adult Basil sandbox underneath is reached
-  via `prologue_open`'s ESC dev skip, not the story flow.
+  — the Ebb has no author. Asking all three sets **`asked_around`** and
+  opens the research beat behind the library door; once `thesis_found` is
+  set they no longer cast (weeks have passed; the street went back in). The
+  adult Basil sandbox underneath is reached via `prologue_open`'s ESC dev
+  skip, not the story flow.
 - **New `Game` state**: the `ebb_done` flag + the `library_phase` router +
   the `town_spawn = "library"` route into Lanternwood (the existing
   read-and-clear spawn machinery, new anchor);
@@ -1402,8 +1531,18 @@ actually cycle; hand-drawn sheets can still drop in later against "Asset Specs" 
 - **Prologue A slice (2026-07-12):** `scene/prologue_open.gd/.tscn` (boot
   cards) · `scene/town_fest.gd/.tscn` + `assets/maps/town_fest.txt` (the
   festival town: cutscene, cast, wander gate) · the bluff meet phase
-  (`scene/bluff.gd` — Kitty, the whirligig quest, the montage hand-off;
-  `meadow_fest` deleted 2026-07-18) ·
+  (`scene/bluff.gd` — Kitty, the whirligig quest, THE IDEA;
+  `meadow_fest` deleted 2026-07-18) · the RECITAL CHAIN (2026-07-25 — the
+  three legs that now stand between the flight and the cards, and the
+  reason the Academy ever admits him): `downstairs_fest.gd`'s flag-gated
+  BREW phase (the workbench gate + the stir mash, the flask cycling the
+  four `Alchemy` compound tints) · `town_fest.gd`'s spent south gate and
+  its Academy door flipped from announce to travel · `hall.gd`'s
+  `"recital"` phase on the new `Game.hall_phase` router (the kid staged on
+  the HOUSE FLOOR because the apron riser seals the stage, the flask
+  pinned under the whirligig's pod, four fireworks in the compound
+  colours, `_laugh_bob` reused as the awed sway, and the moved "THREE
+  SUMMERS LATER." card) ·
   `scene/dialog_box.gd/.tscn` + `scene/theater.gd/.tscn` (the narrative
   kit) · `entities/npcs/npc.gd/.tscn` (interact-to-talk) ·
   `entities/kid/kid_basil.gd/.tscn/_frames.tres` (the playable kid) ·
@@ -1498,6 +1637,28 @@ driven by its `assets/maps/*.txt` file.
   — with a hand ramp (incandescence can't be derived: ramp()'s violet
   shadow law would pull the darks cold) and the molten-lip glow blobs on
   the additive overlay.
+  **WINDOW BREATH (2026-07-25)** — the law for any lit window on an animated
+  building sheet (`_anim_building`'s `windows=`, `_breathe`, `WIN_PULSE`).
+  A lit pane PULSES; it never travels. Three rules, all of them earned by the
+  first version reading as "light rolling along the wall" instead of a glow:
+  (1) the level curve is SYMMETRIC and spans the whole sheet — `WIN_PULSE =
+  (0,1,2,3,3,2,1,0)`, swell/hold/ebb/rest — because any asymmetric or
+  sawtooth cycle gives the eye a DIRECTION, and direction reads as motion;
+  (2) every pane of one building shares the level (per-pane phase offsets
+  make one house's windows chase each other — the per-prop offset in
+  `travel_scene._process` already keeps neighboring houses from breathing in
+  lockstep, and that's the only looseness wanted); (3) NO wandering
+  highlight — a bright pixel that walks the pane's corners is a marching
+  glint, the single loudest "rolling" tell. The swell itself is two hand-
+  picked warm LADDERS (glass body from `WARMD`, the fire's throw band from
+  `WARM`) so brightening never slides the hue, plus a two-ring `_wash` bloom
+  onto the frame and the logs around it — the spill is what reads as a GLOW
+  rather than a recolour; a pane that only recolours reads as a lamp being
+  switched. Step 0 is the art AS DRAWN, which keeps the baked still frame
+  byte-identical to an un-animated build. The cabins ship **8 frames** for a
+  ~1.4s breath at `travel_scene.ANIM_STEP = 0.18`, while every woodsmoke term
+  stays periodic in 4 and simply loops twice — a sheet may hold any whole
+  number of breath cycles, asserted in `town_cabin`.
   **The tiled READ is a discipline, not a file format:** repeating art must be
   a function of tile-local coordinates + a per-cell variant hash, and light/
   shade must be quantized PER TILE (whole lit tiles + ordered-dither fringe
@@ -1599,9 +1760,10 @@ driven by its `assets/maps/*.txt` file.
   `wide=True` library-hall variant — `town_conifer` (a Tier-3 trunk/crown
   pair) and `frozen_pond`, Tier-1 ice baked over WALKABLE pond cells (never
   sea/river — those animate), plus `town_lamp(mantle=)`; the shared
-  `_anim_building` gained `windows=` (baked 4-frame warm window flicker)
-  and `wood_flues=` (grey lazy woodsmoke) params and `_finish(pad=)`, all
-  default-off — the existing town/fest sheets are proven byte-identical);
+  `_anim_building` gained `windows=` (the baked HEARTH BREATH — see
+  "Window breath" below) and `wood_flues=` (grey lazy woodsmoke) params and
+  `_finish(pad=)`, all default-off — the existing town/fest sheets are
+  proven byte-identical);
   the meadow's per-cell boulder
   domes + trailhead cairn in `assets/_meadow_props.py`; the shared drawing
   primitives (`S`, `ln`, `edge`) live in `assets/_propkit.py`.

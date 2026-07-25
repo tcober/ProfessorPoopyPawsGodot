@@ -42,7 +42,7 @@ position = Vector2(328, 152)
 script = ExtResource("2_loc")
 id = "library"
 display_name = "THE LANTERNWOOD LIBRARY"
-locked_text = "THE DOOR IS BOLTED AGAINST THE COLD."
+target_scene = "res://scene/library.tscn"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Library"]
 shape = SubResource("RectangleShape2D_door")

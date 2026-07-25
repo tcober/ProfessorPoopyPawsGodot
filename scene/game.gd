@@ -45,6 +45,13 @@ var ammo_left: int = 0
 ## research phase will reuse the same room. Read-and-cleared.
 var library_phase: String = ""
 
+## Which beat the Academy hall (scene/hall.gd) plays on entry. "" = Prologue B's
+## naming, the default this room was built for; "recital" = Prologue A's kid
+## magic recital, the same stage twenty years earlier. Read-and-cleared.
+## Prologue B's beat carries state = {} in the chapter table and RELIES on
+## reset_story() blanking this — see the note there.
+var hall_phase: String = ""
+
 
 func flag(flag_name: String) -> bool:
 	return flags.get(flag_name, false)
@@ -69,6 +76,7 @@ func reset_story() -> void:
 	town_thesis_phase = ""
 	bluff_phase = ""
 	library_phase = ""
+	hall_phase = ""
 	# Blank, not "a fresh green beaker": the Player fills these on _ready when
 	# it finds them empty, so a backwards chapter jump can't carry a late-game
 	# plasma decoction into a scene that predates the gun.
