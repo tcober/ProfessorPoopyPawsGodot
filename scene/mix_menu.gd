@@ -8,39 +8,32 @@ extends Node
 ## whole design, so the menu always shows what you are about to get (and what
 ## you are about to lose) before it takes anything.
 ##
-## Modelled on scene/dev_menu.gd, which is the project's in-code overlay idiom,
-## and reuses all of it: CanvasLayer at layer 100, PROCESS_MODE_ALWAYS, the
-## SWALLOW timer so the opening press isn't read as a pick, full-rect anchors
-## set BOTH by preset and explicitly (the preset alone is editor metadata and
-## loads zero-sized), the pixel font at size 8, and a selection BAR rather than
-## a caret because the font has no ">" glyph.
+## The chrome — CanvasLayer at layer 100, PROCESS_MODE_ALWAYS, the SWALLOW
+## timer, the full-rect backdrop, the pixel font, the selection BAR — now comes
+## from scene/overlay.gd, shared with DevMenu. It used to be a hand-copy of
+## dev_menu.gd's, which is how the guard below ended up half-implemented.
 ##
 ## Unlike DevMenu this is NOT behind OS.is_debug_build() — it is a real game
 ## menu. It IS the project's second get_tree().paused user, so the two guard
-## against each other: whichever is open refuses the other, otherwise closing
-## one would unpause the tree out from under the one still on screen.
+## against each other via Overlay.any_open(): whichever is open refuses the
+## other, otherwise closing one would unpause the tree out from under the one
+## still on screen.
 ##
 ## Input is POLLED in _process, never _input — the project-wide rule, because
 ## tools/shot.gd's synthesized presses exist only in the polled action state.
 
-const FONT = preload("res://assets/font/pixel_font.fnt")
-
-const LAYER := 100
-const ROW_H := 10
+## The look, the swallow timer and the one-modal-at-a-time rule live in
+## scene/overlay.gd, shared with DevMenu. Only the LAYOUT is this menu's own.
+const ROW_H := Overlay.ROW_H
 const TOP := 34
 const LEFT := 16
 const WIDTH := 352
 const MAX_ROWS := 3          # Player.max_beakers — a full coat
 
-## Same as dialog_box.gd's SWALLOW_MS trick, in seconds.
-const SWALLOW := 0.14
-
-const BG := Color(0.055, 0.04, 0.115, 0.94)
-const BRASS := Color(0.91, 0.74, 0.38)
-const HILITE := Color(0.42, 0.28, 0.14)
-const DIM := Color(0.62, 0.56, 0.70)
-const TEXT := Color(0.95, 0.94, 0.97)
-const BAD := Color(0.86, 0.44, 0.44)
+const BRASS := Overlay.BRASS
+const DIM := Overlay.DIM
+const TEXT := Overlay.TEXT
+const BAD := Overlay.BAD
 
 var _ui: CanvasLayer
 var _bar: ColorRect
@@ -62,9 +55,11 @@ func is_open() -> bool:
 
 func _process(delta: float) -> void:
 	if _ui == null:
-		# DevMenu owns the tree while it is up; opening on top of it would
-		# leave whichever closes first unpausing the other.
-		if Input.is_action_just_pressed("mix") and not _dev_menu_open():
+		# Overlay.any_open is the shared modal rule (see overlay.gd): whichever
+		# is up owns the paused tree, and opening on top of it would leave the
+		# first to close unpausing the game under the other.
+		if Input.is_action_just_pressed("mix") \
+				and not Overlay.any_open(get_tree(), self):
 			_open()
 		return
 
@@ -90,18 +85,13 @@ func _process(delta: float) -> void:
 		_pick()
 
 
-func _dev_menu_open() -> bool:
-	var dev := get_node_or_null(^"/root/DevMenu")
-	return dev != null and dev.get("_ui") != null
-
-
 # --- open / close ------------------------------------------------------------
 
 func _open() -> void:
 	_first = -1
 	_cursor = 0
 	_build()
-	_swallow = SWALLOW
+	_swallow = Overlay.SWALLOW
 	get_tree().paused = true
 
 
@@ -160,32 +150,17 @@ func _notify_player() -> void:
 # --- the overlay -------------------------------------------------------------
 
 func _build() -> void:
-	_ui = CanvasLayer.new()
-	_ui.layer = LAYER
-	_ui.process_mode = Node.PROCESS_MODE_ALWAYS
-	add_child(_ui)
+	_ui = Overlay.build_layer(self)
 
-	var bg := ColorRect.new()
-	bg.color = BG
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bg.anchor_right = 1.0
-	bg.anchor_bottom = 1.0
-	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_ui.add_child(bg)
+	Overlay.label(_ui, "MIXING BENCH", LEFT, 8, BRASS, 200)
+	_hint = Overlay.label(_ui, "", LEFT, 20, DIM, WIDTH)
 
-	_label("MIXING BENCH", LEFT, 8, BRASS, 200)
-	_hint = _label("", LEFT, 20, DIM, WIDTH)
-
-	_bar = ColorRect.new()
-	_bar.color = HILITE
-	_bar.size = Vector2(WIDTH, ROW_H)
-	_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_ui.add_child(_bar)
+	_bar = Overlay.bar(_ui, Vector2(WIDTH, ROW_H))
 
 	_rebuild_rows()
 	# Parked below a FULL coat (max_beakers) rather than below the current rows,
 	# so the preview line doesn't hop up the panel as beakers are consumed.
-	_result = _label("", LEFT, TOP + MAX_ROWS * ROW_H + 10, TEXT, WIDTH)
+	_result = Overlay.label(_ui, "", LEFT, TOP + MAX_ROWS * ROW_H + 10, TEXT, WIDTH)
 	_sync()
 
 
@@ -194,25 +169,8 @@ func _rebuild_rows() -> void:
 		l.queue_free()
 	_rows.clear()
 	for i in Game.spares.size():
-		_rows.append(_label("", LEFT, TOP + i * ROW_H, TEXT, WIDTH))
+		_rows.append(Overlay.label(_ui, "", LEFT, TOP + i * ROW_H, TEXT, WIDTH))
 	_cursor = clampi(_cursor, 0, maxi(Game.spares.size() - 1, 0))
-
-
-func _label(text: String, x: int, y: int, col: Color, w: int) -> Label:
-	var l := Label.new()
-	l.text = text
-	l.position = Vector2(x, y)
-	l.size = Vector2(w, ROW_H)
-	l.clip_text = true
-	l.add_theme_font_override("font", FONT)
-	l.add_theme_font_size_override("font_size", 8)
-	l.add_theme_color_override("font_color", col)
-	l.add_theme_color_override("font_shadow_color", Color.BLACK)
-	l.add_theme_constant_override("shadow_offset_x", 1)
-	l.add_theme_constant_override("shadow_offset_y", 1)
-	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_ui.add_child(l)
-	return l
 
 
 func _step(dir: int) -> void:
@@ -228,6 +186,13 @@ func _step(dir: int) -> void:
 func _sync() -> void:
 	if _ui == null:
 		return
+	# One row per spare is an invariant every read below depends on. Anything
+	# that edits Game.spares while the bench is up (a dev-menu reset_story, a
+	# pickup landing on the same frame) would otherwise index past the array.
+	if _rows.size() != Game.spares.size():
+		_rebuild_rows()
+		if _first >= Game.spares.size():
+			_first = -1
 	for i in _rows.size():
 		var c: Compound = Game.spares[i]
 		var mark := "*" if i == _first else " "

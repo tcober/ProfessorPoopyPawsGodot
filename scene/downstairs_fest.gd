@@ -43,7 +43,6 @@ var _busy := false
 var _mom: NPC
 var _kitty: NPC
 var _flask: Sprite2D
-var _hint_tw: Tween
 
 @onready var theater: Theater = $Theater
 
@@ -89,9 +88,9 @@ func _ready() -> void:
 	if _brewing():
 		_brew()
 	elif not Game.flag("prologue_saw_mom"):
-		_show_hint("SAY GOOD MORNING TO MOM - E TO TALK")
+		theater.hint("SAY GOOD MORNING TO MOM - E TO TALK")
 	elif Game.flag("prologue_want_home") and not Game.flag("prologue_gate_open"):
-		_show_hint("MOM'S BY THE HEARTH")
+		theater.hint("MOM'S BY THE HEARTH")
 
 
 func _spawn_mom() -> void:
@@ -139,7 +138,7 @@ func _spawn_mom() -> void:
 func _on_mom_talked(_npc: NPC) -> void:
 	if not Game.flag("prologue_saw_mom"):
 		Game.set_flag("prologue_saw_mom")
-		_show_hint("THE FESTIVAL AWAITS - OUT THE FRONT DOOR")
+		theater.hint("THE FESTIVAL AWAITS - OUT THE FRONT DOOR")
 		return
 	if Game.flag("prologue_want_home") and not Game.flag("prologue_gate_open"):
 		_mom_blessing()
@@ -162,7 +161,7 @@ func _mom_blessing() -> void:
 	player.sprite.play("idle_down")
 	Game.set_flag("prologue_gate_open")
 	theater.unlock_party()
-	_show_hint("THE SOUTH GATE IS OPEN - THE MEADOW")
+	theater.hint("THE SOUTH GATE IS OPEN - THE MEADOW")
 
 
 # ---- the brew ---------------------------------------------------------------------
@@ -196,7 +195,7 @@ func _brew() -> void:
 			Vector2(280.0, 88.0),          # east along row 5 to the pocket mouth
 			Vector2(280.0, 120.0),         # down onto the bench top
 			MapData.anchor_px(map, "kitty_pos")], 70.0)
-	_show_hint("THE WORKBENCH - THE EAST CORNER")
+	theater.hint("THE WORKBENCH - THE EAST CORNER")
 	await theater.walk_gate(bench.get_center(), bench.size + Vector2(0.0, 8.0))
 	# he takes the middle of the bench: she is parked at its EAST end (the
 	# pocket's only entrance is its west cell, so she can never be the one
@@ -232,7 +231,7 @@ func _brew() -> void:
 	theater.close_dialog()
 	player.sprite.play("idle_down")
 	theater.unlock_party()
-	_show_hint("THE ACADEMY - ACROSS TOWN, UP THE STAIR")
+	theater.hint("THE ACADEMY - ACROSS TOWN, UP THE STAIR")
 
 
 ## The flask takes each reagent's colour as it goes in — green, blue, red, and
@@ -293,14 +292,3 @@ func _door_hint(line: String) -> void:
 	_busy = false
 
 
-func _show_hint(text: String) -> void:
-	var label: Label = $UI/Hint
-	label.text = text
-	label.modulate.a = 1.0
-	# kill the previous fade or its interval expires mid-hold and yanks
-	# THIS hint early — create_tween() never auto-kills prior tweens
-	if _hint_tw:
-		_hint_tw.kill()
-	_hint_tw = create_tween()
-	_hint_tw.tween_interval(2.4)
-	_hint_tw.tween_property(label, "modulate:a", 0.0, 0.5)

@@ -11,8 +11,10 @@ extends Node
 ## DEV ONLY: the whole thing is behind OS.is_debug_build(), so an exported build
 ## never builds the overlay and never polls the key.
 ##
-## The tree is PAUSED while the menu is up (the project's first use of
-## get_tree().paused — nothing else sets it). That is what stops the player body
+## The tree is PAUSED while the menu is up (one of the project's only two uses
+## of get_tree().paused — mix_menu.gd is the other, and the two refuse to open
+## on top of each other so closing one can't unpause the tree under the other;
+## Overlay.any_open owns that rule for both). That is what stops the player body
 ## walking and the dialog box eating presses behind the overlay; cutscenes are
 ## coroutines awaiting timers/tweens, which pause and resume cleanly. This node
 ## and its overlay run PROCESS_MODE_ALWAYS so they keep going while paused.
@@ -23,28 +25,22 @@ extends Node
 ## the same reason: a raw Input.is_key_pressed(KEY_0) would be undrivable.
 ##
 ## The overlay is built in code rather than hand-authored as a .tscn — the rows
-## are generated from the table anyway, and it keeps the full-rect anchor idiom
-## (anchors_preset alone does nothing at runtime) in one place.
+## are generated from the table anyway. The chrome itself (layer, palette,
+## backdrop, labels, selection bar, swallow timer) lives in scene/overlay.gd,
+## shared with MixMenu; only the two-column LAYOUT below is this menu's own.
 
 const Chapters = preload("res://scene/chapters.gd")
-const FONT = preload("res://assets/font/pixel_font.fnt")
 
-const LAYER := 100                 # above dialog 20, theater 15, scene UI 10
+## The look, the swallow timer and the one-modal-at-a-time rule live in
+## scene/overlay.gd, shared with MixMenu. Only the LAYOUT is this menu's own.
+const ROW_H := Overlay.ROW_H
 const ROWS_PER_COL := 18           # 18 rows * ROW_H fits under 216 with margins
-const ROW_H := 10                  # the font's lineHeight
 const TOP := 20
 const COL_X: Array[int] = [8, 196]
 const COL_W := 180                 # ~30 chars at the 6px monospace advance
 
-## The press that OPENS the menu must not also be read as a pick on the same
-## frame — dialog_box.gd's SWALLOW_MS trick, in seconds.
-const SWALLOW := 0.14
-
-const BG := Color(0.055, 0.04, 0.115, 0.94)      # the dialog panel's night blue
-const BRASS := Color(0.91, 0.74, 0.38)           # its lit bevel
-const HILITE := Color(0.42, 0.28, 0.14)          # its shadow bevel
-const GROUP_COL := Color(0.62, 0.56, 0.70)
-const BEAT_COL := Color(0.95, 0.94, 0.97)
+const GROUP_COL := Overlay.DIM
+const BEAT_COL := Overlay.TEXT
 
 var _ui: CanvasLayer
 var _bar: ColorRect
@@ -62,7 +58,12 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if _ui == null:
-		if Input.is_action_just_pressed("chapter_select"):
+		# Overlay.any_open is the shared modal rule (see overlay.gd): opening on
+		# top of the bench would leave whichever closes first unpausing the tree
+		# under the other, and _launch's reset_story() would empty Game.spares
+		# out from under the bench's rows.
+		if Input.is_action_just_pressed("chapter_select") \
+				and not Overlay.any_open(get_tree(), self):
 			_open()
 		return
 
@@ -95,7 +96,7 @@ func _process(delta: float) -> void:
 
 func _open() -> void:
 	_build()
-	_swallow = SWALLOW
+	_swallow = Overlay.SWALLOW
 	get_tree().paused = true
 
 
@@ -123,33 +124,16 @@ func _launch(beat: Dictionary) -> void:
 # --- the overlay -------------------------------------------------------------
 
 func _build() -> void:
-	_ui = CanvasLayer.new()
-	_ui.layer = LAYER
-	_ui.process_mode = Node.PROCESS_MODE_ALWAYS
-	add_child(_ui)
+	_ui = Overlay.build_layer(self)
 
-	var bg := ColorRect.new()
-	bg.color = BG
-	# both the preset AND the explicit anchors — anchors_preset is editor
-	# metadata, a node with only the preset loads zero-sized
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bg.anchor_right = 1.0
-	bg.anchor_bottom = 1.0
-	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_ui.add_child(bg)
-
-	_label("CHAPTER SELECT", 8, 4, BRASS, 160)
+	Overlay.label(_ui, "CHAPTER SELECT", 8, 4, Overlay.BRASS, 160)
 	# right-aligned across the full width rather than parked in column two's
 	# lane — at 6px/char a legible hint is wider than a column
-	var hint := _label("ARROWS MOVE   SPACE PICK   0 EXIT", 8, 4, GROUP_COL, 368)
+	var hint := Overlay.label(_ui, "ARROWS MOVE   SPACE PICK   0 EXIT", 8, 4,
+			GROUP_COL, 368)
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 
-	# behind the rows: added before them, and CanvasLayer draws in tree order
-	_bar = ColorRect.new()
-	_bar.color = HILITE
-	_bar.size = Vector2(COL_W, ROW_H)
-	_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_ui.add_child(_bar)
+	_bar = Overlay.bar(_ui, Vector2(COL_W, ROW_H))
 
 	_lay_out_rows()
 	if not _items[_cursor]["selectable"]:
@@ -180,29 +164,12 @@ func _lay_out_rows() -> void:
 func _add_row(beat: Dictionary, col: int, row: int) -> void:
 	var is_group := Chapters.is_group(beat)
 	var text: String = beat["group"] if is_group else "  " + String(beat["name"])
-	var label := _label(text, COL_X[col], TOP + row * ROW_H,
+	var label := Overlay.label(_ui, text, COL_X[col], TOP + row * ROW_H,
 			GROUP_COL if is_group else BEAT_COL, COL_W)
 	_items.append({
 		beat = beat, label = label, selectable = not is_group,
 		col = col, row = row,
 	})
-
-
-func _label(text: String, x: int, y: int, col: Color, w: int) -> Label:
-	var l := Label.new()
-	l.text = text
-	l.position = Vector2(x, y)
-	l.size = Vector2(w, ROW_H)
-	l.clip_text = true          # a long row must never bleed into the next column
-	l.add_theme_font_override("font", FONT)
-	l.add_theme_font_size_override("font_size", 8)     # 1:1 at 384x216
-	l.add_theme_color_override("font_color", col)
-	l.add_theme_color_override("font_shadow_color", Color.BLACK)
-	l.add_theme_constant_override("shadow_offset_x", 1)
-	l.add_theme_constant_override("shadow_offset_y", 1)
-	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_ui.add_child(l)
-	return l
 
 
 # --- navigation --------------------------------------------------------------

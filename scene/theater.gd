@@ -9,9 +9,14 @@ extends CanvasLayer
 ## helpers (walk/face/hop) drive any Node2D exposing an AnimatedSprite2D
 ## `sprite` with walk_/idle_ clips — PartyMember and NPC both qualify.
 
+const FONT = preload("res://assets/font/pixel_font.fnt")
+
 @onready var fade: ColorRect = $Fade
 @onready var card_label: Label = $Card
 @onready var dialog: DialogBox = $DialogBox
+
+var _hint: Label                      # built on first hint(); see below
+var _hint_tw: Tween
 
 
 func _ready() -> void:
@@ -47,6 +52,52 @@ func card(line: String, hold := 1.6) -> void:
 
 func wait(sec: float) -> void:
 	await get_tree().create_timer(sec).timeout
+
+
+## Transient objective text along the bottom of the screen ("THE ACADEMY -
+## ACROSS TOWN"). Fire-and-forget, unlike the awaitable helpers above.
+##
+## Owned by the kit rather than the scene: this was hand-rolled identically in
+## five story scripts over a $UI/Hint Label each .tscn declared itself.
+## Same move mash_meter made — the kit builds its own UI children.
+##
+## The label is inserted at child index 0 so $Fade still draws OVER it: in the
+## old per-scene $UI (layer 10) it sat under the theater's fade, and a hint left
+## floating over a black card would be a visible change.
+##
+## `hold` defaults to the value 13 of the 19 old call sites used; the other 6
+## (house_fest / house_thesis / library) pass 2.2 to keep this a behaviour-
+## preserving extraction. That 2.2-vs-2.4 split was undocumented drift between
+## the copies, not a decision — it is now one parameter, so unifying it is a
+## one-line change whenever you want to.
+func hint(text: String, hold := 2.4) -> void:
+	if _hint == null:
+		_hint = Label.new()
+		_hint.anchor_top = 1.0
+		_hint.anchor_right = 1.0
+		_hint.anchor_bottom = 1.0
+		_hint.offset_left = 10.0
+		_hint.offset_top = -27.0
+		_hint.offset_right = -10.0
+		_hint.offset_bottom = -8.0
+		_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_hint.add_theme_font_override("font", FONT)
+		_hint.add_theme_font_size_override("font_size", 8)
+		_hint.add_theme_color_override("font_shadow_color", Color.BLACK)
+		_hint.add_theme_constant_override("shadow_offset_x", 1)
+		_hint.add_theme_constant_override("shadow_offset_y", 1)
+		add_child(_hint)
+		move_child(_hint, 0)
+	_hint.text = text
+	_hint.modulate.a = 1.0
+	# kill the previous fade or its interval expires mid-hold and yanks
+	# THIS hint early — create_tween() never auto-kills prior tweens
+	if _hint_tw:
+		_hint_tw.kill()
+	_hint_tw = create_tween()
+	_hint_tw.tween_interval(hold)
+	_hint_tw.tween_property(_hint, "modulate:a", 0.0, 0.5)
 
 
 # ---- words ----------------------------------------------------------------

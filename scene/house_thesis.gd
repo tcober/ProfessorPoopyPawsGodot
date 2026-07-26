@@ -23,7 +23,6 @@ const DIM_AWAKE := Color(0.86, 0.83, 0.96)     # daylight floods in
 var map: Dictionary
 var player: Node2D
 var _bird: Sprite2D
-var _hint_tw: Tween
 
 @onready var theater: Theater = $Theater
 @onready var dim: CanvasModulate = $Dim
@@ -95,7 +94,7 @@ func _wake_cutscene() -> void:
 	player.sprite.play("idle_down")
 	await theater.hop(player, 8.0)
 	theater.unlock_party()
-	_show_hint("GET DOWNSTAIRS - THE SW STAIRS")
+	theater.hint("GET DOWNSTAIRS - THE SW STAIRS", 2.2)
 	# wire the stair exit (reuse the house exit anchor)
 	var exit := Area2D.new()
 	exit.collision_layer = 0
@@ -114,16 +113,3 @@ func _on_exit(body: Node) -> void:
 	if body.is_in_group("player"):
 		Game.town_thesis_phase = "dash"
 		get_tree().change_scene_to_file.call_deferred("res://scene/town_thesis.tscn")
-
-
-func _show_hint(text: String) -> void:
-	var label: Label = $UI/Hint
-	label.text = text
-	label.modulate.a = 1.0
-	# kill the previous fade or its interval expires mid-hold and yanks
-	# THIS hint early — create_tween() never auto-kills prior tweens
-	if _hint_tw:
-		_hint_tw.kill()
-	_hint_tw = create_tween()
-	_hint_tw.tween_interval(2.2)
-	_hint_tw.tween_property(label, "modulate:a", 0.0, 0.5)

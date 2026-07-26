@@ -91,7 +91,6 @@ var _research := false
 var _busy := false
 ## The door fired once; a second body_entered can't queue a second load.
 var _leaving := false
-var _hint_tw: Tween
 
 @onready var theater: Theater = $Theater
 
@@ -147,8 +146,19 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	_anim_t += delta
 	$Fire.frame = int(_anim_t / 0.16) % 3
-	if not _near.is_empty() and not _busy and Input.is_action_just_pressed("interact"):
+	if not _near.is_empty() and not _busy and not _cutscene() \
+			and Input.is_action_just_pressed("interact"):
 		_run_zone(_zones[_near])
+
+
+## npc.gd's guard, and for the same reason: `interact` is also a dialog-advance
+## key, so without this the press that advances _ebb_night/_research_night would
+## ALSO open a zone and park a second say() on the one DialogBox — one advance
+## then resumes both. The research phase spawns her ON desk_spot, i.e. inside
+## the ledger zone, so _near is set from the first physics frame and even the
+## opening card is exposed. _busy alone can't cover it: only _run_zone sets it.
+func _cutscene() -> bool:
+	return not is_instance_valid(player) or not player.is_physics_processing()
 
 
 func _spawn_fuji() -> void:
@@ -225,7 +235,7 @@ func _hand_control() -> void:
 	player.visible = true
 	player.sprite.play("idle_down")
 	theater.unlock_party()
-	_show_hint("GO OUTSIDE - THE SOUTH DOOR")
+	theater.hint("GO OUTSIDE - THE SOUTH DOOR", 2.2)
 
 
 # ---- Act 1 beat 2: the research gate ---------------------------------------
@@ -252,7 +262,7 @@ func _research_night() -> void:
 	await theater.say("Fuji", "...Fine. Properly, then. From the ledger.")
 	theater.close_dialog()
 	theater.unlock_party()
-	_show_hint("READ THE LEDGER - THE DESK")
+	theater.hint("READ THE LEDGER - THE DESK", 2.2)
 
 
 ## The desk. Outside the research beat it is just her desk; inside it, the
@@ -278,7 +288,7 @@ func _read_ledger() -> void:
 	await theater.say("Fuji", "I have never once counted the ledger.")
 	Game.set_flag("ledger_read")
 	theater.close_dialog()
-	_show_hint("FIND SHELF NINE")
+	theater.hint("FIND SHELF NINE", 2.2)
 
 
 ## A stack. Every one reads its brass plate; only shelf nine, and only once
@@ -334,7 +344,7 @@ func _find_thesis() -> void:
 	await theater.say("Fuji", "...Where are you, B. Basil?")
 	Game.set_flag("thesis_found")
 	theater.close_dialog()
-	_show_hint("GO AND FIND HIM")
+	theater.hint("GO AND FIND HIM", 2.2)
 
 
 ## Out into her own street — the SAME night (no card: no time passes between
@@ -488,14 +498,3 @@ func _run_zone(action: Callable) -> void:
 	_busy = false
 
 
-func _show_hint(text: String) -> void:
-	var label: Label = $UI/Hint
-	label.text = text
-	label.modulate.a = 1.0
-	# kill the previous fade or its interval expires mid-hold and yanks
-	# THIS hint early — create_tween() never auto-kills prior tweens
-	if _hint_tw:
-		_hint_tw.kill()
-	_hint_tw = create_tween()
-	_hint_tw.tween_interval(2.2)
-	_hint_tw.tween_property(label, "modulate:a", 0.0, 0.5)

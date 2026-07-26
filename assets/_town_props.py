@@ -1216,7 +1216,11 @@ def _arch_window(lo, cx, y0, y1, r, mullions=True):
                 lo.rect(xl, y, xr, y, TIMBER[4])
     lo.rect(rows[-1][1] - 3, y1 + 1, rows[-1][2] + 3, y1 + 2, STONER[3])  # sill
     lo.rect(rows[-1][1] - 3, y1 + 1, rows[-1][2] + 3, y1 + 1, STONER[1])
-    return (rows[0][1] - 1, y0 - 1, rows[-1][2] - rows[0][1] + 3, y1 - y0 + 3)
+    # BOTH edges come off the SHAFT row (the widest), like the sill above. Taking
+    # the left edge off the CROWN row instead shifts the rect ~4px east, and the
+    # westmost glass column then never steps with the breath — a dark stripe that
+    # reads as a mullion that isn't there.
+    return (rows[-1][1] - 1, y0 - 1, rows[-1][2] - rows[-1][1] + 3, y1 - y0 + 3)
 
 
 def _rose_window(up, cx, cy, r):

@@ -106,7 +106,6 @@ var _flying := false
 var _kitty: NPC
 var _whirligig: Sprite2D
 var _rotor_t := 0.0
-var _hint_tw: Tween
 var _hour_tw: Tween
 
 @onready var theater: Theater = $Theater
@@ -241,7 +240,7 @@ func _meet_kitty() -> void:
 		"The crank? Honestly, no idea. Cranks are free spirits. Try the flowers.",
 	])
 	theater.unlock_party()
-	_show_hint("FIND THE GEAR, THE SPRING AND THE CRANK")
+	theater.hint("FIND THE GEAR, THE SPRING AND THE CRANK")
 	_busy_scene = false
 
 
@@ -263,9 +262,9 @@ func _part_line(part: String) -> void:
 	theater.unlock_party()
 	var found := _parts_found("prologue_part_")
 	if found < PART_KEYS.size():
-		_show_hint("%d OF %d PARTS" % [found, PART_KEYS.size()])
+		theater.hint("%d OF %d PARTS" % [found, PART_KEYS.size()])
 	else:
-		_show_hint("BRING THEM BACK TO KITTY")
+		theater.hint("BRING THEM BACK TO KITTY")
 
 
 func _flight_finale() -> void:
@@ -437,7 +436,7 @@ func _phase_romance() -> void:
 	if _all_parts_found("prologue_wpart_"):
 		_ready_for_handover()
 	else:
-		_show_hint("GEAR - SPRING - CRANK. SOME RECIPES DON'T CHANGE.")
+		theater.hint("GEAR - SPRING - CRANK. SOME RECIPES DON'T CHANGE.")
 
 
 ## The poof kicks the three pieces out across the headland: each icon flies
@@ -509,7 +508,7 @@ func _on_part_touched(body: Node2D, part: String, area: Area2D) -> void:
 	if _all_parts_found("prologue_wpart_"):
 		_ready_for_handover()
 	else:
-		_show_hint(PARTS[part]["line"])
+		theater.hint(PARTS[part]["line"])
 
 
 ## Every piece accounted for — she waits for them.
@@ -517,7 +516,7 @@ func _ready_for_handover() -> void:
 	_kitty.lines = PackedStringArray([
 		"Paw them over. CAREFULLY. Springs hold grudges.",
 	])
-	_show_hint("BRING THEM TO KITTY")
+	theater.hint("BRING THEM TO KITTY")
 
 
 func _parts_found(prefix: String) -> int:
@@ -635,7 +634,7 @@ func _phase_call1() -> void:
 	await theater.say("Basil", "Poopy Paws. They're all still laughing. I can hear it from here.")
 	theater.close_dialog()
 	# the walk to the lip is the player's own (the pacing law: agency, not cuts)
-	_show_hint("THE EDGE OF THE BLUFF - SOMEWHERE NOBODY IS")
+	theater.hint("THE EDGE OF THE BLUFF - SOMEWHERE NOBODY IS")
 	await theater.walk_gate(MapData.anchor_px(map, "sit_spot"), Vector2(48.0, 32.0))
 	await theater.walk(player, MapData.anchor_px(map, "sit_spot"), 40.0)
 	# a long look out over the drop — back to the camera, under the tree
@@ -703,14 +702,3 @@ func _phase_call2() -> void:
 
 # ---- helpers ----------------------------------------------------------------------
 
-func _show_hint(text: String) -> void:
-	var label: Label = $UI/Hint
-	label.text = text
-	label.modulate.a = 1.0
-	# kill the previous fade or its interval expires mid-hold and yanks
-	# THIS hint early — create_tween() never auto-kills prior tweens
-	if _hint_tw:
-		_hint_tw.kill()
-	_hint_tw = create_tween()
-	_hint_tw.tween_interval(2.4)
-	_hint_tw.tween_property(label, "modulate:a", 0.0, 0.5)

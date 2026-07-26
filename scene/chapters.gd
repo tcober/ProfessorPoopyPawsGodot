@@ -40,13 +40,19 @@ const FEST_HOMESICK := ["prologue_saw_mom", "prologue_left_home",
 		"prologue_festival_done", "prologue_ribbon",
 		"prologue_ribbon_returned", "prologue_want_home"]
 
+## What the real chain carries when the south gate opens the bluff. The bluff's
+## "meet" phase ends by handing off to the brew (bluff._the_idea loads
+## downstairs_fest), so a meet beat needs the SAME door keys the brew does or it
+## dead-ends in the lab — see FEST_WHIRLIGIG's note below.
+static var BLUFF_MEET: Array = FEST_HOMESICK + ["prologue_gate_open"]
+
 ## Everything the whirligig beat leaves behind, for the three legs that follow
 ## it (the brew / the walk across town / the recital). NOTE prologue_gate_open:
 ## without it downstairs_fest._on_exit_door refuses forever ("I came home to
 ## talk to Mom") and a jump straight into the brew is trapped in the lab.
 ## static var for the same reason BEATS is — array `+` can't be const-folded.
-static var FEST_WHIRLIGIG: Array = FEST_HOMESICK + ["prologue_gate_open",
-		"prologue_met_kitty", "prologue_part_gear", "prologue_part_spring",
+static var FEST_WHIRLIGIG: Array = BLUFF_MEET + ["prologue_met_kitty",
+		"prologue_part_gear", "prologue_part_spring",
 		"prologue_part_crank", "prologue_whirligig_done"]
 
 ## static var, not const: the flag ladders above are concatenated per beat and
@@ -105,19 +111,22 @@ static var BEATS: Array[Dictionary] = [
 		flags = FEST_HOMESICK + ["prologue_gate_open"],
 	},
 	{
+		# BLUFF_MEET, not []: the meet plays through to _the_idea, which loads
+		# the fest downstairs for the brew — and that room's only exit is the
+		# front door, which refuses without prologue_saw_mom.
 		name = "A9 - THE BLUFF - THE MEET", scene = "res://scene/bluff.tscn",
 		roster = KID, lead = &"kid_basil",
-		state = {bluff_phase = "meet"}, flags = [],
+		state = {bluff_phase = "meet"}, flags = BLUFF_MEET,
 	},
 	{
 		name = "A10 - GEAR SPRING CRANK", scene = "res://scene/bluff.tscn",
 		roster = KID, lead = &"kid_basil",
-		state = {bluff_phase = "meet"}, flags = ["prologue_met_kitty"],
+		state = {bluff_phase = "meet"}, flags = BLUFF_MEET + ["prologue_met_kitty"],
 	},
 	{
 		name = "A11 - THE WHIRLIGIG FLIES", scene = "res://scene/bluff.tscn",
 		roster = KID, lead = &"kid_basil", state = {bluff_phase = "meet"},
-		flags = ["prologue_met_kitty", "prologue_part_gear",
+		flags = BLUFF_MEET + ["prologue_met_kitty", "prologue_part_gear",
 				"prologue_part_spring", "prologue_part_crank"],
 	},
 	{

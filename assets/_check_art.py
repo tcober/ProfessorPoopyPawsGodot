@@ -154,6 +154,8 @@ TILED = {
     "maps/library.txt": ("tilesets/library_layout.txt",
                          "tilesets/library_tiles.png",
                          "tilesets/library_tiles.tres"),
+    "maps/bluff.txt": ("tilesets/bluff_layout.txt", "tilesets/bluff_tiles.png",
+                       "tilesets/bluff_tiles.tres"),
 }
 
 print("tiled scenes:")
@@ -205,6 +207,8 @@ print("z-order:")
 # y-sorted World sprites (not upper-layer tiles), so its upper layer is empty
 # and the z-order checks below short-circuit for it (the invisible-wall +
 # T3-coverage lint carry the load). town_fest still bakes them, so it stays.
+# maps/bluff.txt is absent for the same reason: the headland's one prop (the
+# windswept tree) is a Tier-3 y-sorted sprite, so its upper layer is empty.
 UPPER_REQUIRED = {"maps/overworld.txt", "maps/overworld_bright.txt",
                   "maps/house.txt", "maps/downstairs.txt", "maps/hall.txt",
                   "maps/sickroom.txt", "maps/library.txt"}
@@ -266,6 +270,7 @@ PROPS = {
     "maps/hall.txt": "tilesets/hall_props.txt",
     "maps/sickroom.txt": "tilesets/sickroom_props.txt",
     "maps/library.txt": "tilesets/library_props.txt",
+    "maps/bluff.txt": "tilesets/bluff_props.txt",
 }
 T3_CHARS = {}                          # map_rel -> chars whose art is y-sorted
 T3_PROPS = {}                          # map_rel -> parsed rows (coverage lint)
@@ -426,6 +431,7 @@ PLACEMENTS = {
     "scene/hall.tscn": "maps/hall.txt",
     "scene/sickroom.tscn": "maps/sickroom.txt",
     "scene/library.tscn": "maps/library.txt",
+    "scene/bluff.tscn": "maps/bluff.txt",
 }
 
 print("placements:")
