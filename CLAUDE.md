@@ -88,7 +88,14 @@ lore spine, pacing rules — in docs/DESIGN.md "Story".)
   and **Lanternwood** (`scene/lanternwood.tscn`, Fuji's snow town) are
   zones too, riding the same overworld tile driver.
 - **Magic is deferred by design** (world starts drained); ranged/spell systems unlock
-  later as story-driven progression.
+  later as story-driven progression. **RPG SYSTEMS DESIGNED (2026-07-28, not yet
+  built) — see DESIGN.md "RPG Systems":** two ladders, EXP/levels/5 stats and
+  FFVI-magicite-style **VESTIGES** (named crystallized fragments of the drained
+  magic) read through Basil's **RESONATOR**, one socket per character, teaching
+  spells permanently at a per-vestige rate — so who learns what is the player's
+  choice. Spells may never be recolored bolts (compounds own projectiles): only
+  RESTORE / WARD / CONTROL (new status axes) / FIELD. Three build slices —
+  levels, then KO+FOCUS, then vestiges (gated to Act 2's first obelisk).
 - **Art direction:** influenced by **Final Fantasy VI, Chrono Trigger, Secret of
   Mana, Sea of Stars, Adventure Time, and the Paper Girls comic** — CT-Frog sprite
   proportions with **flat hard-banded shading** (no dither inside characters,

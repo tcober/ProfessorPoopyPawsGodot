@@ -2235,6 +2235,305 @@ stays friendly, with crisp fire/recover cadence, hit-pause, and readable knockba
   crafting at the workbench, the boiler as a story prop (the last machine
   still running on drained-world power).
 
+## RPG Systems — Levels, Vestiges, and the Resonator (design, 2026-07-28)
+
+The FFVI shape, made canon-tight: **you level up by fighting, and you choose who
+learns what magic by choosing who carries which relic.** Two separate ladders,
+two separate currencies, one menu.
+
+Everything below obeys the four rules this project already runs on: state that
+must survive a door lives on an autoload (`Party.spawn()` rebuilds every body at
+every scene change); systems earn their place by being DISTINCT, never reskins;
+data is hand-authored tables, not procedural generation; and nothing narrative
+ships before the chapter that motivates it.
+
+### The premise (why this isn't just "magic exists now")
+
+Magic is gone. The Ebb drank it into the summit crystal, and it did not come
+back — that stays true for the whole game. So magic cannot be a thing a
+character simply *has*, or the world's central loss is cosmetic.
+
+Instead: **you carry a piece of the drained magic and learn out of it.**
+
+- **VESTIGES** are crystallized fragments of what the world lost — chips of the
+  same substance the summit is made of, or motes that curdled and set before
+  they got there. Each one is the magic that used to *be* a specific thing: the
+  warmth that kept a village's hearths lit, the hush over a frozen lake, the
+  seven bells of a drowned chapel. They are the magicite analog, and like
+  magicite they are finite, named, and found — one per obelisk, one per boss,
+  one per genuinely hidden corner. Never dropped by a slime, never bought.
+- **THE RESONATOR** is Basil's device: a brass apparatus built in the HOME TREE
+  hermitage that makes a vestige *readable* — it holds the fragment against a
+  living body long enough for the body to learn the shape of it. A vestige on
+  its own is a pretty rock. The portable half is a **resonance locket**, one per
+  character, and that locket is the single equipment slot in the game.
+- **This is the thesis, built.** *On Re-Enchantment: Why Science Is Magic's
+  Equal* — magic is merely sleeping; science can measure, carry, and rekindle
+  it. The machine that lets anyone in the drained world cast a spell is the
+  invention of the cat who was laughed off a stage for saying it was possible,
+  who as a ten-year-old could not cast at all. Nobody in this world does magic
+  without his apparatus. **That is the payoff of both prologues**, and it is why
+  the magic system has to be an APPARATUS system rather than a spellbook.
+  It also means Basil can cast — the kid who couldn't, casts last and casts
+  through his own machine, and that is the arc, not a contradiction of it.
+
+Nomenclature is load-bearing here, same as the "spark" cut: **never "mana",
+never "MP", never "spark".** The currencies are FOCUS (what a caster spends) and
+RESONANCE (what a vestige teaches with). "Motes" already means the visible unit
+of loose magic on screen (the Ebb's 14 sparks, Fuji's wild coffee-wand misses) —
+keep it meaning exactly that.
+
+### Ladder 1 — EXP, levels, stats
+
+Five stats, all small ints, all hand-authored per character per level. No random
+growth, no growth-influencing equipment (FFVI's esper bonuses are the one part
+of FFVI worth NOT copying — they punish playing naturally).
+
+| Stat | Reads | Drives |
+| --- | --- | --- |
+| **VIT** | vitality | `max_health = base_hp + VIT` (half-hearts; the HUD row already grows — `_on_health_changed` sizes itself off `max_health`) |
+| **MIG** | might | outgoing physical/weapon damage (laser bolt, tome slam, dart) |
+| **FOC** | focus | max FOCUS pool + spell potency |
+| **GRD** | guard | incoming damage reduction |
+| **SPD** | speed | move speed + kit recovery (fire_recover, swing windows) |
+
+**THE UNIT SPLIT — read this before touching any damage number.** Party HP is in
+HALF-HEARTS and always will be: it is drawn as hearts, and 1 damage has to stay
+legible as half a heart. Enemy HP is INVISIBLE. So the two directions get
+different resolutions on purpose:
+
+- **Party → enemy: rescale ×4 when levels land.** Laser base 2 → 8, tome 2 → 8,
+  dart 1 → 4, burn tick 1 → 4; slime 4 HP → 16, big slime 10 → 40. Nothing on
+  screen changes (kill counts are identical), but `MIG` now has room to matter
+  one point at a time. Without the rescale, `roundi(2 * (1 + MIG/12))` is
+  literally the number 2 until MIG hits 6 — five levels of a stat that does
+  nothing, which is how a stat system dies.
+  Formula: `outgoing = roundi(base * (1.0 + MIG / 12.0))` at the ONE chokepoint
+  each kit already has (`Compound.hit_damage()` for the gun, the tome/dart
+  constants for Fuji).
+- **Enemy → party: stays coarse.** `incoming = maxi(1, damage - GRD / 8)`
+  (integer divide). Guard shaves half-hearts slowly and can never reach zero —
+  an untouchable party is a dead loop.
+- SPD: `speed = base_speed * (1.0 + SPD / 40.0)`, clamped to +50%. Past that the
+  AI brains' hysteresis bands (34/44/56/96/128px, all tuned to the current
+  150px/s) stop holding and the follower reads as twitching. **Any change to
+  member speed must re-run `tools/party_probe.gd`.**
+- FOC: `max_focus = 8 + FOC`, spell potency `1.0 + FOC / 16.0`.
+
+**Growth is a table, not a curve.** `resources/stat_block.gd` holds one
+hand-authored row per level per character — 20 rows each, reviewable at a
+glance, tunable without solving an equation. Shape:
+
+- **Basil** — the glass gadgeteer: MIG and FOC lead, VIT and GRD lag. He is the
+  one who kites; if he tanks, the recoil skid stops being a cost.
+- **Fuji** — the front line: VIT and GRD lead, FOC solid, MIG middling. She
+  closes to swing range by design and has to survive being there.
+- The two must NOT converge. If the level-20 sheets look alike, the party swap
+  stops being a decision.
+
+**EXP curve**: `exp_to_next(level) = 20 * level^1.5`, rounded to a table — L2 at
+20, L5 at ~224, L10 at ~632, L20 at ~1789, ~10k total to cap 20. Enemy values
+are exports: slime **6**, big slime **20**, Act 2 field enemies 30–120, bosses
+300+.
+
+**Everyone in the roster gets FULL exp, always** — no split, no bench penalty.
+FFVI's benched-character problem is a save-file chore, not a design; a 2–3
+member roster has nothing to gain from it.
+
+### Ladder 2 — vestiges, resonance, and teaching
+
+`resources/vestige.gd` (a `Resource`, the way `Compound` is):
+
+```
+id            StringName   "hearthkeep"
+display_name  String       "HEARTHKEEP"
+epitaph       String       "The warmth that kept a village's fires lit."
+tint          Color        one hue, like Compound.tint — locket, HUD, cast fx
+spells        Dictionary   spell_id -> percent learned per RESONANCE point
+worn          Dictionary   stat -> flat bonus while socketed (small: +1/+2)
+```
+
+- **One socket per character.** That slot is the entire equipment layer of the
+  game — there is no armor, no accessories, no weapon list. One choice, made
+  visible, made permanent in its consequences (the spells stay learned).
+- **RESONANCE** accrues per kill, party-wide, **but only to a character with a
+  vestige socketed.** That is the tension the whole system runs on: an empty
+  socket wastes every kill, and a vestige you have finished learning wastes them
+  too. Slime **1** RES, big slime **3**, bosses 20+.
+- Learning: `progress[spell] += rate` per RES point; at 100 the spell is learned
+  **permanently, on that character, forever**, and un-socketing never takes it.
+  Rates make the pacing: `{"mend": 10}` = 10 RES ≈ 10 slimes; `{"ward": 3}` = 34.
+  A vestige teaching 2–4 spells at mixed rates gives each one a natural order.
+- **`worn` bonuses vanish when you un-socket.** Nothing about level-up growth is
+  ever influenced by what you were carrying — see above.
+- Vestiges are found, never dropped: one per obelisk (the Act 2 skeleton already
+  says one obelisk per landmass), one per major boss, a handful genuinely
+  hidden. ~10–12 in the whole game.
+
+**Named like espers, but named after what was LOST.** A vestige's name is a
+piece of world-building for free, and the epitaph line does the work a summon
+animation would:
+
+- **HEARTHKEEP** — the warmth that kept a village's fires lit. MEND, WARMTH.
+- **THE LONG WINTER** — the hush over a lake that never thawed. BIND, HUSH.
+- **SEVEN BELLS** — a drowned chapel's peal. QUICKEN, WARD.
+- **STILLWATER** — MEND II, CLEANSE.
+- **LAMPLIGHT** — the last honest flame owed magic nothing; this is the magic it
+  never needed. KINDLE (field light), WARD II.
+- **THE GOOSE THAT STOLE THE RIBBON** — yes, really; the Adventure Time register
+  has to appear in the systems too, not only the dialogue. LURE.
+
+**Open hook, author's call, NOT canon yet:** the sickroom verdict established
+that magic mends anything but memory, and that a lost memory "returns to the
+spirit of the world and lives on out there, maybe surfacing elsewhere someday."
+A vestige is exactly the kind of object a surfaced memory could be set in. That
+is a very loud gun on the mantelpiece for Kitty's thread, and it collides with
+the standing "closure, not reunion" rule — so it is recorded here as an option
+and nothing more. Do not build toward it without deciding it.
+
+### The spells — what magic is ALLOWED to be
+
+Compounds already own projectiles, elements, and on-hit status. A spell list of
+fire/ice/bolt would make the four beakers pointless and violate the distinctness
+rule the sleep/freeze/burn triangle was built on. So:
+
+> **Compounds are what Basil THROWS. Spells are what the party CHANGES.**
+> A spell may never be a recolored bolt.
+
+Four schools, and only four:
+
+1. **RESTORE** — MEND, MEND II, CLEANSE (strip a status), REVIVE. The gun can
+   never do any of this, which is the cleanest possible non-overlap. This is
+   also why the KO state has to ship with it (below): healing means nothing to a
+   party that already can't die.
+2. **WARD** — timed buffs: WARD (flat damage reduction), QUICKEN (speed + kit
+   recovery), STEADY (no knockback). Short durations, so casting is a beat in
+   the fight rather than a pre-fight ritual.
+3. **CONTROL** — **new status axes only.** BIND (rooted, instantly, but still
+   dangerous — it keeps its contact hitbox, and that is exactly what separates
+   it from sleep and freeze), HUSH (shuts off ranged/special attacks, leaves
+   melee), LURE (pull aggro off the follower). Extends the existing doctrine
+   line: *sleep is slow/long/total; freeze is instant/partial/short; burn
+   disables nothing; **bind is instant and total on MOVEMENT alone.*** Any new
+   status must be able to finish that sentence or it doesn't ship.
+4. **FIELD** — the re-enchantment fantasy and the progression layer at once:
+   KINDLE (light a dark room), THAW, MENDWORK (repair a broken bridge/mechanism),
+   ROUSE (wake a dormant shrine or obelisk). **Field spells replace key items** —
+   "you learned the thing that opens this" rather than "you found the hookshot",
+   which is a better fit for a game whose whole subject is putting magic back.
+
+The one deliberate exception: **one radial burst per school ceiling**,
+self-centered and positional, so it plays nothing like a bolt — earned late,
+gated behind the summit. Players want a big spell; they can have one that is
+about standing in the right place.
+
+**FOCUS** is the cost. Per member, ~8–20 points, spells cost 2–6.
+
+- It **persists across scenes** (on the sheet), unlike HP, which still refills at
+  every door. That is deliberate and matches the beaker rule: a managed resource
+  you can spend badly is only interesting if the walk to the next zone can't
+  launder it.
+- Refills: **mote pickups** dropped by kills — slimes are curdled magic, so
+  killing one releasing a mote you can absorb closes the loop the lore already
+  opened — plus resting at an inn. **No passive regen.**
+- The mote pickup is the beaker pickup with a different sprite and payload
+  (`entities/pickups/beaker.gd` is the template; the meadow's respawn plumbing
+  already exists).
+- HUD: one small pip row per member under the hearts, tinted to the socketed
+  vestige — the same trick the ammo row already pulls (`_on_loaded_changed`
+  tints pips rather than adding a fifth row).
+
+### KO and the downed state (prerequisite for RESTORE)
+
+Today `PartyMember._on_died()` refills and the killing blow reads as a stagger —
+"real KO comes later" is in the comment. RESTORE is why it's later:
+
+- At 0 HP a member goes **DOWNED**: a slumped pose, no control, no hurtbox,
+  brains ignore it as a target and the enemy re-picks. If the leader goes down,
+  leadership auto-swaps (`Party._apply_leader` already does everything needed).
+- Revive: the other member stands adjacent for ~2s, or casts REVIVE. A downed
+  member also stands back up on a zone change, at 1 heart.
+- Both down = back to the last door with EXP, RES, and levels intact. Never a
+  progress loss; the cost is the walk.
+
+### Where the state lives (and the gotchas that are already waiting)
+
+`resources/character_sheet.gd` — a `Resource` per party member: `level`, `exp`,
+the five stats, `focus`, `socket: Vestige`, `learned: Dictionary`,
+`learning: Dictionary` (spell → percent).
+
+`Game` holds them, for exactly the reason it already holds the gun loadout:
+**`Party.spawn()` rebuilds every body at every door**, so anything on the
+instance is gone by the next scene.
+
+```
+var sheets: Dictionary = {}         # StringName -> CharacterSheet
+var vestiges: Array[Vestige] = []   # the satchel; unsocketed ones live here
+```
+
+1. **`reset_story()` must wipe sheets and vestiges**, for the same reason it
+   blanks `loaded`/`spares` — a backwards dev-menu jump must not carry level 18
+   and a socketed HEARTHKEEP into the prologue.
+2. **`HealthComponent._ready()` sets `current_health = max_health`.** A sheet
+   applied after that leaves the body at the OLD max and the HUD half-empty on
+   spawn. Apply the sheet's `max_health` and refill in the same breath, and do it
+   in `PartyMember._ready()` BEFORE anything reads current HP.
+3. **`kid_basil` and `basil_student` must never get a sheet.** The prologue world
+   is safe — no combat, no levels, and their SpriteFrames have no downed pose. A
+   sheet lookup returns a neutral default rather than asserting, or every
+   prologue scene throws.
+4. **The kill hook.** `Slime.died` currently carries no arguments and the meadow
+   connects to it — so grant EXP/RES from the enemy's own `_on_died` via a small
+   `Game` API (`grant_kill(exp, res)`), not by threading values back through the
+   scene. One call site per enemy, zones stay ignorant.
+5. **The party menu is the THIRD `get_tree().paused` user** (DevMenu, MixMenu).
+   `Overlay.any_open()` is already the shared predicate — use it; do not add a
+   pairwise "is the mix menu open" check, which is how the guard got
+   half-implemented the first time.
+6. **Polled input only**, like everything else — `tools/shot.gd`'s synthesized
+   presses exist only in the polled action state.
+7. **Menu text is the pixel font**: mixed case is available, but the caps-only
+   rule still applies to anything reading as signage.
+
+### The menu
+
+`scene/party_menu.gd`, a 5th autoload on the `Overlay` chrome MixMenu and
+DevMenu share, opened with a new `menu` action (Tab is taken by the swap;
+propose `P` / Options on the pad). Three panes, one screen, 384×216:
+
+- **left**: the roster — name, level, hearts, focus, the EXP bar to next.
+- **middle**: the selected member's five stats and their learned spells.
+- **right**: the satchel of vestiges. Move one onto a member to socket it; the
+  pane shows that vestige's spell list with each percentage, so **"who learns
+  what" is a visible, reversible, one-button decision** — which is the whole
+  reason to build this system instead of a spellbook.
+
+Same contract as the mixing bench: **always show what you are about to get and
+what you are about to lose before taking anything.**
+
+### Build order
+
+Three slices, each shippable and each verifiable on its own:
+
+1. **Levels** (works against the build as it stands today). CharacterSheet, the
+   five stats, the EXP curve, the ×4 damage rescale, kill grants, level-up toast,
+   and the menu's left+middle panes. No magic anywhere. Lands naturally in Act
+   1's meadow tutorial, where Fuji fights alone.
+2. **Stakes.** The downed/KO state, the FOCUS pool, mote pickups, the HUD pip
+   row. Still no spells — this slice is what makes the third one mean something.
+3. **Vestiges.** `Vestige`, resonance, the learning loop, the four schools, the
+   socket pane, the Resonator scene beat in the HOME TREE hermitage. Gated to
+   Act 2 and the first obelisk — **no vestige may exist on screen before the
+   hermitage**, because a drained world that hands out magic in Act 1 has no
+   subject.
+
+**Probe: `tools/rpg_probe.gd`**, per the per-scene probe doctrine — level math
+and curve edges, the damage chokepoints in both directions, a sheet surviving a
+scene change, `reset_story()` clearing it, learning rates hitting exactly 100,
+un-socketing keeping learned spells and dropping `worn` bonuses, and a prologue
+roster spawning with no sheet at all. It runs in seconds; the full prologue probe
+is for handoff-chain changes, not for every stat tweak.
+
 ## Future Direction — Story Build (recorded 2026-07-12, in progress)
 
 The chapter structure in "Story" above is canon. **Build-fresh doctrine
