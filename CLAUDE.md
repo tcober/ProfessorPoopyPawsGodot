@@ -102,7 +102,18 @@ lore spine, pacing rules — in docs/DESIGN.md "Story".)
   a REMNANT (canon 2026-07-28)** — a dungeon boss that is the leftover magic of
   one lost thing, congealed at its land's obelisk and standing up; the Remnants
   themselves are NOT villains (grief with a shape), so a boss fight is a
-  SETTLING and some can be talked down. Five lands = five Remnants = five
+  SETTLING, not a killing. **Each has a DISPOSITION** (the FFVI esper texture):
+  one WILLING (gives itself — make it the FIRST, it teaches that the fight
+  button isn't always the verb), most UNQUIET (fight from fear, not malice), one
+  REFUSING (says no and is right to — hardest beat in the game, and never
+  comment on it), and one SPENDS ITSELF to save the party mid-game. The peaceful
+  path is EARNED by understanding the dungeon (3-4 quiet pieces of what the
+  place WAS → the boss room opens the option to SPEAK) — the wander-gate
+  doctrine pointed at a boss, and the reason the party is these two:
+  **Basil takes readings, Fuji reads the room**, and Aldous can never settle one
+  because he threw away the half that reads. Fighting is ALWAYS legitimate
+  (nothing missable, no bad ending); understanding pays one EXTRA `gift` spell,
+  never a power gap. Five lands = five Remnants = five
   vestiges + a few hidden; **the dungeon count IS the collectible count, no
   filler.** **The REGENT (Aldous Schweinler) is the antagonist** — the anti-Basil
   who read the same thesis and concluded magic must be kept FROM everyone, which

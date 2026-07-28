@@ -74,8 +74,12 @@ and finds love again, with her.
   A Remnant is grief with a shape: confused, or mourning, or standing
   guard over a place that no longer needs guarding. So a boss fight is a
   SETTLING, not a killing: the beat it ends on is the thing finally able
-  to rest, and some of them can be talked down instead. This is the same
-  rule the drained-town villagers already run on — nobody blames anybody.
+  to rest. This is the same rule the drained-town villagers already run on
+  — nobody blames anybody. **Each one has its own DISPOSITION** (RPG
+  Systems, "The Remnants have dispositions"): one is WILLING and gives
+  itself, most are UNQUIET and fight out of fear, one REFUSES and is right
+  to, and one spends itself to save the party. They are characters, not
+  boss slots.
   What a settled Remnant leaves behind is its **VESTIGE** (see "RPG
   Systems"): the magic it was made of, finally still enough to be carried
   — and, through Basil's Resonator, learned from.
@@ -2703,6 +2707,71 @@ two words:
 - **THE GOOSE THAT STOLE THE RIBBON** — yes, really; the Adventure Time register
   has to appear in the systems too, not only the dialogue. A small, optional,
   extremely unserious Remnant. LURE.
+
+### The Remnants have dispositions (2026-07-28)
+
+Not every Remnant reacts the same way to being found, and this is where the FFVI
+esper texture lives — some of them want to help, some are past reaching, and one
+of them gives itself away. **A Remnant is a character, not a boss slot.** Three
+dispositions, authored per Remnant, declared on the resource:
+
+- **WILLING** — it has been waiting for somebody to come. It knows exactly what
+  it is, it is tired, and it gives itself the moment it is understood. There is
+  no fight, or a token one that stops on its own. Use this for the FIRST one:
+  it teaches the player what a Remnant is, what settling means, and that the
+  fight button is not always the verb — a lesson far better learned from a thing
+  that lays down than from a tutorial box.
+- **UNQUIET** — it no longer knows what it is. It is still doing its job:
+  guarding a village that is gone, keeping a fire that has no hearth, ringing
+  for a congregation that drowned. It fights because it is frightened and
+  confused, not because it is cruel. **This is the default and most of them.**
+- **REFUSING** — it knows precisely what it is, it knows that settling means the
+  thing it belonged to is finally, actually gone, and it says **no**. This is a
+  Remnant with the right to refuse, and the party is in the wrong for pressing.
+  Put the hardest beat in the game here, let the player win, and **never
+  comment on it** — no card, no line, no absolution. One of these. Not two.
+
+**And one of them spends itself for you.** The FFVI sacrifice beat, mid-game and
+unrepeatable: a Remnant the party has already met — most likely one they FAILED
+to settle, or one they cut out of the Regent's cages — burns itself to get them
+out of something they were not going to survive. You get its vestige. You never
+got to settle it properly, and you do not get to go back and do it right. That
+is the emotional peak of the middle act and the moment the caged menagerie stops
+being a side objective.
+
+**HOW YOU EARN THE PEACEFUL PATH** — and it is not a dialogue puzzle with a
+wrong answer, because a quiz you can fail at the end of a dungeon is a punishment
+with a question mark on it:
+
+- **The dungeon IS the dead thing.** You walk the drowned chapel, the hearth-
+  village, the lake that never thawed. Scattered through it are three or four
+  quiet pieces of what it was — an object, a mural, a survivor who remembers, a
+  sound the place still makes. Find them and the boss room opens with the option
+  to SPEAK. **The conversation is not the puzzle; having earned it is.** This is
+  the wander-gate doctrine the game has taught since Prologue A's six talkables,
+  pointed at a boss.
+- **And it is why the party is these two people.** Basil takes readings with the
+  Resonator; Fuji reads the room. The scientist measures what is there and the
+  librarian knows what it *was* — and settling a Remnant needs both halves.
+  **This is exactly why Aldous cannot do it.** He has instruments, crews and
+  money, and he has never once had anybody who reads, because the reading is
+  history and stories and other people's small lives — the "waste" he would
+  abolish. He is missing the half he threw away.
+- **Fighting is always legitimate.** A Remnant beaten until it stops still
+  settles, still rests, still yields its vestige. No path is locked, nothing is
+  missable-forever, and there is no bad ending. It is only sadder.
+- **The reward for understanding is one MORE spell**, not a better one: a
+  willingly-given vestige carries a `gift` spell that a taken one never teaches.
+  Discrete, visible in the menu, worth going back for — and never a power gap
+  that punishes the player who likes the fight button.
+- **The quiet critique, never stated**: a player who fights every one of them is
+  doing a smaller, gentler version of what the Regent does. The game must never
+  say this out loud. It just sits there.
+
+On the resource: `disposition` (enum), `gift` (spell + rate, willing only), and
+a per-dungeon `understanding` count the boss room checks. The caged Remnants
+re-roll this when freed — some settle at once out of sheer exhaustion, and one
+has been in the box long enough that it comes out swinging.
 
 ### The Return — what giving them back costs
 
