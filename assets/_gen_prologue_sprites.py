@@ -2539,13 +2539,16 @@ def fx_burst(s, big):
     its trailing sparks, big=True the burst ring.
 
     Drawn WHITE-HOT AND COLOURLESS on purpose. scene/hall.gd modulate-tints
-    each instance to one of Alchemy's four compound tints on an ADDITIVE
-    material, so this one pair of cells makes all four colours — the kid's
-    first potion is the same green/blue/red/purple he'll be firing two
-    decades later. Do NOT reuse the sparkle cells (2-3) for this: SPARK_D is
-    warm gold, and gold multiplied by a blue tint is mud. Bare hand-set
-    pixels like the sibling sparkle/magic-spark cells — an outline pass
-    fights an additive blend."""
+    each instance to one of Alchemy's four compound tints — on the ORDINARY
+    mix blend, NOT an additive one (cream at ~250 added onto the hall
+    saturates every channel and all four colours arrive the same pale white,
+    and which colour it is IS the beat; the bursts get their punch from the
+    houselights going down around them instead). So this one pair of cells
+    makes all four colours — the kid's first potion is the same
+    green/blue/red/purple he'll be firing two decades later. Do NOT reuse the
+    sparkle cells (2-3) for this: SPARK_D is warm gold, and gold multiplied
+    by a blue tint is mud. Bare hand-set pixels like the sibling
+    sparkle/magic-spark cells — an outline pass would fight the tint."""
     c = 8
     if big:
         for d in (5, 6):                           # the ring: axes...

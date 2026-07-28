@@ -196,10 +196,14 @@ mock him for exactly that, no nickname.)*
    is not allowed on it, so he sets up on the house floor with the faculty
    looking down over the rail. Professor Strix reads the note against his
    name ("no aptitude") and gives him the floor anyway. Schweinler: *"What's
-   he going to do, WIND something at us?"* Basil: *"...Yes."* Kitty cranks,
-   the loaded whirligig climbs over the house, and it throws four small
-   fireworks in the four reagent colours — the gallery that will one day
-   laugh him out of this room leans back as one instead, and Kitty whoops
+   he going to do, WIND something at us?"* Basil: *"...Yes."* — and **the
+   houselights go down** *(2026-07-28)*. Nobody announces it; the room
+   darkening around a ten-year-old with a flask is the line. Kitty cranks,
+   the loaded whirligig climbs over the house — the glowing payload in its
+   pod now the only light in the hall — and it throws four
+   fireworks in the four reagent colours, each one washing its own colour
+   back across the walls and the eighteen backs. The gallery that will one
+   day laugh him out of this room leans back as one instead, and Kitty whoops
    from the front row (which is the promise she makes again, and calls a
    promise, in the romance below). Strix: *"It is POTIONS is what it is."*
    Basil: *"...It's chemistry, sir."* — **the exact line the adult says at
@@ -1543,6 +1547,20 @@ actually cycle; hand-drawn sheets can still drop in later against "Asset Specs" 
   pinned under the whirligig's pod, four fireworks in the compound
   colours, `_laugh_bob` reused as the awed sway, and the moved "THREE
   SUMMERS LATER." card) ·
+  **THE HOUSELIGHTS (2026-07-28)** — the one place in the build where a
+  scene's light is NOT a `CanvasModulate`. A CanvasModulate multiplies the
+  whole canvas, fireworks included, so dimming the room with it takes the
+  bursts down by the same factor and buys nothing. `hall.gd`'s
+  `_house_take()` snapshots the ROOM instead (both tile layers, the glow
+  overlay, and every prop/cast/player node standing in `$World` at that
+  moment) and modulates that set: warm evening while the hall fills, almost
+  black for the act, back up on Strix's "Stop. STOP." Every FX sprite
+  spawned afterwards — the rig, its glowing payload, the bursts — is by
+  construction OUTSIDE the dim and burns full strength against it, so the
+  fireworks got brighter without touching their blend (they stay MIX; see
+  the additive gotcha below). Each burst also `_house_wash()`es its own
+  colour back over the walls and the eighteen backs for a beat, which is
+  what makes it read as a light source rather than a sprite ·
   `scene/dialog_box.gd/.tscn` + `scene/theater.gd/.tscn` (the narrative
   kit) · `entities/npcs/npc.gd/.tscn` (interact-to-talk) ·
   `entities/kid/kid_basil.gd/.tscn/_frames.tres` (the playable kid) ·

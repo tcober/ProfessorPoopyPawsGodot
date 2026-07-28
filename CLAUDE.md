@@ -229,7 +229,27 @@ a SECOND bob set treats that as rest and the tier sinks — reset
 `sprite.position.y` after every kill (`_kill_bobs`); (3) the fireworks
 are MIX, not the additive magic-mote idiom — cream at ~250 added onto the
 hall's plum saturates every channel and all four colours arrive the same
-pale white, and which colour it is IS the beat. A door that must change
+pale white, and which colour it is IS the beat.
+**THE HOUSELIGHTS (2026-07-28) — the one scene light that is NOT a
+CanvasModulate:** on Basil's "...Yes." the room goes down to almost black
+for the act and comes back up on Strix's "Stop. STOP." — no line
+announces it (the narration purge). It CAN'T ride `$Dim`: a
+CanvasModulate multiplies the whole canvas, fireworks included, so it
+would darken the bursts by the same factor and buy nothing. `_house_take()`
+snapshots the ROOM instead — both tile layers, the glow overlay, and every
+prop/cast/player node in `$World` at that instant — and `_house_apply()`
+paints one interpolated colour across the lot (one `tween_method`, not
+fifty tweeners). Everything spawned AFTERWARDS — the rig, its pulsing
+payload, every burst and spark — is by construction outside the dim and
+burns full strength against it; that, not the blend mode, is where the
+brightness comes from. Each burst then `_house_wash()`es its own colour
+back over the walls and the eighteen backs (own tween, so it can never
+kill and hang an awaited `_house_set`), the ring grows via `_burst_scale`
+(scale multiplies a Sprite2D's `offset` too — divide the lift by the
+scale or the ring flies 80px up the wall), and the flask's readability
+pulse is a LOOPED `modulate` tween that must be killed before
+`_fireworks` drains its alpha, or a=1 gets rewritten twice a second.
+A door that must change
 from announce to travel FLIPS `target_scene` on the same
 `OverworldLocation` — never a second zone on the anchor (the
 `_free_home_location` softlock).
