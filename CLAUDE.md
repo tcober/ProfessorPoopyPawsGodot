@@ -107,7 +107,16 @@ lore spine, pacing rules — in docs/DESIGN.md "Story".)
   filler.** **The REGENT (Aldous Schweinler) is the antagonist** — the anti-Basil
   who read the same thesis and concluded magic must be kept FROM everyone, which
   is why it had to be destroyed on that stage; he hunts the vestiges and cannot
-  settle a Remnant himself, so he needs the party to collect them for him. The
+  settle a Remnant himself (settling is an act of UNDERSTANDING), so instead he
+  CAGES them in the vessel he built for the Ebb — and a caged Remnant never
+  yields, so everything he has stolen is useless to him and he doesn't know why.
+  He races the party across the five dungeons on a five-shape ladder (no sign →
+  traces → **the EMPTY one, where the reveal is an ABSENCE you find** → he takes
+  one as it forms → you take one back); his crews are Academy SURVEYORS, not
+  thugs, and **you never kill a person in this game** — you fight their MACHINES,
+  which are drowse-IMMUNE and so are the first enemies Fuji's sleep setup can't
+  solve. Theft rules: never take a vestige already earned, an empty dungeon pays
+  in reveal instead, and the game stays completable without every one. The
   SON stays small and personal-sized on purpose — the reveal shrinks him, never
   promotes him (every kid taunt he has is about who HAS magic: his father's
   hierarchy in a child's mouth). **The Regent is ALREADY PLANTED in shipped

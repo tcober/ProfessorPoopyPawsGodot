@@ -600,7 +600,9 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
      all five, because he could never settle a Remnant himself. **He takes
      them.** That is the empty-sockets moment, and it plays far better done
      TO the party than chosen from a menu — the choice was the learning, the
-     theft is the consequence.
+     theft is the consequence. And it fails, the way the caged ones failed:
+     a vestige can only be GIVEN. He has spent twenty years taking things
+     that only answer to being handed over.
   3. **The fight without magic.** No vestiges, no worn bonuses: the levels,
      the spells already learned, Fuji's tome and darts, and Basil's brass
      gun — the thing he built alone in the wilderness when nobody believed
@@ -621,14 +623,66 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
   not a fight at all. Written down rather than built, because committing to
   it commits the last hour of the game.
 - **THE REGENT is the throughline** (2026-07-28). Aldous Schweinler wants
-  the vestiges and cannot take one himself, so he lets the party do the
-  dungeons and arrives to collect. That gives Act 2 a spine instead of five
-  disconnected expeditions: he is at the obelisk first, or waiting at the
-  door, or already gone with something. The reveal — that the Ebb had an
-  author, and that the author failed — belongs **mid-late**, after enough
-  drained towns have said nobody is to blame that it costs something to
-  learn otherwise. Before it, he is simply a patron with an unusual
+  the vestiges and cannot take one himself, so he races the party for the
+  dungeons — sometimes behind them, sometimes ahead. That gives Act 2 a
+  spine instead of five disconnected expeditions. The reveal — that the Ebb
+  had an author, and that the author failed — belongs **mid-late**, after
+  enough drained towns have said nobody is to blame that it costs something
+  to learn otherwise. Before it, he is simply a patron with an unusual
   interest in ruins.
+
+  **WHAT HE STEALS, AND WHY IT DOESN'T WORK (canon 2026-07-28).** A vestige
+  only comes off a Remnant that has been SETTLED, and settling is an act of
+  understanding — which is the one thing he has never done for anything he
+  wanted. So he does what he did to the world: **he cages them.** He still
+  has the vessel he built for the Ebb, scaled down to a containment rig,
+  and his crews haul Remnants out of dungeons whole. A caged Remnant never
+  settles and never yields its vestige, so **everything he has stolen is
+  useless to him and he does not understand why.** This is the engine of
+  the entire back half:
+  - It makes his plan collapse on a misunderstanding rather than on a
+    boss's HP bar — he is beaten by what he is, exactly as the finale says.
+  - It gives the party a reason to chase him that is not loot. Those things
+    are grief that cannot rest, in a box, in a warehouse. **You want them
+    back because it is cruel**, and that is a better second-act motive than
+    completing a set.
+  - It sets up the ending: at the summit he takes your five and they do not
+    answer him either. The vestiges can only be GIVEN. He can only take.
+
+- **The encounter ladder** — five dungeons, five different shapes, never
+  the same beat twice:
+  1. **No sign of him.** The world still has no author.
+  2. **Traces.** Survey stakes, a crate stencilled with a name, a
+     plum-coated crew packing out as you arrive. No confrontation, no
+     dialogue, nothing explained.
+  3. **THE EMPTY ONE — the "they were already here" dungeon**, and the
+     right place for the whole reveal. You clear the place and there is
+     nothing at the end of it: the obelisk stays dark, the cradle is
+     empty, there are drag marks and a cut cage-chain and the smell of a
+     machine. **The reveal is an ABSENCE you find, not a cutscene that
+     explains it** — infinitely stronger, and it costs one room.
+  4. **He is there, and he lets you finish.** In person, unhurried,
+     waiting at the obelisk while you settle the Remnant, and he takes the
+     vestige as it forms. Now he knows exactly how useful you are, and the
+     rest of the act is him letting you work.
+  5. **You beat him to it** — or take one back off the crew. The turn.
+- **The crews are ACADEMY MEN, not thugs.** Graduate surveyors in Academy
+  plum with instruments and clipboards and a containment rig, doing
+  fieldwork for a benefactor who pays well and does not invite questions.
+  They are not evil; they are EMPLOYED, which is the same institutional
+  shrug that laughed a thesis off a stage. Give the crew a recurring
+  foreman who gets quieter every time you meet him, and one assistant who
+  recognizes the name Basil from a paper nobody was supposed to have read.
+- **DOCTRINE: you never kill a person in this game.** The party fights
+  curdled magic and MACHINES — the crews' rigs, haulers and automata, the
+  steampunk register the accident scene already established ("it's got a
+  lot of... pipes"). The men scatter, argue, or stand there and let it
+  happen. This keeps the tone the Remnants' non-villainy depends on, and
+  it buys a genuinely new enemy class: see "RPG Systems" for why machines
+  being **immune to sleep** is the best thing to happen to the compounds.
+- **His holdings are in the CAPITAL** — which the act already plans to make
+  walkable, and where the son already sits at court. The menagerie of caged
+  Remnants is the Capital sequence's centerpiece and the act's midpoint.
 - **Schweinler (the son) recurs** at the Capital as the court's "Calamity
   Expert" — obstruction and stolen credit, escalating to a personal
   reckoning that lands as anticlimax-on-purpose: the apology arrives and
@@ -2548,6 +2602,41 @@ worn          Dictionary   stat -> flat bonus while socketed (small: +1/+2)
 - Because there are more vestiges than sockets, the choice is never "do I have
   it" — it is **who gets it, and in what order.** Early on (one vestige, two
   members) there is no choice at all, and that is correct; it is the tutorial.
+
+**THE THEFT RULES (2026-07-28).** Act 2 has the Regent racing you for these and
+sometimes winning (see Act 2+, "The encounter ladder"). Three hard rules, because
+"the villain takes your stuff" is one of the easiest ways to make a player feel
+punished for playing:
+
+1. **Never take a vestige the player already earned.** Losing a thing you hold is
+   bitter; missing a thing you never held is plot. At the dungeon where he takes
+   one, he takes it AS IT FORMS — it never enters the satchel, never appears in
+   the menu, and no learning progress is ever destroyed. (The summit is the sole
+   exception, and there it is the whole point.)
+2. **A dungeon that yields no vestige must pay in another currency.** The empty
+   dungeon pays in the REVEAL — you walk out knowing the Ebb had an author. That
+   is worth more than a rock and it must feel like it, so the place is otherwise
+   fully stocked: the run is not shortened, the loot that is not vestiges is
+   still there, and the Remnant's absence is staged as the prize being *taken*,
+   not as content withheld.
+3. **The game must be completable, comfortably, without every vestige.** Never
+   gate a spell the player needs behind one the plot removes, and never let more
+   than one be his at a time. Stolen ones come back — at dungeon 5, in the
+   Capital, or at the summit.
+
+**MACHINES DON'T SLEEP** — and this is the best thing the Regent's crews bring to
+the combat system. His haulers, rigs and automata carry no drowse: Fuji's entire
+setup game (dart, dart, drop it, tome it while it's down) does NOTHING to them,
+and neither does freeze reading as "a body going stiff". Suddenly there is an
+enemy class the status system does not dominate, and the answer has to come from
+somewhere else — plasma's pierce against plating, flame's burn (which disables
+nothing and therefore doesn't care), positioning, the hop. **An enemy that beats
+your best tool is how a kit stays interesting in the back half**, and it is the
+cheapest possible way to keep the compounds relevant right up to the finale,
+where they are all you have left. Implementation: a `drowse_immune` flag on
+StatusComponent rather than omitting the component — `slime.gd` calls
+`status.apply()` unconditionally and a missing node would need a null check at
+every enemy's hit path.
 
 **A Remnant and its vestige share a name.** The name is a piece of
 world-building for free, the epitaph line does the work a summon animation
