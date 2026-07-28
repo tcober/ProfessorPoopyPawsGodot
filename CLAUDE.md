@@ -133,7 +133,20 @@ lore spine, pacing rules — in docs/DESIGN.md "Story".)
   GIVEN; learning is redistribution one spell at a time; caged Remnants are
   wealth in a vault) so the DIALOGUE never does. Never name it, keep Aldous
   half-persuasive (never a cackling strawman), and remember the refutation is
-  already shipped: Fuji's magic coffee is exactly the "waste" he'd abolish. The
+  already shipped: Fuji's magic coffee is exactly the "waste" he'd abolish.
+  **BASIL LEARNS MAGIC** (DESIGN.md "Basil learns magic") — never as a prize or
+  a hidden gift, ONLY because he built the machine that teaches anybody (a prize
+  would mean magic beat science and the thesis dies). First cast lands as GRIEF
+  not triumph (it was learnable all along; nobody taught him because nobody
+  thought him worth teaching), he's BAD at it (worse than Fuji), he's one
+  decision from being Aldous and refuses with an action not a speech, and Fuji
+  crosses the OTHER way — she lost casting, he's gaining it, and she teaches him
+  the useless warm things first. The spell that matters is MEND, which still
+  can't mend a memory. The world's new respect for science is rendered in PROPS,
+  never a speech — the uncatalogued thesis finally gets an ACCESSION STAMP (the
+  prop already exists) — and there is NO Dean-apologizes scene, ever. Arc beats
+  hang off progression flags (Basil's first socket / first spell), not dungeon
+  numbers, since the player picks who learns what. The
   SON stays small and personal-sized on purpose — the reveal shrinks him, never
   promotes him (every kid taunt he has is about who HAS magic: his father's
   hierarchy in a child's mouth). **The Regent is ALREADY PLANTED in shipped

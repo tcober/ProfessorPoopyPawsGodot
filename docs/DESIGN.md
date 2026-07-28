@@ -164,6 +164,13 @@ that IS the personality, Adventure Time style — never a generic villager.
   readings on the distant summit crystal, the only data anyone has on the Ebb.
   Comes back "for the science, not for the
   people" — the emotional runway of the whole game is closing that gap.
+  **And he learns to cast** (2026-07-28 — see Themes, "Basil learns
+  magic"): not as a prize and not as a hidden gift, but because he built
+  the machine that teaches anybody. The first spell lands as grief rather
+  than triumph, he is bad at it, he is one small decision from becoming
+  Aldous and refuses it with an action, and the spell that matters is MEND
+  — which still cannot mend a memory. He ends able to do both and needing
+  neither to be worth something.
 - **Fuji** — tortoiseshell librarian (current playable; see Asset Specs).
   **The LANTERNWOOD librarian (2026-07-19 canon — supersedes "the Academy's
   archivist")**: keeper of the little library in her snow town on the NW ice
@@ -789,6 +796,87 @@ the reason the second half has stakes beyond a scavenger hunt.
    goes home. The small, personal ending (magic returns, and so does love) is
    the right scale — resist any temptation to have the world reorganize itself
    in the epilogue.
+
+### Basil learns magic (the arc, 2026-07-28)
+
+He grew up magicless in a world where magic was casual, built an entire self out
+of not needing it, and over the course of the game **he learns to cast.** This is
+the capstone of both prologues and the single easiest thing in this document to
+get wrong.
+
+**THE RULE THAT PROTECTS THE THESIS.** He is not chosen. He does not turn out to
+have had a hidden gift all along. There is no moment where the world admits he
+was special. **He engineers his way to the thing that was denied him**: he built
+the Resonator, the Resonator teaches anybody, and therefore it teaches him. If he
+gets magic as a *prize*, then magic was the better thing all along and science
+was the consolation — which torches *On Re-Enchantment*, the character, and the
+ending in one move. He gets it as a *result of his own method*. Science did not
+lose to magic; **science delivered magic, to everyone, including the one person
+the world said could never have it.**
+
+**THE NEGATIVE SIDE — the part worth writing carefully:**
+
+1. **The first spell lands as GRIEF, not triumph.** Twenty-five years of "no
+   aptitude" read aloud against his name, of being told he could not even
+   participate — and it turns out it was learnable the whole time. Nobody ever
+   taught him because nobody thought he was worth teaching. The ten-year-old in
+   him should be *furious*, not delighted. Do not play the first cast as a
+   fanfare.
+2. **It threatens what he is.** "I don't need it" was the load-bearing wall of
+   the hermit. If he can cast, what were the years in the tree for? He has to
+   hold the belief that magic is not superior WHILE enjoying the thing, and
+   that is not resolvable by a speech — it just sits in him for an act.
+3. **The temptation, and it is sharp.** He built the machine. He understands it
+   better than anyone alive. He could learn faster, hold more, keep the best
+   ones. **He is one small decision away from being Aldous** — the man who
+   understands it best deciding he should therefore have the most of it. Let
+   him feel that pull exactly once, quietly, and refuse it with an ACTION, not
+   a speech: he hands Fuji the vestige he wanted. (And note the rhyme: the
+   socket choice the PLAYER makes every dungeon is the same choice. The game
+   never says so.)
+4. **He is bad at it.** The world's leading theorist of re-enchantment is a
+   clumsy beginner — worse at it than Fuji, funnier about it than he wants to
+   be. This is the Adventure Time register doing the work, and it rhymes with
+   her sparks missing the kettle.
+
+**FUJI CROSSES THE OTHER WAY, AND THAT IS THE ENGINE.** She could cast before
+the Ebb and lost it; he never could and is gaining it. They pass each other going
+opposite directions in the middle of the game, which is an enormous amount of
+tension and tenderness for free — she has to watch somebody learn the thing she
+lost, and she is the one teaching him. **And she teaches him the useless warm
+things first.** The coffee. The trick that does nothing. The refutation of the
+Regent's whole argument and the romance beat are the same scene.
+
+**THE ONE SPELL THAT MATTERS IS MEND.** The man who could not fix Kitty's memory
+learns to mend — and magic mends anything but memory, so it still cannot do the
+one thing he would spend it all on. He has to be all right with a limited good
+instead of resenting it for not being everything. **That is what "learning to
+appreciate magic" actually means here**, and it is worth more than any scene
+where he enjoys casting.
+
+**THE WORLD LEARNS TO APPRECIATE SCIENCE — and nobody ever says so.** No
+apology scene. No Dean at a podium admitting he was right; **resist that, it is
+the cheapest scene available and it would undo twenty years of the character in
+four lines.** Render it in props and small people:
+
+- **The thesis gets an ACCESSION STAMP.** The uncatalogued string-tied bundle
+  from Act 1's research beat — no spine, no stamp, "Laughed out of the Academy"
+  written in another hand — is finally catalogued and shelved properly. The
+  whole arc in one prop **that is already in the build.**
+- A kid in a later town with a Resonator of their own build, done wrong, working
+  anyway.
+- The Academy has to teach the paper now, and nobody thanks him for it.
+
+**WHERE HE ENDS UP:** he casts a little, badly, and still reaches for the gun
+first. He did not become a wizard. He became someone who can do both and needs
+neither of them to be worth something — which is the actual argument of the
+thesis, finally proved on himself rather than on the world.
+
+**SYSTEMS NOTE:** the player chooses who learns what, so these beats hang off
+PROGRESSION flags (Basil's first socketed vestige, Basil's first learned spell),
+not dungeon numbers — the story reacts to the player's choice instead of
+assuming it. One mid-game moment must be story-mandated, though, so a player who
+never gives Basil a vestige cannot skip the arc entirely.
 
 ## Influences
 
