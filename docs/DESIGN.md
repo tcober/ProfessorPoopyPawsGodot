@@ -43,10 +43,40 @@ and finds love again, with her.
   the map 2026-07-19 with the five-lands redesign; the surviving hook is
   **one dark obelisk per landmass** — the network idea (they once
   circulated magic through the world like a water table; probing and
-  relighting them, land by land) stays the Act 2+ skeleton.
+  relighting them, land by land) stays the Act 2+ skeleton. Since
+  2026-07-28 each obelisk is also the anchor of that land's DUNGEON and the
+  home of its REMNANT, below: the network is where the magic was pulled
+  THROUGH on Ebb night, which is why what got torn loose pooled and set at
+  exactly those five points.
 - **Slimes are curdled magic**: feral residue pooling in the wild since the
   Ebb — every enemy ties to the mystery, and combat exists ONLY in the
   present-day chapters. The prologue world is SAFE (walk/hop/interact only).
+- **THE REMNANTS** (canon 2026-07-28 — the dungeon bosses, and the reason
+  the RPG systems exist): the same phenomenon as a slime, at the scale of
+  a place. Where the world held a LOT of magic — a village's hearths, a
+  lake that never thawed, a drowned chapel's bells — the Ebb could not
+  drink it cleanly, and what tore loose congealed around the shape of what
+  it used to belong to and woke up. **A Remnant is the leftover magic of
+  one specific lost thing, standing up and walking.** One per landmass, at
+  its obelisk; a few more in genuinely hidden places.
+  **They are NOT villains** — the Ebb has no author, and neither do they.
+  A Remnant is grief with a shape: confused, or mourning, or standing
+  guard over a place that no longer needs guarding. So a boss fight is a
+  SETTLING, not a killing: the beat it ends on is the thing finally able
+  to rest, and some of them can be talked down instead. This is the same
+  rule the drained-town villagers already run on — nobody blames anybody.
+  What a settled Remnant leaves behind is its **VESTIGE** (see "RPG
+  Systems"): the magic it was made of, finally still enough to be carried
+  — and, through Basil's Resonator, learned from.
+- **THE RETURN** (canon 2026-07-28 — the endgame shape): the vestiges are
+  the pieces the crystal never got. The summit drank the world but not
+  quite all of it, and it has been holding on ever since, incomplete.
+  Carry every vestige to the summit and give them back, and the crystal
+  can finally let go — the Ebb runs BACKWARDS and the magic streams out to
+  every horizon it came from. **The ending is the opening, reversed.**
+  This is the *how* of undoing it, and it is deliberately not the *why*:
+  what made the mountain drink the world in the first place stays the
+  standing mystery.
 - **Basil's thesis** — *On Re-Enchantment: Why Science Is Magic's Equal*:
   magic is not gone, it is merely sleeping; science can measure, carry, and
   rekindle it. Written as an academic argument and laughed off a stage; after
@@ -461,6 +491,33 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
   on — restoration as a visible, palette-driven reward). **The boat** carries
   it: every landmass is ocean-separated by design, so travel between lands
   is itself story progression.
+- **The spine, stated plainly (2026-07-28):** each dungeon ends on a
+  **REMNANT**, and each settled Remnant leaves a **VESTIGE** — so a dungeon
+  is one boss, one artifact, one new set of spells the player assigns to
+  whoever they want, and one land's lights coming back on. Five lands, five
+  Remnants, five vestiges, plus a few hidden. That is the act's whole
+  progression: **there is no other collectible.** The chapter count IS the
+  vestige count, which is why no vestige may ever be bought, dropped by a
+  slime, or found in a pot — every one of them is a place, a boss, and a
+  story beat.
+- **The finale — THE RETURN**: carry the vestiges up the Big Mountain and
+  give them back. The crystal has been holding on to an incomplete world
+  since Ebb night; made whole, it lets go, and the drain runs in reverse
+  out to every horizon. Then the last leg is **fought without magic** — the
+  vestiges are given, the spells the party learned along the way are all
+  anyone has left, and Basil finishes it with the brass gun he built alone
+  in the wilderness when nobody believed him. *Science is magic's equal*,
+  proved at the one moment magic is gone again. (See "RPG Systems" for the
+  mechanical half: learned spells are KEPT, unfinished learning is LOST,
+  and that is the point of no return.)
+- **The last Remnant** (proposal, author's call): the summit has one too —
+  the shape everything the world lost settled into, the biggest and least
+  villainous of them. It is not attacking and it is not defending. It is
+  **holding on, and it does not know how to let go** — which is the same
+  thing that was wrong with the hermit in the tree, and the reason he is
+  the one who can reach it. The whole game rhymes if this is the ending;
+  it is written down here rather than built, because committing to it
+  commits the last hour of the game.
 - **Schweinler recurs** at the Capital as the court's "Calamity Expert" —
   obstruction and stolen credit, escalating to a personal reckoning that
   lands as anticlimax-on-purpose: the apology arrives and Basil finds he's
@@ -2255,13 +2312,16 @@ character simply *has*, or the world's central loss is cosmetic.
 
 Instead: **you carry a piece of the drained magic and learn out of it.**
 
-- **VESTIGES** are crystallized fragments of what the world lost — chips of the
-  same substance the summit is made of, or motes that curdled and set before
-  they got there. Each one is the magic that used to *be* a specific thing: the
-  warmth that kept a village's hearths lit, the hush over a frozen lake, the
-  seven bells of a drowned chapel. They are the magicite analog, and like
-  magicite they are finite, named, and found — one per obelisk, one per boss,
-  one per genuinely hidden corner. Never dropped by a slime, never bought.
+- **VESTIGES** are crystallized fragments of what the world lost — the magic
+  that used to *be* a specific thing: the warmth that kept a village's hearths
+  lit, the hush over a frozen lake, the seven bells of a drowned chapel. They
+  are the magicite analog, and like magicite they are finite, named, and found.
+  **Every one of them comes off a REMNANT** (see the lore spine): where the Ebb
+  tore a great deal of magic loose at once, what got left congealed around the
+  shape of what it belonged to and stood up. Settle the Remnant at the end of
+  its dungeon and the magic it was made of is finally still enough to carry.
+  **One per dungeon, and no other source** — never bought, never dropped by a
+  slime, never sitting in a pot.
 - **THE RESONATOR** is Basil's device: a brass apparatus built in the HOME TREE
   hermitage that makes a vestige *readable* — it holds the fragment against a
   living body long enough for the body to learn the shape of it. A vestige on
@@ -2366,13 +2426,20 @@ worn          Dictionary   stat -> flat bonus while socketed (small: +1/+2)
   A vestige teaching 2–4 spells at mixed rates gives each one a natural order.
 - **`worn` bonuses vanish when you un-socket.** Nothing about level-up growth is
   ever influenced by what you were carrying — see above.
-- Vestiges are found, never dropped: one per obelisk (the Act 2 skeleton already
-  says one obelisk per landmass), one per major boss, a handful genuinely
-  hidden. ~10–12 in the whole game.
+- **The vestige count IS the dungeon count.** Five lands, five obelisks, five
+  Remnants, five vestiges, plus two or three hidden ones behind optional
+  Remnants. Around eight in the whole game — heavy, not many. Every single one
+  is a place you went, a thing you settled, and a decision about who learns
+  what. There is no filler collectible in this game and there must never be
+  one: a vestige you can buy makes the boss a shopkeeper.
+- Because there are more vestiges than sockets, the choice is never "do I have
+  it" — it is **who gets it, and in what order.** Early on (one vestige, two
+  members) there is no choice at all, and that is correct; it is the tutorial.
 
-**Named like espers, but named after what was LOST.** A vestige's name is a
-piece of world-building for free, and the epitaph line does the work a summon
-animation would:
+**A Remnant and its vestige share a name.** The name is a piece of
+world-building for free, the epitaph line does the work a summon animation
+would, and naming the creature after what it used to be is the whole fiction in
+two words:
 
 - **HEARTHKEEP** — the warmth that kept a village's fires lit. MEND, WARMTH.
 - **THE LONG WINTER** — the hush over a lake that never thawed. BIND, HUSH.
@@ -2381,7 +2448,38 @@ animation would:
 - **LAMPLIGHT** — the last honest flame owed magic nothing; this is the magic it
   never needed. KINDLE (field light), WARD II.
 - **THE GOOSE THAT STOLE THE RIBBON** — yes, really; the Adventure Time register
-  has to appear in the systems too, not only the dialogue. LURE.
+  has to appear in the systems too, not only the dialogue. A small, optional,
+  extremely unserious Remnant. LURE.
+
+### The Return — what giving them back costs
+
+The endgame gives every vestige back to the summit crystal (lore spine, "The
+Return"). Mechanically that has to cost something, or the finale is a cutscene
+with an inventory step in it. The rule:
+
+> **You keep every spell you learned. You lose every spell you were still
+> learning, forever.**
+
+- Keeping the learned spells is not a concession, it is the thesis stated in
+  mechanics: **a spell learned by a living body is magic that is already back in
+  the world.** The party spent the whole game putting it back one spell at a
+  time; the finale just does the rest at once. It also means the last leg is not
+  a difficulty spike.
+- Losing the unfinished learning is the ungrindable decision, and the one place
+  this game gets to have a point of no return that means something: you cannot
+  hoard the world's magic to get stronger AND give it back. Warn the player
+  plainly at the summit, show every partial percentage on the confirm screen,
+  and then take it.
+- **The last leg is fought without vestiges** — the sockets are empty, the worn
+  bonuses are gone, and what is left is the levels, the learned spells, and
+  Basil's gun. See Act 2+, "The finale".
+
+**The ending shot is already in the build.** `scene/ebb.tscn` stamps BOTH era
+tilemaps and swaps bright → drained under one white flash, then streams 26
+motes home to the summit. The finale is that scene run BACKWARDS: motes out,
+one flash, drained → bright. The byte-locked `overworld_bright.*` twin was
+built as a staging tool for the prologue — it turns out to be the last frame of
+the game. Build the finale by inverting `ebb.gd`, not by authoring a new one.
 
 **Open hook, author's call, NOT canon yet:** the sickroom verdict established
 that magic mends anything but memory, and that a lost memory "returns to the
@@ -2525,7 +2623,12 @@ Three slices, each shippable and each verifiable on its own:
    socket pane, the Resonator scene beat in the HOME TREE hermitage. Gated to
    Act 2 and the first obelisk — **no vestige may exist on screen before the
    hermitage**, because a drained world that hands out magic in Act 1 has no
-   subject.
+   subject. The first Remnant is the slice's shipping target: one dungeon, one
+   settling, one vestige, one land's lights back on. If that single loop lands,
+   the other four are content.
+4. **The Return** (last, with the ending). The summit confirm screen, the
+   socket-emptying, the inverted `ebb.gd` finale. Cheap to build and impossible
+   to build early — it needs every vestige to exist first.
 
 **Probe: `tools/rpg_probe.gd`**, per the per-scene probe doctrine — level math
 and curve edges, the damage chokepoints in both directions, a sheet surviving a

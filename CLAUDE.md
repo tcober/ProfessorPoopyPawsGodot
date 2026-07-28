@@ -94,8 +94,17 @@ lore spine, pacing rules — in docs/DESIGN.md "Story".)
   magic) read through Basil's **RESONATOR**, one socket per character, teaching
   spells permanently at a per-vestige rate — so who learns what is the player's
   choice. Spells may never be recolored bolts (compounds own projectiles): only
-  RESTORE / WARD / CONTROL (new status axes) / FIELD. Three build slices —
-  levels, then KO+FOCUS, then vestiges (gated to Act 2's first obelisk).
+  RESTORE / WARD / CONTROL (new status axes) / FIELD. **Every vestige comes off
+  a REMNANT (canon 2026-07-28)** — a dungeon boss that is the leftover magic of
+  one lost thing, congealed at its land's obelisk and standing up; not a villain
+  (the Ebb has no author), so a boss fight is a SETTLING and some can be talked
+  down. Five lands = five Remnants = five vestiges + a few hidden; **the dungeon
+  count IS the collectible count, no filler.** Endgame **THE RETURN**: give every
+  vestige back to the summit crystal and the Ebb runs BACKWARDS (build it by
+  inverting `scene/ebb.gd` — the byte-locked `overworld_bright.*` twin is the
+  last frame of the game); you KEEP learned spells, LOSE unfinished learning,
+  and the last leg is fought with the gun. Four build slices — levels, then
+  KO+FOCUS, then vestiges (gated to Act 2's first obelisk), then the Return.
 - **Art direction:** influenced by **Final Fantasy VI, Chrono Trigger, Secret of
   Mana, Sea of Stars, Adventure Time, and the Paper Girls comic** — CT-Frog sprite
   proportions with **flat hard-banded shading** (no dither inside characters,
