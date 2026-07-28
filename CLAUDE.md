@@ -8,9 +8,13 @@ A Zelda: ALttP–style action-RPG with deeper RPG systems, tonal blend of **Adve
 Time** and **Final Fantasy**, about a science cat branded "Professor Poopy Paws" who —
 after public humiliation and losing his girlfriend to a machine accident that erased
 her memory of him — becomes a hermit, until the world's magic drains away in a single
-night (**the Ebb**, natural/ancient — an EARTHQUAKE that crystallized the big
-mountain's summit and visibly drank the world's magic into it; a mystery, never
-villain-made) and Fuji, a
+night (**the Ebb** — an EARTHQUAKE that crystallized the big mountain's summit
+and visibly drank the world's magic into it; **authorship revised 2026-07-28**:
+Regent Aldous Schweinler — Schweinler's FATHER — lit the fuse, running a working
+at the obelisk network to siphon the world into a vessel he owned, and something
+far older answered and took it instead, so he is the author of the ATTEMPT, not
+the OUTCOME; what the mountain is and why it answered stays the mystery, and
+nobody alive knows he did it until the mid-late reveal) and Fuji, a
 librarian stranger from snowbound Lanternwood who unearthed his old thesis, pulls
 him back to restore the world's
 magic and find love again, with her. (Full chapter structure — Prologue A "The Whirligig",
@@ -88,7 +92,111 @@ lore spine, pacing rules — in docs/DESIGN.md "Story".)
   and **Lanternwood** (`scene/lanternwood.tscn`, Fuji's snow town) are
   zones too, riding the same overworld tile driver.
 - **Magic is deferred by design** (world starts drained); ranged/spell systems unlock
-  later as story-driven progression.
+  later as story-driven progression. **RPG SYSTEMS DESIGNED (2026-07-28, not yet
+  built) — see DESIGN.md "RPG Systems":** two ladders, EXP/levels/5 stats and
+  FFVI-magicite-style **VESTIGES** (named crystallized fragments of the drained
+  magic) read through Basil's **RESONATOR**, one socket per character, teaching
+  spells permanently at a per-vestige rate — so who learns what is the player's
+  choice. Spells may never be recolored bolts (compounds own projectiles): only
+  RESTORE / WARD / CONTROL (new status axes) / FIELD. **Every vestige comes off
+  a REMNANT (canon 2026-07-28)** — a dungeon boss that is the leftover magic of
+  one lost thing, congealed at its land's obelisk and standing up; the Remnants
+  themselves are NOT villains (grief with a shape), so a boss fight is a
+  SETTLING, not a killing. **Each has a DISPOSITION** (the FFVI esper texture):
+  one WILLING (gives itself — make it the FIRST, it teaches that the fight
+  button isn't always the verb), most UNQUIET (fight from fear, not malice), one
+  REFUSING (says no and is right to — hardest beat in the game, and never
+  comment on it), and one SPENDS ITSELF to save the party mid-game. The peaceful
+  path is EARNED by understanding the dungeon (3-4 quiet pieces of what the
+  place WAS → the boss room opens the option to SPEAK) — the wander-gate
+  doctrine pointed at a boss, and the reason the party is these two:
+  **Basil takes readings, Fuji reads the room**, and Aldous can never settle one
+  because he threw away the half that reads. **HARD RULE: every Remnant yields
+  its vestige by EVERY path** — talked down or beaten, willing or refusing, no
+  exceptions (five vestiges gate the ending, so a missable one is an unwinnable
+  save); fighting is a legitimate way to play the whole game, only sadder.
+  Understanding pays one EXTRA `gift` spell, never a power gap — except on the
+  REFUSING one, which has no peaceful path at all and no gift: there,
+  understanding only means you know exactly what you're taking while you take
+  it, the one place knowledge isn't a power-up. Basil presses anyway, and nobody
+  absolves him. Five lands = five Remnants = five
+  vestiges + a few hidden; **the dungeon count IS the collectible count, no
+  filler.** **The REGENT (Aldous Schweinler) is the antagonist** — the anti-Basil
+  who read the same thesis and concluded magic must be kept FROM everyone, which
+  is why it had to be destroyed on that stage; he hunts the vestiges and cannot
+  settle a Remnant himself (settling is an act of UNDERSTANDING), so instead he
+  CAGES them in the vessel he built for the Ebb — and a caged Remnant never
+  yields, so everything he has stolen is useless to him and he doesn't know why.
+  He races the party across the five dungeons on a five-shape ladder (no sign →
+  traces → **the EMPTY one, where the reveal is an ABSENCE you find** → he takes
+  one as it forms → you take one back); his crews are Academy SURVEYORS, not
+  thugs, and **you never kill a person in this game** — you fight their MACHINES,
+  which are drowse-IMMUNE and so are the first enemies Fuji's sleep setup can't
+  solve. Theft rules: never take a vestige already earned, an empty dungeon pays
+  in reveal instead, and the game stays completable without every one. **THEME
+  (DESIGN.md "The commons"):** one man hoarding what belonged to everyone, and
+  the ending is giving it back — but the SYSTEMS argue it (a vestige can only be
+  GIVEN; learning is redistribution one spell at a time; caged Remnants are
+  wealth in a vault) so the DIALOGUE never does. Never name it, keep Aldous
+  half-persuasive (never a cackling strawman), and remember the refutation is
+  already shipped: Fuji's magic coffee is exactly the "waste" he'd abolish.
+  **TOP-LINE THESIS (DESIGN.md "The thesis: magic and science BOTH matter"):**
+  the paper says magic's EQUAL, not its replacement — neither side ever wins,
+  and every other theme reports to this one. It's already mechanical: the two
+  systems are NON-OVERLAPPING by construction, so **the game must never be
+  completable with either alone** (only a spell revives or lights a room; only
+  the gun answers the drowse-immune machines) — hold that rule every time a new
+  enemy or gate is authored. The RESONATOR is the thesis as an object (a brass
+  machine, built by a chemist, that does magic), and the shipped recital already
+  staged it: a clockwork toy with a flask pinned under it, at a MAGIC recital.
+  **The exchange goes BOTH ways** — Basil learns magic, so Fuji must learn
+  SCIENCE (her kit already says it: she fights with a BOOK, and her sleep darts
+  are pharmacology), or the story quietly argues science was a ladder to the
+  better thing. And the finale is NOT a science win: the gun gets them through
+  the fight, but what ENDS the game is a settling, which is understanding —
+  Aldous is out-BUILT by a chemist and out-UNDERSTOOD by a librarian at once.
+  **BASIL LEARNS MAGIC** (DESIGN.md "Basil learns magic") — never as a prize or
+  a hidden gift, ONLY because he built the machine that teaches anybody (a prize
+  would mean magic beat science and the thesis dies). First cast lands as GRIEF
+  not triumph (it was learnable all along; nobody taught him because nobody
+  thought him worth teaching), he's BAD at it (worse than Fuji), he's one
+  decision from being Aldous and refuses with an action not a speech, and Fuji
+  crosses the OTHER way — she lost casting, he's gaining it, and she teaches him
+  the useless warm things first. The spell that matters is MEND, which still
+  can't mend a memory. The world's new respect for science is rendered in PROPS,
+  never a speech — the uncatalogued thesis finally gets an ACCESSION STAMP (the
+  prop already exists) — and there is NO Dean-apologizes scene, ever. Arc beats
+  hang off progression flags (Basil's first socket / first spell), not dungeon
+  numbers, since the player picks who learns what.
+  **THE ROMANCE** (DESIGN.md "The romance"; canon since the premise, lands with
+  the Return): **the crossing arcs ARE it** — she teaches him what she can no
+  longer do, he teaches her the method that got him in without it, so every
+  teaching scene IS a romance scene, written as one thing. She fell for the WORK
+  first and met the man second (the difference from Kitty, who loved the boy and
+  never read the paper — not a replacement, two people loving two different true
+  things). **Build to a NAME, not a speech**: she has to ask a whole town about
+  "Professor Poopy Paws" to find him, so she learns the joke before the person,
+  and the beat where she just calls him *Basil* outweighs any declaration. The
+  one object to build: **he makes her a COFFEE MACHINE** — brass, fussy, not
+  magic — paying off her shipped wand-coffee scene and answering Aldous's
+  "squandered on warming somebody's coffee" in one prop. The watch stays ON
+  (removing it is cheap and wrecks Kitty's planned payoff). Fuji is NEVER the
+  reward: she acts first, came for her own reasons, and the romance is EVIDENCE
+  the "science not people" gap closed, never the prize for closing it. Register
+  is Adventure Time — two adults bad at this, funny far more often than tender. The
+  SON stays small and personal-sized on purpose — the reveal shrinks him, never
+  promotes him (every kid taunt he has is about who HAS magic: his father's
+  hierarchy in a child's mouth). **The Regent is ALREADY PLANTED in shipped
+  dialogue** — accident.gd's opening line, "Father had it shipped from the
+  CAPITAL", which is both his first appearance and the rule for every
+  pre-reveal one: he arrives as property and influence, never as a body. So
+  the machine that runs Kitty down is HIS, and no prologue scene needs an edit. Endgame **THE RETURN**: the Regent takes all five at the summit
+  (the empty-sockets moment, done TO you, not a menu), the last leg is fought
+  with the gun and the already-learned spells, then every vestige goes back and
+  the Ebb runs BACKWARDS (build it by inverting `scene/ebb.gd` — the byte-locked
+  `overworld_bright.*` twin is the last frame of the game); you KEEP learned
+  spells and LOSE unfinished learning. Four build slices — levels, then
+  KO+FOCUS, then vestiges (gated to Act 2's first obelisk), then the Return.
 - **Art direction:** influenced by **Final Fantasy VI, Chrono Trigger, Secret of
   Mana, Sea of Stars, Adventure Time, and the Paper Girls comic** — CT-Frog sprite
   proportions with **flat hard-banded shading** (no dither inside characters,
@@ -361,10 +469,14 @@ camera, sad eyes + drooped ears, bindle over the screen-left shoulder.
 **THE EBB NIGHT IS LIVE (2026-07-19/20; story canon REWRITE):** the Ebb is
 an EARTHQUAKE — the big mountain's summit transforms into a GIANT GLOWING
 CRYSTAL and the world's magic visibly drains INTO it, sparks streaming home
-from every horizon (still natural/ancient/author-less, Schweinler never the
-world's villain; "the Drain beneath the eastern wastes" canon is DEAD — the
-summit crystal IS where the magic went, and WHY the mountain drank the
-world stays the standing mystery). Flow: Prologue B's leaving cards →
+from every horizon (the SCENE is unchanged by the 2026-07-28 authorship
+revision — it is staged from the world's point of view, and the world does
+not know: nothing on screen names a cause, which is exactly right now that
+the cause is a mid-late reveal. Schweinler the SON is never the world's
+villain; his FATHER lit the fuse and the mountain answered with something
+nobody asked for. "The Drain beneath the eastern wastes" canon is DEAD — the
+summit crystal IS where the magic went, and WHAT the mountain is and WHY it
+answered stay the standing mystery). Flow: Prologue B's leaving cards →
 `scene/ebb.tscn` (partyless cutscene over the big mountain: BOTH era
 tilemaps stamped, deep-indigo night, escalating wall-clock quake, ONE white
 flash swaps bright for drained + crystal ignition on the same cut, 14

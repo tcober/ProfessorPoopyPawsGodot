@@ -27,12 +27,23 @@ and finds love again, with her.
   **BIG MOUNTAIN**'s summit at the heart of Mountain Land transformed into
   a **GIANT CRYSTAL** — every mote of magic in the world streamed visibly
   toward it like sparks up a flue, and the world went dark. The crystal
-  glows with everything it drank. It is still **natural / ancient,
-  author-less, NOT villain-made** — Schweinler is a personal rival only,
-  never the world's villain. WHY it happened is the standing mystery of
-  Act 2+ (something ancient waking? never meant to be permanent? the
-  mountain itself, drinking?) — deliberately unresolved for now; the
-  mystery is the engine.
+  glows with everything it drank.
+  **THE AUTHORSHIP (revised 2026-07-28 — read this carefully, it replaces
+  the old "author-less" rule):** somebody lit the fuse, and it was NOT the
+  hand that took the world. **Regent Aldous Schweinler** (below) ran a
+  working at the obelisk network meaning to draw the world's magic into a
+  vessel he owned. It worked, and then something far older answered: the
+  mountain drank it instead — all of it, including his. **He is the author
+  of the ATTEMPT, not of the OUTCOME**, and that distinction is the whole
+  reason the story still works. What the Ebb *did* stays uncanny and
+  ancient and much larger than any pig with a grudge; WHY the mountain
+  answered, and what it is, remains the standing mystery of Act 2+ and is
+  deliberately unresolved. And **nobody alive knows he did it** until the
+  mid-late reveal — so for most of the game the world's grief genuinely has
+  nobody to blame, which is what the drained villagers, the Remnants and
+  the "nobody blames anybody" register all depend on. (Schweinler the
+  YOUNGER is still a personal rival only, never the world's villain — see
+  his entry.)
 - **The Summit Crystal** (place — replaces "the Drain", retired 2026-07-19):
   where the magic *went* is no secret — everyone alive WATCHED it go. The
   Big Mountain's crystallized summit IS the world's drained magic, glowing
@@ -43,10 +54,89 @@ and finds love again, with her.
   the map 2026-07-19 with the five-lands redesign; the surviving hook is
   **one dark obelisk per landmass** — the network idea (they once
   circulated magic through the world like a water table; probing and
-  relighting them, land by land) stays the Act 2+ skeleton.
+  relighting them, land by land) stays the Act 2+ skeleton. Since
+  2026-07-28 each obelisk is also the anchor of that land's DUNGEON and the
+  home of its REMNANT, below: the network is where the magic was pulled
+  THROUGH on Ebb night, which is why what got torn loose pooled and set at
+  exactly those five points.
 - **Slimes are curdled magic**: feral residue pooling in the wild since the
   Ebb — every enemy ties to the mystery, and combat exists ONLY in the
   present-day chapters. The prologue world is SAFE (walk/hop/interact only).
+- **THE REMNANTS** (canon 2026-07-28 — the dungeon bosses, and the reason
+  the RPG systems exist): the same phenomenon as a slime, at the scale of
+  a place. Where the world held a LOT of magic — a village's hearths, a
+  lake that never thawed, a drowned chapel's bells — the Ebb could not
+  drink it cleanly, and what tore loose congealed around the shape of what
+  it used to belong to and woke up. **A Remnant is the leftover magic of
+  one specific lost thing, standing up and walking.** One per landmass, at
+  its obelisk; a few more in genuinely hidden places.
+  **They are NOT villains** — the Ebb has no author, and neither do they.
+  A Remnant is grief with a shape: confused, or mourning, or standing
+  guard over a place that no longer needs guarding. So a boss fight is a
+  SETTLING, not a killing: the beat it ends on is the thing finally able
+  to rest. This is the same rule the drained-town villagers already run on
+  — nobody blames anybody. **Each one has its own DISPOSITION** (RPG
+  Systems, "The Remnants have dispositions"): one is WILLING and gives
+  itself, most are UNQUIET and fight out of fear, one REFUSES and is right
+  to, and one spends itself to save the party. They are characters, not
+  boss slots.
+  What a settled Remnant leaves behind is its **VESTIGE** (see "RPG
+  Systems"): the magic it was made of, finally still enough to be carried
+  — and, through Basil's Resonator, learned from.
+- **THE RETURN** (canon 2026-07-28 — the endgame shape): the vestiges are
+  the pieces the crystal never got. The summit drank the world but not
+  quite all of it, and it has been holding on ever since, incomplete.
+  Carry every vestige to the summit and give them back, and the crystal
+  can finally let go — the Ebb runs BACKWARDS and the magic streams out to
+  every horizon it came from. **The ending is the opening, reversed.**
+  This is the *how* of undoing it, and it is deliberately not the *why*:
+  what made the mountain drink the world in the first place stays the
+  standing mystery.
+- **THE REGENT** (canon 2026-07-28 — the overarching antagonist):
+  **Regent Aldous Schweinler**, Schweinler's father. Academy patron, boar
+  patriarch, and the man whose name is on the wing Basil was laughed out
+  of. His motive is not power exactly — it is the Academy's contempt scaled
+  up to an apocalypse: **magic was WASTED on ordinary people**, squandered
+  on lamplighters and hedge-charms and coffee, and it ought to belong to
+  the few who understand it. He decoded the obelisk network and used it to
+  siphon the world into a vessel he controlled. Then the mountain took it
+  out of his hands, and he has spent twenty years hoarding what scraps he
+  could catch and trying to finish the job.
+  **He is the anti-Basil, and precisely:** the two of them read the same
+  evidence and reached the same conclusion — magic is not gone, it is
+  merely sleeping, and it can be measured, carried and rekindled — and drew
+  OPPOSITE ethics from it. Basil: therefore it belongs to everyone.
+  Aldous: therefore it must be kept from everyone. That is why a thesis
+  nobody believed still had to be publicly destroyed. **The naming was not
+  only cruelty, it was suppression** — and no shipped scene has to change
+  by a single line for that to be true, which is the best thing about it.
+  He hunts the VESTIGES for the same reason the party does, and cannot
+  take one himself: a Remnant is settled by being understood, and he has
+  never understood anything he wanted. **He needs the party to collect
+  them for him**, which makes the middle of the game his plan and the
+  player's own competence the trap.
+  **HE IS ALREADY PLANTED, IN SHIPPED DIALOGUE (2026-07-28).** The accident
+  scene's first line has been carrying him since 2026-07-12:
+  *"Feast your eyes, Ridley. **Father had it shipped from the CAPITAL.**
+  The fastest machine in the kingdom."* That establishes, on screen, in the
+  build, with no edit required: the father exists, he is elsewhere, he is
+  in the CAPITAL, and he is rich enough to import the fastest machine in
+  the kingdom for a boy to wreck. **This is now the earliest appearance of
+  the antagonist**, and it is also the rule for every appearance before the
+  reveal: *Aldous shows up through what he owns and who he pays, never in
+  person.* The benefactor's name over a door, a portrait, a carriage
+  leaving a gate, a machine nobody in this town could afford.
+  Two things fall out of that line for free, and both are canon now:
+  - **The machine that runs Kitty down is the FATHER'S.** Aldous's money
+    and Aldous's imported toy are the literal instrument of the injury
+    that erases Kitty's memory and exiles Basil from the town. The Regent
+    breaks Basil's life twenty years before he does it to the world — and
+    nobody, Basil least of all, will ever connect the two. Magic mends
+    anything but memory: the father takes Basil's love's memory, then
+    takes the world's magic. Do NOT have a character point this out.
+  - **The son's Capital post is him going home to his father's world.**
+    "Weaseled into the Capital's court as the self-declared Calamity
+    Expert" reads completely differently now, and needs no rewrite.
 - **Basil's thesis** — *On Re-Enchantment: Why Science Is Magic's Equal*:
   magic is not gone, it is merely sleeping; science can measure, carry, and
   rekindle it. Written as an academic argument and laughed off a stage; after
@@ -74,6 +164,13 @@ that IS the personality, Adventure Time style — never a generic villager.
   readings on the distant summit crystal, the only data anyone has on the Ebb.
   Comes back "for the science, not for the
   people" — the emotional runway of the whole game is closing that gap.
+  **And he learns to cast** (2026-07-28 — see Themes, "Basil learns
+  magic"): not as a prize and not as a hidden gift, but because he built
+  the machine that teaches anybody. The first spell lands as grief rather
+  than triumph, he is bad at it, he is one small decision from becoming
+  Aldous and refuses it with an action, and the spell that matters is MEND
+  — which still cannot mend a memory. He ends able to do both and needing
+  neither to be worth something.
 - **Fuji** — tortoiseshell librarian (current playable; see Asset Specs).
   **The LANTERNWOOD librarian (2026-07-19 canon — supersedes "the Academy's
   archivist")**: keeper of the little library in her snow town on the NW ice
@@ -125,11 +222,42 @@ that IS the personality, Adventure Time style — never a generic villager.
 - **Schweinler** — the pig bully (sprites to be designed fresh; the deleted
   generator is not recovered). Rich family, all swagger. Kid bully → Academy rival who plants the bag and
   coins the name → the machine he was joyriding runs Kitty down (a rich kid's
-  imported toy — machines exist in this world, but he did NOT cause the Ebb).
-  Present day: recurring personal rival — he's weaseled into the Capital's
-  court as the self-declared "Calamity Expert," obstructing and stealing
-  credit. His arc ends personal-sized: the apology finally arrives and Basil
-  finds he's already past it.
+  imported toy — machines exist in this world, and **he did not cause the
+  Ebb; his father did**, and the son does not know it for most of the
+  game). Present day: recurring personal rival — he's weaseled into the
+  Capital's court as the self-declared "Calamity Expert," obstructing and
+  stealing credit. **Whose credit is now the joke**: the post is his
+  father's name, the expertise is his father's stolen research, and the
+  swagger was always his father's money. **He stays small on purpose.**
+  Learning that Dad is the villain must not promote him to co-villain —
+  the correct beat is that it makes him *less*: a man who spent his life
+  borrowing a menace he never had. His arc still ends personal-sized —
+  the apology finally arrives and Basil finds he's already past it — and
+  it lands harder now, because Basil is past the father too.
+- **Regent Aldous Schweinler** — the father, and the game's antagonist.
+  See "The Regent" in the lore spine. A CAPITAL man: an old boar in
+  Academy plum who endows the wing but lives at court, courtly and
+  unhurried, who has never once raised his voice in a scene and never
+  needs to. **Already named on screen** — the accident scene's "Father had
+  it shipped from the CAPITAL" is his first appearance and the template
+  for all the rest: he arrives as property and influence, never as a body,
+  until the reveal. **Never on stage in the prologue** — the build-fresh
+  doctrine and the shipped scenes both stay untouched. If he is ever added
+  there, it is as one silent figure in the recital gallery, and nothing
+  else.
+  **The son is his father's argument, badly remembered.** Every kid-
+  Schweinler taunt in the shipped festival and recital scenes is about who
+  HAS magic and who does not — *"HA! You still can't do magic Basil!?"*,
+  *"He can't do MAGIC! What's he going to do, WIND something at us?"*,
+  *"no magic so I guess you can't even participate"*. That is not
+  playground cruelty inventing itself; it is a ten-year-old repeating the
+  household hierarchy without understanding a word of it. And when the
+  whirligig actually works, all he can produce is *"That's not - that's
+  not magic, that's just -"*, because he has no category for it. His
+  father would have had one instantly, which is exactly why his father
+  would need it destroyed. **The boy never had an idea in his life,
+  including the one he bullied Basil with** — which is the whole reason
+  the reveal must shrink him rather than promote him.
 - **Minor cast**: the Dean (from the old intro), the doctor, the fountain
   classmate (unnamed, one scene), the Copper Kettle innkeeper (the town's
   memory — the one who recalls where Basil went), festival townsfolk, and
@@ -313,7 +441,12 @@ decision: the old look is rejected wholesale); only the beats are canon:
 7. **The accident** *(SHOWN, side-view set-piece, `scene/accident.tscn`,
    WITH CAUSE; impact reworked 2026-07-17)*: dusk roadside — Schweinler
    shows Ridley the badger his brand-new machine (parked frame, a bow on
-   the bars), Ridley warns him it looks DANGEROUS, Schweinler climbs on
+   the bars) with the line that turned out to be load-bearing —
+   *"**Father had it shipped from the CAPITAL.** The fastest machine in
+   the kingdom."*, **the antagonist's first appearance in the game**
+   (2026-07-28; see "The Regent"): the machine is the Regent's, so his
+   money is the instrument of the injury, and the scene needs NO edit to
+   carry it — Ridley warns him it looks DANGEROUS, Schweinler climbs on
    ("You don't DRIVE a machine like this. You POINT it.") and loses
    control the moment the engine catches — exactly as Kitty happens to
    pedal around the bend, bell bright. Wobble, motion lines, the drift
@@ -461,14 +594,123 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
   on — restoration as a visible, palette-driven reward). **The boat** carries
   it: every landmass is ocean-separated by design, so travel between lands
   is itself story progression.
-- **Schweinler recurs** at the Capital as the court's "Calamity Expert" —
-  obstruction and stolen credit, escalating to a personal reckoning that
-  lands as anticlimax-on-purpose: the apology arrives and Basil finds he's
-  already past it.
+- **The spine, stated plainly (2026-07-28):** each dungeon ends on a
+  **REMNANT**, and each settled Remnant leaves a **VESTIGE** — so a dungeon
+  is one boss, one artifact, one new set of spells the player assigns to
+  whoever they want, and one land's lights coming back on. Five lands, five
+  Remnants, five vestiges, plus a few hidden. That is the act's whole
+  progression: **there is no other collectible.** The chapter count IS the
+  vestige count, which is why no vestige may ever be bought, dropped by a
+  slime, or found in a pot — every one of them is a place, a boss, and a
+  story beat.
+- **The finale — THE RETURN**, in five beats (2026-07-28):
+  1. **The ascent.** Every vestige collected, the point-of-no-return warning
+     given (see "RPG Systems": finish what you want to learn, because what
+     is unfinished is lost).
+  2. **He is already there.** Aldous has been waiting for someone to gather
+     all five, because he could never settle a Remnant himself. **He takes
+     them.** That is the empty-sockets moment, and it plays far better done
+     TO the party than chosen from a menu — the choice was the learning, the
+     theft is the consequence. And it fails, the way the caged ones failed:
+     a vestige can only be GIVEN. He has spent twenty years taking things
+     that only answer to being handed over.
+  3. **The fight with everything they are.** No vestiges and no worn
+     bonuses — but not "no magic": the levels, the spells already LEARNED
+     (magic that is already back in the world, living in two bodies), Fuji's
+     tome and darts, and Basil's brass gun. *Science is magic's equal*,
+     proved at the exact moment the rocks are gone. This is what the whole
+     compound/ammo layer was built for and why it must stay relevant all
+     game — **but frame it as both halves at once, never as the scene where
+     the gun turns out to have been the real answer** (see Themes, "The
+     thesis"). He is out-BUILT by a chemist and out-UNDERSTOOD by a
+     librarian, simultaneously.
+  4. **He loses to what he is.** Not out-fought so much as refused: hoarded
+     magic does not answer someone who only ever wanted to own it. The
+     vestiges go where they were always going.
+  5. **The Return.** The crystal, made whole, lets go — the Ebb runs
+     backwards out to every horizon (built by inverting `ebb.gd`).
+- **The last Remnant** (proposal, author's call — now the *closing* beat
+  rather than the final boss, which the Regent occupies): the summit has
+  one too, the shape everything the world lost settled into. It is not
+  attacking and it is not defending. It is **holding on, and it does not
+  know how to let go** — the same thing that was wrong with the hermit in
+  the tree, which is why he is the one who can reach it. Quiet, probably
+  not a fight at all. Written down rather than built, because committing to
+  it commits the last hour of the game.
+- **THE REGENT is the throughline** (2026-07-28). Aldous Schweinler wants
+  the vestiges and cannot take one himself, so he races the party for the
+  dungeons — sometimes behind them, sometimes ahead. That gives Act 2 a
+  spine instead of five disconnected expeditions. The reveal — that the Ebb
+  had an author, and that the author failed — belongs **mid-late**, after
+  enough drained towns have said nobody is to blame that it costs something
+  to learn otherwise. Before it, he is simply a patron with an unusual
+  interest in ruins.
+
+  **WHAT HE STEALS, AND WHY IT DOESN'T WORK (canon 2026-07-28).** A vestige
+  only comes off a Remnant that has been SETTLED, and settling is an act of
+  understanding — which is the one thing he has never done for anything he
+  wanted. So he does what he did to the world: **he cages them.** He still
+  has the vessel he built for the Ebb, scaled down to a containment rig,
+  and his crews haul Remnants out of dungeons whole. A caged Remnant never
+  settles and never yields its vestige, so **everything he has stolen is
+  useless to him and he does not understand why.** This is the engine of
+  the entire back half:
+  - It makes his plan collapse on a misunderstanding rather than on a
+    boss's HP bar — he is beaten by what he is, exactly as the finale says.
+  - It gives the party a reason to chase him that is not loot. Those things
+    are grief that cannot rest, in a box, in a warehouse. **You want them
+    back because it is cruel**, and that is a better second-act motive than
+    completing a set.
+  - It sets up the ending: at the summit he takes your five and they do not
+    answer him either. The vestiges can only be GIVEN. He can only take.
+
+- **The encounter ladder** — five dungeons, five different shapes, never
+  the same beat twice:
+  1. **No sign of him.** The world still has no author.
+  2. **Traces.** Survey stakes, a crate stencilled with a name, a
+     plum-coated crew packing out as you arrive. No confrontation, no
+     dialogue, nothing explained.
+  3. **THE EMPTY ONE — the "they were already here" dungeon**, and the
+     right place for the whole reveal. You clear the place and there is
+     nothing at the end of it: the obelisk stays dark, the cradle is
+     empty, there are drag marks and a cut cage-chain and the smell of a
+     machine. **The reveal is an ABSENCE you find, not a cutscene that
+     explains it** — infinitely stronger, and it costs one room.
+  4. **He is there, and he lets you finish.** In person, unhurried,
+     waiting at the obelisk while you settle the Remnant, and he takes the
+     vestige as it forms. Now he knows exactly how useful you are, and the
+     rest of the act is him letting you work.
+  5. **You beat him to it** — or take one back off the crew. The turn.
+- **The crews are ACADEMY MEN, not thugs.** Graduate surveyors in Academy
+  plum with instruments and clipboards and a containment rig, doing
+  fieldwork for a benefactor who pays well and does not invite questions.
+  They are not evil; they are EMPLOYED, which is the same institutional
+  shrug that laughed a thesis off a stage. Give the crew a recurring
+  foreman who gets quieter every time you meet him, and one assistant who
+  recognizes the name Basil from a paper nobody was supposed to have read.
+- **DOCTRINE: you never kill a person in this game.** The party fights
+  curdled magic and MACHINES — the crews' rigs, haulers and automata, the
+  steampunk register the accident scene already established ("it's got a
+  lot of... pipes"). The men scatter, argue, or stand there and let it
+  happen. This keeps the tone the Remnants' non-villainy depends on, and
+  it buys a genuinely new enemy class: see "RPG Systems" for why machines
+  being **immune to sleep** is the best thing to happen to the compounds.
+- **His holdings are in the CAPITAL** — which the act already plans to make
+  walkable, and where the son already sits at court. The menagerie of caged
+  Remnants is the Capital sequence's centerpiece and the act's midpoint.
+- **Schweinler (the son) recurs** at the Capital as the court's "Calamity
+  Expert" — obstruction and stolen credit, escalating to a personal
+  reckoning that lands as anticlimax-on-purpose: the apology arrives and
+  Basil finds he's already past it. He is NOT promoted to co-villain when
+  the father is revealed; the reveal shrinks him, and the beat is better
+  for it.
 - **Sage thread**: THE CRACKED FLASK, the drained sister, reconciliation.
 - **Kitty side note**: one optional scene in a later town. Closure, not
   reunion.
-- **Fuji romance**: slow burn in camp/inn beats across the acts; magic's
+- **Fuji romance** (see Themes, "The romance" — the crossing arcs ARE the
+  romance, she fell for the WORK first, build to her calling him *Basil*
+  rather than to a speech, and he builds her a coffee machine): slow burn
+  in camp/inn beats across the acts; magic's
   return and "finds love again" land together — the metaphor made literal.
 - **Party member 3** (future, "the sympathizers"): slot stays open; the
   roster architecture already supports it.
@@ -510,6 +752,244 @@ what is built endures what is granted.
 The loss made playable — the same stages in two eras (festival town vs.
 shuttered town, idyll meadow vs. slime meadow); the world before the Ebb was
 safe, and the player feels the difference in the verbs.
+
+### The commons (named 2026-07-28)
+
+With the Regent in place the spine of the back half is plain: **one man is
+hoarding a thing that belonged to everybody, and the ending is giving it back.**
+Magic was infrastructure — the obelisks "circulated it through the world like a
+water table", which is a commons in as many words — and he privatized it. It
+reads as the greedy-billionaire story because it IS that story. Own that; it is
+the reason the second half has stakes beyond a scavenger hunt.
+
+**The systems already argue it, which is why the dialogue must not.**
+
+- A vestige **can only be GIVEN, never taken.** That is the whole thesis
+  compressed into a rule the player learns by watching it fail for the villain.
+- **Learning a spell is redistribution, one at a time**: magic leaving a rock
+  and entering a living body that will use it. The party spends the entire game
+  doing in miniature what the ending does at once.
+- **The caged Remnants are wealth in a vault.** Hoarded, producing nothing,
+  suffering, and worthless to the man who owns them. Nobody has to say this.
+- **The Return** gives all of it back to everyone at the same moment, and the
+  reward is rendered as the whole world's lights coming on.
+
+**RULES, so this lands as a story and not a lecture:**
+
+1. **Never name it.** No character says "hoarding", "the few", "they took it
+   from us", or anything a pamphlet could print. The narration purge and the
+   commentary-card purge already ban exactly this move — those doctrines were
+   written for pacing, and they turn out to be the thematic discipline too. The
+   register is Adventure Time and FF: theme arrives as image and consequence,
+   never as thesis. If a line could be a placard, cut it.
+2. **Aldous must be half-right in the room.** His argument is that magic was
+   being SQUANDERED — burned on lamplighters and hedge-charms and warming
+   somebody's coffee — and that it ought to be held by people who understand
+   it. Stewardship by the competent. That is an argument a reasonable person
+   can half-follow for a few seconds, and it MUST be, because a strawman
+   deflates the whole theme. He is not cackling about gold. He is the most
+   reasonable-sounding person in any room he is in.
+3. **The refutation is already shipped, and it is a cup of coffee.** Fuji's
+   first appearance is a librarian using magic, badly, to make herself a hot
+   drink on a cold night, sparks missing the kettle. That is precisely the
+   "waste" the Regent would abolish, and it is the warmest scene in the build.
+   **The game made the counter-argument two months before it had the
+   argument** — the frivolous uses WERE people's lives. Show more of them (the
+   lamplighter with no trade, the charm-seller's dead stock, Pip's dead trick)
+   and never once explain them.
+4. **Don't let the ending read utopian.** The magic comes back to a world that
+   still has an Academy in it, still has a court, still has people who will try
+   this again. Basil does not fix society; he gives back what was taken and
+   goes home. The small, personal ending (magic returns, and so does love) is
+   the right scale — resist any temptation to have the world reorganize itself
+   in the epilogue.
+
+### THE THESIS: magic and science BOTH matter (2026-07-28 — the top-line rule)
+
+The paper is called *Why Science Is Magic's **Equal***. Not its replacement, not
+its superior, not the thing that turned out to be better all along. **Neither
+side wins, and the story must never let one.** Every other theme in this
+document reports to this one; when a beat is ambiguous, resolve it toward both.
+
+**It is already true in the mechanics, and that is the strongest possible
+statement of it. Keep it true:**
+
+- **The two systems are NON-OVERLAPPING, by construction.** Compounds own
+  projectiles, elements and on-hit status; spells own RESTORE / WARD / CONTROL /
+  FIELD. A spell may never be a recolored bolt (see "RPG Systems"), and a
+  compound will never heal anybody.
+- **Therefore the game must NOT be completable with either one alone**, and this
+  is a hard design rule to hold every time a new enemy or gate is authored.
+  Nothing but a spell can revive a downed member or light a dark room. Nothing
+  but the gun answers the Regent's machines, which are drowse-immune and
+  unimpressed by everything Fuji's kit does best. **A player who ignores half
+  the game gets stuck, and the fix is always the other half.**
+- **The RESONATOR is the thesis as an object**: a brass machine, built by a
+  chemist, that does magic. Every spell cast in the drained world runs through
+  a piece of engineering, and every piece of engineering is aimed at putting
+  magic back. Neither half functions alone. That is the whole argument, and the
+  player holds it in their hands for the back two thirds of the game.
+- **It has been on screen since the recital** (shipped): a ten-year-old's
+  clockwork toy with a flask pinned under the pod, throwing fireworks in the
+  four compound colours, at a MAGIC recital. Science and magic in one object,
+  working. And the institution's answer — *"It is POTIONS is what it is."* — is
+  the world refusing the synthesis twenty years before it needs it. The whole
+  theme is already built; it just has not been named until now.
+
+**THE EXCHANGE GOES BOTH WAYS.** Basil learns magic (below) — so **Fuji must
+learn science**, or the game quietly argues that science was a ladder to the
+better thing. Her half:
+
+- She could cast and lost it; she spends the game learning that reading,
+  evidence, cataloguing and method give her back more than the wand did — and
+  she is the one who believed a *scientific* argument about magic before anyone
+  else alive, which is why she went looking for its author.
+- **Her kit already says it.** She fights with a BOOK — the librarian's weapon
+  is knowledge, and it is in the build. Her blow-darts are a chemical payload
+  that puts a body to sleep, which is pharmacology; she was doing science with
+  a pipe and a dart the whole time and never called it that.
+- When her casting returns at the Return, she does not put the method down. She
+  keeps both, which is the point, and she is better at both than he is.
+- **Her coffee is the joke that carries it**: the wand never could do it
+  properly. A kettle can. She is allowed to notice this and be annoyed by it.
+
+**AND THE FINALE MUST NOT BE A SCIENCE WIN.** "The last leg is fought with the
+gun" is a great beat and a dangerous one — as the closing note it argues that
+the gun was the real answer. It isn't. The gun gets the party through the fight;
+what actually ENDS the game is a settling, and settling is understanding, which
+is the half the Regent threw away and the half no machine has ever done. **He
+loses to both of them at once**: out-built by a chemist, and out-understood by a
+librarian. Frame the finale as everything they are, together — never as the
+moment science proved it never needed magic.
+
+### Basil learns magic (the arc, 2026-07-28)
+
+He grew up magicless in a world where magic was casual, built an entire self out
+of not needing it, and over the course of the game **he learns to cast.** This is
+the capstone of both prologues and the single easiest thing in this document to
+get wrong.
+
+**THE RULE THAT PROTECTS THE THESIS.** He is not chosen. He does not turn out to
+have had a hidden gift all along. There is no moment where the world admits he
+was special. **He engineers his way to the thing that was denied him**: he built
+the Resonator, the Resonator teaches anybody, and therefore it teaches him. If he
+gets magic as a *prize*, then magic was the better thing all along and science
+was the consolation — which torches *On Re-Enchantment*, the character, and the
+ending in one move. He gets it as a *result of his own method*. Science did not
+lose to magic; **science delivered magic, to everyone, including the one person
+the world said could never have it.**
+
+**THE NEGATIVE SIDE — the part worth writing carefully:**
+
+1. **The first spell lands as GRIEF, not triumph.** Twenty-five years of "no
+   aptitude" read aloud against his name, of being told he could not even
+   participate — and it turns out it was learnable the whole time. Nobody ever
+   taught him because nobody thought he was worth teaching. The ten-year-old in
+   him should be *furious*, not delighted. Do not play the first cast as a
+   fanfare.
+2. **It threatens what he is.** "I don't need it" was the load-bearing wall of
+   the hermit. If he can cast, what were the years in the tree for? He has to
+   hold the belief that magic is not superior WHILE enjoying the thing, and
+   that is not resolvable by a speech — it just sits in him for an act.
+3. **The temptation, and it is sharp.** He built the machine. He understands it
+   better than anyone alive. He could learn faster, hold more, keep the best
+   ones. **He is one small decision away from being Aldous** — the man who
+   understands it best deciding he should therefore have the most of it. Let
+   him feel that pull exactly once, quietly, and refuse it with an ACTION, not
+   a speech: he hands Fuji the vestige he wanted. (And note the rhyme: the
+   socket choice the PLAYER makes every dungeon is the same choice. The game
+   never says so.)
+4. **He is bad at it.** The world's leading theorist of re-enchantment is a
+   clumsy beginner — worse at it than Fuji, funnier about it than he wants to
+   be. This is the Adventure Time register doing the work, and it rhymes with
+   her sparks missing the kettle.
+
+**FUJI CROSSES THE OTHER WAY, AND THAT IS THE ENGINE.** She could cast before
+the Ebb and lost it; he never could and is gaining it. They pass each other going
+opposite directions in the middle of the game, which is an enormous amount of
+tension and tenderness for free — she has to watch somebody learn the thing she
+lost, and she is the one teaching him. **And she teaches him the useless warm
+things first.** The coffee. The trick that does nothing. The refutation of the
+Regent's whole argument and the romance beat are the same scene.
+
+**THE ONE SPELL THAT MATTERS IS MEND.** The man who could not fix Kitty's memory
+learns to mend — and magic mends anything but memory, so it still cannot do the
+one thing he would spend it all on. He has to be all right with a limited good
+instead of resenting it for not being everything. **That is what "learning to
+appreciate magic" actually means here**, and it is worth more than any scene
+where he enjoys casting.
+
+**THE WORLD LEARNS TO APPRECIATE SCIENCE — and nobody ever says so.** No
+apology scene. No Dean at a podium admitting he was right; **resist that, it is
+the cheapest scene available and it would undo twenty years of the character in
+four lines.** Render it in props and small people:
+
+- **The thesis gets an ACCESSION STAMP.** The uncatalogued string-tied bundle
+  from Act 1's research beat — no spine, no stamp, "Laughed out of the Academy"
+  written in another hand — is finally catalogued and shelved properly. The
+  whole arc in one prop **that is already in the build.**
+- A kid in a later town with a Resonator of their own build, done wrong, working
+  anyway.
+- The Academy has to teach the paper now, and nobody thanks him for it.
+
+**WHERE HE ENDS UP:** he casts a little, badly, and still reaches for the gun
+first. He did not become a wizard. He became someone who can do both and needs
+neither of them to be worth something — which is the actual argument of the
+thesis, finally proved on himself rather than on the world.
+
+**SYSTEMS NOTE:** the player chooses who learns what, so these beats hang off
+PROGRESSION flags (Basil's first socketed vestige, Basil's first learned spell),
+not dungeon numbers — the story reacts to the player's choice instead of
+assuming it. One mid-game moment must be story-mandated, though, so a player who
+never gives Basil a vestige cannot skip the arc entirely.
+
+### The romance (Basil and Fuji — 2026-07-28)
+
+Canon since the premise: he *"finds love again, with her."* Slow burn across the
+acts, landing with the Return, so magic coming back and him coming back land in
+the same beat. What the 2026-07-28 material adds is what the romance is MADE of,
+because it turns out the systems already built it.
+
+- **THE CROSSING ARCS ARE THE ROMANCE.** She could cast and lost it; he never
+  could and is gaining it. She teaches him the thing she can no longer do. He
+  teaches her the method that gave him a way in without it. **They each hand the
+  other the thing they cannot have themselves** — that is not adjacent to the
+  love story, it IS the love story, and it is assembled out of mechanics that
+  already exist. Every teaching scene is a romance scene; write them as one
+  thing, never as two.
+- **She fell for the WORK first, and met the man second.** She is a stranger to
+  his past who knows him only through a thesis she unearthed — the first person
+  alive who was persuaded by his ARGUMENT rather than loyal to his person. That
+  is the load-bearing difference from Kitty, who loved the boy and never read the
+  paper, and it is why this is not a replacement or a consolation. Two different
+  people loved two different true things about him.
+- **THE NAME IS THE WHOLE ARC IN ONE WORD.** The insult outlives the man —
+  finding him means asking a whole town about "Professor Poopy Paws," so
+  **Fuji learns the joke before she meets the person**, and the first thing she
+  knows about him socially is the worst day of his life. Which makes the beat
+  where she simply calls him *Basil*, when nobody in twenty years has, worth
+  more than any declaration. Do not build to a speech. Build to a name.
+- **The coffee machine.** She made coffee with a wand on the night the world
+  ended, badly, sparks missing the kettle — the shipped first scene of her life.
+  Late in the game **he builds her something that makes coffee.** Not magic: a
+  machine, brass and fussy and slightly too loud. It is the gift, the thesis,
+  the joke, the answer to Aldous ("squandered on... warming somebody's coffee"),
+  and the romance, in one prop. This is the single highest-value object in the
+  back half and it costs one sprite.
+- **The watch stays on.** He kept Kitty's watch and will keep it — taking it off
+  is a cheap "moving on" beat, and it would wreck Kitty's own planned payoff
+  (she admires the craftsmanship of a stranger's watch, not knowing she built
+  it). What changes is not that he removes it. It is that he stops being the
+  only one who looks at it.
+- **FUJI IS NEVER THE REWARD.** She acts first in the entire story, she is the
+  current solo playable character, the story rests with her, and she came for
+  her own reasons — her world went dark and she found an answer on her own
+  shelf. Protect that. The romance is EVIDENCE that "came back for the science,
+  not the people" finally closed, never the prize for closing it.
+- **Register: Adventure Time, not swooning.** Two adults who are bad at this.
+  She is much better at talking than he is; he has been alone in a tree for
+  years and has genuinely forgotten how. It should be funny far more often than
+  it is tender, and tender only when it ambushes them.
 
 ## Influences
 
@@ -2234,6 +2714,475 @@ stays friendly, with crisp fire/recover cadence, hit-pause, and readable knockba
   Remaining downstairs ideas for later: cooking/eating at the hearth,
   crafting at the workbench, the boiler as a story prop (the last machine
   still running on drained-world power).
+
+## RPG Systems — Levels, Vestiges, and the Resonator (design, 2026-07-28)
+
+The FFVI shape, made canon-tight: **you level up by fighting, and you choose who
+learns what magic by choosing who carries which relic.** Two separate ladders,
+two separate currencies, one menu.
+
+Everything below obeys the four rules this project already runs on: state that
+must survive a door lives on an autoload (`Party.spawn()` rebuilds every body at
+every scene change); systems earn their place by being DISTINCT, never reskins;
+data is hand-authored tables, not procedural generation; and nothing narrative
+ships before the chapter that motivates it.
+
+### The premise (why this isn't just "magic exists now")
+
+Magic is gone. The Ebb drank it into the summit crystal, and it did not come
+back — that stays true for the whole game. So magic cannot be a thing a
+character simply *has*, or the world's central loss is cosmetic.
+
+Instead: **you carry a piece of the drained magic and learn out of it.**
+
+- **VESTIGES** are crystallized fragments of what the world lost — the magic
+  that used to *be* a specific thing: the warmth that kept a village's hearths
+  lit, the hush over a frozen lake, the seven bells of a drowned chapel. They
+  are the magicite analog, and like magicite they are finite, named, and found.
+  **Every one of them comes off a REMNANT** (see the lore spine): where the Ebb
+  tore a great deal of magic loose at once, what got left congealed around the
+  shape of what it belonged to and stood up. Settle the Remnant at the end of
+  its dungeon and the magic it was made of is finally still enough to carry.
+  **One per dungeon, and no other source** — never bought, never dropped by a
+  slime, never sitting in a pot.
+- **THE RESONATOR** is Basil's device: a brass apparatus built in the HOME TREE
+  hermitage that makes a vestige *readable* — it holds the fragment against a
+  living body long enough for the body to learn the shape of it. A vestige on
+  its own is a pretty rock. The portable half is a **resonance locket**, one per
+  character, and that locket is the single equipment slot in the game.
+- **This is the thesis, built.** *On Re-Enchantment: Why Science Is Magic's
+  Equal* — magic is merely sleeping; science can measure, carry, and rekindle
+  it. The machine that lets anyone in the drained world cast a spell is the
+  invention of the cat who was laughed off a stage for saying it was possible,
+  who as a ten-year-old could not cast at all. Nobody in this world does magic
+  without his apparatus. **That is the payoff of both prologues**, and it is why
+  the magic system has to be an APPARATUS system rather than a spellbook.
+  It also means Basil can cast — the kid who couldn't, casts last and casts
+  through his own machine, and that is the arc, not a contradiction of it.
+
+Nomenclature is load-bearing here, same as the "spark" cut: **never "mana",
+never "MP", never "spark".** The currencies are FOCUS (what a caster spends) and
+RESONANCE (what a vestige teaches with). "Motes" already means the visible unit
+of loose magic on screen (the Ebb's 14 sparks, Fuji's wild coffee-wand misses) —
+keep it meaning exactly that.
+
+### Ladder 1 — EXP, levels, stats
+
+Five stats, all small ints, all hand-authored per character per level. No random
+growth, no growth-influencing equipment (FFVI's esper bonuses are the one part
+of FFVI worth NOT copying — they punish playing naturally).
+
+| Stat | Reads | Drives |
+| --- | --- | --- |
+| **VIT** | vitality | `max_health = base_hp + VIT` (half-hearts; the HUD row already grows — `_on_health_changed` sizes itself off `max_health`) |
+| **MIG** | might | outgoing physical/weapon damage (laser bolt, tome slam, dart) |
+| **FOC** | focus | max FOCUS pool + spell potency |
+| **GRD** | guard | incoming damage reduction |
+| **SPD** | speed | move speed + kit recovery (fire_recover, swing windows) |
+
+**THE UNIT SPLIT — read this before touching any damage number.** Party HP is in
+HALF-HEARTS and always will be: it is drawn as hearts, and 1 damage has to stay
+legible as half a heart. Enemy HP is INVISIBLE. So the two directions get
+different resolutions on purpose:
+
+- **Party → enemy: rescale ×4 when levels land.** Laser base 2 → 8, tome 2 → 8,
+  dart 1 → 4, burn tick 1 → 4; slime 4 HP → 16, big slime 10 → 40. Nothing on
+  screen changes (kill counts are identical), but `MIG` now has room to matter
+  one point at a time. Without the rescale, `roundi(2 * (1 + MIG/12))` is
+  literally the number 2 until MIG hits 6 — five levels of a stat that does
+  nothing, which is how a stat system dies.
+  Formula: `outgoing = roundi(base * (1.0 + MIG / 12.0))` at the ONE chokepoint
+  each kit already has (`Compound.hit_damage()` for the gun, the tome/dart
+  constants for Fuji).
+- **Enemy → party: stays coarse.** `incoming = maxi(1, damage - GRD / 8)`
+  (integer divide). Guard shaves half-hearts slowly and can never reach zero —
+  an untouchable party is a dead loop.
+- SPD: `speed = base_speed * (1.0 + SPD / 40.0)`, clamped to +50%. Past that the
+  AI brains' hysteresis bands (34/44/56/96/128px, all tuned to the current
+  150px/s) stop holding and the follower reads as twitching. **Any change to
+  member speed must re-run `tools/party_probe.gd`.**
+- FOC: `max_focus = 8 + FOC`, spell potency `1.0 + FOC / 16.0`.
+
+**Growth is a table, not a curve.** `resources/stat_block.gd` holds one
+hand-authored row per level per character — 20 rows each, reviewable at a
+glance, tunable without solving an equation. Shape:
+
+- **Basil** — the glass gadgeteer: MIG and FOC lead, VIT and GRD lag. He is the
+  one who kites; if he tanks, the recoil skid stops being a cost.
+- **Fuji** — the front line: VIT and GRD lead, FOC solid, MIG middling. She
+  closes to swing range by design and has to survive being there.
+- The two must NOT converge. If the level-20 sheets look alike, the party swap
+  stops being a decision.
+
+**EXP curve**: `exp_to_next(level) = 20 * level^1.5`, rounded to a table — L2 at
+20, L5 at ~224, L10 at ~632, L20 at ~1789, ~10k total to cap 20. Enemy values
+are exports: slime **6**, big slime **20**, Act 2 field enemies 30–120, bosses
+300+.
+
+**Everyone in the roster gets FULL exp, always** — no split, no bench penalty.
+FFVI's benched-character problem is a save-file chore, not a design; a 2–3
+member roster has nothing to gain from it.
+
+### Ladder 2 — vestiges, resonance, and teaching
+
+`resources/vestige.gd` (a `Resource`, the way `Compound` is):
+
+```
+id            StringName   "hearthkeep"
+display_name  String       "HEARTHKEEP"
+epitaph       String       "The warmth that kept a village's fires lit."
+tint          Color        one hue, like Compound.tint — locket, HUD, cast fx
+spells        Dictionary   spell_id -> percent learned per RESONANCE point
+worn          Dictionary   stat -> flat bonus while socketed (small: +1/+2)
+```
+
+- **One socket per character.** That slot is the entire equipment layer of the
+  game — there is no armor, no accessories, no weapon list. One choice, made
+  visible, made permanent in its consequences (the spells stay learned).
+- **RESONANCE** accrues per kill, party-wide, **but only to a character with a
+  vestige socketed.** That is the tension the whole system runs on: an empty
+  socket wastes every kill, and a vestige you have finished learning wastes them
+  too. Slime **1** RES, big slime **3**, bosses 20+.
+- Learning: `progress[spell] += rate` per RES point; at 100 the spell is learned
+  **permanently, on that character, forever**, and un-socketing never takes it.
+  Rates make the pacing: `{"mend": 10}` = 10 RES ≈ 10 slimes; `{"ward": 3}` = 34.
+  A vestige teaching 2–4 spells at mixed rates gives each one a natural order.
+- **`worn` bonuses vanish when you un-socket.** Nothing about level-up growth is
+  ever influenced by what you were carrying — see above.
+- **The vestige count IS the dungeon count.** Five lands, five obelisks, five
+  Remnants, five vestiges, plus two or three hidden ones behind optional
+  Remnants. Around eight in the whole game — heavy, not many. Every single one
+  is a place you went, a thing you settled, and a decision about who learns
+  what. There is no filler collectible in this game and there must never be
+  one: a vestige you can buy makes the boss a shopkeeper.
+- Because there are more vestiges than sockets, the choice is never "do I have
+  it" — it is **who gets it, and in what order.** Early on (one vestige, two
+  members) there is no choice at all, and that is correct; it is the tutorial.
+
+**THE THEFT RULES (2026-07-28).** Act 2 has the Regent racing you for these and
+sometimes winning (see Act 2+, "The encounter ladder"). Three hard rules, because
+"the villain takes your stuff" is one of the easiest ways to make a player feel
+punished for playing:
+
+1. **Never take a vestige the player already earned.** Losing a thing you hold is
+   bitter; missing a thing you never held is plot. At the dungeon where he takes
+   one, he takes it AS IT FORMS — it never enters the satchel, never appears in
+   the menu, and no learning progress is ever destroyed. (The summit is the sole
+   exception, and there it is the whole point.)
+2. **A dungeon that yields no vestige must pay in another currency.** The empty
+   dungeon pays in the REVEAL — you walk out knowing the Ebb had an author. That
+   is worth more than a rock and it must feel like it, so the place is otherwise
+   fully stocked: the run is not shortened, the loot that is not vestiges is
+   still there, and the Remnant's absence is staged as the prize being *taken*,
+   not as content withheld.
+3. **The game must be completable, comfortably, without every vestige.** Never
+   gate a spell the player needs behind one the plot removes, and never let more
+   than one be his at a time. Stolen ones come back — at dungeon 5, in the
+   Capital, or at the summit.
+
+**MACHINES DON'T SLEEP** — and this is the best thing the Regent's crews bring to
+the combat system. His haulers, rigs and automata carry no drowse: Fuji's entire
+setup game (dart, dart, drop it, tome it while it's down) does NOTHING to them,
+and neither does freeze reading as "a body going stiff". Suddenly there is an
+enemy class the status system does not dominate, and the answer has to come from
+somewhere else — plasma's pierce against plating, flame's burn (which disables
+nothing and therefore doesn't care), positioning, the hop. **An enemy that beats
+your best tool is how a kit stays interesting in the back half**, and it is the
+cheapest possible way to keep the compounds relevant right up to the finale,
+where they are all you have left. Implementation: a `drowse_immune` flag on
+StatusComponent rather than omitting the component — `slime.gd` calls
+`status.apply()` unconditionally and a missing node would need a null check at
+every enemy's hit path.
+
+**A Remnant and its vestige share a name.** The name is a piece of
+world-building for free, the epitaph line does the work a summon animation
+would, and naming the creature after what it used to be is the whole fiction in
+two words:
+
+- **HEARTHKEEP** — the warmth that kept a village's fires lit. MEND, WARMTH.
+- **THE LONG WINTER** — the hush over a lake that never thawed. BIND, HUSH.
+- **SEVEN BELLS** — a drowned chapel's peal. QUICKEN, WARD.
+- **STILLWATER** — MEND II, CLEANSE.
+- **LAMPLIGHT** — the last honest flame owed magic nothing; this is the magic it
+  never needed. KINDLE (field light), WARD II.
+- **THE GOOSE THAT STOLE THE RIBBON** — yes, really; the Adventure Time register
+  has to appear in the systems too, not only the dialogue. A small, optional,
+  extremely unserious Remnant. LURE.
+
+### The Remnants have dispositions (2026-07-28)
+
+Not every Remnant reacts the same way to being found, and this is where the FFVI
+esper texture lives — some of them want to help, some are past reaching, and one
+of them gives itself away. **A Remnant is a character, not a boss slot.** Three
+dispositions, authored per Remnant, declared on the resource:
+
+- **WILLING** — it has been waiting for somebody to come. It knows exactly what
+  it is, it is tired, and it gives itself the moment it is understood. There is
+  no fight, or a token one that stops on its own. Use this for the FIRST one:
+  it teaches the player what a Remnant is, what settling means, and that the
+  fight button is not always the verb — a lesson far better learned from a thing
+  that lays down than from a tutorial box.
+- **UNQUIET** — it no longer knows what it is. It is still doing its job:
+  guarding a village that is gone, keeping a fire that has no hearth, ringing
+  for a congregation that drowned. It fights because it is frightened and
+  confused, not because it is cruel. **This is the default and most of them.**
+- **REFUSING** — it knows precisely what it is, it knows that settling means the
+  thing it belonged to is finally, actually gone, and it says **no**. This is a
+  Remnant with the right to refuse, and the party is in the wrong for pressing.
+  Put the hardest beat in the game here, let the player win, and **never
+  comment on it** — no card, no line, no absolution. One of these. Not two.
+  **You take it anyway, and that is the point.** There is no talk-down to earn
+  and no gift spell to miss: doing the reading on this one does not open a
+  peaceful path, because it does not want to be understood, it wants to be left
+  alone. All the understanding buys you is knowing *exactly* what you are
+  taking while you take it. **The one place in the game where knowledge is not
+  a power-up — it is just worse.**
+  And it has to be BASIL who presses. The cat who was refused by an Academy,
+  refused by a mother at a bedside — *"LEAVE."* — and who walked himself out
+  the door, is the one who does not accept a refusal, because a world needs its
+  magic back more than this one thing needs its grief. He is right, and it
+  costs him, and nobody absolves him of it.
+
+**And one of them spends itself for you.** The FFVI sacrifice beat, mid-game and
+unrepeatable: a Remnant the party has already met — most likely one they FAILED
+to settle, or one they cut out of the Regent's cages — burns itself to get them
+out of something they were not going to survive. You get its vestige. You never
+got to settle it properly, and you do not get to go back and do it right. That
+is the emotional peak of the middle act and the moment the caged menagerie stops
+being a side objective.
+
+**HOW YOU EARN THE PEACEFUL PATH** — and it is not a dialogue puzzle with a
+wrong answer, because a quiz you can fail at the end of a dungeon is a punishment
+with a question mark on it:
+
+- **The dungeon IS the dead thing.** You walk the drowned chapel, the hearth-
+  village, the lake that never thawed. Scattered through it are three or four
+  quiet pieces of what it was — an object, a mural, a survivor who remembers, a
+  sound the place still makes. Find them and the boss room opens with the option
+  to SPEAK. **The conversation is not the puzzle; having earned it is.** This is
+  the wander-gate doctrine the game has taught since Prologue A's six talkables,
+  pointed at a boss.
+- **And it is why the party is these two people.** Basil takes readings with the
+  Resonator; Fuji reads the room. The scientist measures what is there and the
+  librarian knows what it *was* — and settling a Remnant needs both halves.
+  **This is exactly why Aldous cannot do it.** He has instruments, crews and
+  money, and he has never once had anybody who reads, because the reading is
+  history and stories and other people's small lives — the "waste" he would
+  abolish. He is missing the half he threw away.
+- **EVERY REMNANT YIELDS ITS VESTIGE, ALWAYS, BY EVERY PATH.** Willing, unquiet
+  or refusing; talked down or beaten until it stops — a settled Remnant rests
+  and gives up what it was made of, with no exceptions and no conditions. This
+  is a HARD RULE, not a kindness: five vestiges gate the ending, so a missable
+  one is an unwinnable save. Nothing here is ever locked, lost, failed, or
+  reachable only by the clever route. **Fighting is a legitimate way to play
+  the whole game.** It is only sadder.
+- **The reward for understanding is one MORE spell**, not a better one: a
+  willingly-given vestige carries a `gift` spell that a taken one never teaches.
+  Discrete, visible in the menu, worth going back for — and never a power gap
+  that punishes the player who likes the fight button.
+- **The quiet critique, never stated**: a player who fights every one of them is
+  doing a smaller, gentler version of what the Regent does. The game must never
+  say this out loud. It just sits there.
+
+On the resource: `disposition` (enum), `gift` (spell + rate, willing only), and
+a per-dungeon `understanding` count the boss room checks. The caged Remnants
+re-roll this when freed — some settle at once out of sheer exhaustion, and one
+has been in the box long enough that it comes out swinging.
+
+### The Return — what giving them back costs
+
+The endgame gives every vestige back to the summit crystal (lore spine, "The
+Return"). Mechanically that has to cost something, or the finale is a cutscene
+with an inventory step in it. The rule:
+
+> **You keep every spell you learned. You lose every spell you were still
+> learning, forever.**
+
+- Keeping the learned spells is not a concession, it is the thesis stated in
+  mechanics: **a spell learned by a living body is magic that is already back in
+  the world.** The party spent the whole game putting it back one spell at a
+  time; the finale just does the rest at once. It also means the last leg is not
+  a difficulty spike.
+- Losing the unfinished learning is the ungrindable decision, and the one place
+  this game gets to have a point of no return that means something: you cannot
+  hoard the world's magic to get stronger AND give it back. Warn the player
+  plainly before the ascent, show every partial percentage on the confirm
+  screen, and then take it. **The choice is what you finish learning; it is not
+  whether to hand them over.**
+- **The sockets are emptied BY THE REGENT, not by a menu** (2026-07-28). He is
+  waiting at the summit and takes all five, because settling a Remnant is the
+  one thing he could never do himself. Mechanically identical to un-socketing
+  everything; dramatically the opposite of a confirm dialog, and it removes the
+  awkwardness of asking a player to voluntarily disarm before the last fight.
+- **The last leg is fought without vestiges** — no sockets, no worn bonuses,
+  just the levels, the spells already learned, and Basil's gun. This is the
+  payoff the compound/ammo layer exists for, and the reason spells were never
+  allowed to be recolored bolts: if magic had eaten the gun's job, the thesis
+  could not be proved in the one scene that has to prove it. See Act 2+,
+  "The finale".
+
+**The ending shot is already in the build.** `scene/ebb.tscn` stamps BOTH era
+tilemaps and swaps bright → drained under one white flash, then streams 26
+motes home to the summit. The finale is that scene run BACKWARDS: motes out,
+one flash, drained → bright. The byte-locked `overworld_bright.*` twin was
+built as a staging tool for the prologue — it turns out to be the last frame of
+the game. Build the finale by inverting `ebb.gd`, not by authoring a new one.
+
+**Open hook, author's call, NOT canon yet:** the sickroom verdict established
+that magic mends anything but memory, and that a lost memory "returns to the
+spirit of the world and lives on out there, maybe surfacing elsewhere someday."
+A vestige is exactly the kind of object a surfaced memory could be set in. That
+is a very loud gun on the mantelpiece for Kitty's thread, and it collides with
+the standing "closure, not reunion" rule — so it is recorded here as an option
+and nothing more. Do not build toward it without deciding it.
+
+### The spells — what magic is ALLOWED to be
+
+Compounds already own projectiles, elements, and on-hit status. A spell list of
+fire/ice/bolt would make the four beakers pointless and violate the distinctness
+rule the sleep/freeze/burn triangle was built on. So:
+
+> **Compounds are what Basil THROWS. Spells are what the party CHANGES.**
+> A spell may never be a recolored bolt.
+
+Four schools, and only four:
+
+1. **RESTORE** — MEND, MEND II, CLEANSE (strip a status), REVIVE. The gun can
+   never do any of this, which is the cleanest possible non-overlap. This is
+   also why the KO state has to ship with it (below): healing means nothing to a
+   party that already can't die.
+2. **WARD** — timed buffs: WARD (flat damage reduction), QUICKEN (speed + kit
+   recovery), STEADY (no knockback). Short durations, so casting is a beat in
+   the fight rather than a pre-fight ritual.
+3. **CONTROL** — **new status axes only.** BIND (rooted, instantly, but still
+   dangerous — it keeps its contact hitbox, and that is exactly what separates
+   it from sleep and freeze), HUSH (shuts off ranged/special attacks, leaves
+   melee), LURE (pull aggro off the follower). Extends the existing doctrine
+   line: *sleep is slow/long/total; freeze is instant/partial/short; burn
+   disables nothing; **bind is instant and total on MOVEMENT alone.*** Any new
+   status must be able to finish that sentence or it doesn't ship.
+4. **FIELD** — the re-enchantment fantasy and the progression layer at once:
+   KINDLE (light a dark room), THAW, MENDWORK (repair a broken bridge/mechanism),
+   ROUSE (wake a dormant shrine or obelisk). **Field spells replace key items** —
+   "you learned the thing that opens this" rather than "you found the hookshot",
+   which is a better fit for a game whose whole subject is putting magic back.
+
+The one deliberate exception: **one radial burst per school ceiling**,
+self-centered and positional, so it plays nothing like a bolt — earned late,
+gated behind the summit. Players want a big spell; they can have one that is
+about standing in the right place.
+
+**FOCUS** is the cost. Per member, ~8–20 points, spells cost 2–6.
+
+- It **persists across scenes** (on the sheet), unlike HP, which still refills at
+  every door. That is deliberate and matches the beaker rule: a managed resource
+  you can spend badly is only interesting if the walk to the next zone can't
+  launder it.
+- Refills: **mote pickups** dropped by kills — slimes are curdled magic, so
+  killing one releasing a mote you can absorb closes the loop the lore already
+  opened — plus resting at an inn. **No passive regen.**
+- The mote pickup is the beaker pickup with a different sprite and payload
+  (`entities/pickups/beaker.gd` is the template; the meadow's respawn plumbing
+  already exists).
+- HUD: one small pip row per member under the hearts, tinted to the socketed
+  vestige — the same trick the ammo row already pulls (`_on_loaded_changed`
+  tints pips rather than adding a fifth row).
+
+### KO and the downed state (prerequisite for RESTORE)
+
+Today `PartyMember._on_died()` refills and the killing blow reads as a stagger —
+"real KO comes later" is in the comment. RESTORE is why it's later:
+
+- At 0 HP a member goes **DOWNED**: a slumped pose, no control, no hurtbox,
+  brains ignore it as a target and the enemy re-picks. If the leader goes down,
+  leadership auto-swaps (`Party._apply_leader` already does everything needed).
+- Revive: the other member stands adjacent for ~2s, or casts REVIVE. A downed
+  member also stands back up on a zone change, at 1 heart.
+- Both down = back to the last door with EXP, RES, and levels intact. Never a
+  progress loss; the cost is the walk.
+
+### Where the state lives (and the gotchas that are already waiting)
+
+`resources/character_sheet.gd` — a `Resource` per party member: `level`, `exp`,
+the five stats, `focus`, `socket: Vestige`, `learned: Dictionary`,
+`learning: Dictionary` (spell → percent).
+
+`Game` holds them, for exactly the reason it already holds the gun loadout:
+**`Party.spawn()` rebuilds every body at every door**, so anything on the
+instance is gone by the next scene.
+
+```
+var sheets: Dictionary = {}         # StringName -> CharacterSheet
+var vestiges: Array[Vestige] = []   # the satchel; unsocketed ones live here
+```
+
+1. **`reset_story()` must wipe sheets and vestiges**, for the same reason it
+   blanks `loaded`/`spares` — a backwards dev-menu jump must not carry level 18
+   and a socketed HEARTHKEEP into the prologue.
+2. **`HealthComponent._ready()` sets `current_health = max_health`.** A sheet
+   applied after that leaves the body at the OLD max and the HUD half-empty on
+   spawn. Apply the sheet's `max_health` and refill in the same breath, and do it
+   in `PartyMember._ready()` BEFORE anything reads current HP.
+3. **`kid_basil` and `basil_student` must never get a sheet.** The prologue world
+   is safe — no combat, no levels, and their SpriteFrames have no downed pose. A
+   sheet lookup returns a neutral default rather than asserting, or every
+   prologue scene throws.
+4. **The kill hook.** `Slime.died` currently carries no arguments and the meadow
+   connects to it — so grant EXP/RES from the enemy's own `_on_died` via a small
+   `Game` API (`grant_kill(exp, res)`), not by threading values back through the
+   scene. One call site per enemy, zones stay ignorant.
+5. **The party menu is the THIRD `get_tree().paused` user** (DevMenu, MixMenu).
+   `Overlay.any_open()` is already the shared predicate — use it; do not add a
+   pairwise "is the mix menu open" check, which is how the guard got
+   half-implemented the first time.
+6. **Polled input only**, like everything else — `tools/shot.gd`'s synthesized
+   presses exist only in the polled action state.
+7. **Menu text is the pixel font**: mixed case is available, but the caps-only
+   rule still applies to anything reading as signage.
+
+### The menu
+
+`scene/party_menu.gd`, a 5th autoload on the `Overlay` chrome MixMenu and
+DevMenu share, opened with a new `menu` action (Tab is taken by the swap;
+propose `P` / Options on the pad). Three panes, one screen, 384×216:
+
+- **left**: the roster — name, level, hearts, focus, the EXP bar to next.
+- **middle**: the selected member's five stats and their learned spells.
+- **right**: the satchel of vestiges. Move one onto a member to socket it; the
+  pane shows that vestige's spell list with each percentage, so **"who learns
+  what" is a visible, reversible, one-button decision** — which is the whole
+  reason to build this system instead of a spellbook.
+
+Same contract as the mixing bench: **always show what you are about to get and
+what you are about to lose before taking anything.**
+
+### Build order
+
+Three slices, each shippable and each verifiable on its own:
+
+1. **Levels** (works against the build as it stands today). CharacterSheet, the
+   five stats, the EXP curve, the ×4 damage rescale, kill grants, level-up toast,
+   and the menu's left+middle panes. No magic anywhere. Lands naturally in Act
+   1's meadow tutorial, where Fuji fights alone.
+2. **Stakes.** The downed/KO state, the FOCUS pool, mote pickups, the HUD pip
+   row. Still no spells — this slice is what makes the third one mean something.
+3. **Vestiges.** `Vestige`, resonance, the learning loop, the four schools, the
+   socket pane, the Resonator scene beat in the HOME TREE hermitage. Gated to
+   Act 2 and the first obelisk — **no vestige may exist on screen before the
+   hermitage**, because a drained world that hands out magic in Act 1 has no
+   subject. The first Remnant is the slice's shipping target: one dungeon, one
+   settling, one vestige, one land's lights back on. If that single loop lands,
+   the other four are content.
+4. **The Return** (last, with the ending). The summit confirm screen, the
+   socket-emptying, the inverted `ebb.gd` finale. Cheap to build and impossible
+   to build early — it needs every vestige to exist first.
+
+**Probe: `tools/rpg_probe.gd`**, per the per-scene probe doctrine — level math
+and curve edges, the damage chokepoints in both directions, a sheet surviving a
+scene change, `reset_story()` clearing it, learning rates hitting exactly 100,
+un-socketing keeping learned spells and dropping `worn` bonuses, and a prologue
+roster spawning with no sheet at all. It runs in seconds; the full prologue probe
+is for handoff-chain changes, not for every stat tweak.
 
 ## Future Direction — Story Build (recorded 2026-07-12, in progress)
 
