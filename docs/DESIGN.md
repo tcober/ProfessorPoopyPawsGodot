@@ -27,12 +27,23 @@ and finds love again, with her.
   **BIG MOUNTAIN**'s summit at the heart of Mountain Land transformed into
   a **GIANT CRYSTAL** — every mote of magic in the world streamed visibly
   toward it like sparks up a flue, and the world went dark. The crystal
-  glows with everything it drank. It is still **natural / ancient,
-  author-less, NOT villain-made** — Schweinler is a personal rival only,
-  never the world's villain. WHY it happened is the standing mystery of
-  Act 2+ (something ancient waking? never meant to be permanent? the
-  mountain itself, drinking?) — deliberately unresolved for now; the
-  mystery is the engine.
+  glows with everything it drank.
+  **THE AUTHORSHIP (revised 2026-07-28 — read this carefully, it replaces
+  the old "author-less" rule):** somebody lit the fuse, and it was NOT the
+  hand that took the world. **Regent Aldous Schweinler** (below) ran a
+  working at the obelisk network meaning to draw the world's magic into a
+  vessel he owned. It worked, and then something far older answered: the
+  mountain drank it instead — all of it, including his. **He is the author
+  of the ATTEMPT, not of the OUTCOME**, and that distinction is the whole
+  reason the story still works. What the Ebb *did* stays uncanny and
+  ancient and much larger than any pig with a grudge; WHY the mountain
+  answered, and what it is, remains the standing mystery of Act 2+ and is
+  deliberately unresolved. And **nobody alive knows he did it** until the
+  mid-late reveal — so for most of the game the world's grief genuinely has
+  nobody to blame, which is what the drained villagers, the Remnants and
+  the "nobody blames anybody" register all depend on. (Schweinler the
+  YOUNGER is still a personal rival only, never the world's villain — see
+  his entry.)
 - **The Summit Crystal** (place — replaces "the Drain", retired 2026-07-19):
   where the magic *went* is no secret — everyone alive WATCHED it go. The
   Big Mountain's crystallized summit IS the world's drained magic, glowing
@@ -77,6 +88,29 @@ and finds love again, with her.
   This is the *how* of undoing it, and it is deliberately not the *why*:
   what made the mountain drink the world in the first place stays the
   standing mystery.
+- **THE REGENT** (canon 2026-07-28 — the overarching antagonist):
+  **Regent Aldous Schweinler**, Schweinler's father. Academy patron, boar
+  patriarch, and the man whose name is on the wing Basil was laughed out
+  of. His motive is not power exactly — it is the Academy's contempt scaled
+  up to an apocalypse: **magic was WASTED on ordinary people**, squandered
+  on lamplighters and hedge-charms and coffee, and it ought to belong to
+  the few who understand it. He decoded the obelisk network and used it to
+  siphon the world into a vessel he controlled. Then the mountain took it
+  out of his hands, and he has spent twenty years hoarding what scraps he
+  could catch and trying to finish the job.
+  **He is the anti-Basil, and precisely:** the two of them read the same
+  evidence and reached the same conclusion — magic is not gone, it is
+  merely sleeping, and it can be measured, carried and rekindled — and drew
+  OPPOSITE ethics from it. Basil: therefore it belongs to everyone.
+  Aldous: therefore it must be kept from everyone. That is why a thesis
+  nobody believed still had to be publicly destroyed. **The naming was not
+  only cruelty, it was suppression** — and no shipped scene has to change
+  by a single line for that to be true, which is the best thing about it.
+  He hunts the VESTIGES for the same reason the party does, and cannot
+  take one himself: a Remnant is settled by being understood, and he has
+  never understood anything he wanted. **He needs the party to collect
+  them for him**, which makes the middle of the game his plan and the
+  player's own competence the trap.
 - **Basil's thesis** — *On Re-Enchantment: Why Science Is Magic's Equal*:
   magic is not gone, it is merely sleeping; science can measure, carry, and
   rekindle it. Written as an academic argument and laughed off a stage; after
@@ -155,11 +189,27 @@ that IS the personality, Adventure Time style — never a generic villager.
 - **Schweinler** — the pig bully (sprites to be designed fresh; the deleted
   generator is not recovered). Rich family, all swagger. Kid bully → Academy rival who plants the bag and
   coins the name → the machine he was joyriding runs Kitty down (a rich kid's
-  imported toy — machines exist in this world, but he did NOT cause the Ebb).
-  Present day: recurring personal rival — he's weaseled into the Capital's
-  court as the self-declared "Calamity Expert," obstructing and stealing
-  credit. His arc ends personal-sized: the apology finally arrives and Basil
-  finds he's already past it.
+  imported toy — machines exist in this world, and **he did not cause the
+  Ebb; his father did**, and the son does not know it for most of the
+  game). Present day: recurring personal rival — he's weaseled into the
+  Capital's court as the self-declared "Calamity Expert," obstructing and
+  stealing credit. **Whose credit is now the joke**: the post is his
+  father's name, the expertise is his father's stolen research, and the
+  swagger was always his father's money. **He stays small on purpose.**
+  Learning that Dad is the villain must not promote him to co-villain —
+  the correct beat is that it makes him *less*: a man who spent his life
+  borrowing a menace he never had. His arc still ends personal-sized —
+  the apology finally arrives and Basil finds he's already past it — and
+  it lands harder now, because Basil is past the father too.
+- **Regent Aldous Schweinler** — the father, and the game's antagonist.
+  See "The Regent" in the lore spine. An old boar in Academy plum, courtly
+  and unhurried, who has never once raised his voice in a scene and never
+  needs to. He appears (or nearly appears) far earlier than the reveal:
+  the benefactor's name over a door, a portrait in the hall, a carriage
+  leaving the Academy gate. **Never on stage in the prologue** — the
+  build-fresh doctrine and the shipped scenes both stay untouched. If he
+  is ever added there, it is as one silent figure in the recital gallery,
+  and nothing else.
 - **Minor cast**: the Dean (from the old intro), the doctor, the fountain
   classmate (unnamed, one scene), the Copper Kettle innkeeper (the town's
   memory — the one who recalls where Basil went), festival townsfolk, and
@@ -500,28 +550,49 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
   vestige count, which is why no vestige may ever be bought, dropped by a
   slime, or found in a pot — every one of them is a place, a boss, and a
   story beat.
-- **The finale — THE RETURN**: carry the vestiges up the Big Mountain and
-  give them back. The crystal has been holding on to an incomplete world
-  since Ebb night; made whole, it lets go, and the drain runs in reverse
-  out to every horizon. Then the last leg is **fought without magic** — the
-  vestiges are given, the spells the party learned along the way are all
-  anyone has left, and Basil finishes it with the brass gun he built alone
-  in the wilderness when nobody believed him. *Science is magic's equal*,
-  proved at the one moment magic is gone again. (See "RPG Systems" for the
-  mechanical half: learned spells are KEPT, unfinished learning is LOST,
-  and that is the point of no return.)
-- **The last Remnant** (proposal, author's call): the summit has one too —
-  the shape everything the world lost settled into, the biggest and least
-  villainous of them. It is not attacking and it is not defending. It is
-  **holding on, and it does not know how to let go** — which is the same
-  thing that was wrong with the hermit in the tree, and the reason he is
-  the one who can reach it. The whole game rhymes if this is the ending;
-  it is written down here rather than built, because committing to it
-  commits the last hour of the game.
-- **Schweinler recurs** at the Capital as the court's "Calamity Expert" —
-  obstruction and stolen credit, escalating to a personal reckoning that
-  lands as anticlimax-on-purpose: the apology arrives and Basil finds he's
-  already past it.
+- **The finale — THE RETURN**, in five beats (2026-07-28):
+  1. **The ascent.** Every vestige collected, the point-of-no-return warning
+     given (see "RPG Systems": finish what you want to learn, because what
+     is unfinished is lost).
+  2. **He is already there.** Aldous has been waiting for someone to gather
+     all five, because he could never settle a Remnant himself. **He takes
+     them.** That is the empty-sockets moment, and it plays far better done
+     TO the party than chosen from a menu — the choice was the learning, the
+     theft is the consequence.
+  3. **The fight without magic.** No vestiges, no worn bonuses: the levels,
+     the spells already learned, Fuji's tome and darts, and Basil's brass
+     gun — the thing he built alone in the wilderness when nobody believed
+     him. *Science is magic's equal*, proved at the exact moment magic is
+     gone again. This is what the whole compound/ammo layer was built for,
+     and why it must stay relevant all game.
+  4. **He loses to what he is.** Not out-fought so much as refused: hoarded
+     magic does not answer someone who only ever wanted to own it. The
+     vestiges go where they were always going.
+  5. **The Return.** The crystal, made whole, lets go — the Ebb runs
+     backwards out to every horizon (built by inverting `ebb.gd`).
+- **The last Remnant** (proposal, author's call — now the *closing* beat
+  rather than the final boss, which the Regent occupies): the summit has
+  one too, the shape everything the world lost settled into. It is not
+  attacking and it is not defending. It is **holding on, and it does not
+  know how to let go** — the same thing that was wrong with the hermit in
+  the tree, which is why he is the one who can reach it. Quiet, probably
+  not a fight at all. Written down rather than built, because committing to
+  it commits the last hour of the game.
+- **THE REGENT is the throughline** (2026-07-28). Aldous Schweinler wants
+  the vestiges and cannot take one himself, so he lets the party do the
+  dungeons and arrives to collect. That gives Act 2 a spine instead of five
+  disconnected expeditions: he is at the obelisk first, or waiting at the
+  door, or already gone with something. The reveal — that the Ebb had an
+  author, and that the author failed — belongs **mid-late**, after enough
+  drained towns have said nobody is to blame that it costs something to
+  learn otherwise. Before it, he is simply a patron with an unusual
+  interest in ruins.
+- **Schweinler (the son) recurs** at the Capital as the court's "Calamity
+  Expert" — obstruction and stolen credit, escalating to a personal
+  reckoning that lands as anticlimax-on-purpose: the apology arrives and
+  Basil finds he's already past it. He is NOT promoted to co-villain when
+  the father is revealed; the reveal shrinks him, and the beat is better
+  for it.
 - **Sage thread**: THE CRACKED FLASK, the drained sister, reconciliation.
 - **Kitty side note**: one optional scene in a later town. Closure, not
   reunion.
@@ -2468,11 +2539,20 @@ with an inventory step in it. The rule:
 - Losing the unfinished learning is the ungrindable decision, and the one place
   this game gets to have a point of no return that means something: you cannot
   hoard the world's magic to get stronger AND give it back. Warn the player
-  plainly at the summit, show every partial percentage on the confirm screen,
-  and then take it.
-- **The last leg is fought without vestiges** — the sockets are empty, the worn
-  bonuses are gone, and what is left is the levels, the learned spells, and
-  Basil's gun. See Act 2+, "The finale".
+  plainly before the ascent, show every partial percentage on the confirm
+  screen, and then take it. **The choice is what you finish learning; it is not
+  whether to hand them over.**
+- **The sockets are emptied BY THE REGENT, not by a menu** (2026-07-28). He is
+  waiting at the summit and takes all five, because settling a Remnant is the
+  one thing he could never do himself. Mechanically identical to un-socketing
+  everything; dramatically the opposite of a confirm dialog, and it removes the
+  awkwardness of asking a player to voluntarily disarm before the last fight.
+- **The last leg is fought without vestiges** — no sockets, no worn bonuses,
+  just the levels, the spells already learned, and Basil's gun. This is the
+  payoff the compound/ammo layer exists for, and the reason spells were never
+  allowed to be recolored bolts: if magic had eaten the gun's job, the thesis
+  could not be proved in the one scene that has to prove it. See Act 2+,
+  "The finale".
 
 **The ending shot is already in the build.** `scene/ebb.tscn` stamps BOTH era
 tilemaps and swaps bright → drained under one white flash, then streams 26

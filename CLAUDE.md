@@ -8,9 +8,13 @@ A Zelda: ALttP–style action-RPG with deeper RPG systems, tonal blend of **Adve
 Time** and **Final Fantasy**, about a science cat branded "Professor Poopy Paws" who —
 after public humiliation and losing his girlfriend to a machine accident that erased
 her memory of him — becomes a hermit, until the world's magic drains away in a single
-night (**the Ebb**, natural/ancient — an EARTHQUAKE that crystallized the big
-mountain's summit and visibly drank the world's magic into it; a mystery, never
-villain-made) and Fuji, a
+night (**the Ebb** — an EARTHQUAKE that crystallized the big mountain's summit
+and visibly drank the world's magic into it; **authorship revised 2026-07-28**:
+Regent Aldous Schweinler — Schweinler's FATHER — lit the fuse, running a working
+at the obelisk network to siphon the world into a vessel he owned, and something
+far older answered and took it instead, so he is the author of the ATTEMPT, not
+the OUTCOME; what the mountain is and why it answered stays the mystery, and
+nobody alive knows he did it until the mid-late reveal) and Fuji, a
 librarian stranger from snowbound Lanternwood who unearthed his old thesis, pulls
 him back to restore the world's
 magic and find love again, with her. (Full chapter structure — Prologue A "The Whirligig",
@@ -96,14 +100,21 @@ lore spine, pacing rules — in docs/DESIGN.md "Story".)
   choice. Spells may never be recolored bolts (compounds own projectiles): only
   RESTORE / WARD / CONTROL (new status axes) / FIELD. **Every vestige comes off
   a REMNANT (canon 2026-07-28)** — a dungeon boss that is the leftover magic of
-  one lost thing, congealed at its land's obelisk and standing up; not a villain
-  (the Ebb has no author), so a boss fight is a SETTLING and some can be talked
-  down. Five lands = five Remnants = five vestiges + a few hidden; **the dungeon
-  count IS the collectible count, no filler.** Endgame **THE RETURN**: give every
-  vestige back to the summit crystal and the Ebb runs BACKWARDS (build it by
-  inverting `scene/ebb.gd` — the byte-locked `overworld_bright.*` twin is the
-  last frame of the game); you KEEP learned spells, LOSE unfinished learning,
-  and the last leg is fought with the gun. Four build slices — levels, then
+  one lost thing, congealed at its land's obelisk and standing up; the Remnants
+  themselves are NOT villains (grief with a shape), so a boss fight is a
+  SETTLING and some can be talked down. Five lands = five Remnants = five
+  vestiges + a few hidden; **the dungeon count IS the collectible count, no
+  filler.** **The REGENT (Aldous Schweinler) is the antagonist** — the anti-Basil
+  who read the same thesis and concluded magic must be kept FROM everyone, which
+  is why it had to be destroyed on that stage; he hunts the vestiges and cannot
+  settle a Remnant himself, so he needs the party to collect them for him. The
+  SON stays small and personal-sized on purpose — the reveal shrinks him, never
+  promotes him. Endgame **THE RETURN**: the Regent takes all five at the summit
+  (the empty-sockets moment, done TO you, not a menu), the last leg is fought
+  with the gun and the already-learned spells, then every vestige goes back and
+  the Ebb runs BACKWARDS (build it by inverting `scene/ebb.gd` — the byte-locked
+  `overworld_bright.*` twin is the last frame of the game); you KEEP learned
+  spells and LOSE unfinished learning. Four build slices — levels, then
   KO+FOCUS, then vestiges (gated to Act 2's first obelisk), then the Return.
 - **Art direction:** influenced by **Final Fantasy VI, Chrono Trigger, Secret of
   Mana, Sea of Stars, Adventure Time, and the Paper Girls comic** — CT-Frog sprite
@@ -377,10 +388,14 @@ camera, sad eyes + drooped ears, bindle over the screen-left shoulder.
 **THE EBB NIGHT IS LIVE (2026-07-19/20; story canon REWRITE):** the Ebb is
 an EARTHQUAKE — the big mountain's summit transforms into a GIANT GLOWING
 CRYSTAL and the world's magic visibly drains INTO it, sparks streaming home
-from every horizon (still natural/ancient/author-less, Schweinler never the
-world's villain; "the Drain beneath the eastern wastes" canon is DEAD — the
-summit crystal IS where the magic went, and WHY the mountain drank the
-world stays the standing mystery). Flow: Prologue B's leaving cards →
+from every horizon (the SCENE is unchanged by the 2026-07-28 authorship
+revision — it is staged from the world's point of view, and the world does
+not know: nothing on screen names a cause, which is exactly right now that
+the cause is a mid-late reveal. Schweinler the SON is never the world's
+villain; his FATHER lit the fuse and the mountain answered with something
+nobody asked for. "The Drain beneath the eastern wastes" canon is DEAD — the
+summit crystal IS where the magic went, and WHAT the mountain is and WHY it
+answered stay the standing mystery). Flow: Prologue B's leaving cards →
 `scene/ebb.tscn` (partyless cutscene over the big mountain: BOTH era
 tilemaps stamped, deep-indigo night, escalating wall-clock quake, ONE white
 flash swaps bright for drained + crystal ignition on the same cut, 14
