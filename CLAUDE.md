@@ -109,7 +109,12 @@ lore spine, pacing rules — in docs/DESIGN.md "Story".)
   is why it had to be destroyed on that stage; he hunts the vestiges and cannot
   settle a Remnant himself, so he needs the party to collect them for him. The
   SON stays small and personal-sized on purpose — the reveal shrinks him, never
-  promotes him. Endgame **THE RETURN**: the Regent takes all five at the summit
+  promotes him (every kid taunt he has is about who HAS magic: his father's
+  hierarchy in a child's mouth). **The Regent is ALREADY PLANTED in shipped
+  dialogue** — accident.gd's opening line, "Father had it shipped from the
+  CAPITAL", which is both his first appearance and the rule for every
+  pre-reveal one: he arrives as property and influence, never as a body. So
+  the machine that runs Kitty down is HIS, and no prologue scene needs an edit. Endgame **THE RETURN**: the Regent takes all five at the summit
   (the empty-sockets moment, done TO you, not a menu), the last leg is fought
   with the gun and the already-learned spells, then every vestige goes back and
   the Ebb runs BACKWARDS (build it by inverting `scene/ebb.gd` — the byte-locked

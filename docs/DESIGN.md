@@ -111,6 +111,28 @@ and finds love again, with her.
   never understood anything he wanted. **He needs the party to collect
   them for him**, which makes the middle of the game his plan and the
   player's own competence the trap.
+  **HE IS ALREADY PLANTED, IN SHIPPED DIALOGUE (2026-07-28).** The accident
+  scene's first line has been carrying him since 2026-07-12:
+  *"Feast your eyes, Ridley. **Father had it shipped from the CAPITAL.**
+  The fastest machine in the kingdom."* That establishes, on screen, in the
+  build, with no edit required: the father exists, he is elsewhere, he is
+  in the CAPITAL, and he is rich enough to import the fastest machine in
+  the kingdom for a boy to wreck. **This is now the earliest appearance of
+  the antagonist**, and it is also the rule for every appearance before the
+  reveal: *Aldous shows up through what he owns and who he pays, never in
+  person.* The benefactor's name over a door, a portrait, a carriage
+  leaving a gate, a machine nobody in this town could afford.
+  Two things fall out of that line for free, and both are canon now:
+  - **The machine that runs Kitty down is the FATHER'S.** Aldous's money
+    and Aldous's imported toy are the literal instrument of the injury
+    that erases Kitty's memory and exiles Basil from the town. The Regent
+    breaks Basil's life twenty years before he does it to the world — and
+    nobody, Basil least of all, will ever connect the two. Magic mends
+    anything but memory: the father takes Basil's love's memory, then
+    takes the world's magic. Do NOT have a character point this out.
+  - **The son's Capital post is him going home to his father's world.**
+    "Weaseled into the Capital's court as the self-declared Calamity
+    Expert" reads completely differently now, and needs no rewrite.
 - **Basil's thesis** — *On Re-Enchantment: Why Science Is Magic's Equal*:
   magic is not gone, it is merely sleeping; science can measure, carry, and
   rekindle it. Written as an academic argument and laughed off a stage; after
@@ -202,14 +224,29 @@ that IS the personality, Adventure Time style — never a generic villager.
   the apology finally arrives and Basil finds he's already past it — and
   it lands harder now, because Basil is past the father too.
 - **Regent Aldous Schweinler** — the father, and the game's antagonist.
-  See "The Regent" in the lore spine. An old boar in Academy plum, courtly
-  and unhurried, who has never once raised his voice in a scene and never
-  needs to. He appears (or nearly appears) far earlier than the reveal:
-  the benefactor's name over a door, a portrait in the hall, a carriage
-  leaving the Academy gate. **Never on stage in the prologue** — the
-  build-fresh doctrine and the shipped scenes both stay untouched. If he
-  is ever added there, it is as one silent figure in the recital gallery,
-  and nothing else.
+  See "The Regent" in the lore spine. A CAPITAL man: an old boar in
+  Academy plum who endows the wing but lives at court, courtly and
+  unhurried, who has never once raised his voice in a scene and never
+  needs to. **Already named on screen** — the accident scene's "Father had
+  it shipped from the CAPITAL" is his first appearance and the template
+  for all the rest: he arrives as property and influence, never as a body,
+  until the reveal. **Never on stage in the prologue** — the build-fresh
+  doctrine and the shipped scenes both stay untouched. If he is ever added
+  there, it is as one silent figure in the recital gallery, and nothing
+  else.
+  **The son is his father's argument, badly remembered.** Every kid-
+  Schweinler taunt in the shipped festival and recital scenes is about who
+  HAS magic and who does not — *"HA! You still can't do magic Basil!?"*,
+  *"He can't do MAGIC! What's he going to do, WIND something at us?"*,
+  *"no magic so I guess you can't even participate"*. That is not
+  playground cruelty inventing itself; it is a ten-year-old repeating the
+  household hierarchy without understanding a word of it. And when the
+  whirligig actually works, all he can produce is *"That's not - that's
+  not magic, that's just -"*, because he has no category for it. His
+  father would have had one instantly, which is exactly why his father
+  would need it destroyed. **The boy never had an idea in his life,
+  including the one he bullied Basil with** — which is the whole reason
+  the reveal must shrink him rather than promote him.
 - **Minor cast**: the Dean (from the old intro), the doctor, the fountain
   classmate (unnamed, one scene), the Copper Kettle innkeeper (the town's
   memory — the one who recalls where Basil went), festival townsfolk, and
@@ -393,7 +430,12 @@ decision: the old look is rejected wholesale); only the beats are canon:
 7. **The accident** *(SHOWN, side-view set-piece, `scene/accident.tscn`,
    WITH CAUSE; impact reworked 2026-07-17)*: dusk roadside — Schweinler
    shows Ridley the badger his brand-new machine (parked frame, a bow on
-   the bars), Ridley warns him it looks DANGEROUS, Schweinler climbs on
+   the bars) with the line that turned out to be load-bearing —
+   *"**Father had it shipped from the CAPITAL.** The fastest machine in
+   the kingdom."*, **the antagonist's first appearance in the game**
+   (2026-07-28; see "The Regent"): the machine is the Regent's, so his
+   money is the instrument of the injury, and the scene needs NO edit to
+   carry it — Ridley warns him it looks DANGEROUS, Schweinler climbs on
    ("You don't DRIVE a machine like this. You POINT it.") and loses
    control the moment the engine catches — exactly as Kitty happens to
    pedal around the bend, bell bright. Wobble, motion lines, the drift
