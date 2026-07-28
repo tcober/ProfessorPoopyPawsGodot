@@ -614,12 +614,16 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
      theft is the consequence. And it fails, the way the caged ones failed:
      a vestige can only be GIVEN. He has spent twenty years taking things
      that only answer to being handed over.
-  3. **The fight without magic.** No vestiges, no worn bonuses: the levels,
-     the spells already learned, Fuji's tome and darts, and Basil's brass
-     gun — the thing he built alone in the wilderness when nobody believed
-     him. *Science is magic's equal*, proved at the exact moment magic is
-     gone again. This is what the whole compound/ammo layer was built for,
-     and why it must stay relevant all game.
+  3. **The fight with everything they are.** No vestiges and no worn
+     bonuses — but not "no magic": the levels, the spells already LEARNED
+     (magic that is already back in the world, living in two bodies), Fuji's
+     tome and darts, and Basil's brass gun. *Science is magic's equal*,
+     proved at the exact moment the rocks are gone. This is what the whole
+     compound/ammo layer was built for and why it must stay relevant all
+     game — **but frame it as both halves at once, never as the scene where
+     the gun turns out to have been the real answer** (see Themes, "The
+     thesis"). He is out-BUILT by a chemist and out-UNDERSTOOD by a
+     librarian, simultaneously.
   4. **He loses to what he is.** Not out-fought so much as refused: hoarded
      magic does not answer someone who only ever wanted to own it. The
      vestiges go where they were always going.
@@ -796,6 +800,64 @@ the reason the second half has stakes beyond a scavenger hunt.
    goes home. The small, personal ending (magic returns, and so does love) is
    the right scale — resist any temptation to have the world reorganize itself
    in the epilogue.
+
+### THE THESIS: magic and science BOTH matter (2026-07-28 — the top-line rule)
+
+The paper is called *Why Science Is Magic's **Equal***. Not its replacement, not
+its superior, not the thing that turned out to be better all along. **Neither
+side wins, and the story must never let one.** Every other theme in this
+document reports to this one; when a beat is ambiguous, resolve it toward both.
+
+**It is already true in the mechanics, and that is the strongest possible
+statement of it. Keep it true:**
+
+- **The two systems are NON-OVERLAPPING, by construction.** Compounds own
+  projectiles, elements and on-hit status; spells own RESTORE / WARD / CONTROL /
+  FIELD. A spell may never be a recolored bolt (see "RPG Systems"), and a
+  compound will never heal anybody.
+- **Therefore the game must NOT be completable with either one alone**, and this
+  is a hard design rule to hold every time a new enemy or gate is authored.
+  Nothing but a spell can revive a downed member or light a dark room. Nothing
+  but the gun answers the Regent's machines, which are drowse-immune and
+  unimpressed by everything Fuji's kit does best. **A player who ignores half
+  the game gets stuck, and the fix is always the other half.**
+- **The RESONATOR is the thesis as an object**: a brass machine, built by a
+  chemist, that does magic. Every spell cast in the drained world runs through
+  a piece of engineering, and every piece of engineering is aimed at putting
+  magic back. Neither half functions alone. That is the whole argument, and the
+  player holds it in their hands for the back two thirds of the game.
+- **It has been on screen since the recital** (shipped): a ten-year-old's
+  clockwork toy with a flask pinned under the pod, throwing fireworks in the
+  four compound colours, at a MAGIC recital. Science and magic in one object,
+  working. And the institution's answer — *"It is POTIONS is what it is."* — is
+  the world refusing the synthesis twenty years before it needs it. The whole
+  theme is already built; it just has not been named until now.
+
+**THE EXCHANGE GOES BOTH WAYS.** Basil learns magic (below) — so **Fuji must
+learn science**, or the game quietly argues that science was a ladder to the
+better thing. Her half:
+
+- She could cast and lost it; she spends the game learning that reading,
+  evidence, cataloguing and method give her back more than the wand did — and
+  she is the one who believed a *scientific* argument about magic before anyone
+  else alive, which is why she went looking for its author.
+- **Her kit already says it.** She fights with a BOOK — the librarian's weapon
+  is knowledge, and it is in the build. Her blow-darts are a chemical payload
+  that puts a body to sleep, which is pharmacology; she was doing science with
+  a pipe and a dart the whole time and never called it that.
+- When her casting returns at the Return, she does not put the method down. She
+  keeps both, which is the point, and she is better at both than he is.
+- **Her coffee is the joke that carries it**: the wand never could do it
+  properly. A kettle can. She is allowed to notice this and be annoyed by it.
+
+**AND THE FINALE MUST NOT BE A SCIENCE WIN.** "The last leg is fought with the
+gun" is a great beat and a dangerous one — as the closing note it argues that
+the gun was the real answer. It isn't. The gun gets the party through the fight;
+what actually ENDS the game is a settling, and settling is understanding, which
+is the half the Regent threw away and the half no machine has ever done. **He
+loses to both of them at once**: out-built by a chemist, and out-understood by a
+librarian. Frame the finale as everything they are, together — never as the
+moment science proved it never needed magic.
 
 ### Basil learns magic (the arc, 2026-07-28)
 

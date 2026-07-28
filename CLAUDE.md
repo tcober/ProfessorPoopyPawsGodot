@@ -140,6 +140,21 @@ lore spine, pacing rules — in docs/DESIGN.md "Story".)
   wealth in a vault) so the DIALOGUE never does. Never name it, keep Aldous
   half-persuasive (never a cackling strawman), and remember the refutation is
   already shipped: Fuji's magic coffee is exactly the "waste" he'd abolish.
+  **TOP-LINE THESIS (DESIGN.md "The thesis: magic and science BOTH matter"):**
+  the paper says magic's EQUAL, not its replacement — neither side ever wins,
+  and every other theme reports to this one. It's already mechanical: the two
+  systems are NON-OVERLAPPING by construction, so **the game must never be
+  completable with either alone** (only a spell revives or lights a room; only
+  the gun answers the drowse-immune machines) — hold that rule every time a new
+  enemy or gate is authored. The RESONATOR is the thesis as an object (a brass
+  machine, built by a chemist, that does magic), and the shipped recital already
+  staged it: a clockwork toy with a flask pinned under it, at a MAGIC recital.
+  **The exchange goes BOTH ways** — Basil learns magic, so Fuji must learn
+  SCIENCE (her kit already says it: she fights with a BOOK, and her sleep darts
+  are pharmacology), or the story quietly argues science was a ladder to the
+  better thing. And the finale is NOT a science win: the gun gets them through
+  the fight, but what ENDS the game is a settling, which is understanding —
+  Aldous is out-BUILT by a chemist and out-UNDERSTOOD by a librarian at once.
   **BASIL LEARNS MAGIC** (DESIGN.md "Basil learns magic") — never as a prize or
   a hidden gift, ONLY because he built the machine that teaches anybody (a prize
   would mean magic beat science and the thesis dies). First cast lands as GRIEF
