@@ -707,7 +707,10 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
 - **Sage thread**: THE CRACKED FLASK, the drained sister, reconciliation.
 - **Kitty side note**: one optional scene in a later town. Closure, not
   reunion.
-- **Fuji romance**: slow burn in camp/inn beats across the acts; magic's
+- **Fuji romance** (see Themes, "The romance" — the crossing arcs ARE the
+  romance, she fell for the WORK first, build to her calling him *Basil*
+  rather than to a speech, and he builds her a coffee machine): slow burn
+  in camp/inn beats across the acts; magic's
   return and "finds love again" land together — the metaphor made literal.
 - **Party member 3** (future, "the sympathizers"): slot stays open; the
   roster architecture already supports it.
@@ -939,6 +942,54 @@ PROGRESSION flags (Basil's first socketed vestige, Basil's first learned spell),
 not dungeon numbers — the story reacts to the player's choice instead of
 assuming it. One mid-game moment must be story-mandated, though, so a player who
 never gives Basil a vestige cannot skip the arc entirely.
+
+### The romance (Basil and Fuji — 2026-07-28)
+
+Canon since the premise: he *"finds love again, with her."* Slow burn across the
+acts, landing with the Return, so magic coming back and him coming back land in
+the same beat. What the 2026-07-28 material adds is what the romance is MADE of,
+because it turns out the systems already built it.
+
+- **THE CROSSING ARCS ARE THE ROMANCE.** She could cast and lost it; he never
+  could and is gaining it. She teaches him the thing she can no longer do. He
+  teaches her the method that gave him a way in without it. **They each hand the
+  other the thing they cannot have themselves** — that is not adjacent to the
+  love story, it IS the love story, and it is assembled out of mechanics that
+  already exist. Every teaching scene is a romance scene; write them as one
+  thing, never as two.
+- **She fell for the WORK first, and met the man second.** She is a stranger to
+  his past who knows him only through a thesis she unearthed — the first person
+  alive who was persuaded by his ARGUMENT rather than loyal to his person. That
+  is the load-bearing difference from Kitty, who loved the boy and never read the
+  paper, and it is why this is not a replacement or a consolation. Two different
+  people loved two different true things about him.
+- **THE NAME IS THE WHOLE ARC IN ONE WORD.** The insult outlives the man —
+  finding him means asking a whole town about "Professor Poopy Paws," so
+  **Fuji learns the joke before she meets the person**, and the first thing she
+  knows about him socially is the worst day of his life. Which makes the beat
+  where she simply calls him *Basil*, when nobody in twenty years has, worth
+  more than any declaration. Do not build to a speech. Build to a name.
+- **The coffee machine.** She made coffee with a wand on the night the world
+  ended, badly, sparks missing the kettle — the shipped first scene of her life.
+  Late in the game **he builds her something that makes coffee.** Not magic: a
+  machine, brass and fussy and slightly too loud. It is the gift, the thesis,
+  the joke, the answer to Aldous ("squandered on... warming somebody's coffee"),
+  and the romance, in one prop. This is the single highest-value object in the
+  back half and it costs one sprite.
+- **The watch stays on.** He kept Kitty's watch and will keep it — taking it off
+  is a cheap "moving on" beat, and it would wreck Kitty's own planned payoff
+  (she admires the craftsmanship of a stranger's watch, not knowing she built
+  it). What changes is not that he removes it. It is that he stops being the
+  only one who looks at it.
+- **FUJI IS NEVER THE REWARD.** She acts first in the entire story, she is the
+  current solo playable character, the story rests with her, and she came for
+  her own reasons — her world went dark and she found an answer on her own
+  shelf. Protect that. The romance is EVIDENCE that "came back for the science,
+  not the people" finally closed, never the prize for closing it.
+- **Register: Adventure Time, not swooning.** Two adults who are bad at this.
+  She is much better at talking than he is; he has been alone in a tree for
+  years and has genuinely forgotten how. It should be funny far more often than
+  it is tender, and tender only when it ambushes them.
 
 ## Influences
 

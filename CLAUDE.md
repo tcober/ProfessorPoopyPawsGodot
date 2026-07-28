@@ -167,7 +167,23 @@ lore spine, pacing rules — in docs/DESIGN.md "Story".)
   never a speech — the uncatalogued thesis finally gets an ACCESSION STAMP (the
   prop already exists) — and there is NO Dean-apologizes scene, ever. Arc beats
   hang off progression flags (Basil's first socket / first spell), not dungeon
-  numbers, since the player picks who learns what. The
+  numbers, since the player picks who learns what.
+  **THE ROMANCE** (DESIGN.md "The romance"; canon since the premise, lands with
+  the Return): **the crossing arcs ARE it** — she teaches him what she can no
+  longer do, he teaches her the method that got him in without it, so every
+  teaching scene IS a romance scene, written as one thing. She fell for the WORK
+  first and met the man second (the difference from Kitty, who loved the boy and
+  never read the paper — not a replacement, two people loving two different true
+  things). **Build to a NAME, not a speech**: she has to ask a whole town about
+  "Professor Poopy Paws" to find him, so she learns the joke before the person,
+  and the beat where she just calls him *Basil* outweighs any declaration. The
+  one object to build: **he makes her a COFFEE MACHINE** — brass, fussy, not
+  magic — paying off her shipped wand-coffee scene and answering Aldous's
+  "squandered on warming somebody's coffee" in one prop. The watch stays ON
+  (removing it is cheap and wrecks Kitty's planned payoff). Fuji is NEVER the
+  reward: she acts first, came for her own reasons, and the romance is EVIDENCE
+  the "science not people" gap closed, never the prize for closing it. Register
+  is Adventure Time — two adults bad at this, funny far more often than tender. The
   SON stays small and personal-sized on purpose — the reveal shrinks him, never
   promotes him (every kid taunt he has is about who HAS magic: his father's
   hierarchy in a child's mouth). **The Regent is ALREADY PLANTED in shipped
