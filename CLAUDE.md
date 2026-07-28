@@ -111,9 +111,15 @@ lore spine, pacing rules — in docs/DESIGN.md "Story".)
   place WAS → the boss room opens the option to SPEAK) — the wander-gate
   doctrine pointed at a boss, and the reason the party is these two:
   **Basil takes readings, Fuji reads the room**, and Aldous can never settle one
-  because he threw away the half that reads. Fighting is ALWAYS legitimate
-  (nothing missable, no bad ending); understanding pays one EXTRA `gift` spell,
-  never a power gap. Five lands = five Remnants = five
+  because he threw away the half that reads. **HARD RULE: every Remnant yields
+  its vestige by EVERY path** — talked down or beaten, willing or refusing, no
+  exceptions (five vestiges gate the ending, so a missable one is an unwinnable
+  save); fighting is a legitimate way to play the whole game, only sadder.
+  Understanding pays one EXTRA `gift` spell, never a power gap — except on the
+  REFUSING one, which has no peaceful path at all and no gift: there,
+  understanding only means you know exactly what you're taking while you take
+  it, the one place knowledge isn't a power-up. Basil presses anyway, and nobody
+  absolves him. Five lands = five Remnants = five
   vestiges + a few hidden; **the dungeon count IS the collectible count, no
   filler.** **The REGENT (Aldous Schweinler) is the antagonist** — the anti-Basil
   who read the same thesis and concluded magic must be kept FROM everyone, which

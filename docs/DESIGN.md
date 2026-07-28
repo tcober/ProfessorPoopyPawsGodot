@@ -2818,6 +2818,17 @@ dispositions, authored per Remnant, declared on the resource:
   Remnant with the right to refuse, and the party is in the wrong for pressing.
   Put the hardest beat in the game here, let the player win, and **never
   comment on it** — no card, no line, no absolution. One of these. Not two.
+  **You take it anyway, and that is the point.** There is no talk-down to earn
+  and no gift spell to miss: doing the reading on this one does not open a
+  peaceful path, because it does not want to be understood, it wants to be left
+  alone. All the understanding buys you is knowing *exactly* what you are
+  taking while you take it. **The one place in the game where knowledge is not
+  a power-up — it is just worse.**
+  And it has to be BASIL who presses. The cat who was refused by an Academy,
+  refused by a mother at a bedside — *"LEAVE."* — and who walked himself out
+  the door, is the one who does not accept a refusal, because a world needs its
+  magic back more than this one thing needs its grief. He is right, and it
+  costs him, and nobody absolves him of it.
 
 **And one of them spends itself for you.** The FFVI sacrifice beat, mid-game and
 unrepeatable: a Remnant the party has already met — most likely one they FAILED
@@ -2845,9 +2856,13 @@ with a question mark on it:
   money, and he has never once had anybody who reads, because the reading is
   history and stories and other people's small lives — the "waste" he would
   abolish. He is missing the half he threw away.
-- **Fighting is always legitimate.** A Remnant beaten until it stops still
-  settles, still rests, still yields its vestige. No path is locked, nothing is
-  missable-forever, and there is no bad ending. It is only sadder.
+- **EVERY REMNANT YIELDS ITS VESTIGE, ALWAYS, BY EVERY PATH.** Willing, unquiet
+  or refusing; talked down or beaten until it stops — a settled Remnant rests
+  and gives up what it was made of, with no exceptions and no conditions. This
+  is a HARD RULE, not a kindness: five vestiges gate the ending, so a missable
+  one is an unwinnable save. Nothing here is ever locked, lost, failed, or
+  reachable only by the clever route. **Fighting is a legitimate way to play
+  the whole game.** It is only sadder.
 - **The reward for understanding is one MORE spell**, not a better one: a
   willingly-given vestige carries a `gift` spell that a taken one never teaches.
   Discrete, visible in the menu, worth going back for — and never a power gap
