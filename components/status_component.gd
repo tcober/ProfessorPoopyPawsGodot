@@ -96,8 +96,7 @@ func _process(delta: float) -> void:
 			if health_component:
 				health_component.take_damage(1)
 
-	if is_disabled() != was_disabled:
-		disabled_changed.emit(not was_disabled)
+	_notify_disabled(was_disabled)
 
 
 ## Fold one hit's status payload in. Keys are additive counts:
@@ -128,8 +127,16 @@ func apply(effect: Dictionary) -> void:
 		if _burn_timer <= 0.0:
 			_burn_timer = burn_period
 
+	_notify_disabled(was_disabled)
+
+
+## Announce a disabled-state flip, with the CURRENT state as the payload. Both
+## callers used to emit `not was_disabled` — right only because the emit is
+## guarded by the states differing, so it silently becomes a lie the moment
+## anything else wants to fire this (a periodic re-assert, a forced wake).
+func _notify_disabled(was_disabled: bool) -> void:
 	if is_disabled() != was_disabled:
-		disabled_changed.emit(not was_disabled)
+		disabled_changed.emit(is_disabled())
 
 
 ## Asleep or frozen solid: the body must not move and must not deal contact damage.

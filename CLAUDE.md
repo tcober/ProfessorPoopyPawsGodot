@@ -519,7 +519,14 @@ the body ON the door marker/zone (feet on the lane under the arch — the
 old tile-and-a-half drop read as appearing nowhere near the door);
 `_standing`/`_home_armed` suppress the re-fire until the body steps off
 once, and interior front-door spawns/exits x-center on the 2-cell door
-bbox. **Interior south walls carry a `south_lift()` mask band** (the
+bbox. The flip side (2026-07-28): `body_entered` fires ONCE per entry, so
+any marker event `TravelScene` swallows — the entry lock, or `_busy` while
+a banner plays — is gone for good and the marker sits dead until the body
+steps off and back on. A travel door that silently refuses reads as broken
+(step off a cabin banner onto the library arch inside its ~2s), so both
+swallow sites now end in `_deliver_standing()`, which re-scans the overlaps
+and delivers what was missed; the `_standing` latch is what makes it safe
+to call at will. **Interior south walls carry a `south_lift()` mask band** (the
 `_eave_lift` twin in `_interior.py`: top 12px of body-pressable `#` south
 cells mirrored to the upper layer — no more standing ON the bottom wall);
 town-building smoke RISES into `SMOKE_PAD` sky rows padded atop the

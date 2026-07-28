@@ -164,9 +164,9 @@ func _spawn_bolt() -> void:
 	flash.rotation = facing.angle()
 
 
+## A beaker is a spare magazine, and now it has a KIND. False = paws full,
+## leave it on the grass.
 func collect_beaker(kind: Compound.Kind = Compound.Kind.BASE) -> bool:
-	## A beaker is a spare magazine, and now it has a KIND. False = paws full,
-	## leave it on the grass.
 	if beakers.size() >= max_beakers:
 		return false
 	Game.spares.append(Alchemy.make(kind))

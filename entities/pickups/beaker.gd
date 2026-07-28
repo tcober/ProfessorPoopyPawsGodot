@@ -12,6 +12,8 @@ extends Area2D
 
 signal collected
 
+## Set BEFORE the node enters the tree (meadow.gd rolls one per refill) —
+## `_ready` is what paints the tint, and there is no property setter here.
 @export var kind: Compound.Kind = Compound.Kind.BASE
 
 @onready var sprite: Sprite2D = $Sprite2D
@@ -20,13 +22,6 @@ signal collected
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	if sprite:
-		sprite.modulate = Alchemy.make(kind).tint
-
-
-## Re-colour after spawn (meadow.gd rolls a kind per refill).
-func set_kind(new_kind: Compound.Kind) -> void:
-	kind = new_kind
-	if is_node_ready() and sprite:
 		sprite.modulate = Alchemy.make(kind).tint
 
 
