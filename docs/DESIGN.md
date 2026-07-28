@@ -735,6 +735,57 @@ The loss made playable — the same stages in two eras (festival town vs.
 shuttered town, idyll meadow vs. slime meadow); the world before the Ebb was
 safe, and the player feels the difference in the verbs.
 
+### The commons (named 2026-07-28)
+
+With the Regent in place the spine of the back half is plain: **one man is
+hoarding a thing that belonged to everybody, and the ending is giving it back.**
+Magic was infrastructure — the obelisks "circulated it through the world like a
+water table", which is a commons in as many words — and he privatized it. It
+reads as the greedy-billionaire story because it IS that story. Own that; it is
+the reason the second half has stakes beyond a scavenger hunt.
+
+**The systems already argue it, which is why the dialogue must not.**
+
+- A vestige **can only be GIVEN, never taken.** That is the whole thesis
+  compressed into a rule the player learns by watching it fail for the villain.
+- **Learning a spell is redistribution, one at a time**: magic leaving a rock
+  and entering a living body that will use it. The party spends the entire game
+  doing in miniature what the ending does at once.
+- **The caged Remnants are wealth in a vault.** Hoarded, producing nothing,
+  suffering, and worthless to the man who owns them. Nobody has to say this.
+- **The Return** gives all of it back to everyone at the same moment, and the
+  reward is rendered as the whole world's lights coming on.
+
+**RULES, so this lands as a story and not a lecture:**
+
+1. **Never name it.** No character says "hoarding", "the few", "they took it
+   from us", or anything a pamphlet could print. The narration purge and the
+   commentary-card purge already ban exactly this move — those doctrines were
+   written for pacing, and they turn out to be the thematic discipline too. The
+   register is Adventure Time and FF: theme arrives as image and consequence,
+   never as thesis. If a line could be a placard, cut it.
+2. **Aldous must be half-right in the room.** His argument is that magic was
+   being SQUANDERED — burned on lamplighters and hedge-charms and warming
+   somebody's coffee — and that it ought to be held by people who understand
+   it. Stewardship by the competent. That is an argument a reasonable person
+   can half-follow for a few seconds, and it MUST be, because a strawman
+   deflates the whole theme. He is not cackling about gold. He is the most
+   reasonable-sounding person in any room he is in.
+3. **The refutation is already shipped, and it is a cup of coffee.** Fuji's
+   first appearance is a librarian using magic, badly, to make herself a hot
+   drink on a cold night, sparks missing the kettle. That is precisely the
+   "waste" the Regent would abolish, and it is the warmest scene in the build.
+   **The game made the counter-argument two months before it had the
+   argument** — the frivolous uses WERE people's lives. Show more of them (the
+   lamplighter with no trade, the charm-seller's dead stock, Pip's dead trick)
+   and never once explain them.
+4. **Don't let the ending read utopian.** The magic comes back to a world that
+   still has an Academy in it, still has a court, still has people who will try
+   this again. Basil does not fix society; he gives back what was taken and
+   goes home. The small, personal ending (magic returns, and so does love) is
+   the right scale — resist any temptation to have the world reorganize itself
+   in the epilogue.
+
 ## Influences
 
 - **Adventure Time:** surreal biomes, oddball NPCs, comedic-but-sincere writing.

@@ -116,7 +116,13 @@ lore spine, pacing rules — in docs/DESIGN.md "Story".)
   thugs, and **you never kill a person in this game** — you fight their MACHINES,
   which are drowse-IMMUNE and so are the first enemies Fuji's sleep setup can't
   solve. Theft rules: never take a vestige already earned, an empty dungeon pays
-  in reveal instead, and the game stays completable without every one. The
+  in reveal instead, and the game stays completable without every one. **THEME
+  (DESIGN.md "The commons"):** one man hoarding what belonged to everyone, and
+  the ending is giving it back — but the SYSTEMS argue it (a vestige can only be
+  GIVEN; learning is redistribution one spell at a time; caged Remnants are
+  wealth in a vault) so the DIALOGUE never does. Never name it, keep Aldous
+  half-persuasive (never a cackling strawman), and remember the refutation is
+  already shipped: Fuji's magic coffee is exactly the "waste" he'd abolish. The
   SON stays small and personal-sized on purpose — the reveal shrinks him, never
   promotes him (every kid taunt he has is about who HAS magic: his father's
   hierarchy in a child's mouth). **The Regent is ALREADY PLANTED in shipped
