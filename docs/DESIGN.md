@@ -128,15 +128,15 @@ and finds love again, with her.
   leaving a gate, a machine nobody in this town could afford.
   Two things fall out of that line for free, and both are canon now:
   - **The machine that runs Kitty down is the FATHER'S.** Aldous's money
-    and Aldous's imported toy are the literal instrument of the injury
-    that erases Kitty's memory and exiles Basil from the town. The Regent
-    breaks Basil's life twenty years before he does it to the world — and
+	and Aldous's imported toy are the literal instrument of the injury
+	that erases Kitty's memory and exiles Basil from the town. The Regent
+	breaks Basil's life twenty years before he does it to the world — and
     nobody, Basil least of all, will ever connect the two. Magic mends
-    anything but memory: the father takes Basil's love's memory, then
-    takes the world's magic. Do NOT have a character point this out.
+	anything but memory: the father takes Basil's love's memory, then
+	takes the world's magic. Do NOT have a character point this out.
   - **The son's Capital post is him going home to his father's world.**
     "Weaseled into the Capital's court as the self-declared Calamity
-    Expert" reads completely differently now, and needs no rewrite.
+	Expert" reads completely differently now, and needs no rewrite.
 - **Basil's thesis** — *On Re-Enchantment: Why Science Is Magic's Equal*:
   magic is not gone, it is merely sleeping; science can measure, carry, and
   rekindle it. Written as an academic argument and laughed off a stage; after
@@ -609,19 +609,19 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
   story beat.
 - **The finale — THE RETURN**, in five beats (2026-07-28):
   1. **The ascent.** Every vestige collected, the point-of-no-return warning
-     given (see "RPG Systems": finish what you want to learn, because what
-     is unfinished is lost).
+	 given (see "RPG Systems": finish what you want to learn, because what
+	 is unfinished is lost).
   2. **He is already there.** Aldous has been waiting for someone to gather
-     all five, because he could never settle a Remnant himself. **He takes
-     them.** That is the empty-sockets moment, and it plays far better done
-     TO the party than chosen from a menu — the choice was the learning, the
-     theft is the consequence. And it fails, the way the caged ones failed:
-     a vestige can only be GIVEN. He has spent twenty years taking things
-     that only answer to being handed over.
+	 all five, because he could never settle a Remnant himself. **He takes
+	 them.** That is the empty-sockets moment, and it plays far better done
+	 TO the party than chosen from a menu — the choice was the learning, the
+	 theft is the consequence. And it fails, the way the caged ones failed:
+	 a vestige can only be GIVEN. He has spent twenty years taking things
+	 that only answer to being handed over.
   3. **The fight with everything they are.** No vestiges and no worn
-     bonuses — but not "no magic": the levels, the spells already LEARNED
-     (magic that is already back in the world, living in two bodies), Fuji's
-     tome and darts, and Basil's brass gun. *Science is magic's equal*,
+	 bonuses — but not "no magic": the levels, the spells already LEARNED
+	 (magic that is already back in the world, living in two bodies), Fuji's
+	 tome and darts, and Basil's brass gun. *Science is magic's equal*,
      proved at the exact moment the rocks are gone. This is what the whole
      compound/ammo layer was built for and why it must stay relevant all
      game — **but frame it as both halves at once, never as the scene where
@@ -660,30 +660,30 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
   useless to him and he does not understand why.** This is the engine of
   the entire back half:
   - It makes his plan collapse on a misunderstanding rather than on a
-    boss's HP bar — he is beaten by what he is, exactly as the finale says.
+	boss's HP bar — he is beaten by what he is, exactly as the finale says.
   - It gives the party a reason to chase him that is not loot. Those things
-    are grief that cannot rest, in a box, in a warehouse. **You want them
-    back because it is cruel**, and that is a better second-act motive than
-    completing a set.
+	are grief that cannot rest, in a box, in a warehouse. **You want them
+	back because it is cruel**, and that is a better second-act motive than
+	completing a set.
   - It sets up the ending: at the summit he takes your five and they do not
-    answer him either. The vestiges can only be GIVEN. He can only take.
+	answer him either. The vestiges can only be GIVEN. He can only take.
 
 - **The encounter ladder** — five dungeons, five different shapes, never
   the same beat twice:
   1. **No sign of him.** The world still has no author.
   2. **Traces.** Survey stakes, a crate stencilled with a name, a
-     plum-coated crew packing out as you arrive. No confrontation, no
-     dialogue, nothing explained.
+	 plum-coated crew packing out as you arrive. No confrontation, no
+	 dialogue, nothing explained.
   3. **THE EMPTY ONE — the "they were already here" dungeon**, and the
-     right place for the whole reveal. You clear the place and there is
-     nothing at the end of it: the obelisk stays dark, the cradle is
-     empty, there are drag marks and a cut cage-chain and the smell of a
-     machine. **The reveal is an ABSENCE you find, not a cutscene that
-     explains it** — infinitely stronger, and it costs one room.
+	 right place for the whole reveal. You clear the place and there is
+	 nothing at the end of it: the obelisk stays dark, the cradle is
+	 empty, there are drag marks and a cut cage-chain and the smell of a
+	 machine. **The reveal is an ABSENCE you find, not a cutscene that
+	 explains it** — infinitely stronger, and it costs one room.
   4. **He is there, and he lets you finish.** In person, unhurried,
-     waiting at the obelisk while you settle the Remnant, and he takes the
-     vestige as it forms. Now he knows exactly how useful you are, and the
-     rest of the act is him letting you work.
+	 waiting at the obelisk while you settle the Remnant, and he takes the
+	 vestige as it forms. Now he knows exactly how useful you are, and the
+	 rest of the act is him letting you work.
   5. **You beat him to it** — or take one back off the crew. The turn.
 - **The crews are ACADEMY MEN, not thugs.** Graduate surveyors in Academy
   plum with instruments and clipboards and a containment rig, doing
@@ -1317,9 +1317,9 @@ story progresses; the gating tools are terrain, the ocean, and story keys.
 	threshold lies — decay eats part of a point *between* the darts of a burst, so a
 	"2 dart" enemy really took three.
   - **Disabling contact damage toggles the Hitbox's collision SHAPE, never `monitoring`.**
-    Re-enabling `monitoring` does not re-scan an overlap that never ended, so an enemy
-    that woke while still touching the player would stay harmless forever. (`_on_died`
-    gets away with `monitoring = false` only because it frees the node.) Same reason
+	Re-enabling `monitoring` does not re-scan an overlap that never ended, so an enemy
+	that woke while still touching the player would stay harmless forever. (`_on_died`
+	gets away with `monitoring = false` only because it frees the node.) Same reason
 	Fuji's BookHitbox toggles its shape.
   - Burn ticks go **straight to the HealthComponent**, not back through `take_hit` — the
 	hurtbox's `invincible_time` gate would swallow most of them.
