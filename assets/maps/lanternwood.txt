@@ -1,27 +1,72 @@
-; LANTERNWOOD - 44x28 tiles (704x448 px): Fuji's hometown, the winter
-; pine-forest town on the ice land - quaint log cabins with fire-lit
-; flickering windows and woodsmoke chimneys, nestled in deep blue-spruce
-; woods on a snow field. Shared source of truth: tiled by
-; assets/_gen_tileset_lanternwood.py on the shared OverWorld driver (pines
-; border = the new pines class, lanes = the trail painter with road_verge
-; "snow", pond = WALKABLE pond cells under a baked Tier-1 ice prop - never
-; sea/river, those animate), collision/markers by scene/lanternwood.gd.
-; Cabins span roof+body char pairs (all solid, footprint bbox + collision
-; only - the whole cabin is a Tier-3 y-sorted 8-frame sheet). Standalone
-; conifers alternate Y/y so adjacent 2x4 blocks stay separate components.
-; The south gate lane exits to the overworld at Lanternwood's icon marker.
+; LANTERNWOOD - 56x50 tiles (896x800 px): Fuji's hometown, REBUILT 2026-07-28
+; from a flat snow field into a NARSHE-style terraced mining town (FFVI).
+; Verticality in this engine is AUTHORING, not a system, so all of the depth
+; here is map structure. FIVE walkable levels, FOUR cliff bands, THREE band
+; heights:
 ;
-; THE LIBRARY (k/K, 2026-07-25) is the exception and the point: a 9x7
-; footprint - nearly 2x a cabin each way - backed against the north pines so
-; nothing walkable hides behind its 112px sheet, with a shoveled forecourt
-; widening out of the lane at its door. Its D cell TRAVELS (scene/library.tscn),
-; the only enterable door in town; every other banner is announce-only.
+;   rows 2-11   LEVEL 5  - the library alone, backed against the pines
+;   rows 11-14  BAND A   - B, FOUR rows: the big back wall. Stair T (cols 30-31)
+;   rows 15-22  LEVEL 4  - two cabins
+;   rows 22-23  BAND B   - C, TWO rows. Stair S (cols 12-13)
+;   rows 24-31  LEVEL 3  - a cabin, and THE RIFT (V, rows 27-28) on the east
+;                          flank, crossed by the TRESTLE (=). The rift is a
+;                          SHORTCUT, not a gate - you can walk around its west
+;                          end - so a mis-authored bridge can't strand anyone.
+;   rows 31-33  BAND C   - X, THREE rows. Stair s (cols 26-27)
+;   rows 34-40  LEVEL 2  - Fuji's family home, the pond
+;   rows 41-42  BAND D   - C, TWO rows. Stair S (cols 24-25)
+;   rows 43-47  LEVEL 1  - the gate
+;
+; EVERY BAND STAIRCASES. Bands A/B/C each shift their top row by one between
+; column segments, which is the difference between rock and a stripe: two
+; uniform 2-row bands read as ONE cliff drawn twice, which is exactly how the
+; first draft of this map failed. Each column still carries exactly one run of
+; its band's height, which is all stamp_columns cares about.
+;
+; A cliff run must be EXACTLY as tall as its char declares - C=2, X=3, B=4 -
+; and a stair must be as tall as the band it pierces (S=2, s=3, T=4). The face
+; art lands on a run's TOP cell, so a short run paints a rock wall over the
+; WALKABLE cell below: a wall you walk through, which nothing in _check_art.py
+; catches. stamp_columns asserts the height for exactly that reason, and
+; TileScene.assert_reachable then proves every door and anchor is still
+; walkable-to from the gate - with five levels and four chokepoints, one
+; mistyped band cell would otherwise strand a whole terrace silently.
+;
+; A stair is a 2-wide walkable block spanning ALL of its band's rows with a road
+; cell directly north and south, so the trail painter's ribbon connects through
+; it (stairs render terrain class "road"); the opaque town_stairs blit covers
+; the ribbon afterwards. Cabins sit on LEVEL rows only - a footprint straddling
+; a band row would bake its contact shadow onto a cliff face.
+;
+; Tiled by assets/_gen_tileset_lanternwood.py on the shared OverWorld driver;
+; collision/markers by scene/lanternwood.gd. Cabins span roof+body char pairs
+; (all solid, footprint bbox + collision only - the whole cabin is a Tier-3
+; y-sorted 8-frame sheet whose windows breathe). Standalone conifers alternate
+; Y/y (small) and P/p (old-growth), where the CASE means crown vs trunk: the
+; upper three rows are WALKABLE boughs a body stands among and only the bottom
+; row is solid, so you can walk behind a spruce instead of bouncing off a 4-row
+; wall. Same idiom as the lamps, which are L (walk, the mantle overhangs head
+; height) above l (solid, the post). NOTE the old anti-merge trick is gone with
+; it: two spruces authored edge-to-edge now FUSE into one component and one
+; stretched sprite, so _gen_tileset_lanternwood.py asserts every component is a
+; clean 2x4 with exactly its bottom row solid.
+;
+; THE LIBRARY (k/K) is the one enterable door in town: its D cell TRAVELS to
+; scene/library.tscn. Every other banner is announce-only.
 
 legend # pines solid
 legend . snow walk
 legend - road walk
 legend D door walk
 legend o pond walk
+legend C snowcliff solid
+legend X snowcliff solid
+legend B snowcliff solid
+legend V chasm solid
+legend S stairs walk
+legend s stairs walk
+legend T stairs walk
+legend = trestle walk
 legend k libraryroof solid
 legend K librarybody solid
 legend q fujiroof solid
@@ -32,43 +77,77 @@ legend e cabBroof solid
 legend E cabBbody solid
 legend z cabCroof solid
 legend Z cabCbody solid
-legend Y conifer solid
-legend y conifer2 solid
+legend Y conifer walk
+legend y conifer solid
+legend P conifer2 walk
+legend p conifer2 solid
 legend l snowlamp solid
 legend L snowlamp walk
-anchor player_start 21 24
-anchor exit_south 21 26
-anchor library 20 9
-anchor fuji_home 10 15
-anchor cabin_a 31 13
-anchor cabin_b 32 20
-anchor cabin_c 15 22
+anchor player_start 24 44
+anchor exit_south 24 46
+; player_start sits TWO cells clear of exit_south, never one: $ExitSouth is a
+; 32x16 rect centred on the anchor and a body`s collision box rides at its
+; FEET, so a one-cell gap overlaps the trigger on spawn and the zone bounces
+; straight back out to the overworld the instant it loads.
+anchor library 24 10
+anchor fuji_home 9 39
+anchor cabin_a 8 20
+anchor cabin_b 38 21
+anchor cabin_c 16 29
+anchor villager_a 17 44
+anchor villager_b 29 45
+anchor villager_c 12 39
+anchor slime_a 30 39
+anchor slime_b 36 44
+anchor slime_c 32 26
 map
-############################################
-############################################
-################kkkkkkkkk#yy################
-#######.....####kkkkkkkkk#yy########YY######
-####YY..........kkkkkkkkk.yy#.######YY######
-###.YY..........kkkkkkkkk#yy##......YY..####
-####YY###.......kkkkkkkkk.###.......YY..####
-####YY####......KKKKKKKKK...............####
-####.#####......KKKKKKKKK..............#####
-####.#####..........D........wwwww..###.####
-####..###........-----.......wwwww.#########
-###.....qqqqq.......-........WWWWW.#########
-###.....qqqqq.....L.-........WWWWW.#####.###
-###yy...QQQQQ.....l.-oooo......D....###..###
-###yy...QQQQQ.......-oooo-------.......YY###
-###yy.....D.........-oooo..............YY###
-###yy.....-------...-.--..L...eeeee....YY###
-####............-------...l...eeeee....YY###
-####..#......zzzzz.---........EEEEE....#####
-#########....zzzzz..--........EEEEE..#######
-###.#####....ZZZZZ...-..........D...########
-###.#####....ZZZZZ...------------...########
-#.....#........D.--..-...yy.........########
-####.YY........---.L.-..Lyy.........yy######
-#####YY............l.-..lyy.........yy######
-#####YY########......-...yy.########yy######
-#####YY##########.#..-....##########yy######
-############################################
+########################################################
+########################################################
+########################################################
+####################kkkkkkkkk###########################
+####################kkkkkkkkk###########################
+####################kkkkkkkkk###########################
+###.......PP........kkkkkkkkk.YY.....PP......###########
+###.......PP........kkkkkkkkk.YY.....PP......###########
+###.......PP........KKKKKKKKK.YY.....PP..............###
+###.......pp........KKKKKKKKK.yy.....pp..............###
+###.....................D............................###
+###BBBBBBBBBBBBBBB......--------..BBBBBBBBBBBBBBBBBBB###
+###BBBBBBBBBBBBBBBBBBBBBBBBBBBTTBBBBBBBBBBBBBBBBBBBBB###
+###BBBBBBBBBBBBBBBBBBBBBBBBBBBTTBBBBBBBBBBBBBBBBBBBBB###
+###BBBBBBBBBBBBBBBBBBBBBBBBBBBTTBBBBBBBBBBBBBBBBBBBBB###
+###...............BBBBBBBBBBBBTTBB...................###
+###.PPwwwww..-------------------.L...........PP.########
+###.PPwwwww..-..YY.......YY...PP.l..eeeee.PP.PP.########
+###.PPWWWWW..-..YY.......YY...PP....eeeee.PP.PP.########
+###.ppWWWWW..-..YY.......YY...PP....EEEEE.PP.pp.########
+###.....D....-..yy.......yy...pp....EEEEE.pp....########
+###.........--........................D..............###
+###CCCCCCCCCSSCCCCCCC....................CCCCCCCCCCCC###
+###CCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC###
+###........L--.......CCCCCCCCCCCCCCCCCCCC............###
+#######.PP.l.-zzzzz..YY.YY.........PP................###
+#######.PP.YY-zzzzz..YY.YY.........PP................###
+#######.PP.YY-ZZZZZ..YY.YY.........PP...VVVV==VVVVVVV###
+#######.pp.YY-ZZZZZ..yy.yy....L....pp...VVVV==VVVVVVV###
+#######....yy-..D.............l......................###
+#######......---------------.........................###
+#######........XXXXXXXXXXXssXXXXXXXXXXX..............###
+###XXXXXXXXXXXXXXXXXXXXXXXssXXXXXXXXXXXXXXXXXXXXXXXXX###
+###XXXXXXXXXXXXXXXXXXXXXXXssXXXXXXXXXXXXXXXXXXXXXXXXX###
+###XXXXXXXXXXXX...........--.L.........XXXXXXXXXXXXXX###
+######.qqqqq.YY.PP..PP....-..l.........YY...PP##########
+######.qqqqq.YY.PP..PP.YY.-.....oooo...YY...PP##########
+######.QQQQQ.YY.PP..PP.YY.-.....oooo...YY...PP##########
+######.QQQQQ.yy.pp..pp.YY.-.....oooo...yy...pp##########
+######...D.............yy.-...................##########
+######..................----..................##########
+###CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCCCCCCCC###
+###CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCCCCCCCC###
+#########.YY..PP........--.L.....PP......YY..###########
+#########.YY..PP....YY..-..l.....PP......YY..###########
+#########.YY..PP....YY..-........PP......YY..###########
+#########.yy..pp....YY..-........pp......yy..###########
+#########...........yy.......................###########
+########################################################
+########################################################

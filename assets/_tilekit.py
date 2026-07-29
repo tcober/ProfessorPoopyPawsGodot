@@ -23,7 +23,7 @@ import os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from _core import lerp, Img, ZONE_TILE
+from _core import lerp, Img, ZONE_TILE, h2
 from _maps import MapData
 from _palette import SCENES, ramp
 from _tiles import slice_atlas, pack_tiles, write_atlas, write_tileset_tres, \
@@ -161,6 +161,158 @@ class TileScene:
                 for x in range(X + 1, X + XW - 1):
                     base = self.bg.get(x, y)
                     self.bg.put(x, y, lerp(base[:3], VOID[:3], 0.35) + (255,))
+
+    # -- the TERRACE KIT (2026-07-28) ----------------------------------------------------
+    # Verticality in this engine is AUTHORING, not a system: a terrace is two
+    # flat walkable regions of the map separated by a band of solid cells
+    # carrying opaque hand-drawn face art, pierced by a walkable stair gap.
+    # Alembic's Academy terrace proved it; these three lift the idiom out of
+    # that one generator so every zone can stack levels. (The travel overworld
+    # is chibi and stays flat — see CHIBI_MAPS in _check_art.py.)
+
+    def _col_runs(self, chars):
+        """Every maximal VERTICAL run of `chars`, as (tx, top_ty, height)."""
+        out = []
+        for tx in range(self.m.cols):
+            ty = 0
+            while ty < self.m.rows_n:
+                if self.m.at(tx, ty) in chars:
+                    h = 0
+                    while self.m.at(tx, ty + h) in chars:
+                        h += 1
+                    out.append((tx, ty, h))
+                    ty += h
+                else:
+                    ty += 1
+        return out
+
+    def stamp_columns(self, chars, sprites, salt=51, run=2):
+        """Stamp one opaque face column per vertical run of `chars`, hash-picked
+        from `sprites` — the cliff/chasm band. Blits straight onto the LOWER
+        canvas over whatever fabric paint_terrain already put there, because a
+        face is fully opaque and un-outlined: it dedupes no matter what the
+        underlay's 32-phase is doing beneath it, and a per-column outline would
+        print a seam every 16px.
+
+        The `run` assert is the whole reason this is a shared primitive. The art
+        is T*run tall and lands on the run's TOP cell, so an off-by-one run is a
+        silent, ugly bug in BOTH directions and only one of them lints:
+          - too TALL  -> the extra cells keep raw ground fabric, which trips the
+                         invisible-wall lint (solid cell, walkable token).
+          - too SHORT -> the art spills onto the WALKABLE cell below and the
+                         player walks through a painted rock wall. NOTHING in
+                         _check_art.py catches that. Hence the assert."""
+        for tx, ty, h in self._col_runs(chars):
+            assert h == run, (
+                f"{self.name}.txt: {chars!r} run at ({tx},{ty}) is {h} cells "
+                f"tall, want exactly {run} — the face art is {T * run}px and "
+                f"lands on the run's top cell")
+            self.bg.blit_cell(sprites[h2(tx, ty, salt) % len(sprites)],
+                              tx * T, ty * T)
+
+    def foot_shade(self, chars, rows=3):
+        """Contact shadow on the ground at the FOOT of each stamped column run.
+
+        Not bake_shadow: that works off a map-wide bbox, so a band spanning the
+        map would smear its own bottom rows. And not _ground_overlays either —
+        the driver's struct band excludes `snow` (so the overworld's ice land
+        doesn't get shadow-crusted), which is exactly the class Lanternwood's
+        terraces sit on, so without this every cliff floats."""
+        fall = [(i, 0.32 - 0.11 * i) for i in range(rows)]
+        for tx, ty, h in self._col_runs(chars):
+            by = ty + h                                    # the cell below
+            if self.m.at(tx, by) is None or self.m.at(tx, by) in chars:
+                continue
+            for dy, a in fall:
+                for x in range(tx * T, tx * T + T):
+                    base = self.bg.get(x, by * T + dy)
+                    self.bg.put(x, by * T + dy,
+                                lerp(base[:3], VOID[:3], a) + (255,))
+
+    def mask_band(self, chars, band=12, run_min=2):
+        """Mirror the TOP `band` px of every `chars` column run onto the UPPER
+        canvas — the tile-layer twin of _town_props._eave_lift, for the terrace
+        kit's stamped faces. This is the fix for "the player hangs off the edge
+        of the cliff".
+
+        THE ARITHMETIC, because the magic number 12 is not arbitrary. A body's
+        CollisionShape2D hugs its FEET (12x8 centred at +6, so the box bottom is
+        origin+10) while the ~22x38 figure's last row draws at origin+21.
+        Pressed SOUTH into a solid cell, the box stops at the cell's top edge
+        and ELEVEN px of sprite hangs past the physics boundary, over the face
+        below. Copying that face's own top 12px onto the layer that renders
+        ABOVE the y-sorted World swallows exactly that sliver — same paint, same
+        coordinates, so it can never seam.
+
+        Legal only on a run >= `run_min` cells, and only with band <= 14: a body
+        pressed from the SOUTH tops its head out 18px above the run's south
+        edge, i.e. at run_top+14 on a 2-row run, so a 12px band on the run's
+        FIRST row clears the head by three rows. On a 1-row run the same band
+        eats that head, which is the z-order doctrine's "never on a 1-row solid
+        between walk rows" stated in pixels.
+
+        Runs whose north neighbour is itself solid are skipped: nobody can press
+        them, and every banded cell is an upper tile the atlas has to carry.
+
+        CALL LAST — after stamp_columns / foot_shade / place / bake_shadow and
+        before finish() — because the band copies the FINISHED lower art.
+
+        Adding a band to a map whose upper layer was empty ARMS three z-order
+        lints that were short-circuiting on `if not upper: continue`. Two of
+        them pass by construction (a banded cell is solid). The third,
+        "ridge cells under upper art", scans the WHOLE map and has no
+        mask-band exemption — see the note in maps/town.txt about retyping the
+        vestigial `ridge` chars."""
+        m = self.m
+        for tx, ty, h in self._col_runs(chars):
+            assert h >= run_min, (
+                f"{self.name}.txt: {chars!r} run at ({tx},{ty}) is {h} cells "
+                f"tall, want >= {run_min} — a south-pressed head reaches 18px "
+                f"above a run's south edge and a 1-row band would eat it")
+            north = m.at(tx, ty - 1)
+            if north is None or m.legend[north]["solid"]:
+                continue                           # nobody can press this run
+            x0, y0 = tx * T, ty * T
+            for y in range(y0, y0 + band):
+                for x in range(x0, x0 + T):
+                    px = self.bg.get(x, y)
+                    if px[3]:
+                        self.ov.put(x, y, px)
+
+    def upper_cell(self, tx, ty, sprite):
+        """Blit one sprite onto the UPPER canvas at a single cell. The `chars`
+        based place_upper() takes a whole feature bbox, which is no use when the
+        target is one specific cell of a long run (a bridge's near rail sits on
+        exactly one river cell, and the river's bbox is the whole stream)."""
+        self.ov.blit_cell(sprite, tx * T, ty * T)
+
+    def assert_reachable(self, from_anchor="player_start"):
+        """BFS the walkable graph from `from_anchor`; assert every anchor and
+        every door cell is reached. _check_art.py lints a great deal but NOT
+        connectivity, so before terraces a stranded region was impossible and
+        after them it is one mistyped band cell away — a town that ships,
+        renders, lints clean, and cannot be walked."""
+        start = self.m.anchors.get(from_anchor)
+        assert start, f"{self.name}.txt: no anchor {from_anchor!r} to walk from"
+        solid = self.m.solid_cells()
+        seen = {tuple(start)}
+        todo = [tuple(start)]
+        while todo:
+            cx, cy = todo.pop()
+            for n in ((cx + 1, cy), (cx - 1, cy), (cx, cy + 1), (cx, cy - 1)):
+                if n in seen or self.m.at(*n) is None or n in solid:
+                    continue
+                seen.add(n)
+                todo.append(n)
+        want = {name: tuple(a) for name, a in self.m.anchors.items()}
+        for x in range(self.m.cols):
+            for y in range(self.m.rows_n):
+                if self.m.legend[self.m.at(x, y)]["terrain"] == "door":
+                    want[f"door@{x},{y}"] = (x, y)
+        bad = sorted(k for k, c in want.items() if c not in seen)
+        assert not bad, (
+            f"{self.name}.txt: unreachable from {from_anchor} -> "
+            + ", ".join(f"{k}{want[k]}" for k in bad))
 
     def place(self, chars, sprite, shadow_h=0):
         """Blit a prop Sprite at its feature bbox; bake a contact-shadow band

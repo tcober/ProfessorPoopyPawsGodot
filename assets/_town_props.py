@@ -934,71 +934,206 @@ def town_fountain(stone, salt=271, frames=1):
     return sheet
 
 
-def town_stairs(stone, salt=281):
-    """The terrace's grand stair (32x32 over the 2x2 walkable S block):
-    eight stone treads between rock cheek walls. FULLY OPAQUE and UNoutlined
-    — the flight must butt seamlessly into the road above and below, and
-    opaque cells dedupe no matter what the underlay phase does."""
-    sp = S(32, 32, salt)
-    for i in range(8):                                     # the treads
+def town_stairs(stone, salt=281, cheek=None, cells=2):
+    """The terrace's grand stair (32 x 16*`cells`, over a 2-wide x `cells`-tall
+    walkable stair block): four stone treads per cell between rock cheek walls.
+    FULLY OPAQUE and UNoutlined — the flight must butt seamlessly into the road
+    above and below, and opaque cells dedupe no matter what the underlay phase
+    does.
+    `cheek`: an optional second ramp for the flanking walls — pass the snow ramp
+    in a winter town so the flight reads as cut through a drift.
+    `cells`: MUST match the height of the cliff band it pierces. A terraced town
+    runs cliffs at several heights on purpose, so the flight has to come in the
+    same sizes; a 2-cell stair in a 4-cell band leaves half the drop unclimbed
+    and wearing raw fabric. Defaults keep Alembic's shipped flight identical."""
+    ch = cheek or stone
+    h = 16 * cells
+    sp = S(32, h, salt)
+    for i in range(h // 4):                                # the treads
         y0 = i * 4
         sp.rect(0, y0, 31, y0, stone[1])                   # lit nose
         sp.rect(0, y0 + 1, 31, y0 + 2, stone[2])           # tread face
         sp.rect(0, y0 + 3, 31, y0 + 3, stone[4])           # riser shadow
     for x, y in ((9, 6), (21, 10), (13, 18), (24, 22),     # worn dabs
                  (7, 26), (18, 30)):
-        sp.set(x, y, stone[3])
+        if y < h:
+            sp.set(x, y, stone[3])
+    for y in range(32, h, 16):                             # more, further down
+        sp.set(9 + h2(y, 3, salt) % 14, y + h2(y, 5, salt) % 9, stone[3])
     for cx0 in (0, 28):                                    # cheek walls
-        sp.rect(cx0, 0, cx0 + 3, 31, stone[3])
-        for y in range(32):
+        sp.rect(cx0, 0, cx0 + 3, h - 1, ch[3])
+        for y in range(h):
             for x in range(cx0, cx0 + 4):
                 if _hatch_px(x + salt, y, 5, 0, -1):
-                    sp.set(x, y, stone[4])
-        sp.rect(cx0, 0, cx0 + 3, 0, stone[1])              # lit crest
-    sp.rect(3, 0, 3, 31, stone[5])                         # inner cheek shade
-    sp.rect(28, 0, 28, 31, stone[5])
+                    sp.set(x, y, ch[4])
+        sp.rect(cx0, 0, cx0 + 3, 0, ch[1])                 # lit crest
+    sp.rect(3, 0, 3, h - 1, ch[5])                         # inner cheek shade
+    sp.rect(28, 0, 28, h - 1, ch[5])
     return sp
 
 
-def town_cliff(rock, grass, salt=291):
-    """One 16x32 cliff-face column of the terrace band, stamped per column
-    from three salted variants (the meadow-boulder pattern). FULLY OPAQUE,
-    NO edge(): the underlay's 32-space phase varies beneath it, and a
-    per-column outline would print a seam every 16px. Grass lip on top,
-    lit brow, strata face, near-black foot."""
-    sp = S(16, 32, salt)
+def town_cliff(rock, grass, salt=291, h=32, void=False):
+    """One 16 x `h` cliff-face column of a terrace band, stamped per column from
+    three salted variants (the meadow-boulder pattern) by
+    TileScene.stamp_columns. FULLY OPAQUE, NO edge(): the underlay's 32-space
+    phase varies beneath it, and a per-column outline would print a seam every
+    16px. Lip on top (pass the SNOW ramp as `grass` in a winter town), lit brow,
+    strata face, near-black foot.
+
+    `h` must equal T * the map run height — every band cut below is expressed as
+    `h * N // 32`, never a literal row, so a taller face doesn't end up with its
+    dark foot across the middle. (The // 32 form is deliberate over a float
+    fraction: at the default h=32 it collapses to exactly N, which is what keeps
+    Alembic's shipped terrace byte-identical.)
+
+    `void=True` makes the CHASM wall instead: no lip, no sunlit brow, and the
+    ramp runs straight from its darks to black. That single flag is why chasms
+    needed no render class of their own — a rift is a cliff seen from above with
+    the top of it taken away."""
+    sp = S(16, h, salt)
+    # band cuts in 32nds of the face, so `h` scales and h=32 is the shipped art
+    b_mid, b_low, b_foot = h * 21 // 32, h * 27 // 32, h * 30 // 32
     for x in range(16):
-        lip = 3 + h2((x + salt) // 5, 0, salt) % 3         # ragged ledge, 5px runs
-        for y in range(lip):
-            c = grass[2]
-            if h2(x, y, salt + 3) % 7 == 0:
-                c = grass[1]                               # clump nicks
-            sp.set(x, y, c)
-        sp.set(x, lip, grass[4])                           # lip turn-under shadow
-        sp.set(x, lip + 1, rock[0])                        # the sunlit brow
-        sp.set(x, lip + 2, rock[0])
-        sp.set(x, lip + 3, rock[1])
-        for y in range(lip + 4, 32):                       # the face, darkening down
-            if y >= 30:
+        if void:
+            lip = -1                                       # no ledge, no brow:
+            top = 0                                        # the face starts flush
+        else:
+            lip = 3 + h2((x + salt) // 5, 0, salt) % 3     # ragged ledge, 5px runs
+            for y in range(lip):
+                c = grass[2]
+                if h2(x, y, salt + 3) % 7 == 0:
+                    c = grass[1]                           # clump nicks
+                sp.set(x, y, c)
+            sp.set(x, lip, grass[4])                       # lip turn-under shadow
+            sp.set(x, lip + 1, rock[0])                    # the sunlit brow
+            sp.set(x, lip + 2, rock[0])
+            sp.set(x, lip + 3, rock[1])
+            top = lip + 4
+        for y in range(top, h):                            # the face, darkening down
+            if void:
+                # a rift swallows light on the way down: mid-tones at the mouth,
+                # black at the bottom, and no foot band to read as "ground"
+                c = rock[3] if y < b_mid else rock[4] if y < b_low else rock[5]
+                if y >= h - 3:
+                    c = (10, 8, 24, 255)
+            elif y >= b_foot:
                 c = rock[5]                                # foot dark
-            elif y >= 27:
+            elif y >= b_low:
                 c = rock[4]
-            elif y >= 21:
+            elif y >= b_mid:
                 c = rock[3]
             else:
                 c = rock[2]
             sp.set(x, y, c)
-        if h2(x, 29, salt) % 5 == 0:
-            sp.set(x, 28, rock[3])                         # foot scree fleck
-    for i, sy in enumerate((11, 16, 22)):                  # dashed strata cracks
-        yy = sy + h2(i, 2, salt) % 3
+        if not void and h2(x, 29, salt) % 5 == 0:
+            sp.set(x, h * 28 // 32, rock[3])               # foot scree fleck
+    # Dashed strata. THREE evenly spaced courses is right on a 32px step and
+    # reads as MASONRY on a 64px wall, so both the count and a per-column wobble
+    # scale with the face — but only above h=32, which keeps Alembic's shipped
+    # terrace byte-identical.
+    if h <= 32:
+        strata = (11, 16, 22)
+    else:
+        n = max(4, h // 10)
+        strata = tuple(4 + (24 * i) // (n - 1) + h2(i, salt, 9) % 3
+                       for i in range(n))
+    for i, sn in enumerate(strata):
+        yy = h * sn // 32 + h2(i, 2, salt) % 3
         for x in range(16):
+            wob = 0 if h <= 32 else (h2(x // 3, i, salt) % 3) - 1
             if h2(x // 4 + i, 5, salt) % 3 != 0:
-                sp.set(x, yy, rock[4] if yy < 21 else rock[5])
-    cx = 3 + h2(salt, 7, 1) % 10                           # one long vertical crack
-    ln(sp, cx, 10, cx + (salt % 3) - 1, 18, rock[4])
-    ln(sp, cx + (salt % 3) - 1, 18, cx, 26, rock[5])
+                y2 = min(max(yy + wob, 0), h - 1)
+                sp.set(x, y2, rock[4] if y2 < b_mid else rock[5])
+    for k in range(1 if h <= 32 else 3):                   # long vertical cracks
+        cx = 3 + h2(salt + k * 7, 7, 1) % 10
+        a, b, c = h * 10 // 32, h * 18 // 32, h * 26 // 32
+        if k:                                              # stagger the extras
+            a, b, c = a + k * h // 9, b + k * h // 11, min(c + k * h // 13, h - 1)
+        ln(sp, cx, a, cx + (salt % 3) - 1, b, rock[4])
+        ln(sp, cx + (salt % 3) - 1, b, cx, c, rock[5])
     clipw(sp, 16)
+    return sp
+
+
+def town_trestle(timber, snow, salt=351, cells=2):
+    """A plank walkway spanning a chasm — the signature Narshe silhouette, and
+    what makes a terraced town read as BUILT rather than merely eroded.
+    32 x 16*`cells`: a two-cell-wide deck crossed NORTH-SOUTH, boards running
+    across the walking direction, a rail down each long edge with its posts, and
+    settled snow along the caps.
+
+    The N-S orientation is forced and worth knowing why: stamp_columns asserts
+    2-row VERTICAL runs, so a chasm band — like a cliff band — runs east-west
+    across the map. The only way to cross one is perpendicular. (A rift running
+    north-south would be a single tall column run and would fail that assert on
+    the first cell.)
+
+    Tier-1 on purpose, like the cliffs. A zone map's upper tile layer is
+    load-bearing for the z-order lint — _check_art.py short-circuits that whole
+    family on an empty upper layer — and a rail on a walkable deck cell fails
+    both `upper art supported` and `walk-behind corridors capped` by
+    construction. A body drawing OVER the near rail is exactly what the shipped
+    _bridge_cell already does for Alembic's stream, and FFVI's bridges read the
+    same way; nobody has ever noticed."""
+    h = 16 * cells
+    sp = S(32, h, salt)
+    for y in range(h):                                     # the deck boards
+        for x in range(3, 29):
+            c = timber[1] if y % 5 < 2 else timber[2]
+            if h2(x // 6, y // 5, salt) % 4 == 0:           # board-to-board tone
+                c = timber[2] if y % 5 < 2 else timber[3]
+            sp.set(x, y, c)
+    for y in range(0, h, 5):                               # board seams
+        sp.rect(3, y, 28, y, timber[3])
+    for x in (13, 14):                                     # the worn walking line
+        for y in range(h):
+            if h2(x, y // 3, salt) % 3:
+                sp.set(x, y, timber[2])
+    for rx in (0, 29):                                     # rails, both long edges
+        sp.rect(rx, 0, rx + 2, h - 1, timber[3])
+        sp.rect(rx + 1, 0, rx + 1, h - 1, timber[2])       # lit cap down the middle
+        for y in range(1, h, 7):                           # posts
+            sp.rect(rx, y, rx + 2, min(y + 1, h - 1), timber[4])
+        sp.rect(rx if rx else rx + 2, 0, rx if rx else rx + 2, h - 1, timber[5])
+    sp.rect(3, 0, 3, h - 1, timber[4])                     # deck-to-rail shadow
+    sp.rect(28, 0, 28, h - 1, timber[4])
+    for y in range(2, h, 9):                               # settled snow on caps
+        sp.rect(0, y, 2, min(y + 2, h - 1), snow[1])
+        sp.rect(29, y, 31, min(y + 2, h - 1), snow[1])
+    for y in range(5, h, 11):
+        sp.set(7 + h2(y, 1, salt) % 14, y, snow[2])        # drift on the boards
+    return sp
+
+
+def bridge_fascia(bridge, salt=353, band=12):
+    """The bridge's NEAR RAIL: a 16 x `band` strip painted onto the UPPER tile
+    layer over the water cell directly south of a deck's south end.
+
+    Same bug as the cliff overhang — a body standing on the last deck cell sinks
+    ~11px of sprite into the river below it — but the terrace kit's mask_band
+    can't be used here, because river cells ANIMATE on four frames and a mirrored
+    band would freeze the top 12px at frame 0 while the rest of the cell kept
+    flowing. So this is authored art instead of mirrored art: static by nature,
+    no animation to keep in lockstep, and it reads as something that should have
+    been there anyway — you are standing behind the bridge's own rail.
+
+    Legal on the WATER cell and only there. Putting it on the walkable deck cell
+    instead would demand upper art on every cell north of it, all the way up the
+    span: `_check_art.py`'s "walk-behind corridors capped" requires a walkable
+    cell under upper art to have upper art to its north, recursively."""
+    sp = S(16, band, salt)
+    sp.rect(0, 0, 15, 0, bridge[1])                        # lit rail cap
+    sp.rect(0, 1, 15, 1, bridge[2])
+    sp.rect(0, 2, 15, 2, bridge[4])                        # under-rail shadow
+    for y in range(3, band - 1):                           # the deck's side
+        for x in range(16):
+            c = bridge[2] if (y + x // 5) % 3 else bridge[3]
+            sp.set(x, y, c)
+    for x in range(0, 16, 5):                              # plank butt seams
+        sp.rect(x, 3, x, band - 2, bridge[4])
+    for x in range(2, 16, 7):                              # the bearer stubs
+        sp.rect(x, band - 4, x + 1, band - 1, bridge[4])
+    sp.rect(0, band - 1, 15, band - 1, bridge[5])          # dark underside
     return sp
 
 
@@ -1433,6 +1568,47 @@ def town_conifer(f, trunk, snow, salt=321):
     edge(sp, 64)
     from _propkit import split_rows
     return split_rows(sp, 44)
+
+
+def town_conifer_big(f, trunk, snow, salt=323):
+    """The old-growth spruce: 32x96 over a 2x6 FULLY SOLID footprint — the same
+    tree as town_conifer with six tiers instead of four, standing about three
+    times the player's height. A winter town wants a few of these towering over
+    the small ones; a forest of one tree size reads as wallpaper.
+
+    Deliberately 2 cells WIDE, not 3, and that is a lint constraint rather than
+    an art choice: on a 3-wide trunk the outer columns of the trunk rows carry
+    no art at all, fall under T3_COVER_MIN, and any of them touching a walkable
+    cell fires the invisible-wall lint. Height is free; width is not.
+
+    Its map FOOTPRINT is 2x4, the same as the small spruce — not 2x6. The art is
+    bottom-anchored, so the extra 32px simply overhangs upward into open sky,
+    and the footprint covers only the art's widest 64px. Sizing the footprint to
+    the art instead put the two narrow top tiers on their own cells, where the
+    left and right columns hold a few pixels of bough each and fail T3 coverage.
+    Overhang, don't extend: it also means a big spruce drops in anywhere a small
+    one fits, including terraces too shallow for six rows.
+
+    Returns ONE sprite, unsplit — unlike town_conifer. The trunk/crown split
+    exists so a body can pass BEHIND a canopy and IN FRONT of a trunk, which a
+    spruce whose boughs reach the ground has no use for; plain y-sort at the
+    footprint's south edge is already correct for it."""
+    sp = S(32, 96, salt)
+    sp.blob(16, 90, 12, 3.5, snow[2])                      # ground shadow
+    sp.blob(16, 90, 8, 2.5, snow[3])
+    sp.rect(14, 66, 17, 89, trunk[2])                      # the trunk
+    sp.rect(14, 66, 14, 89, trunk[1])
+    sp.rect(17, 66, 17, 89, trunk[4])
+    for (ax, ay), by, hw, sh in (((16, 44), 72, 14, 0.10),
+                                 ((16, 34), 60, 12, 0.06),
+                                 ((16, 25), 50, 10, 0.01),
+                                 ((16, 17), 40, 8, -0.05),
+                                 ((16, 9), 30, 6, -0.09),
+                                 ((16, 2), 20, 4, -0.13)):
+        sp.tri((ax, ay), by, 16 - hw, 16 + hw, f, sh=sh)
+        _conifer_snowload(sp, snow, 76)
+    edge(sp, 96)
+    return sp
 
 
 def frozen_pond(snow, salt=331):

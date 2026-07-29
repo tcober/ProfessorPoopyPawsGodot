@@ -36,8 +36,13 @@ const Chapters = preload("res://scene/chapters.gd")
 const ROW_H := Overlay.ROW_H
 const ROWS_PER_COL := 18           # 18 rows * ROW_H fits under 216 with margins
 const TOP := 20
-const COL_X: Array[int] = [8, 196]
-const COL_W := 180                 # ~30 chars at the 6px monospace advance
+## THREE columns since 2026-07-28. With two, only column 0 was ever capped —
+## column 1 ran unbounded and rows past 19 fell off a 216px screen. The table
+## had already outgrown it: WHISKER MEADOW and LANTERNWOOD sat below the bottom
+## edge, still selectable (the cursor travelled off-screen to reach them) but
+## invisible, which is exactly the kind of bug a dev tool hides best.
+const COL_X: Array[int] = [6, 132, 258]
+const COL_W := 120                 # ~20 chars at the 6px monospace advance
 
 const GROUP_COL := Overlay.DIM
 const BEAT_COL := Overlay.TEXT
@@ -155,12 +160,16 @@ func _lay_out_rows() -> void:
 	var row := 0
 	var group := ""
 	for beat: Dictionary in Chapters.BEATS:
-		if col == 0 and row >= ROWS_PER_COL:
-			col = 1
+		# EVERY column wraps, not just the first: an uncapped last column is how
+		# the table silently grew off the bottom of the screen.
+		if row >= ROWS_PER_COL and col < COL_X.size() - 1:
+			col += 1
 			row = 0
 			if not Chapters.is_group(beat):
 				_add_row({group = group + " (CONT.)"}, col, row)
 				row += 1
+		assert(row < ROWS_PER_COL or col == COL_X.size() - 1,
+			"chapters.gd has outgrown the selector — add a column or shrink ROW_H")
 		if Chapters.is_group(beat):
 			group = beat["group"]
 		_add_row(beat, col, row)

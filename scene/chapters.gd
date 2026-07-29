@@ -31,6 +31,13 @@ const STUDENT: Array[StringName] = [&"basil_student"]
 const FUJI: Array[StringName] = [&"fuji"]
 const ADULTS: Array[StringName] = [&"basil", &"fuji"]
 
+## FUJI'S KIT, named once. Her tome and blow-pipe are flag-gated (she MAKES them
+## in Act 1 beat 3, "THE KIT" — see entities/fuji/fuji.gd), and Game.reset_story()
+## wipes flags, so EVERY beat that expects to be able to fight has to carry these
+## two or she turns up empty-pawed and the meadow silently stops working.
+## Anything routed into a combat scene from here on needs KIT_ARMED.
+const KIT_ARMED := ["fuji_darts_made", "fuji_tome_taken", "fuji_kit_made"]
+
 ## Prologue A's town flag ladder, named once — town_fest.gd's dressing is the
 ## densest flag matrix in the game and these sets are easy to get subtly wrong.
 const FEST_ARRIVED := ["prologue_saw_mom", "prologue_left_home"]
@@ -248,38 +255,57 @@ static var BEATS: Array[Dictionary] = [
 		state = {library_phase = "research"},
 		flags = ["ebb_done", "asked_around"],
 	},
+	{
+		# Act 1 beat 3a: the room she has read in for six weeks becomes a supply
+		# list. Shelf three gives her the dose, her dead wand becomes the pipe,
+		# and whichever stack she takes a book off is her weapon for the game.
+		name = "THE KIT", scene = "res://scene/library.tscn",
+		roster = FUJI, lead = &"fuji",
+		state = {library_phase = "kit"},
+		flags = ["ebb_done", "asked_around", "ledger_read", "thesis_found"],
+	},
+	{
+		# Act 1 beat 3: the first real fight in the game, and Fuji's alone. She
+		# comes back out of her own library with a kit she built that afternoon
+		# and the lanes are not empty any more. Three slimes, no respawns, a
+		# level on the second kill, a tonic in the snow when it is done.
+		name = "THE DEFENCE OF LANTERNWOOD",
+		scene = "res://scene/lanternwood.tscn",
+		roster = FUJI, lead = &"fuji",
+		state = {}, flags = ["ebb_done", "asked_around", "thesis_found"] + KIT_ARMED,
+	},
 
 	{group = "SANDBOX"},
 	{
 		name = "THE LOFT", scene = "res://scene/house.tscn",
 		roster = ADULTS, lead = &"basil", state = {},
-		flags = ["prologue_done", "ebb_done"],
+		flags = ["prologue_done", "ebb_done"] + KIT_ARMED,
 	},
 	{
 		name = "THE LAB", scene = "res://scene/downstairs.tscn",
 		roster = ADULTS, lead = &"basil", state = {},
-		flags = ["prologue_done", "ebb_done"],
+		flags = ["prologue_done", "ebb_done"] + KIT_ARMED,
 	},
 	{
 		name = "ALEMBIC TOWN", scene = "res://scene/alembic_town.tscn",
 		roster = ADULTS, lead = &"basil", state = {},
-		flags = ["prologue_done", "ebb_done"],
+		flags = ["prologue_done", "ebb_done"] + KIT_ARMED,
 	},
 	{
 		name = "THE OVERWORLD", scene = "res://scene/overworld.tscn",
 		roster = ADULTS, lead = &"basil", state = {overworld_spawn = "town"},
-		flags = ["prologue_done", "ebb_done"],
+		flags = ["prologue_done", "ebb_done"] + KIT_ARMED,
 	},
 	{
 		name = "WHISKER MEADOW", scene = "res://scene/meadow.tscn",
 		roster = ADULTS, lead = &"basil", state = {},
-		flags = ["prologue_done", "ebb_done"],
+		flags = ["prologue_done", "ebb_done"] + KIT_ARMED,
 	},
 	{
 		# ebb_done deliberately UNSET — that flag is the whole of Lanternwood's
 		# night dressing, so this is the same town by day
 		name = "LANTERNWOOD (DAY)", scene = "res://scene/lanternwood.tscn",
-		roster = ADULTS, lead = &"basil", state = {}, flags = ["prologue_done"],
+		roster = ADULTS, lead = &"basil", state = {}, flags = ["prologue_done"] + KIT_ARMED,
 	},
 ]
 

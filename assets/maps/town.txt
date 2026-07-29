@@ -71,7 +71,16 @@ legend 6 academybody solid
 legend 7 weaponbody solid
 legend 8 itembody solid
 legend 9 innbody solid
-legend ^ ridge solid
+legend ^ treecanopy solid
+; ^ was `ridge` until 2026-07-28. Ridge is the pre-Tier-3 idiom: a solid crest
+; cell that sat UNDER a walk-behind prop's top rows on the upper tile layer.
+; These trees became Tier-3 y-sorted sprites in 2026-07-12 and the upper layer
+; went empty, so the name was vestigial - and harmless only while the map had NO
+; upper art at all, because `_check_art.py`'s "ridge cells under upper art" scans
+; the WHOLE map the moment one upper cell exists. The cliff band's mask band is
+; that first upper cell. Retyped to treecanopy (same render class, `grass`;
+; neither is a struct), which is byte-identical output and what these cells
+; actually are.
 anchor player_start 27 30
 anchor home 10 18
 anchor cottage_w 9 25

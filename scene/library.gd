@@ -87,6 +87,12 @@ var _near := ""
 var _zones: Dictionary = {}
 ## The research beat is live: the desk is an accession ledger, not furniture.
 var _research := false
+## The KIT beat is live (Act 1 beat 3): the room is a supply list, not a room.
+var _kit := false
+## The wand is half bored out. Two VISITS, not two presses: _run_zone holds the
+## party locked for a whole action, so "stop her halfway" is a state check at
+## the top of the second visit rather than surgery on the zone runner.
+var _wand_half := false
 ## A dialog coroutine owns the room — swallow interacts until it lets go.
 var _busy := false
 ## The door fired once; a second body_entered can't queue a second load.
@@ -110,7 +116,8 @@ func _ready() -> void:
 	# walking in the front door can never replay it.
 	var ebb := phase == "" or phase == "ebb"
 	var research := phase == "research"
-	if ebb or research:
+	var kit := phase == "kit"
+	if ebb or research or kit:
 		# the live flow arrives from ebb.tscn still carrying the ADULTS
 		# roster — the story stays with HER from here, so the room sets its
 		# own cast (TYPED array: the Party.set_roster contract)
@@ -141,6 +148,10 @@ func _ready() -> void:
 	elif research:
 		theater.lock_party()
 		_research_night()
+	elif kit:
+		_kit = true
+		theater.lock_party()
+		_kit_night()
 
 
 func _process(delta: float) -> void:
@@ -265,6 +276,142 @@ func _research_night() -> void:
 	theater.hint("READ THE LEDGER - THE DESK", 2.2)
 
 
+# ---- ACT 1 BEAT 3: THE KIT (2026-07-28) ----------------------------------------------
+# She has the thesis and a destination and owns nothing that can hurt anything.
+# So the room she has been reading in for six weeks becomes a supply list.
+#
+# THE WHOLE POINT: her kit is a LIBRARIAN'S. The shelf gives her the dose, the
+# dead wand becomes the pipe, and the weapon is a book. Nothing is invented,
+# nothing is found in a chest — it is one room she already had, used correctly.
+# And it happens BEFORE she ever meets Basil, which is what makes her the right
+# person to go and get him: she is the only other creature alive who answered a
+# drained world the way he did, and she has no idea yet.
+#
+# Deliberately built on the SHELVES that already exist rather than new anchors:
+# the three stacks are already a wander gate with three distinct brass plates,
+# so "which book do you take" is answered by WALKING somewhere.
+
+## Which shelf yields which book. The husbandry manual is the one that already
+## saved her life; the grain tithes are the heaviest object in the building and
+## she knows it; the enchantment theory is nine hundred pages of subject matter
+## that stopped being true six weeks ago.
+const SHELF_BOOKS := [&"husbandry", &"bound_ledger", &"principles"]
+
+
+func _kit_night() -> void:
+	theater.fade.modulate.a = 1.0
+	await theater.wait(0.5)
+	await theater.clear(1.0)
+	await theater.say("Fuji", "Right. He's across an ocean and the road there has things on it.")
+	await theater.say("Fuji", "And I have... a dead stick and a library card.")
+	theater.close_dialog()
+	await theater.wait(0.6)
+	await theater.say("Fuji", "...No. I have a LIBRARY.")
+	theater.close_dialog()
+	theater.unlock_party()
+	theater.hint("SHELF THREE   THE COUNTER   PICK A BOOK", 3.0)
+
+
+## Progress check, run after every kit step. Sets the flag the street reads.
+func _kit_check() -> void:
+	if Game.flag("fuji_kit_made"):
+		return
+	if Game.flag("fuji_dose_found") and Game.flag("fuji_darts_made") \
+			and Game.flag("fuji_tome_taken"):
+		Game.set_flag("fuji_kit_made")
+		await theater.say("Fuji", "A dose, a pipe, and something heavy. That's a kit.")
+		theater.close_dialog()
+		theater.hint("GO OUT THE DOOR", 2.4)
+
+
+## Shelf three, husbandry — where you look up how to put a large animal down to
+## have its hooves trimmed. That is the sleep dart, and it is pharmacology, and
+## she reads it off a shelf. Shelf NINE, enchantment theory, is worthless now.
+## The room says that on its own; nobody says it out loud.
+func _kit_dose() -> void:
+	await theater.say("Fuji", "Husbandry. Bees, weather, and... hooves.")
+	await theater.say("Fuji", "'To trim the hooves of a full-grown ox, the beast must first be put down soft.'")
+	theater.close_dialog()
+	await theater.wait(0.7)
+	await theater.say("Fuji", "'Two grains to the hundredweight. It comes on slow. Do not stand where it will fall.'")
+	theater.close_dialog()
+	await theater.wait(0.5)
+	await theater.say("Fuji", "...Two grains to the hundredweight.")
+	Game.set_flag("fuji_dose_found")
+	await _kit_check()
+
+
+## The delivery problem, solved with the thing already in her hand. A wand is a
+## stick. Hers has been dead for six weeks. TWO VISITS on purpose — she stops
+## halfway, and the player has to come back and finish it.
+func _kit_wand() -> void:
+	if Game.flag("fuji_darts_made"):
+		await theater.say("Fuji", "A tube, a dose, and a good hard breath. It'll do.")
+		return
+	if not Game.flag("fuji_dose_found"):
+		await theater.say("Fuji", "Something to put it IN. That's the other half.")
+		return
+	if not _wand_half:
+		_wand_half = true
+		await theater.say("Fuji", "It's a stick. It has always just been a stick.")
+		theater.close_dialog()
+		await theater.wait(0.8)
+		await theater.say("Fuji", "Hollow it out and it's a tube. Hollow it out and it's -")
+		theater.close_dialog()
+		await theater.wait(1.0)
+		await theater.say("Fuji", "...")
+		theater.close_dialog()
+		theater.hint("SHE PUT IT DOWN HALFWAY", 2.4)
+		return
+	await theater.say("Fuji", "...It was never the wand. It was never going to be the wand again.")
+	theater.close_dialog()
+	await theater.wait(0.6)
+	await theater.say("Fuji", "So it may as well be useful.")
+	Game.set_flag("fuji_darts_made")
+	theater.close_dialog()
+	await _kit_check()
+
+
+## The book. Whichever shelf she takes it from is her weapon for the whole game.
+## The tender half costs one line: she reaches for the one she loves FIRST, and
+## puts it back, because you do not hit things with a book you love.
+func _kit_book(i: int) -> void:
+	if Game.flag("fuji_tome_taken"):
+		await theater.say("Fuji", STACKS[i].line)
+		await theater.say("Fuji", "I've got mine. The rest of you stay where you are.")
+		return
+	if not _wand_half and not Game.flag("fuji_dose_found"):
+		await theater.say("Fuji", STACKS[i].line)
+		await theater.say("Fuji", "Something to swing. But not yet - the dose first.")
+		return
+	if not Game.flag("fuji_reached_first"):
+		Game.set_flag("fuji_reached_first")
+		await theater.say("Fuji", "...")
+		theater.close_dialog()
+		await theater.wait(0.6)
+		await theater.say("Fuji", "Not this one. Never this one.")
+		await theater.say("Fuji", "You don't hit things with a book you love.")
+		theater.close_dialog()
+		await theater.wait(0.5)
+		theater.hint("PICK ONE YOU CAN LIVE WITH BREAKING", 2.8)
+		return
+
+	var book_id: StringName = SHELF_BOOKS[i]
+	var book := Items.get_item(book_id)
+	await theater.say("Fuji", STACKS[i].line)
+	await theater.say("Fuji", "...This one. %s." % book.display_name)
+	theater.close_dialog()
+	await theater.wait(0.5)
+	await theater.say("Fuji", "Heavy. That's the whole review.")
+	# The chosen book goes straight into the WEAPON slot, not the satchel: it is
+	# already in her hands. Game.fuji_tome remembers which one for later scenes.
+	Game.fuji_tome = book_id
+	Game.sheet(&"fuji").equip(Item.Kind.WEAPON, book_id)
+	Game.set_flag("fuji_tome_taken")
+	theater.close_dialog()
+	await _kit_check()
+
+
 ## The desk. Outside the research beat it is just her desk; inside it, the
 ## accession ledger is the clue, and reading it is what makes shelf nine
 ## searchable at all.
@@ -294,6 +441,14 @@ func _read_ledger() -> void:
 ## A stack. Every one reads its brass plate; only shelf nine, and only once
 ## the ledger has told her what to look for, gives up the twelfth thing.
 func _search_stack(i: int) -> void:
+	# On the kit night the stacks are a weapons rack. Shelf three is also where
+	# the dose comes from, so it answers whichever question is still open.
+	if _kit:
+		if i == 0 and not Game.flag("fuji_dose_found"):
+			await _kit_dose()
+		else:
+			await _kit_book(i)
+		return
 	if i == ANSWER and Game.flag("ledger_read") and not Game.flag("thesis_found"):
 		await _find_thesis()
 		return
@@ -435,7 +590,10 @@ func _quake(startle_at := -1.0) -> void:
 func _wire_look_zones() -> void:
 	_look("H", "The fire's fine. The fire never needed me.")
 	_look("W", "...Lamps lit in every window. Nobody's gone back to bed.")
-	_look("cC", "Stone cold. It never even got warm.")
+	# The counter is a look-at line in every phase but ONE: on the kit night it
+	# is the workbench she bores the wand out on. Same cell, same zone — a beat
+	# earns a piece of furniture rather than adding one.
+	_look_or("cC", "Stone cold. It never even got warm.", _kit_wand)
 	_look("K", "Nine hundred books in this room. Not one of them is about THIS.", -32.0)
 	_zone("nook", MapData.anchor_px(map, "nook"),
 			func() -> void: await theater.say("Fuji",
@@ -453,6 +611,20 @@ func _look(chars: String, line: String, nudge := 0.0) -> void:
 	var box := MapData.bbox_rect(map, chars)
 	_zone(chars, _look_cell(box.get_center().x + nudge, box.end.y),
 			func() -> void: await theater.say("Fuji", line))
+
+
+## A look-at line that becomes a WORKBENCH on the kit night. Same cell, same
+## zone, two jobs — a beat should earn a piece of furniture rather than adding
+## one, and a second zone on the same cell would silently replace this one in
+## `_zones` (it is keyed by id) and leave an orphan Area2D behind.
+func _look_or(chars: String, line: String, action: Callable, nudge := 0.0) -> void:
+	var box := MapData.bbox_rect(map, chars)
+	_zone(chars, _look_cell(box.get_center().x + nudge, box.end.y),
+			func() -> void:
+				if _kit:
+					await action.call()
+				else:
+					await theater.say("Fuji", line))
 
 
 ## One interact zone at a world position, running `action` on the button.

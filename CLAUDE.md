@@ -91,6 +91,102 @@ lore spine, pacing rules — in docs/DESIGN.md "Story".)
   shooter gameplay; walkable **Alembic Town** (`scene/alembic_town.tscn`)
   and **Lanternwood** (`scene/lanternwood.tscn`, Fuji's snow town) are
   zones too, riding the same overworld tile driver.
+- **THE TERRACE KIT (2026-07-28) — verticality is AUTHORING, not a system.**
+  There is no elevation feature and there does not need to be one: a terrace is
+  two flat walkable regions separated by a band of SOLID cells wearing opaque
+  hand-drawn face art, pierced by a walkable stair gap. Alembic's Academy
+  terrace proved it; the idiom now lives in `assets/_tilekit.py` as
+  **`stamp_columns(chars, sprites, run=N)`** (hash-picks a salted face variant
+  per vertical run and **asserts the run height** — art lands on a run's TOP
+  cell, so a SHORT run paints a rock wall over the walkable cell below and
+  NOTHING lints that), **`foot_shade`** (the driver's struct shadow band skips
+  `snow`, so a winter cliff would otherwise float), **`mask_band`** and
+  **`assert_reachable`**. `_gen_tileset_town.py` was refactored onto it and
+  regenerates byte-identical, which is the proof it is shared rather than
+  forked. Cliff heights come in a family — `town_cliff(h=)` at 2/3/4 rows —
+  and **bands must STAIRCASE across the map**: uniform bands read as one cliff
+  drawn twice, which is exactly how the first terraced Lanternwood failed.
+  A chasm is `town_cliff(void=True)`, a cliff with its top taken away, crossed
+  by a Tier-1 `town_trestle` (N–S, because stamp_columns' vertical runs force a
+  band to run E–W).
+- **THE DEPTH MASK (2026-07-28) — "the player hangs off the edge of the cliff".**
+  A body's collision box hugs its FEET (12×8 at +6, box bottom = origin+10)
+  while the ~22×38 figure draws to origin+21, so pressed SOUTH into any solid
+  cell **exactly 11px of sprite hangs past the physics boundary**. That is what
+  `band=12` in `TileScene.mask_band()` covers, and the number is derived, not
+  chosen. It mirrors the face's own top 12px onto the UPPER layer (same paint,
+  same coords, so it can never seam). Legal only on runs ≥2 cells and band ≤14:
+  a body pressing NORTH tops its head at run_top+14, so a 12px band on a 2-row
+  run clears it by three rows — that is the pixel statement of the old "never on
+  a 1-row solid between walk rows" rule. **Adding a band to a map whose upper
+  layer was empty ARMS three z-order lints**; two pass by construction (a banded
+  cell is solid — `_check_art.py`'s explicit mask-band exemption), but *"ridge
+  cells under upper art"* scans the WHOLE map, which is why `^` in both town
+  maps was retyped from the vestigial `ridge` to `treecanopy` (byte-identical).
+  Alembic's bridge gets a hand-drawn `bridge_fascia()` on the water cell south
+  of the deck INSTEAD of a mirrored band — river cells animate on 4 frames and a
+  mirrored band would freeze half the cell.
+- **WALK-BEHIND TREES (2026-07-28):** conifer footprints are no longer fully
+  solid. The case of the char now means CROWN vs TRUNK — `Y`/`P` walkable boughs
+  over `y`/`p` solid trunk, one Tier-3 prop spanning both chars, exactly the
+  LAMP idiom (`L` mantle over `l` post). The crown sprite's y-sort key already
+  sits below a body standing in those cells, so walk-behind is free and needs no
+  code. It also turns a 4-row wall into a 1-row obstacle. **The old
+  alternate-the-case anti-merge trick is GONE with it** — two spruces authored
+  edge-to-edge now FUSE into one component and one stretched sprite, so
+  `_gen_tileset_lanternwood.py` asserts every component is a clean 2×4 with
+  exactly its bottom row solid.
+- **RPG LAYER IS BUILT (2026-07-28) — levels, gear, satchel, save/load.**
+  `resources/character_sheet.gd` (level/EXP/5 stats VIT-MIG-FOC-GRD-SPD/4 gear
+  slots), `resources/stat_block.gd` (hand-authored 20-row growth TABLES per
+  character — never a curve — + the EXP table; Basil MIG/FOC leads, Fuji
+  VIT/GRD leads, and they must never converge), `resources/item.gd` +
+  `resources/items.gd` (the item table and its ONLY factory — nothing calls
+  `Item.new()` elsewhere), `resources/combat.gd`. State lives on **`Game`**
+  (`sheets`, `inventory`, `fuji_tome`) for the same reason the gun loadout does
+  — `Party.spawn()` rebuilds every body at every door — and `reset_story()`
+  clears all of it.
+  **FOUR EQUIP SLOTS** (WEAPON/HEAD hat/BODY shirt/RELIC charm), an FFVI-shaped
+  revision of DESIGN.md's old "one socket is the whole equipment layer" rule;
+  the VESTIGE socket is a separate 5th slot, still unbuilt. **A weapon NEVER
+  changes a KIT** — Basil shoots and Fuji swings a book because of who they are;
+  a weapon grants stats and a name, or combat branching ends up behind an
+  inventory screen.
+  **THE ×4 RESCALE:** every party→enemy number and enemy HP was multiplied by 4
+  (laser/tome 2→8, dart 1→4, burn tick 1→4, slime 4→16, big 10→40) so KILL
+  COUNTS ARE UNCHANGED but one point of MIG has somewhere to go. **Enemy→party
+  damage was NOT rescaled** — party HP is drawn as hearts and must stay legible
+  in halves. **MIG and GRD are applied at exactly ONE place,
+  `HurtboxComponent.take_hit`** (the chokepoint every hit already flows through,
+  so it covers enemy contact damage too); projectiles carry `shooter`, so a dart
+  inherits its firer's MIG. The one exception is the burn tick, which goes
+  straight to HealthComponent on purpose (the hurtbox's i-frames would eat it)
+  and therefore ignores GRD — documented, not an oversight.
+  **SPD growth is ZERO at every level for both characters** and only one relic
+  grants any (`StatBlock.SPD_CLAMP` = +20% max): the AI brains' hysteresis bands
+  are tuned to 150px/s, so anything that moves member speed must re-run
+  `tools/party_probe.gd`. FOCUS is present but inert until the magic layer.
+  **`scene/party_menu.gd`** is the THIRD `get_tree().paused` modal (must be in
+  `Overlay.MODALS`), opened with the `menu` action (I / gamepad START): three
+  panes — roster, stats, gear+satchel+SAVE. **`scene/save_game.gd`** writes JSON
+  to `user://save_1.json`; **a save is exactly what `reset_story()` clears**,
+  plus roster and current scene, and keeping that correspondence is what stops a
+  new `Game` field being silently lost. A version-mismatched or unparseable save
+  is REFUSED whole, never half-applied. **`scene/title.tscn` is the boot scene**
+  (NEW GAME / CONTINUE / QUIT; CONTINUE first and pre-selected when a save
+  exists — a resting cursor on NEW GAME is how saves get lost), authored fresh
+  per the build-fresh doctrine with a code-drawn backdrop.
+  Probes: `tools/rpg_probe.gd` (81), `tools/save_probe.gd` (31),
+  `tools/defence_probe.gd` (30 — the kit→battle chain).
+- **FUJI'S KIT IS FLAG-GATED (2026-07-28).** She is a librarian and does not
+  start armed: her tome and blow-pipe are MADE in Act 1 beat 3. Gated in
+  `fuji.gd::_start_book/_start_dart` (both the keyboard and the AI path funnel
+  through those two) **and in `FujiBrain._combat`** — gating only the body makes
+  a disarmed follower walk into a slime and stand there taking contact damage.
+  Read the flag PER CALL, never cached in `_ready`. **`Game.reset_story()` wipes
+  flags, so EVERY beat and probe that expects to fight must carry
+  `Chapters.KIT_ARMED`** — that regression has to land in the same commit as any
+  change to the gate or the meadow silently stops working.
 - **Magic is deferred by design** (world starts drained); ranged/spell systems unlock
   later as story-driven progression. **RPG SYSTEMS DESIGNED (2026-07-28, not yet
   built) — see DESIGN.md "RPG Systems":** two ladders, EXP/levels/5 stats and
@@ -98,11 +194,28 @@ lore spine, pacing rules — in docs/DESIGN.md "Story".)
   magic) read through Basil's **RESONATOR**, one socket per character, teaching
   spells permanently at a per-vestige rate — so who learns what is the player's
   choice. Spells may never be recolored bolts (compounds own projectiles): only
-  RESTORE / WARD / CONTROL (new status axes) / FIELD. **Every vestige comes off
-  a REMNANT (canon 2026-07-28)** — a dungeon boss that is the leftover magic of
-  one lost thing, congealed at its land's obelisk and standing up; the Remnants
-  themselves are NOT villains (grief with a shape), so a boss fight is a
-  SETTLING, not a killing. **Each has a DISPOSITION** (the FFVI esper texture):
+  RESTORE / WARD / CONTROL (new status axes) / FIELD. **CAUSAL SPINE REVISED
+  2026-07-28 (second pass) — the drained world has a REASON now:** Aldous's
+  working never moved magic into a vessel; it tore the summit open and dragged
+  back **THE OLD ONES**, the five beings the world's magic came FROM, dead
+  far longer than the kingdom and content to be. **The world is drained because
+  the magic IS them** — bound up in five walking bodies instead of diffused as
+  hearths and hedge-charms and Fuji's coffee. The summit crystal is therefore a
+  **DOOR being held open**, never a vault, and the whole world misread what it
+  watched that night (`ebb.tscn` needs NO edit — it is staged from the world's
+  POV and the world is simply wrong; the visual is accurate and
+  misunderstood). **TWO TIERS, and the naming marks which:** the five **OLD
+  ONES** are the dungeon bosses, one per land at its obelisk, named for FORCES
+  (THE FIRST GREEN willing/first · THE LONG PATIENCE · THE PALE SLEEPER · THE
+  LONG NOON refusing · THE FIRST HEAT, which later spends itself); the
+  **LESSER REMNANTS** are what the passage tore loose, landed on something that
+  already had a shape — grief with a shape, named for the LOST THING
+  (HEARTHKEEP, SEVEN BELLS, THE GOOSE THAT STOLE THE RIBBON), optional/hidden,
+  with slimes the bottom rung. Neither tier is villainous, so a boss fight is a
+  SETTLING — and settling vs killing finally stop competing, because **both
+  verbs end the same way: a body an Old One should never have worn, let go
+  of.** A vestige is that Old One, still at last, on the wrong side of the
+  door. **Each has a DISPOSITION** (the FFVI esper texture):
   one WILLING (gives itself — make it the FIRST, it teaches that the fight
   button isn't always the verb), most UNQUIET (fight from fear, not malice), one
   REFUSING (says no and is right to — hardest beat in the game, and never
@@ -124,9 +237,13 @@ lore spine, pacing rules — in docs/DESIGN.md "Story".)
   filler.** **The REGENT (Aldous Schweinler) is the antagonist** — the anti-Basil
   who read the same thesis and concluded magic must be kept FROM everyone, which
   is why it had to be destroyed on that stage; he hunts the vestiges and cannot
-  settle a Remnant himself (settling is an act of UNDERSTANDING), so instead he
-  CAGES them in the vessel he built for the Ebb — and a caged Remnant never
-  yields, so everything he has stolen is useless to him and he doesn't know why.
+  settle one himself (settling is an act of UNDERSTANDING), so instead he
+  CAGES them — **and the two sides want OPPOSITE VERBS: his is KEEP THEM HERE,
+  yours is SEND THEM HOME.** A caged Old One is the world's magic incarnate,
+  finite, portable and OWNED; one put back through the door is the world's
+  magic belonging to everybody, unrecoverably. That is also the mechanical
+  reason a caged one never yields — it is still wearing a body — so everything
+  he has stolen is useless to him and he doesn't know why.
   He races the party across the five dungeons on a five-shape ladder (no sign →
   traces → **the EMPTY one, where the reveal is an ABSENCE you find** → he takes
   one as it forms → you take one back); his crews are Academy SURVEYORS, not
@@ -195,8 +312,41 @@ lore spine, pacing rules — in docs/DESIGN.md "Story".)
   with the gun and the already-learned spells, then every vestige goes back and
   the Ebb runs BACKWARDS (build it by inverting `scene/ebb.gd` — the byte-locked
   `overworld_bright.*` twin is the last frame of the game); you KEEP learned
-  spells and LOSE unfinished learning. Four build slices — levels, then
+  spells and LOSE unfinished learning. **The finale is a FUNERAL — you carry
+  five dead things home because being here was only ever painful for them, and
+  the world's lights coming back on is the SIDE EFFECT.** Never invert that
+  ordering; the party is not recharging a battery. Nobody ever explains the
+  door. Four build slices — levels, then
   KO+FOCUS, then vestiges (gated to Act 2's first obelisk), then the Return.
+- **NEXT STORY SLICE — ACT 1 BEAT 3 "THE KIT" (designed 2026-07-28, NOT built;
+  full spec in DESIGN.md "ACT 1"):** how Fuji gets her tome and blow-pipe, and
+  the deliberate INVERSE of Prologue A's recital chain (*idea → brew → the
+  whirligig flies* becomes *ambush → improvise → the darts fly*). Three legs:
+  **(a)** out Lanternwood's north gate toward the harbour, slimes, she reaches
+  for a spell and NOTHING comes, no attack and no secondary — she RUNS (the
+  fail state is the gate, not HP); **(b)** `library_phase = "kit"` turns the
+  SHIPPED reading room into a workbench — a 3-part wander gate on furniture
+  that already exists: **shelf THREE husbandry** (how to put a large animal
+  down to trim its hooves = the sleep dart, pharmacology, science read off a
+  shelf — while shelf NINE *enchantment theory* is now worthless; never say
+  it), **the dead WAND bored out** into the pipe (the instrument of her lost
+  magic becomes the barrel of her science — stop her halfway and make the
+  player press again), and **the BOOK the player picks** — stats identical,
+  and it is her VESTIGE SOCKET VESSEL for the whole game (Basil gets a locket,
+  Fuji gets the book), so the choice is cosmetic in stats and enormous in
+  meaning; she reaches for the one she LOVES first, holds it, puts it back.
+  Basil's thesis is unbound string-tied paper and **can't** be a weapon; she
+  carries it in the other hand forever, uncommented; **(c)** same gate, and now
+  the drowse setup is taught properly — dart → dart → it drops → tome it.
+  **This is Fuji learning SCIENCE, before she ever meets Basil** — the
+  both-ways exchange isn't something the romance does to her later, and it is
+  why she's the one who goes and gets him. Her whole kit is a librarian's: the
+  shelf gave the dose, the wand became the pipe, the weapon is a book — nothing
+  invented, nothing in a chest. Implementation is cheap: no second entity,
+  `fuji.gd::_process_kit` gates tome on `book_chosen` and pipe on `wand_bored`;
+  flags `fuji_chased`/`dose_found`/`wand_bored`/`book_chosen` (+
+  `Game.fuji_tome`) → `kit_made`, all cleared by `reset_story()`; probe work
+  extends `tools/library_probe.gd`. Ship it BEFORE the levels slice.
 - **Art direction:** influenced by **Final Fantasy VI, Chrono Trigger, Secret of
   Mana, Sea of Stars, Adventure Time, and the Paper Girls comic** — CT-Frog sprite
   proportions with **flat hard-banded shading** (no dither inside characters,

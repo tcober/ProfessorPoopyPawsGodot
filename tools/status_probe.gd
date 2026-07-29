@@ -33,6 +33,12 @@ func _initialize() -> void:
 func _run() -> void:
 	Engine.max_fps = 60          # an occluded macOS window otherwise runs uncapped
 	await process_frame
+	# Fuji's kit is flag-gated (Act 1 beat 3 is where she makes it), and this
+	# probe runs on the boot roster with Game.flags empty — so without these she
+	# is UNARMED here and the probe would quietly certify a follower that never
+	# swings. Chapters.KIT_ARMED is the same list the sandbox beats carry.
+	for f in ["fuji_darts_made", "fuji_tome_taken", "fuji_kit_made"]:
+		root.get_node("Game").call("set_flag", f)
 	change_scene_to_file("res://scene/meadow.tscn")
 	await process_frame
 	await process_frame
@@ -246,7 +252,15 @@ func _test_burn_beats_iframes() -> void:
 	# would swallow most of these if ticks went back through take_hit.
 	await _wait(status.burn_period * 5.0)
 	var dealt: int = before - health.current_health
-	_check(dealt == 4, "burn dealt %d of 4 ticks (i-frames eating them?)" % dealt)
+	# Asserted in TICKS, never in raw damage. What this probe exists to prove is
+	# that all FOUR ticks land — i.e. that burn does not go back through the
+	# hurtbox, whose invincible_time would swallow three of them. How hard a tick
+	# hits is a balance number (`burn_tick`, x4 in the 2026-07-28 rescale) and
+	# hard-coding it here just means re-editing the probe every time damage is
+	# retuned, which is how a probe stops being trusted.
+	var want: int = 4 * status.burn_tick
+	_check(dealt == want, "burn dealt %d of %d (4 ticks x %d) — i-frames eating them?"
+		% [dealt, want, status.burn_tick])
 	_check(not status.is_burning(), "burn never expired")
 	slime.queue_free()
 

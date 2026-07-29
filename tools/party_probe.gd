@@ -32,6 +32,12 @@ func _run() -> void:
 	# fixed FRAME budget. Pin the rate or the numbers mean nothing.
 	Engine.max_fps = 60
 	await process_frame
+	# Fuji's kit is flag-gated (Act 1 beat 3 is where she makes it), and this
+	# probe runs on the boot roster with Game.flags empty — so without these she
+	# is UNARMED here and the probe would quietly certify a follower that never
+	# swings. Chapters.KIT_ARMED is the same list the sandbox beats carry.
+	for f in ["fuji_darts_made", "fuji_tome_taken", "fuji_kit_made"]:
+		root.get_node("Game").call("set_flag", f)
 	change_scene_to_file("res://scene/meadow.tscn")
 	await process_frame
 	await process_frame

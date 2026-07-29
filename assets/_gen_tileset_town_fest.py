@@ -22,7 +22,7 @@ from _tilekit import COPPER, GLOW_WARM as WARM, GLOW_MINT as MINTG, sprite_img
 from _town_props import (town_home, town_cottage, town_academy, town_well,
                          town_lamp, town_stall, town_shop, town_inn,
                          town_fountain, town_stairs, town_cliff, town_tree,
-                         town_fence)
+                         town_fence, bridge_fascia)
 
 tn = OverWorld("town_fest", "town_fest")
 _blob = OverWorld.glow_blob
@@ -91,4 +91,21 @@ def _glow(img):
 
 
 tn.write_glow(_glow)
+
+# ---- DEPTH MASKS (2026-07-28) -------------------------------------------------------
+# A body's collision box hugs its FEET, so pressed south into a solid cell ~11px
+# of sprite hangs past the physics boundary and draws over whatever is below —
+# "the player stands off the edge of the cliff". Mirroring the face's own top
+# 12px onto the UPPER layer swallows exactly that sliver. Must come after every
+# lower-canvas write, because the band copies FINISHED art.
+tn.mask_band("C")
+# The same bug at the stream: standing on the bridge's south end, a body sinks
+# into the water cell below. That cell ANIMATES on four frames, so a mirrored
+# band would freeze its top half — paint a static near-rail instead.
+for _comp in tn.comps("="):
+    _bx0, _by0, _bx1, _by1 = tn.comp_bbox(_comp)
+    for _bx in range(_bx0, _bx1 + 1):
+        if tn.m.at(_bx, _by1 + 1) == "r":
+            tn.upper_cell(_bx, _by1 + 1, bridge_fascia(tn.BRIDGE))
+
 tn.finish()

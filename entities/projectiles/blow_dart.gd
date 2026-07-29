@@ -12,7 +12,7 @@ extends Area2D
 ## so it takes more darts.
 
 @export var speed: float = 280.0
-@export var damage: int = 1
+@export var damage: int = 4      # x4 rescale 2026-07-28 (was 1)
 @export var lifetime: float = 1.4
 @export var drowse: int = 1
 

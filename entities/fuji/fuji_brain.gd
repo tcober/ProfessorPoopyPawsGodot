@@ -30,24 +30,37 @@ func _physics_process(delta: float) -> void:
 
 
 func _combat(target: Node2D, intent: PartyMember.Intent) -> void:
+	# Before the kit exists (Act 1 beat 3) she has nothing to fight WITH, and a
+	# follower that closes to swing range anyway just stands in the slime taking
+	# contact damage forever. Gating only the body would do exactly that: the
+	# body's `_start_book` would refuse while the brain kept walking her in and
+	# then stopped authoring any movement at all.
+	if not _armed():
+		return                                   # fall through to FOLLOW
 	var to_target := target.global_position - member.global_position
 	var dist := to_target.length()
 
 	if dist > swing_range:
 		intent.move = to_target.normalized()
-		if _dart_cool <= 0.0 and dist <= dart_range \
+		if _dart_cool <= 0.0 and dist <= dart_range and member.armed_darts() \
 				and not member.is_airborne() and not _is_asleep(target):
 			intent.face = to_target
 			intent.secondary = true      # fuji.gd maps secondary -> the blow pipe
 			_dart_cool = dart_cooldown
 		return
 
-	if _cool <= 0.0 and not member.is_airborne():
+	if _cool <= 0.0 and member.armed_tome() and not member.is_airborne():
 		# The body drops attack edges mid-hop (only reachable right after a
 		# mid-hop leader swap) — don't spend the cooldown on one.
 		intent.face = to_target
 		intent.attack = true
 		_cool = attack_cooldown
+
+
+## Either half of the kit is enough to be worth engaging with — she can dart
+## from range with no book, or swing with no pipe. Neither means stay home.
+func _armed() -> bool:
+	return member.armed_tome() or member.armed_darts()
 
 
 ## Duck-typed: not every enemy has to carry a StatusComponent.

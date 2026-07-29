@@ -25,7 +25,7 @@ from _tilekit import COPPER, GLOW_WARM as WARM, GLOW_MINT as MINTG, sprite_img
 from _town_props import (town_home, town_cottage, town_academy, town_well,
                          town_lamp, town_stall, town_shop, town_inn,
                          town_fountain, town_stairs, town_cliff, town_tree,
-                         town_fence)
+                         town_fence, bridge_fascia)
 
 tn = OverWorld("town", "town")
 _blob = OverWorld.glow_blob            # shared radial glow dab (see TileScene)
@@ -80,12 +80,12 @@ tn.emit_prop("FenceLong", "G", sprite_img(town_fence(5), 80, 16))
 
 # ---- the terrace cliff band: one 16x32 face column per map column, hash-
 # picked from three salted variants (the meadow-boulder per-cell pattern —
-# opaque, unoutlined, so ~40 columns dedupe to a handful of tiles) -------------------
+# opaque, unoutlined, so ~40 columns dedupe to a handful of tiles).
+# The stamp loop moved onto TileScene.stamp_columns 2026-07-28 when Lanternwood
+# needed the same idiom for its terraces — this is the shared TERRACE KIT now,
+# and Alembic gets its 2-row run assert for free. ------------------------------------
 cliffs = [town_cliff(tn.ROCK, tn.GRASS, salt=s) for s in (291, 293, 297)]
-for ty in range(tn.m.rows_n):
-    for tx in range(tn.m.cols):
-        if tn.m.at(tx, ty) == "C" and tn.m.at(tx, ty - 1) != "C":
-            tn.bg.blit_cell(cliffs[h2(tx, ty, 51) % 3], tx * T, ty * T)
+tn.stamp_columns("C", cliffs)
 
 # ---- walk-behind trees: TWO y-sorted World props per {^,T,t} component
 # (prop_spawner's `each` splits them by connected component). The opaque TRUNK
@@ -130,4 +130,21 @@ def _glow(img):
 
 
 tn.write_glow(_glow)
+
+# ---- DEPTH MASKS (2026-07-28) -------------------------------------------------------
+# A body's collision box hugs its FEET, so pressed south into a solid cell ~11px
+# of sprite hangs past the physics boundary and draws over whatever is below —
+# "the player stands off the edge of the cliff". Mirroring the face's own top
+# 12px onto the UPPER layer swallows exactly that sliver. Must come after every
+# lower-canvas write, because the band copies FINISHED art.
+tn.mask_band("C")
+# The same bug at the stream: standing on the bridge's south end, a body sinks
+# into the water cell below. That cell ANIMATES on four frames, so a mirrored
+# band would freeze its top half — paint a static near-rail instead.
+for _comp in tn.comps("="):
+    _bx0, _by0, _bx1, _by1 = tn.comp_bbox(_comp)
+    for _bx in range(_bx0, _bx1 + 1):
+        if tn.m.at(_bx, _by1 + 1) == "r":
+            tn.upper_cell(_bx, _by1 + 1, bridge_fascia(tn.BRIDGE))
+
 tn.finish()

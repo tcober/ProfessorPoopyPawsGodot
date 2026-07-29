@@ -47,8 +47,16 @@ signal disabled_changed(is_disabled: bool)
 ## decays to nothing.
 @export var buildup_grace: float = 1.5
 
-## Burn ticks 1 damage every `burn_period` seconds.
+## Burn ticks `burn_tick` damage every `burn_period` seconds.
 @export var burn_period: float = 0.5
+## x4 with everything else in the 2026-07-28 rescale (was a literal 1).
+## NOTE this is the ONE damage path that does not go through the hurtbox — burn
+## ticks straight into HealthComponent on purpose, because routing it through
+## take_hit would let the hurtbox's invincible_time eat most of the ticks. The
+## cost is that the victim's GUARD never applies to burn. That is a deliberate,
+## documented hole rather than an oversight: burn is the status that disables
+## nothing, so ignoring armour is the compensating half of its identity.
+@export var burn_tick: int = 4
 
 @export var health_component: HealthComponent
 
@@ -94,7 +102,7 @@ func _process(delta: float) -> void:
 			_burn_timer = burn_period
 			_burn_left -= 1
 			if health_component:
-				health_component.take_damage(1)
+				health_component.take_damage(burn_tick)
 
 	_notify_disabled(was_disabled)
 

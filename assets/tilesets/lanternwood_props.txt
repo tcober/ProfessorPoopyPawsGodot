@@ -6,4 +6,5 @@ prop CabinB eE lanternwood_cabinb.png hframes=8
 prop CabinC zZ lanternwood_cabinc.png hframes=8
 prop ConiferTrunk Yy lanternwood_conifertrunk.png each
 prop ConiferCrown Yy lanternwood_conifercrown.png anchor=top:0 base_inset=-16 each
+prop BigConifer Pp lanternwood_bigconifer.png each
 prop Lamp lL lanternwood_lamp.png each

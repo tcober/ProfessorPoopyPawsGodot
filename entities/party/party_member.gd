@@ -49,6 +49,13 @@ const MOVE_CLAMP := 1.3
 
 var member_id: StringName
 var is_leader: bool = true   # a lone member in a one-off scene plays from keyboard
+
+## The body's OWN max HP, before any sheet is folded in — captured once, in
+## _apply_sheet, straight off the .tscn export. The party menu needs it to
+## recompute max HP when a +VIT hat is equipped mid-scene: without a clean
+## baseline the only options are adding the delta (which drifts every time gear
+## changes) or re-reading a value that already has VIT in it.
+var base_max_health: int = 0
 var state: int = STATE_MOVE
 var intent := Intent.new()
 
@@ -71,6 +78,33 @@ func _ready() -> void:
 	shadow.visible = false
 	hurtbox.hit.connect(_on_hurt)
 	health.died.connect(_on_died)
+	_apply_sheet()
+
+
+## Fold the member's CharacterSheet into this freshly-spawned body: VIT raises
+## max HP, SPD raises move speed. Called from _ready, which is exactly late
+## enough — children run _ready() first, so HealthComponent has already done its
+## `current_health = max_health`, and the scene's own _ready (where HUD.bind_party
+## runs) has not happened yet, so the HUD sizes its rows off the corrected max.
+##
+## THE ORDERING TRAP: assigning max_health alone does NOT re-emit
+## health_changed, and the HUD sizes each heart row inside that handler. Refill
+## in the same breath or the body spawns at the OLD max with a half-empty row.
+func _apply_sheet() -> void:
+	base_max_health = health.max_health
+	var game := get_node_or_null(^"/root/Game")
+	if game == null or member_id == &"":
+		return                                   # bare scene or a --script probe
+	var sheet: CharacterSheet = game.call("sheet", member_id)
+	# A NEUTRAL sheet means "this body has no RPG layer" (kid Basil, the
+	# student). Skip the writes entirely rather than applying zeroes: those
+	# scenes carry their own tuned max_health exports, and a zero write would
+	# silently retune prologue beats that have shipped since 2026-07-12.
+	if sheet == null or sheet.neutral:
+		return
+	health.max_health = base_max_health + sheet.stat("vit")
+	health.refill()
+	speed *= 1.0 + minf(float(sheet.stat("spd")) / 40.0, StatBlock.SPD_CLAMP)
 
 
 func _physics_process(delta: float) -> void:

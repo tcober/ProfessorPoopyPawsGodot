@@ -205,6 +205,14 @@ TERRAIN_CLS = {
     # fountain on plaza paving, walk-behind trees (canopy walk / trunk solid)
     "cliff": "grass", "stairs": "road", "fountain": "grass",
     "treecanopy": "grass", "treetrunk": "grass",
+    # the WINTER depth kit (2026-07-28): the same authored-column idiom on a
+    # snow underlay, plus the chasm a trestle walkway spans. All three render
+    # nothing but an underlay — TileScene.stamp_columns/place lay fully opaque
+    # art over them afterwards — so they exist purely to give the cells a
+    # plausible fabric and a legend name of their own. `cliff` could NOT simply
+    # be reused: TERRAIN_CLS is one module-level dict shared by all four
+    # OverWorld maps, and Alembic's terrace must stay grass-lipped.
+    "snowcliff": "snow", "chasm": "snow", "trestle": "snow",
     # solid crest cells under a walk-behind prop's top rows (roof ridges,
     # crown tops): collision-only, renders plain ground — NEVER a struct
     # (a struct's shade band would peek through the upper art's silhouette)
@@ -218,7 +226,8 @@ STRUCT_TERRAIN = {"well", "lamp", "stall", "fence", "town", "tree", "boulder",
                   "cliff", "fountain", "treetrunk",
                   "lanternwood", "bigmountain", "snowlamp",
                   "conifer", "conifer2",
-                  "fujibody", "librarybody", "cabAbody", "cabBbody", "cabCbody"}
+                  "fujibody", "librarybody", "cabAbody", "cabBbody", "cabCbody",
+                  "snowcliff", "chasm"}
 
 WATERC = {"sea", "river", "bridge"}     # no coastline forms inside this family
 GRASSY = {"grass", "hills", "flowers"}

@@ -13,7 +13,7 @@ extends Area2D
 ## without a compound behaves exactly as it always did.
 
 @export var speed: float = 700.0
-@export var damage: int = 2      # slimes have 4 HP -> two shots
+@export var damage: int = 8      # slimes have 16 HP -> two shots
 @export var lifetime: float = 1.2
 
 ## Set by the shooter before adding to the tree.

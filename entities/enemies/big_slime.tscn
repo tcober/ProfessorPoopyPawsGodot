@@ -21,6 +21,7 @@ speed = 20.0
 detect_range = 110.0
 knockback_speed = 90.0
 zzz_lift = 21.0
+exp_value = 30
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = ExtResource("2_frames")
@@ -32,7 +33,7 @@ shape = SubResource("RectangleShape2D_body")
 
 [node name="HealthComponent" type="Node" parent="."]
 script = ExtResource("3_health")
-max_health = 10
+max_health = 40
 
 [node name="StatusComponent" type="Node" parent="." node_paths=PackedStringArray("health_component")]
 script = ExtResource("6_status")

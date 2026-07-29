@@ -33,7 +33,7 @@ func _initialize() -> void:
 func _run() -> void:
 	var args := OS.get_cmdline_user_args()
 	if args.size() < 2:
-		push_error("usage: -- <scene.tscn> <out.png> [frames] [action:press:release ...]")
+		push_error("usage: -- <scene.tscn|beat:N> <out.png> [frames] [phase|bphase|roster|flag|pos|beat|item|level|action:...]")
 		quit(1)
 		return
 	var wait := 30 if args.size() < 3 else int(args[2])
@@ -44,6 +44,8 @@ func _run() -> void:
 	var flags: Array[String] = []
 	var pos := Vector2.INF
 	var beat := -1
+	var items: Array = []            # [[item_id, count], ...]
+	var levels: Array = []           # [[member_id, level], ...]
 	for i in range(3, args.size()):
 		var p := args[i].split(":")
 		if p[0] == "phase":
@@ -64,6 +66,12 @@ func _run() -> void:
 			continue
 		if p[0] == "beat":               # stage a whole beat from the table
 			beat = int(p[1])
+			continue
+		if p[0] == "item":               # drop items in the satchel: item:tonic:3
+			items.append([p[1], int(p[2]) if p.size() > 2 else 1])
+			continue
+		if p[0] == "level":              # force a member's level: level:fuji:4
+			levels.append([p[1], int(p[2])])
 			continue
 		# NOTE: anything unrecognized falls through as an input action, so a new
 		# key: arg MUST be dispatched above or it is silently eaten as a press
@@ -100,6 +108,15 @@ func _run() -> void:
 		root.get_node("Game").call("set_flag", f)
 	if not roster.is_empty():
 		root.get_node("Party").call("set_roster", roster)
+	# After the beat block on purpose: that block calls reset_story(), which
+	# clears sheets and the satchel, so staging them earlier would be wiped.
+	for it in items:
+		root.get_node("Game").call("add_item", StringName(it[0]), it[1])
+	for lv in levels:
+		var sheet = root.get_node("Game").call("sheet", StringName(lv[0]))
+		sheet.level = lv[1]
+		sheet.exp_total = StatBlock.exp_at(lv[1])
+		StatBlock.apply_growth(sheet)
 	change_scene_to_file(scene_path)
 	for i in wait:
 		# pos: HOLD the leader at the target through the whole wait — a

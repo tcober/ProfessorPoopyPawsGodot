@@ -53,6 +53,14 @@ const FX_ZZZ := 15
 ## body height, or the Zs detach and read as belonging to nothing.
 @export var zzz_lift: float = 12.0
 
+## EXP awarded to EVERY roster member when this one dies. An export, not a
+## constant, because BigSlime is a pure .tscn override with no script body of
+## its own — the whole BigSlime doctrine is that a bigger enemy is a different
+## set of exported numbers, never a different class.
+##
+## Tuned so a fresh Fuji levels on her SECOND kill: StatBlock's first rung is 20.
+@export var exp_value: int = 10
+
 ## How long the white hit flash holds.
 const FLASH_TIME := 0.08
 
@@ -222,6 +230,12 @@ func _on_died() -> void:
 	_dying = true
 	_sync_zzz()                    # a slime killed in its sleep drops the Zs
 	remove_from_group("enemies")   # party brains stop targeting the splat
+	# Granted from the enemy's own death, NOT threaded back through `died` (which
+	# carries no arguments and is connected by scenes that have no business
+	# knowing about EXP). One call site per enemy; zones stay ignorant.
+	var game := get_node_or_null(^"/root/Game")
+	if game:
+		game.call("grant_kill", exp_value)
 	died.emit()
 	# Stop dealing/receiving damage while the splat plays out.
 	hitbox.set_deferred("monitoring", false)

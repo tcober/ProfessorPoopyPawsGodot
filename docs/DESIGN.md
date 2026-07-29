@@ -32,23 +32,44 @@ and finds love again, with her.
   the old "author-less" rule):** somebody lit the fuse, and it was NOT the
   hand that took the world. **Regent Aldous Schweinler** (below) ran a
   working at the obelisk network meaning to draw the world's magic into a
-  vessel he owned. It worked, and then something far older answered: the
-  mountain drank it instead — all of it, including his. **He is the author
-  of the ATTEMPT, not of the OUTCOME**, and that distinction is the whole
-  reason the story still works. What the Ebb *did* stays uncanny and
-  ancient and much larger than any pig with a grudge; WHY the mountain
-  answered, and what it is, remains the standing mystery of Act 2+ and is
-  deliberately unresolved. And **nobody alive knows he did it** until the
-  mid-late reveal — so for most of the game the world's grief genuinely has
-  nobody to blame, which is what the drained villagers, the Remnants and
-  the "nobody blames anybody" register all depend on. (Schweinler the
-  YOUNGER is still a personal rival only, never the world's villain — see
-  his entry.)
+  vessel he owned. It worked, and then something far older answered. **He
+  is the author of the ATTEMPT, not of the OUTCOME**, and that distinction
+  is the whole reason the story still works. What the Ebb *did* stays
+  uncanny and ancient and much larger than any pig with a grudge; WHY the
+  mountain answered, and what it is, remains the standing mystery of Act 2+
+  and is deliberately unresolved. And **nobody alive knows he did it**
+  until the mid-late reveal — so for most of the game the world's grief
+  genuinely has nobody to blame, which is what the drained villagers, the
+  Remnants and the "nobody blames anybody" register all depend on.
+  (Schweinler the YOUNGER is still a personal rival only, never the
+  world's villain — see his entry.)
+  **WHAT ACTUALLY HAPPENED (revised 2026-07-28, second pass — this is the
+  causal spine now):** the working did not move magic into a vessel. It
+  tore the summit open, and what came back through were **THE OLD ONES**:
+  the beings the world's magic came *from*, long dead and long past the
+  door, dragged back into bodies on the wrong side of it. **The world is
+  drained because the magic IS them.** Diffused through the world it was
+  hearths and hedge-charms and Fuji's coffee; bound back up in five walking
+  bodies it is gone from everywhere else at once. That is why the drain was
+  total, instant and world-wide, and why no amount of digging at the
+  crystal has ever given a single mote back: nothing is buried up there.
+  Something is *standing* up there, and four more are standing at the
+  obelisks.
 - **The Summit Crystal** (place — replaces "the Drain", retired 2026-07-19):
   where the magic *went* is no secret — everyone alive WATCHED it go. The
   Big Mountain's crystallized summit IS the world's drained magic, glowing
   at the center of the map. The old "somewhere deep beneath the eastern
   wastes" canon is dead — the eastern wastes no longer exist on the map.
+  **AND THE WHOLE WORLD HAS IT WRONG (2026-07-28).** The summit is not a
+  vault, it is a **DOOR**, and it is glowing because it is being held open.
+  What every living creature watched that night — motes streaming home to
+  the peak from every horizon — was true and was misread: that was not
+  magic being *stored*, it was magic walking back through into bodies. The
+  crystal is the shape a door takes when something came through it that was
+  never meant to come back. **No shipped scene changes.** `ebb.tscn` is
+  staged from the world's point of view, and the world does not know; the
+  visual is literally accurate and completely misunderstood, which is the
+  best possible position for a reveal to sit in for twenty in-game years.
 - **The obelisks** (future material): dark ancient structures nobody living
   built. The old overworld waste pocket + obelisk monument were CUT from
   the map 2026-07-19 with the five-lands redesign; the surviving hook is
@@ -62,36 +83,58 @@ and finds love again, with her.
 - **Slimes are curdled magic**: feral residue pooling in the wild since the
   Ebb — every enemy ties to the mystery, and combat exists ONLY in the
   present-day chapters. The prologue world is SAFE (walk/hop/interact only).
-- **THE REMNANTS** (canon 2026-07-28 — the dungeon bosses, and the reason
-  the RPG systems exist): the same phenomenon as a slime, at the scale of
-  a place. Where the world held a LOT of magic — a village's hearths, a
-  lake that never thawed, a drowned chapel's bells — the Ebb could not
-  drink it cleanly, and what tore loose congealed around the shape of what
-  it used to belong to and woke up. **A Remnant is the leftover magic of
-  one specific lost thing, standing up and walking.** One per landmass, at
-  its obelisk; a few more in genuinely hidden places.
-  **They are NOT villains** — the Ebb has no author, and neither do they.
-  A Remnant is grief with a shape: confused, or mourning, or standing
-  guard over a place that no longer needs guarding. So a boss fight is a
-  SETTLING, not a killing: the beat it ends on is the thing finally able
-  to rest. This is the same rule the drained-town villagers already run on
-  — nobody blames anybody. **Each one has its own DISPOSITION** (RPG
-  Systems, "The Remnants have dispositions"): one is WILLING and gives
-  itself, most are UNQUIET and fight out of fear, one REFUSES and is right
-  to, and one spends itself to save the party. They are characters, not
-  boss slots.
-  What a settled Remnant leaves behind is its **VESTIGE** (see "RPG
-  Systems"): the magic it was made of, finally still enough to be carried
-  — and, through Basil's Resonator, learned from.
-- **THE RETURN** (canon 2026-07-28 — the endgame shape): the vestiges are
-  the pieces the crystal never got. The summit drank the world but not
-  quite all of it, and it has been holding on ever since, incomplete.
-  Carry every vestige to the summit and give them back, and the crystal
-  can finally let go — the Ebb runs BACKWARDS and the magic streams out to
-  every horizon it came from. **The ending is the opening, reversed.**
-  This is the *how* of undoing it, and it is deliberately not the *why*:
-  what made the mountain drink the world in the first place stays the
-  standing mystery.
+- **THE OLD ONES** (canon 2026-07-28 — the five dungeon bosses, and the
+  reason the RPG systems exist): the beings the world's magic came from,
+  dead for longer than the kingdom has existed and content to be, hauled
+  back through the summit by a working they never asked for. **They did not
+  return. They were RETRIEVED.** One per landmass, standing at its obelisk
+  — because the network is what the working was run through, and where a
+  thing comes back into the world is where it stays.
+  **They are NOT villains, and this is a HARD RULE.** Nothing about them is
+  malice. They are ancient, enormous, disoriented, and in the wrong place;
+  the ones that fight are frightened, and the ones that do not are simply
+  tired. **Each has its own DISPOSITION** (RPG Systems, "The Remnants have
+  dispositions"): one is WILLING and gives itself the moment it is
+  understood, most are UNQUIET, one REFUSES and is right to, and one spends
+  itself to save the party. They are characters, not boss slots.
+  So a boss fight is a **SETTLING**, not a killing — and after the second
+  pass those two words finally stop competing, because **both verbs end the
+  same way: a body an Old One should never have been wearing, let go of.**
+  Talk it down or beat it until it stops, the same thing happens and it
+  happens for the same reason. Fighting is not the wrong answer. It is the
+  loud one.
+  What settling leaves behind is its **VESTIGE** (see "RPG Systems"): the
+  magic that was walking around inside it, still at last, cool enough to
+  carry — and, through Basil's Resonator, learned from.
+- **THE LESSER REMNANTS** (the other tier, and the one the world can
+  actually see): the Old Ones came back through hard, and the passage tore
+  loose a great deal of what they were made of. Where that landed on
+  something with a shape already — a village's hearths, a lake that never
+  thawed, a drowned chapel's bells — it congealed around it and woke up.
+  **A lesser Remnant is grief with a shape**: confused, or mourning, or
+  standing guard over a place that no longer needs guarding. These are the
+  optional and hidden ones, they are small and strange and often funny, and
+  they are the same phenomenon as a slime at the scale of a place —
+  **slimes are the bottom rung of this ladder**, curdled magic with no
+  shape to hold at all.
+  The world does not distinguish the two tiers and neither does the party
+  at first: everything that came out of the Ebb is "remnants" to a
+  villager. **Learning that the five at the obelisks are something else
+  entirely — older, and not left over from anything — is Act 2's turn.**
+- **THE RETURN** (canon 2026-07-28, revised same day — the endgame shape):
+  a vestige is an Old One that has been let go of but is still on the wrong
+  side of the door. Carry all five back up to the summit and **put them
+  through it** — and the magic they were made of stops being five bodies
+  and goes back to being weather. The Ebb runs BACKWARDS and it streams out
+  to every horizon it came from. **The ending is the opening, reversed.**
+  **The finale is a FUNERAL, and the world coming back is the side effect.**
+  That ordering is the whole tone of the ending and must not be inverted:
+  the party is not recharging a battery, they are carrying five dead things
+  home because being here was never anything but painful for them, and the
+  lights coming on behind them is what that costs the world — nothing. This
+  is the *how* of undoing it, and deliberately not the *why*: WHAT the
+  mountain is, and what tore open so easily when one rich boar pushed on
+  it, stays the standing mystery. **Nobody ever explains the door.**
 - **THE REGENT** (canon 2026-07-28 — the overarching antagonist):
   **Regent Aldous Schweinler**, Schweinler's father. Academy patron, boar
   patriarch, and the man whose name is on the wing Basil was laughed out
@@ -111,10 +154,23 @@ and finds love again, with her.
   only cruelty, it was suppression** — and no shipped scene has to change
   by a single line for that to be true, which is the best thing about it.
   He hunts the VESTIGES for the same reason the party does, and cannot
-  take one himself: a Remnant is settled by being understood, and he has
+  take one himself: an Old One is settled by being understood, and he has
   never understood anything he wanted. **He needs the party to collect
   them for him**, which makes the middle of the game his plan and the
   player's own competence the trap.
+  **AND THE TWO SIDES WANT OPPOSITE VERBS (2026-07-28, second pass).** Once
+  the Old Ones are what they are, his plan resolves into something much
+  uglier and much clearer: **he wants them ALIVE and IN BOXES.** An Old One
+  standing in a cage is the world's magic incarnate, finite, portable and
+  *owned*; an Old One put back through the door is the world's magic
+  belonging to everybody again, forever, unrecoverably. So he is not
+  racing the party to the same prize — he is racing them to the opposite
+  one. **His verb is KEEP THEM HERE. Yours is SEND THEM HOME.** This is
+  also, at last, the mechanical reason a caged Remnant never yields: it is
+  still wearing a body. He has a menagerie of the most powerful things
+  alive, he has never gotten one mote out of any of them, and he does not
+  know why — because the answer is a kindness and he has no instrument that
+  measures those.
   **HE IS ALREADY PLANTED, IN SHIPPED DIALOGUE (2026-07-28).** The accident
   scene's first line has been carrying him since 2026-07-12:
   *"Feast your eyes, Ridley. **Father had it shipped from the CAPITAL.**
@@ -131,11 +187,11 @@ and finds love again, with her.
 	and Aldous's imported toy are the literal instrument of the injury
 	that erases Kitty's memory and exiles Basil from the town. The Regent
 	breaks Basil's life twenty years before he does it to the world — and
-    nobody, Basil least of all, will ever connect the two. Magic mends
+	nobody, Basil least of all, will ever connect the two. Magic mends
 	anything but memory: the father takes Basil's love's memory, then
 	takes the world's magic. Do NOT have a character point this out.
   - **The son's Capital post is him going home to his father's world.**
-    "Weaseled into the Capital's court as the self-declared Calamity
+	"Weaseled into the Capital's court as the self-declared Calamity
 	Expert" reads completely differently now, and needs no rewrite.
 - **Basil's thesis** — *On Re-Enchantment: Why Science Is Magic's Equal*:
   magic is not gone, it is merely sleeping; science can measure, carry, and
@@ -560,29 +616,130 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
    The uncatalogued bundle IS the answer to the open hook and the refusal to
    answer it: nobody wrote down how it got here either. HOW it crossed an
    ocean stays deliberately unanswered until it can land.
-3. **The crossing → asking around** *(the boat, then a wander gate)*: every
+3. **THE KIT — "she has to go outside"** *(BUILT 2026-07-28 — the deliberate
+   MIRROR of Prologue A's recital chain)*.
+   **AS SHIPPED IT DIVERGES FROM THE DESIGN BELOW IN TWO WAYS, both deliberate:**
+   - **The fight is in the STREET, not on a road north of town.** "THE DEFENCE
+	 OF LANTERNWOOD": she comes back out of her own library and the lanes are
+     not empty. It costs no new zone, it puts the new terraces to work (she
+     fights UP them), and a town turning dangerous is a stronger beat than a
+     road being dangerous. Three enemies, no respawns, a level on the second
+     kill, a tonic left in the snow. `scene/lanternwood.gd::_start_defence`.
+   - **The book is chosen off the THREE STACKS that already exist**, not from a
+     new set of anchors — each shelf yields a different tome (husbandry / the
+	 grain tithes / enchantment theory), so "which book" is answered by WALKING
+     somewhere. The one she takes goes straight into her WEAPON slot and is
+     remembered in `Game.fuji_tome`.
+   Everything else landed as written: the dose off shelf three, the dead wand
+   bored out over TWO visits, and the first book she reaches for put back
+   unbroken. Flags: `fuji_dose_found` / `fuji_darts_made` / `fuji_tome_taken` /
+   `fuji_kit_made`, gated in `entities/fuji/fuji.gd::_start_book/_start_dart`
+   (and `FujiBrain._combat`, or a disarmed follower walks into a slime and
+   stands there). Probe: `tools/defence_probe.gd`, 30 checks over the whole
+   chain. The original design, for the record: She has the thesis and a destination, and she owns nothing that
+   can hurt anything. Three legs, on the shipped one-scene/N-phases idiom:
+
+   **(a) THE ROAD OUT** *(playable, and unwinnable on purpose)* — out
+   Lanternwood's north gate toward the harbour, into the pines, and the
+   first curdled-magic slimes of the game find her. She reaches for a
+   spell: the `act` wand-cast pose, held, and **nothing comes** — the Ebb
+   night's fourth cast re-run with something walking at her. She has no
+   attack and no secondary; her only verbs are walk and hop. **She runs.**
+   The fail state is the gate, not her HP (`PartyMember` already can't
+   die), and the beat ends the moment she is back inside the wall. Sets
+   `fuji_chased`.
+
+   **(b) THE LIBRARY AS A WORKBENCH** *(`Game.library_phase = "kit"`)* —
+   door shut, back against it, and the room she has been reading in for
+   six weeks becomes a supply list. A wander gate: three interactables,
+   **all three required**, every one of them SHIPPED FURNITURE:
+   - **Shelf THREE — husbandry.** The brass plate already says it and has
+     since 2026-07-25. A husbandry manual is where you find how to put a
+     large animal down to trim its hooves: dose by body weight, and a note
+     on how long it takes to come on. **That is the sleep dart. It is
+     pharmacology. It is science, and she reads it off a shelf.** Shelf
+     NINE, *enchantment, theory*, is now worthless, and the shelf about
+     livestock saves her life. **Never say this out loud.**
+   - **THE WAND — the delivery problem, solved with the thing in her
+     hand.** A wand is a stick. Hers has been dead for six weeks. **She
+     bores it out.** The instrument of her lost magic becomes the barrel
+     of her science, and it costs her the last object that let her pretend
+     otherwise. Stage it slow, stop her halfway, and make the player press
+     again to finish it. (The bluff's explode → gather → refit is shipped;
+     this is its inverse — one whole thing deliberately ruined to get one
+     working thing, which is the same trade Basil made with the watch.)
+   - **THE BOOK — the player's choice, and her socket vessel forever**
+	 (Ladder 2, "the socket has a VESSEL"). Three or four spines in the
+     stacks; stats identical, name and flavour and cast-tint hers for the
+     whole game. The tender beat costs exactly one line: **she reaches for
+     the one she loves first, holds it, and puts it back**, because you do
+     not hit things with a book you love. Her stated criterion for the one
+     she does take is entirely about mass. Register is Adventure Time —
+     the player braces for a meaningful choice and gets a woman weighing
+     hardbacks.
+   - **And the twelfth book can't be a weapon.** Basil's thesis is unbound
+     string-tied paper with no spine; it would come apart on the first
+     swing. She carries it in the other hand anyway, for the rest of the
+     game. **Do not comment on this either.**
+
+   **(c) THE ROAD AGAIN** *(playable — the real combat tutorial)* — same
+   gate, same pines, same slimes, and now the status system gets taught in
+   the order it was built in: dart → dart → **it drops** → tome it while
+   it is down. Ends walking out toward the harbour. Sets `kit_made`.
+
+   **WHY THIS BEAT EXISTS, and the rules it has to hold:**
+   - **It is the recital chain, inverted.** Prologue A: *the idea → the
+     brew → the whirligig flies.* Act 1: *the ambush → the improvisation →
+     the darts fly.* Both are somebody inventing science on a domestic
+     table because the thing they were supposed to use is not available to
+     them. Basil could not cast, so he made a potion. Fuji can no longer
+     cast, so she makes a dart. **Same scene, twenty years and one ocean
+     apart, and neither of them will ever know about the other one.**
+   - **This is Fuji learning SCIENCE, and it happens BEFORE she meets
+     Basil.** The thesis rule — the exchange goes both ways — stops being
+     something the romance does to her later. She is already doing it,
+     alone, on the night she read his paper. **That is why she is the one
+     who goes and gets him**: she is the only other person alive who
+     answered the drained world the way he did, and she has no idea yet.
+   - **Her whole kit is a librarian's.** The shelf gave her the dose, the
+     wand became the pipe, the weapon is a book. Nothing is invented and
+     nothing is found in a chest — it is one room she already had, used
+     correctly. **Hold this rule if the kit ever grows.**
+   - Narration purge applies: no narrator boxes, and this beat wants no
+     time card at all — leg (a) runs the same night she reads the thesis.
+   - **Implementation, and it is cheap:** no second character and no
+	 "unarmed Fuji" entity. `fuji.gd::_process_kit` gates the tome on
+     `book_chosen` and the blow-pipe on `wand_bored`; leg (a) is the
+     shipped body with two flags off. Flags: `fuji_chased`, `dose_found`,
+     `wand_bored`, `book_chosen` (+ `Game.fuji_tome: StringName` for which
+     one) → `kit_made`. `reset_story()` must clear all of it, including
+     `fuji_tome`, for the same reason it blanks the gun loadout. Probe
+     work extends **`tools/library_probe.gd`**, not the prologue probe.
+4. **The crossing → asking around** *(the boat, then a wander gate)*: every
    land is ocean-separated — how Fuji gets across is the Act 1 boat hook
    (open). Landing near Alembic Town: nobody knows a "Basil."
    Everyone remembers "**Poopy Paws**" — the cruel name outlived the cat (the
    theme weaponized as a story gate: the player must ask about the *insult*
    to find the man). The Copper Kettle innkeeper: "went east, past the
    meadow, years back. Never came through again."
-4. **The road east** *(playable)*: Fuji's overworld travel; **Whisker Meadow
-   is her combat tutorial** — the meadow that was a childhood idyll in
-   Prologue A now crawls with curdled-magic slimes (tome swing + darts taught
-   here; same map, two eras, the loss made playable).
-5. **The hermitage — the HOME TREE** *(new small zone: inside the giant
+5. **The road east** *(playable)*: Fuji's overworld travel; **Whisker Meadow
+   is where the kit gets its room to breathe** — the meadow that was a
+   childhood idyll in Prologue A now crawls with curdled-magic slimes, and
+   the BigSlime's raised drowse threshold lands here, one land after the
+   pines taught the basic setup (same map, two eras, the loss made
+   playable). The tutorial proper now belongs to beat 3.
+6. **The hermitage — the HOME TREE** *(new small zone: inside the giant
    tree on Forest Land's SE coast, entered from its overworld landmark —
    the door, round window and flue are already drawn on the map icon)*: a
    den among the roots, corkboard research, crystal instruments — Basil has
    spent years *measuring* the drained world, a hermit's log of readings on
    the distant summit crystal, the only data anyone has on the Ebb. And a
    strange brass gun.
-6. **The refusal → the party** *(cutscene + fight)*: he says no. She reads his
+7. **The refusal → the party** *(cutscene + fight)*: he says no. She reads his
    own thesis back at him. A slime pack hits the camp — they fight side by
    side (**the 2-member party mechanic unlocks HERE, diegetically**). He
    comes back "for the science, not for the people."
-7. **Return to Alembic Town**: the shuttered, drained town of the adult
+8. **Return to Alembic Town**: the shuttered, drained town of the adult
    sandbox. Act 1 ends exactly where the combat core lives — bedroom,
    downstairs, town, overworld, meadow (today reachable via the ESC dev
    skip; the live story flow currently ends on Fuji in Lanternwood).
@@ -625,8 +782,8 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
      proved at the exact moment the rocks are gone. This is what the whole
      compound/ammo layer was built for and why it must stay relevant all
      game — **but frame it as both halves at once, never as the scene where
-     the gun turns out to have been the real answer** (see Themes, "The
-     thesis"). He is out-BUILT by a chemist and out-UNDERSTOOD by a
+	 the gun turns out to have been the real answer** (see Themes, "The
+	 thesis"). He is out-BUILT by a chemist and out-UNDERSTOOD by a
      librarian, simultaneously.
   4. **He loses to what he is.** Not out-fought so much as refused: hoarded
      magic does not answer someone who only ever wanted to own it. The
@@ -2753,16 +2910,27 @@ character simply *has*, or the world's central loss is cosmetic.
 
 Instead: **you carry a piece of the drained magic and learn out of it.**
 
-- **VESTIGES** are crystallized fragments of what the world lost — the magic
-  that used to *be* a specific thing: the warmth that kept a village's hearths
-  lit, the hush over a frozen lake, the seven bells of a drowned chapel. They
-  are the magicite analog, and like magicite they are finite, named, and found.
-  **Every one of them comes off a REMNANT** (see the lore spine): where the Ebb
-  tore a great deal of magic loose at once, what got left congealed around the
-  shape of what it belonged to and stood up. Settle the Remnant at the end of
-  its dungeon and the magic it was made of is finally still enough to carry.
-  **One per dungeon, and no other source** — never bought, never dropped by a
-  slime, never sitting in a pot.
+- **VESTIGES** are the magicite analog, and the lineage is worth being honest
+  about because it tells you what to build: **FFVI's espers, made dungeon
+  bosses.** Like magicite they are finite, named, found, and they teach
+  permanently. What a vestige *is*, after the 2026-07-28 second pass: **an OLD
+  ONE that has let go of the body it was dragged back into** — the magic that
+  was walking around inside it, still at last, and cool enough to carry.
+  **Every one comes off a settled Old One at the end of its dungeon. One per
+  dungeon, and no other source** — never bought, never dropped by a slime,
+  never sitting in a pot.
+  The two FFVI beats this is built out of, both worth stealing precisely:
+  **Ramuh in Zozo**, who explains that his kind cannot survive in this world,
+  turns himself to magicite mid-conversation and hands himself over — that is
+  the WILLING disposition, and it is the first one the player meets. And
+  **Odin in the Ancient Castle**, already gone, already stone, nobody left to
+  ask — that is the texture of a lesser Remnant found somewhere hidden, taken
+  without a word exchanged.
+  **A vestige is not a rock. It is a person who is finally allowed to be
+  dead**, and it is on its way home; the party is carrying it for the same
+  reason anybody carries a coffin. The menu never says this and no character
+  ever gives the speech. The epitaph line on the resource is the entire
+  statement, which is exactly how much room FFVI gave it too.
 - **THE RESONATOR** is Basil's device: a brass apparatus built in the HOME TREE
   hermitage that makes a vestige *readable* — it holds the fragment against a
   living body long enough for the body to learn the shape of it. A vestige on
@@ -2854,9 +3022,32 @@ spells        Dictionary   spell_id -> percent learned per RESONANCE point
 worn          Dictionary   stat -> flat bonus while socketed (small: +1/+2)
 ```
 
-- **One socket per character.** That slot is the entire equipment layer of the
-  game — there is no armor, no accessories, no weapon list. One choice, made
-  visible, made permanent in its consequences (the spells stay learned).
+- **One socket per character** for VESTIGES specifically. **REVISED 2026-07-28,
+  and this supersedes the old "that slot is the entire equipment layer of the
+  game" rule:** there is now also a four-slot GEAR layer — WEAPON / HEAD (hat) /
+  BODY (shirt) / RELIC (charm), the FFVI shape — and the vestige socket is a
+  separate FIFTH slot. The two were never the same system; collapsing them was
+  the part of the old rule that did not survive contact with wanting a hat.
+  Gear is `resources/item.gd` + the table in `resources/items.gd`; it is BUILT
+  and shipping. The vestige socket is still unbuilt and still gated to Act 2's
+  first obelisk.
+  What the old rule was *right* about, and what still holds: no upgrade
+  treadmill, no shop wall of +1/+2 variants, and above all **a weapon NEVER
+  changes a character's kit.** Basil fires a laser and Fuji swings a book
+  because of who they are, not what they hold — a weapon grants stats and a
+  name. Letting an item swap the kit would put branching combat code behind an
+  inventory screen, and `_process_kit` is the one place that logic is allowed
+  to live.
+- **The socket has a VESSEL, and the vessel is per-character** (2026-07-28).
+  Mechanically identical, dramatically not: Basil wears a **resonance locket**
+  off the Resonator, and **Fuji's socket is her BOOK** — the vestige rides in
+  the tome she already fights with, tucked in the boards like a pressed flower.
+  This is how the Act 1 "pick your favourite book" beat pays off two hours
+  later without ever becoming a weapon list: the book the player chose in a
+  snowbound library on the night she decided to go is the object that carries a
+  dead god for the rest of the game. **The choice stays cosmetic in stats and
+  enormous in meaning, which is the only kind of choice this game should be
+  handing out in a tutorial.**
 - **RESONANCE** accrues per kill, party-wide, **but only to a character with a
   vestige socketed.** That is the tension the whole system runs on: an empty
   socket wastes every kill, and a vestige you have finished learning wastes them
@@ -2912,10 +3103,50 @@ StatusComponent rather than omitting the component — `slime.gd` calls
 `status.apply()` unconditionally and a missing node would need a null check at
 every enemy's hit path.
 
-**A Remnant and its vestige share a name.** The name is a piece of
-world-building for free, the epitaph line does the work a summon animation
-would, and naming the creature after what it used to be is the whole fiction in
-two words:
+**A Remnant and its vestige share a name**, and after the second pass the
+NAMING SPLITS ALONG THE TWO TIERS — which is free characterization and should be
+held strictly:
+
+> **A lesser Remnant is named for the thing it was left over from. An Old One
+> is named for a force, because there was nothing before it to name it after.**
+
+**TIER 1 — THE FIVE OLD ONES** (the dungeon bosses; one per landmass, at its
+obelisk). Nobody knows what they actually call themselves. **These are the
+names the local histories use, and Fuji is the one who finds them** — a
+librarian's contribution to a boss fight, and the reason the party can walk
+into a boss room with something to say:
+
+| Old One | Land | Disposition | Teaches |
+| --- | --- | --- | --- |
+| **THE FIRST GREEN** | Forest (SW) | **WILLING** | MEND, MENDWORK + `gift` |
+| **THE LONG PATIENCE** | Mountain / Kingdom | UNQUIET | WARD, STEADY |
+| **THE PALE SLEEPER** | Ice (NW) | UNQUIET | BIND, HUSH |
+| **THE LONG NOON** | Desert (NE) | **REFUSING** | QUICKEN, CLEANSE |
+| **THE FIRST HEAT** | Lava (E/SE) | UNQUIET → **spends itself** | KINDLE, REVIVE |
+
+- **THE FIRST GREEN is dungeon one and the Ramuh beat.** Forest Land, closest
+  to home, and it gives itself the moment it is understood. Teaching the player
+  that the fight button is not always the verb has to happen at the first
+  opportunity or it reads as a late-game gimmick.
+- **THE LONG NOON is the refusing one**, and it refuses for the worst possible
+  reason: it has been dead a very long time, it came back into a desert at
+  noon, and it has decided it would rather be wrongly alive than rightly dead.
+  It is not confused. It is not frightened. It just wants to stay, and the
+  party takes it home anyway. (See "The Remnants have dispositions" — no
+  peaceful path, no gift, nobody absolves Basil.)
+- **THE FIRST HEAT is the sacrifice.** Unquiet at its dungeon, and later — most
+  likely cut out of one of the Regent's cages — it burns itself out to get the
+  party through something they were not going to survive.
+- **THE FIRST GREEN and THE FIRST HEAT share a naming root on purpose**: those
+  two are the oldest, and every history that mentions one mentions the other.
+  Never explain this.
+- **One of them says its real name**, once, quietly, and it is mundane and
+  short — one syllable, the kind of thing a neighbor would call you. Author's
+  call which; do not put it on the refusing one, which would be a mercy it has
+  not been written to get.
+
+**TIER 2 — THE LESSER REMNANTS** (optional, hidden, small, often funny; the
+existing list, and the naming logic that made it is now the tier marker):
 
 - **HEARTHKEEP** — the warmth that kept a village's fires lit. MEND, WARMTH.
 - **THE LONG WINTER** — the hush over a lake that never thawed. BIND, HUSH.
@@ -2926,6 +3157,9 @@ two words:
 - **THE GOOSE THAT STOLE THE RIBBON** — yes, really; the Adventure Time register
   has to appear in the systems too, not only the dialogue. A small, optional,
   extremely unserious Remnant. LURE.
+
+Around eight to eleven vestiges total, five of them mandatory. The count is the
+dungeon count plus what you went looking for; there is still no filler.
 
 ### The Remnants have dispositions (2026-07-28)
 
@@ -3174,14 +3408,60 @@ propose `P` / Options on the pad). Three panes, one screen, 384×216:
 Same contract as the mixing bench: **always show what you are about to get and
 what you are about to lose before taking anything.**
 
+### BUILT 2026-07-28 — the levels slice, gear, the satchel, save/load
+
+Shipped in one overnight pass, all of it probe-covered. What is live:
+
+- **`resources/character_sheet.gd`** (level, EXP, five stats, four gear slots),
+  **`resources/stat_block.gd`** (hand-authored 20-row growth tables per
+  character + the EXP curve as a table), **`resources/item.gd`** /
+  **`resources/items.gd`** (the item table and its only factory),
+  **`resources/combat.gd`** (the stat-driven damage resolve).
+- **`Game.sheets` / `Game.inventory` / `Game.fuji_tome`**, all cleared by
+  `reset_story()` — same rule and same reason as the gun loadout.
+- **The ×4 party→enemy rescale**, applied: laser 2→8, tome 2→8, dart 1→4, burn
+  tick 1→4, slime 4→16, big slime 10→40. **Kill counts are unchanged**; the
+  point is headroom for one point of MIG. Enemy→party damage was deliberately
+  NOT rescaled (party HP is drawn as hearts and stays legible in halves).
+- **MIGHT and GUARD land at ONE chokepoint**, `HurtboxComponent.take_hit` — the
+  single place every hit in the game already flows through, so it covers tome,
+  bolt, dart and slime contact at once, including kit that does not exist yet.
+  Projectiles carry their SHOOTER, so a dart inherits Fuji's MIGHT.
+- **`scene/party_menu.gd`** — the third `get_tree().paused` modal (registered in
+  `Overlay.MODALS`), opened with `menu` (I / gamepad START). Three panes: roster,
+  stats, gear + satchel + SAVE.
+- **`scene/save_game.gd`** — JSON to `user://save_1.json`. A save is exactly
+  what `reset_story()` clears, plus the roster and the current scene; keeping
+  that correspondence is what stops a new `Game` field being silently lost.
+  Version-mismatched or unparseable saves are REFUSED whole, never half-applied.
+- **`scene/title.tscn`** — the boot scene. NEW GAME / CONTINUE / QUIT, with
+  CONTINUE first and pre-selected when a save exists (a resting cursor on NEW
+  GAME is how saves get lost). Authored fresh per the build-fresh doctrine, not
+  recovered from git; the backdrop is drawn in code, so it costs no new art.
+
+Probes: **`tools/rpg_probe.gd`** (81 checks — curve edges, growth divergence,
+neutral prologue sheets, VIT reaching the body, equip round-trips through the
+satchel, MIG/GRD in both directions with the floor, a kill paying the whole
+roster), **`tools/save_probe.gd`** (31 — a field-by-field round trip plus both
+refusals), **`tools/defence_probe.gd`** (30 — the whole kit→battle chain).
+
+**Deferred on purpose:** FOCUS (it needs the magic layer) and SPD growth. Level
+growth grants NO SPD at any level for either character, because the AI brains'
+hysteresis bands are tuned to 150px/s; the only SPD in the game is one relic,
+and `StatBlock.SPD_CLAMP` caps the total at +20%. Any change that can move a
+member's speed must re-run `tools/party_probe.gd`.
+
 ### Build order
 
 Three slices, each shippable and each verifiable on its own:
 
 1. **Levels** (works against the build as it stands today). CharacterSheet, the
    five stats, the EXP curve, the ×4 damage rescale, kill grants, level-up toast,
-   and the menu's left+middle panes. No magic anywhere. Lands naturally in Act
-   1's meadow tutorial, where Fuji fights alone.
+   and the menu's left+middle panes. No magic anywhere. Lands naturally across
+   Act 1's solo-Fuji stretch — the pines outside Lanternwood (beat 3, "THE
+   KIT") and then Whisker Meadow, where she fights alone either way.
+   **Story-side, beat 3 should ship BEFORE this slice**: it is the scene that
+   gives her a kit to have stats about, and it needs no RPG system to exist.
 2. **Stakes.** The downed/KO state, the FOCUS pool, mote pickups, the HUD pip
    row. Still no spells — this slice is what makes the third one mean something.
 3. **Vestiges.** `Vestige`, resonance, the learning loop, the four schools, the

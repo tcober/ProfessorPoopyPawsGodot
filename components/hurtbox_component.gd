@@ -41,6 +41,14 @@ func take_hit(damage: int, source: Node, effect: Dictionary = NO_EFFECT) -> void
 	# this same hurtbox in the same frame must not stack a second hit.
 	if invincible_time > 0.0:
 		_invincible_until_ms = Time.get_ticks_msec() + int(invincible_time * 1000.0)
+	# THE ONE PLACE STATS TOUCH DAMAGE. Every hit in the game arrives here —
+	# tome, bolt, dart, slime contact — so the attacker's MIGHT and the victim's
+	# GUARD are applied once, for all of them, including kit that doesn't exist
+	# yet. Scaling at each weapon instead would be three call sites and would
+	# still miss enemy contact damage, which shares HitboxComponent with the
+	# party. `damage` stays UNSCALED in the signal below: knockback and hurt
+	# reactions care that they were hit, never how hard.
+	var dealt := Combat.resolve(damage, source, owner)
 	if health_component:
-		health_component.take_damage(damage)
+		health_component.take_damage(dealt)
 	hit.emit(damage, source, effect)

@@ -32,13 +32,20 @@ const RED := Color(1.00, 0.55, 0.28)
 const PURPLE := Color(0.78, 0.51, 1.00)
 
 
+## THE x4 RESCALE (2026-07-28). Every party->enemy damage number in the game was
+## multiplied by four when levels landed, and enemy HP with it, so KILL COUNTS
+## ARE UNCHANGED — a base bolt still takes two slimes' worth of shots. The point
+## is headroom: `roundi(2 * (1 + MIG/12))` is literally the integer 2 until MIG
+## reaches 6, which is five levels of a stat that visibly does nothing. At x4
+## there is somewhere for one point to go. Enemy->party damage was deliberately
+## NOT rescaled: party HP is drawn as hearts and must stay legible in halves.
 static func make(kind: Compound.Kind) -> Compound:
 	var c := Compound.new()
 	c.kind = kind
 	match kind:
 		Compound.Kind.BASE:
 			c.display_name = "REAGENT BASE"
-			c.damage = 2
+			c.damage = 8
 			c.charges = 6
 			c.speed = 700.0
 			c.lifetime = 1.2
@@ -49,7 +56,7 @@ static func make(kind: Compound.Kind) -> Compound:
 			# into a short hard freeze — immediate and partial, where Fuji's
 			# sleep is slow and total. They must never feel like one status.
 			c.display_name = "HOARFROST DRAUGHT"
-			c.damage = 1
+			c.damage = 4
 			c.charges = 6
 			c.speed = 520.0
 			c.lifetime = 1.2
@@ -61,7 +68,7 @@ static func make(kind: Compound.Kind) -> Compound:
 			# (~60px at this speed), paid for with a fast cadence and a burn
 			# that keeps ticking after you have moved on to the next target.
 			c.display_name = "CINDER TINCTURE"
-			c.damage = 1
+			c.damage = 4
 			c.charges = 6
 			c.speed = 380.0
 			c.lifetime = 0.16
@@ -73,7 +80,7 @@ static func make(kind: Compound.Kind) -> Compound:
 			# The premium. Kills a slime in one hit and punches through the
 			# one behind it, but three shots and the beaker is dry.
 			c.display_name = "PLASMA DECOCTION"
-			c.damage = 4
+			c.damage = 16
 			c.charges = 3
 			c.speed = 800.0
 			c.lifetime = 1.2

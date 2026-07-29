@@ -83,7 +83,32 @@ func _hurt_interrupt() -> void:
 	book_shape.set_deferred("disabled", true)
 
 
+## THE KIT GATE (Act 1 beat 3). Fuji does not start the game armed: she is a
+## librarian, and the tome and the blow-pipe are things she MAKES, out of her own
+## reading room, on the night she decides to go. Until then these two refuse.
+##
+## Gated HERE rather than in _on_attack_intent / _on_secondary_intent because
+## both the keyboard path and the AI path funnel through these two calls, so one
+## guard each covers a leading Fuji and a following one. (Returning "" from
+## _secondary_action would NOT be enough — that only feeds the leader poll;
+## FujiBrain sets intent.secondary directly.)
+##
+## Read the flag PER CALL, never cached in _ready: Party.spawn() rebuilds every
+## body at every door, but a flag set mid-scene has to arm her immediately —
+## she picks the book up and swings it in the same room.
+func armed_tome() -> bool:
+	var game := get_node_or_null(^"/root/Game")
+	return game == null or game.call("flag", "fuji_tome_taken")
+
+
+func armed_darts() -> bool:
+	var game := get_node_or_null(^"/root/Game")
+	return game == null or game.call("flag", "fuji_darts_made")
+
+
 func _start_book() -> void:
+	if not armed_tome():
+		return
 	state = STATE_BOOK
 	_book_timer = book_time
 	_lunge = facing * book_lunge
@@ -93,6 +118,8 @@ func _start_book() -> void:
 
 
 func _start_dart() -> void:
+	if not armed_darts():
+		return
 	state = STATE_DART
 	velocity = Vector2.ZERO
 	_dart_timer = dart_time

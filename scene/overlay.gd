@@ -35,7 +35,7 @@ const BAD := Color(0.86, 0.44, 0.44)
 
 ## Every autoload that can hold the tree paused. Kept here rather than in either
 ## menu so neither can add itself to one list and forget the other.
-const MODALS: Array[StringName] = [&"DevMenu", &"MixMenu"]
+const MODALS: Array[StringName] = [&"DevMenu", &"MixMenu", &"PartyMenu"]
 
 
 ## THE MODAL CONTRACT: at most one of these may be open, because each pauses the
@@ -87,7 +87,6 @@ static func label(ui: CanvasLayer, text: String, x: int, y: int, col: Color,
 	var l := Label.new()
 	l.text = text
 	l.position = Vector2(x, y)
-	l.size = Vector2(w, ROW_H)
 	l.clip_text = true          # a long row must never bleed into the next column
 	l.add_theme_font_override("font", FONT)
 	l.add_theme_font_size_override("font_size", 8)     # 1:1 at 384x216
@@ -97,6 +96,16 @@ static func label(ui: CanvasLayer, text: String, x: int, y: int, col: Color,
 	l.add_theme_constant_override("shadow_offset_y", 1)
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	ui.add_child(l)
+	# SIZE LAST — after every theme override AND after add_child. A Label's
+	# minimum size is derived from its text and font, and both applying a font
+	# override and entering the tree recompute it, so a size assigned any earlier
+	# is quietly grown back to fit the whole string and clip_text never gets a
+	# chance to clip. custom_minimum_size pins the floor at zero width so the
+	# recompute has nothing to grow toward. This only started to matter when the
+	# chapter selector went to three narrow columns and its rows began running
+	# into each other.
+	l.custom_minimum_size = Vector2(0.0, ROW_H)
+	l.size = Vector2(w, ROW_H)
 	return l
 
 

@@ -305,34 +305,71 @@ SCENES = {
             "plaster": (236, 210, 182, 255),
         },
     },
-    "lanternwood": {    # Fuji's hometown at zone scale: a winter-dusk pine
-        "shadow": "violet",                 # town — near-white snow field,
-        "accent": (255, 190, 96, 255),      # deep blue-spruce woods, and
-        # every window burning firelight amber (the town of lanterns).
-        # Hand ramps: packed-snow lanes (derived road turns salmon under
-        # violet shadows) and the same lava/incandescence rule as ever.
+    "lanternwood": {    # Fuji's hometown at zone scale — RE-SEEDED 2026-07-28
+        "shadow": "violet",                 # to the NARSHE read (FFVI): a dark
+        "accent": (255, 190, 96, 255),      # slate-violet mining town of stacked
+        # terraces, near-black spruce, and every window burning firelight amber.
+        #
+        # THE SNOW SPLIT IS LOAD-BEARING — read before touching either seed.
+        # `snow` is now the GROUND FIELD ONLY (it seeds OverWorld.SNOW, which
+        # `_px_snow` paints and which `_px_verge` borrows for the lane
+        # shoulders), and it is DARK because Narshe is bright caps on dark rock,
+        # never a white field. `snowcap` is the SNOW-LOAD material handed to
+        # town_cabin/town_library/town_conifer/frozen_pond and to town_cliff as
+        # its lip — the actual settled snow, and it stays near-white. Collapse
+        # the two back into one seed and every gable, bough and cliff lip goes
+        # slate with the ground: a uniformly muddy town, which is exactly the
+        # "flat and kiddy" failure this pass exists to fix.
+        #
+        # Hand ramps: packed-snow lanes (derived road turns salmon under violet
+        # shadows). The lane is dropped exactly ONE step from its old ladder and
+        # no further — against a dark field the pale trodden lane IS the
+        # navigation affordance and half the Narshe read.
+        # `snow` and `snowcap` are BOTH hand ramps, for two different reasons:
+        #  - snow, because _px_snow is written for a BRIGHT field and draws
+        #    almost entirely from s[0]/s[1]. A derived ramp lightens its seed
+        #    for the lit end, so no seed dark enough to give a Narshe ground
+        #    survives the derivation — you have to state the top of the ladder.
+        #  - snowcap, because ramp()'s violet law turns a near-white seed's
+        #    darks into saturated periwinkle (the same rule that forces lava's
+        #    hand ramp), and those darks are the cliff lip's turn-under shadow
+        #    and every roof's shaded eave.
         "ramps": {
-            "road": [(226, 234, 246, 255), (206, 216, 236, 255), (182, 192, 220, 255),
-                     (150, 158, 196, 255), (114, 118, 164, 255), (80, 80, 126, 255)],
-            "sand": [(226, 234, 246, 255), (206, 216, 236, 255), (182, 192, 220, 255),
-                     (150, 158, 196, 255), (114, 118, 164, 255), (80, 80, 126, 255)],
+            "road": [(206, 216, 236, 255), (182, 192, 220, 255), (150, 158, 196, 255),
+                     (114, 118, 164, 255), (80, 80, 126, 255), (56, 54, 92, 255)],
+            "sand": [(206, 216, 236, 255), (182, 192, 220, 255), (150, 158, 196, 255),
+                     (114, 118, 164, 255), (80, 80, 126, 255), (56, 54, 92, 255)],
+            "snow": [(116, 124, 156, 255), (100, 108, 140, 255), (86, 92, 124, 255),
+                     (70, 74, 106, 255), (56, 58, 88, 255), (42, 42, 68, 255)],
+            "snowcap": [(255, 255, 255, 255), (236, 242, 252, 255), (208, 218, 238, 255),
+                        (172, 182, 210, 255), (132, 140, 175, 255), (96, 102, 140, 255)],
         },
         "mats": {
             "sea": (60, 110, 168, 255),         # ride-along ice-water
-            "grass": (208, 222, 242, 255),      # ride-along (snow is the field)
-            "grass2": (196, 214, 238, 255),
-            "forest": (36, 96, 110, 255),       # blue-spruce hedgerows
-            "pines": (34, 92, 108, 255),        # the deep winter wood border
-            "rock": (146, 150, 194, 255),       # icy lavender stone
-            "snow": (238, 244, 254, 255),       # THE ground field
+            "grass": (150, 162, 196, 255),      # ride-along (snow is the field)
+            "grass2": (140, 152, 188, 255),
+            "forest": (20, 52, 66, 255),        # blue-spruce hedgerows
+            "pines": (18, 48, 62, 255),         # the deep winter wood border
+            "rock": (72, 72, 112, 255),         # THE town's primary value now:
+                                                # the terrace faces and chasm
+                                                # walls, dark slate-violet
+            "snow": (104, 112, 148, 255),       # THE ground field. It must stay
+                                                # well DARKER than the road ramp
+                                                # below — at (150,162,196) its
+                                                # fabric matched the lane's
+                                                # mid-tones and the whole trail
+                                                # network simply vanished.
+            "snowcap": (222, 232, 248, 255),    # settled snow: roofs, boughs,
+                                                # cliff lips, the pond ice
             "waste": (188, 112, 178, 255),      # ride-alongs, unused
             "bridge": (150, 88, 112, 255),
-            "trunk": (74, 62, 102, 255),        # cold violet-brown boles
+            "trunk": (56, 46, 80, 255),         # cold violet-brown boles
+            "timber": (128, 92, 72, 255),       # the trestle decks + posts
             "desert": (178, 150, 208, 255),
             "basalt": (74, 62, 92, 255),
             "lava": (244, 120, 52, 255),
-            "roof_blue": (96, 124, 168, 255),   # slate cabin roofs (under snow)
-            "roof_green": (78, 140, 128, 255),
+            "roof_blue": (72, 94, 136, 255),    # slate cabin roofs (under snow)
+            "roof_green": (58, 106, 98, 255),
             "plaster": (214, 208, 228, 255),
         },
     },
