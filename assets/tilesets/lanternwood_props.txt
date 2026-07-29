@@ -8,3 +8,19 @@ prop ConiferTrunk Yy lanternwood_conifertrunk.png each
 prop ConiferCrown Yy lanternwood_conifercrown.png anchor=top:0 base_inset=-16 each
 prop BigConifer Pp lanternwood_bigconifer.png each
 prop Lamp lL lanternwood_lamp.png each
+prop GatePostW nN lanternwood_gatepostw.png each
+prop GatePostE mM lanternwood_gateposte.png each
+mask lanternwood_maskC0.png 48 352 344
+mask lanternwood_maskC1.png 224 352 344
+mask lanternwood_maskC2.png 656 352 344
+mask lanternwood_maskC3.png 320 368 360
+mask lanternwood_maskC4.png 96 656 648
+mask lanternwood_maskC5.png 416 656 648
+mask lanternwood_maskX0.png 240 496 488
+mask lanternwood_maskX1.png 448 496 488
+mask lanternwood_maskX2.png 112 512 504
+mask lanternwood_maskX3.png 608 512 504
+mask lanternwood_maskB0.png 48 176 168
+mask lanternwood_maskB1.png 544 176 168
+mask lanternwood_maskB2.png 272 192 184
+mask lanternwood_maskB3.png 512 192 184

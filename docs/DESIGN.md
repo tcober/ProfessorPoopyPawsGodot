@@ -3,8 +3,13 @@
 > Canonical, tool-agnostic design doc. `CLAUDE.md` and `AGENTS.md` point here so any AI
 > assistant (Claude Code, Cursor, Copilot, etc.) shares the same source of truth.
 
-Tone is a blend of **Adventure Time** (whimsical, absurd, heartfelt) and **Final Fantasy** (earnest
-stakes, party/progression depth, emotional arcs).
+Tone is a blend of **the Simon & Marcy register** — Adventure Time at its most serious
+("I Remember You", Simon & Marcy, the Lich), plus **Over the Garden Wall**: a bright
+surface stretched over an apocalypse nobody discusses, jokes that land and then leave a
+wound, absurd premises played completely straight — and **Final Fantasy** (earnest
+stakes, party/progression depth, emotional arcs). **Never the candy-kingdom register:**
+no random whimsy, no quirk for its own sake, no gag that costs nothing. "Very kiddy" is
+the failure mode. Full statement under "Influences".
 
 Structure in one line: **Chrono Trigger / Sea of Stars overworld for travel; zones
 play as an ALttP-style top-down shooter (laser gun) — not turn-based.**
@@ -207,7 +212,8 @@ anthropomorphic animals of MANY species, not just cats, and **a character's
 personality matches its animal**: Schweinler the boorish pig, Basil and Fuji
 the particular, curious cats, and townsfolk chosen species-first (a gentle
 sheep matron, a know-it-all owl, a chaos goose...). New NPCs pick the animal
-that IS the personality, Adventure Time style — never a generic villager.
+that IS the personality — never a generic villager. Played straight: the joke is
+that nobody in the scene finds the animal remarkable.
 
 - **Basil** — the science cat. Can't do magic at all in a world where it's
   casual; got into
@@ -674,9 +680,9 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
      whole game. The tender beat costs exactly one line: **she reaches for
      the one she loves first, holds it, and puts it back**, because you do
      not hit things with a book you love. Her stated criterion for the one
-     she does take is entirely about mass. Register is Adventure Time —
+     she does take is entirely about mass. The Simon & Marcy register —
      the player braces for a meaningful choice and gets a woman weighing
-     hardbacks.
+     hardbacks, and it only lands because the thing she put back mattered.
    - **And the twelfth book can't be a weapon.** Basil's thesis is unbound
      string-tied paper with no spine; it would come apart on the first
      swing. She carries it in the other hand anyway, for the rest of the
@@ -941,7 +947,7 @@ the reason the second half has stakes beyond a scavenger hunt.
    from us", or anything a pamphlet could print. The narration purge and the
    commentary-card purge already ban exactly this move — those doctrines were
    written for pacing, and they turn out to be the thematic discipline too. The
-   register is Adventure Time and FF: theme arrives as image and consequence,
+   register is Simon & Marcy and FF: theme arrives as image and consequence,
    never as thesis. If a line could be a placard, cut it.
 2. **Aldous must be half-right in the room.** His argument is that magic was
    being SQUANDERED — burned on lamplighters and hedge-charms and warming
@@ -1062,8 +1068,9 @@ the world said could never have it.**
    never says so.)
 4. **He is bad at it.** The world's leading theorist of re-enchantment is a
    clumsy beginner — worse at it than Fuji, funnier about it than he wants to
-   be. This is the Adventure Time register doing the work, and it rhymes with
-   her sparks missing the kettle.
+   be. This is the Simon & Marcy register doing the work — the comedy is
+   load-bearing, not decoration — and it rhymes with her sparks missing the
+   kettle.
 
 **FUJI CROSSES THE OTHER WAY, AND THAT IS THE ENGINE.** She could cast before
 the Ebb and lost it; he never could and is gaining it. They pass each other going
@@ -1147,14 +1154,28 @@ because it turns out the systems already built it.
   her own reasons — her world went dark and she found an answer on her own
   shelf. Protect that. The romance is EVIDENCE that "came back for the science,
   not the people" finally closed, never the prize for closing it.
-- **Register: Adventure Time, not swooning.** Two adults who are bad at this.
+- **Register: Simon & Marcy, not swooning.** Two adults who are bad at this.
   She is much better at talking than he is; he has been alone in a tree for
   years and has genuinely forgotten how. It should be funny far more often than
   it is tender, and tender only when it ambushes them.
 
 ## Influences
 
-- **Adventure Time:** surreal biomes, oddball NPCs, comedic-but-sincere writing.
+- **The Simon & Marcy register** (renamed 2026-07-29 — it used to say just "Adventure
+  Time", and the bare name kept steering the writing toward the show's kiddiest half):
+  Adventure Time at its most serious — "I Remember You", Simon & Marcy, the Lich. Surreal
+  biomes and oddball NPCs, yes, but under them a bright surface stretched over an
+  apocalypse nobody discusses, and comedy that lands and then leaves a wound. **Over the
+  Garden Wall** is the second touchstone: melancholy, folkloric, funny without ever
+  being cute.
+  - **NOT the candy-kingdom register.** No random whimsy, no quirk for its own sake, no
+    gag that costs nothing. If a joke could be cut with no loss, it was the wrong joke.
+	"Very kiddy" is this project's failure mode, in writing and in art alike.
+  - **Absurd premises are played completely straight.** The goose that stole the ribbon
+    is funny because nobody in the scene finds it funny. A character's species is never
+    winked at.
+  - The register is why the narration purge and the card purge work: this tone cannot
+    survive a narrator explaining it.
 - **Final Fantasy:** progression systems, emotional storytelling, eventual party members
   (the sympathizers), set-piece dungeons.
 - **Zelda: ALttP:** zone gameplay — top-down 4-directional action combat, dungeons,
@@ -1169,13 +1190,14 @@ because it turns out the systems already built it.
   organic terrain, big readable sprites, action combat that stays friendly, whimsical
   enemies with personality, and the seamless flow between exploring and fighting.
 - **Art direction** (canonical influence list): **Final Fantasy VI, Chrono Trigger,
-  Secret of Mana, Sea of Stars, Adventure Time, and the Paper Girls comic.** Gameplay
+  Secret of Mana, Sea of Stars, Over the Garden Wall, and the Paper Girls comic.** Gameplay
   feels like Zelda, but the _look_ is richer 16-bit JRPG: **TRUE SNES density**
   (see Tech Conventions) — big deliberate CT-chunk pixels, ~24×13.5 tiles on
   screen, characters ~2 tiles tall like CT/SoM. FF6/CT field-sprite proportions
   (head/torso/legs roughly thirds), shading ramps and per-material outlines over flat
-  fills, textured tiles, bitmap-font dialog boxes — with Adventure Time's whimsy in
-  character/creature design and **Paper Girls' color law everywhere** (see "Palette
+  fills, textured tiles, bitmap-font dialog boxes — with Over the Garden Wall's storybook
+  strangeness in character/creature design (**not** cartoon cuteness — see the register
+  note under "Influences") and **Paper Girls' color law everywhere** (see "Palette
   Registry"): palettes stay MINIMAL and surreal — duo/tri-tone casts, one dominant
   hue field plus one hot accent, shadows hue-shift violet or teal (never neutral
   gray). Wood may be an honest warm brown (a material, not the field); the ban is
@@ -3154,9 +3176,10 @@ existing list, and the naming logic that made it is now the tier marker):
 - **STILLWATER** — MEND II, CLEANSE.
 - **LAMPLIGHT** — the last honest flame owed magic nothing; this is the magic it
   never needed. KINDLE (field light), WARD II.
-- **THE GOOSE THAT STOLE THE RIBBON** — yes, really; the Adventure Time register
-  has to appear in the systems too, not only the dialogue. A small, optional,
-  extremely unserious Remnant. LURE.
+- **THE GOOSE THAT STOLE THE RIBBON** — yes, really; the register has to appear in
+  the systems too, not only the dialogue. A small, optional, extremely unserious
+  Remnant — and it still has to cost something, or it is the candy-kingdom register
+  sneaking back in. LURE.
 
 Around eight to eleven vestiges total, five of them mandatory. The count is the
 dungeon count plus what you went looking for; there is still no filler.

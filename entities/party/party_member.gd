@@ -47,6 +47,15 @@ class Intent:
 ## AI catch-up sprint headroom: intent.move above unit length scales speed.
 const MOVE_CLAMP := 1.3
 
+## Walls, and only walls (bodies are on 2/4) — what a muzzle has to dodge.
+const WALL_MASK := 1
+
+## How far across the barrel line place_muzzle may slide a shot to find free
+## air. 6px covers the worst case by construction: the bolt's 3px half-height
+## plus the 2px the body's origin can sink into a solid cell. Wider than that
+## and the shot would visibly leave the gun.
+const MUZZLE_NUDGE := 6
+
 var member_id: StringName
 var is_leader: bool = true   # a lone member in a one-off scene plays from keyboard
 
@@ -252,3 +261,66 @@ func _secondary_action() -> String:
 ## Called as a hit lands, before the hurt state — cancel live kit effects here.
 func _hurt_interrupt() -> void:
 	pass
+
+
+## Place a freshly-instanced projectile at this body's muzzle, pulled clear of
+## any wall it would otherwise be born inside.
+##
+## There are TWO independent ways a shot lands in rock, and they need different
+## answers. The first pass only handled one of them.
+##
+##  1. ALONG the facing. The muzzle sits `offset` px in front of the ORIGIN and
+##     the shot's collider reaches half its own length further — 25px for the
+##     bolt — while the body's box hugs its FEET (12x8 at +6, top = origin+2)
+##     and so stops ~10px short of a north wall. Fired at the rock, the bolt is
+##     born well inside it and dies on its first physics step without moving.
+##     ANSWER: ray the wall layer over the muzzle's reach; spawn at the last
+##     point that fits.
+##
+##  2. ACROSS the facing. Pressed north, the box top IS the wall's edge, which
+##     puts the body's ORIGIN 2px INSIDE the solid cell — and a bolt fired EAST
+##     is centred on that origin, its 6px-tall collider straddling the boundary.
+##     It dies having never left the barrel. This is the "I fire sideways and it
+##     hits something invisible" case, and no amount of pulling back along the
+##     facing touches it, because the overlap is sideways. ANSWER: test the
+##     shot's REAL shape at its REAL spawn transform and nudge it perpendicular
+##     until it is clear.
+##
+## Firing INTO a wall you are flush against still produces no shot: there is no
+## free pixel to put one in, and the perpendicular search finds nothing because
+## the wall spans the whole lane. That one is geometry, not a bug.
+##
+## The muzzle FLASH stays at the nominal offset throughout — it belongs to the
+## gun, not to the bolt.
+func place_muzzle(shot: Node2D, offset: float) -> void:
+	var col := shot.get_node_or_null(^"CollisionShape2D") as CollisionShape2D
+	if col == null or col.shape == null:
+		shot.global_position = global_position + facing * offset
+		return
+	var space := get_world_2d().direct_space_state
+	var half_len: float = col.shape.get_rect().size.x * 0.5
+
+	# (1) along the facing
+	var along := offset
+	var ray := PhysicsRayQueryParameters2D.create(
+			global_position, global_position + facing * (offset + half_len))
+	ray.collision_mask = WALL_MASK
+	var hit := space.intersect_ray(ray)
+	if not hit.is_empty():
+		along = maxf(global_position.distance_to(hit.position) - half_len - 1.0,
+				0.0)
+	var base := global_position + facing * along
+
+	# (2) across it — first free lane within MUZZLE_NUDGE px, nearest first
+	var perp := Vector2(-facing.y, facing.x)
+	var query := PhysicsShapeQueryParameters2D.new()
+	query.shape = col.shape
+	query.collision_mask = WALL_MASK
+	for step in MUZZLE_NUDGE + 1:
+		for way in ([0.0] if step == 0 else [1.0, -1.0]):
+			var spot: Vector2 = base + perp * (step * way)
+			query.transform = Transform2D(facing.angle(), spot) * col.transform
+			if space.intersect_shape(query, 1).is_empty():
+				shot.global_position = spot
+				return
+	shot.global_position = base

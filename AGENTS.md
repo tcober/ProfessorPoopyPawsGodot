@@ -18,7 +18,20 @@ ALttP-style top-down laser-gun shooter (48×48 field sprites) — two sprite sca
 Table in docs/DESIGN.md, constants in `assets/_core.py`, palettes in
 `assets/_palette.py`). Magic is intentionally deferred (the world starts drained).
 Art direction is influenced by **Final Fantasy VI, Chrono Trigger, Secret of Mana,
-Sea of Stars, Adventure Time, and the Paper Girls comic** (see "Influences" in
+Sea of Stars, Over the Garden Wall, and the Paper Girls comic** (see "Influences" in
 docs/DESIGN.md).
+
+Tone is **the Simon & Marcy register** — Adventure Time at its most serious, absurd
+premises played straight, comedy that leaves a wound. Never the candy-kingdom register;
+"very kiddy" is the failure mode.
+
+## Working in the repo
+
+`CLAUDE.md` is the short quick-reference (invariants + standing rules). The subsystem
+depth lives in `.claude/skills/` — `art-pipeline`, `map-authoring`, `combat-kits`,
+`party-ai`, `rpg-systems`, `story-scenes`, `world-and-zones`, `probes-and-shots` — and
+`assets/`, `scene/`, `entities/` and `tools/` each carry a short `CLAUDE.md` of their
+own. Tools without skill support should read the relevant `.claude/skills/*/SKILL.md`
+directly; they are plain markdown.
 
 Keep `docs/DESIGN.md` updated as the game grows.

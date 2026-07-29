@@ -13,6 +13,7 @@ the outline dilation back to it.
 
 Stdlib-only, deterministic (fixed salts). Used by assets/_gen_tileset_town.py.
 """
+import math
 import os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -972,7 +973,69 @@ def town_stairs(stone, salt=281, cheek=None, cells=2):
     return sp
 
 
-def town_cliff(rock, grass, salt=291, h=32, void=False):
+RIFTDARK = (10, 8, 24, 255)                       # the bottom of a rift; no hue
+
+
+def _rift_face(rock, grass, salt, h):
+    """One 16 x `h` column of a CHASM, seen from directly above.
+
+    REWRITTEN 2026-07-29, because the first pass was a cliff face wearing a
+    different ramp — mid-tone at the top darkening to black at the foot — and a
+    lit-at-the-top, dark-at-the-bottom band IS a wall. The rift read as a low
+    stone wall with a wooden panel set into it, the panel being the trestle, and
+    the whole crossing looked like a typing mistake in the map.
+
+    What you actually see looking into a slot is the reverse. The NEAR wall
+    falls away directly beneath your feet, so you never see its face at all —
+    only black. The far wall is what fills the band, and its RIM is the lowest
+    thing on screen and the brightest, because the light comes from above. So
+    the ramp runs dark-to-light DOWNWARD and the lit arris a cliff spends on its
+    crest gets spent here on the bottom edge instead.
+
+    Cuts in 32nds like town_cliff's, so a rift authored 3 rows deep keeps its
+    proportions instead of putting the far wall across the middle."""
+    sp = S(16, h, salt)
+    v_snow = max(1, h * 1 // 32)                       # the near rim's last snow
+    v_far = h * 17 // 32                               # the far wall's base
+    v_rim = h - max(1, h * 2 // 32)                    # its lit rim
+    for x in range(16):
+        for y in range(h):
+            if y < v_snow:
+                c = grass[3]                           # snow, already turning
+            elif y < v_snow + 1:
+                c = grass[5]                           # its underside, hard
+            elif y < v_far:
+                # The void. Flat black would read as a hole punched in the
+                # canvas, so a few flecks of the deepest rock catch on the
+                # near wall as it falls away — barely visible, and enough.
+                c = RIFTDARK
+                if h2(x, y, salt + 5) % 23 == 0:
+                    c = rock[5]
+            elif y < v_far + h * 4 // 32:
+                c = rock[5]                            # far wall, deepest
+            elif y < v_rim - h * 3 // 32:
+                c = rock[4]
+            elif y < v_rim:
+                c = rock[3]
+            elif y < h - 1:
+                c = rock[1]                            # the far rim, lit
+            else:
+                c = rock[0]
+            sp.set(x, y, c)
+    # two short courses on the far wall only — strata across the void would be
+    # scratches on nothing
+    for i, sn in enumerate((24, 28)):
+        yy = min(h * sn // 32 + h2(i, 2, salt) % 2, v_rim - 1)
+        if yy < v_far:
+            continue
+        for x in range(16):
+            if h2(x // 4 + i, 5, salt) % 3 != 0:
+                sp.set(x, yy, rock[5])
+    clipw(sp, 16)
+    return sp
+
+
+def town_cliff(rock, grass, salt=291, h=32, void=False, wall=False):
     """One 16 x `h` cliff-face column of a terrace band, stamped per column from
     three salted variants (the meadow-boulder pattern) by
     TileScene.stamp_columns. FULLY OPAQUE, NO edge(): the underlay's 32-space
@@ -986,38 +1049,87 @@ def town_cliff(rock, grass, salt=291, h=32, void=False):
     fraction: at the default h=32 it collapses to exactly N, which is what keeps
     Alembic's shipped terrace byte-identical.)
 
-    `void=True` makes the CHASM wall instead: no lip, no sunlit brow, and the
-    ramp runs straight from its darks to black. That single flag is why chasms
-    needed no render class of their own — a rift is a cliff seen from above with
-    the top of it taken away."""
+    `wall=True` draws a CAST CEMENT/CINDERBLOCK WALL instead of an eroded rock
+    face (2026-07-29). It took three passes and each one was a different wrong
+    answer, so the reasoning is worth keeping:
+
+    1. Only the crest changed — a straight snow cap over a near-black turn-under
+       and one lit arris, replacing a lip that rambled 3-5px per 5px run over
+       the ramp's two brightest rows. That was right for "the upper ground
+       stops" but the crest still read as an edge rather than as a TOP.
+    2. The face went to rustic coursed masonry. Wrong the other way: the eroded
+       rock FACE was liked, and heavy per-stone value variation reads as rubble.
+    3. What was actually wanted: a MADE wall of cast block. Cement is FLAT, so
+       all the contrast lives in a regular joint grid (16x8 running bond, the
+       vertical joint alternating course by course) and none of it in per-stone
+       value — that is the whole difference between a cast wall and a rubble
+       one. Joints sit two steps down the ramp, never black, or it reads as a
+       lattice.
+
+    And the crest is a COPING that stands PROUD of the wall, throwing a shadow
+    down it, under BROKEN snow. Both halves matter: without the overhang there
+    is no top, only a boundary, and an unbroken white band along a terrace is a
+    drift lying on the ground — bare cap showing through the gaps is what says
+    the white is sitting ON something.
+
+    Alembic's terrace does not pass the flag and regenerates byte-identical.
+
+    `void=True` makes the CHASM instead — see _rift_face. That one flag is why
+    chasms still need no render class of their own."""
+    if void:
+        return _rift_face(rock, grass, salt, h)
     sp = S(16, h, salt)
     # band cuts in 32nds of the face, so `h` scales and h=32 is the shipped art
     b_mid, b_low, b_foot = h * 21 // 32, h * 27 // 32, h * 30 // 32
     for x in range(16):
-        if void:
-            lip = -1                                       # no ledge, no brow:
-            top = 0                                        # the face starts flush
+        if wall:
+            # A CEMENT COPING under PATCHY snow. Two things make a crest read as
+            # the TOP OF something rather than as an edge where the ground
+            # stops. First the cap course stands PROUD of the wall and throws a
+            # shadow down it — without that overhang there is no top, only a
+            # boundary. Second the snow is BROKEN: an unbroken white band along
+            # a terrace is a drift lying on the ground, while bare cap showing
+            # through in gaps says the white is sitting ON something. Runs are
+            # hashed 6px wide so drifts come out 6-18px, not per-pixel noise.
+            CAP = 3
+            # Runs are keyed on (x + salt) so their boundaries land differently
+            # in every stamped variant — keyed on x alone the drifts came out
+            # the same width at the same pitch all the way along the terrace and
+            # read as crenellations. Ends taper a pixel so a drift has slopes.
+            def _drift(px, salt=salt):
+                return (0, 0, 1, 2, 3, 3)[h2((px + salt * 3) // 5, 3, salt) % 6]
+            snow_h = _drift(x)
+            if snow_h and min(_drift(x - 1), _drift(x + 1)) == 0:
+                snow_h = max(1, snow_h - 1)
+            for y in range(CAP):
+                if snow_h and y >= CAP - snow_h:
+                    sp.set(x, y, grass[1] if y == CAP - snow_h else grass[2])
+                else:
+                    sp.set(x, y, rock[1])          # bare cap, weathered pale
+            sp.set(x, CAP, grass[4] if snow_h else rock[2])
+            sp.set(x, CAP + 1, rock[0])            # the coping's lit arris
+            sp.set(x, CAP + 2, rock[1])            # its front, proud of the wall
+            sp.set(x, CAP + 3, rock[1])
+            sp.set(x, CAP + 4, rock[4])            # the shadow it throws down
+            sp.set(x, CAP + 5, rock[5])
+            top = CAP + 6
         else:
-            lip = 3 + h2((x + salt) // 5, 0, salt) % 3     # ragged ledge, 5px runs
+            lip = 3 + h2((x + salt) // 5, 0, salt) % 3 # ragged ledge, 5px runs
             for y in range(lip):
                 c = grass[2]
                 if h2(x, y, salt + 3) % 7 == 0:
-                    c = grass[1]                           # clump nicks
+                    c = grass[1]                       # clump nicks
                 sp.set(x, y, c)
-            sp.set(x, lip, grass[4])                       # lip turn-under shadow
-            sp.set(x, lip + 1, rock[0])                    # the sunlit brow
+            sp.set(x, lip, grass[4])                   # lip turn-under shadow
+            sp.set(x, lip + 1, rock[0])                # the sunlit brow
             sp.set(x, lip + 2, rock[0])
             sp.set(x, lip + 3, rock[1])
             top = lip + 4
-        for y in range(top, h):                            # the face, darkening down
-            if void:
-                # a rift swallows light on the way down: mid-tones at the mouth,
-                # black at the bottom, and no foot band to read as "ground"
-                c = rock[3] if y < b_mid else rock[4] if y < b_low else rock[5]
-                if y >= h - 3:
-                    c = (10, 8, 24, 255)
-            elif y >= b_foot:
-                c = rock[5]                                # foot dark
+        if wall:
+            continue                                   # cinderblock, drawn below
+        for y in range(top, h):                        # the face, darkening down
+            if y >= b_foot:
+                c = rock[5]                            # foot dark
             elif y >= b_low:
                 c = rock[4]
             elif y >= b_mid:
@@ -1025,8 +1137,41 @@ def town_cliff(rock, grass, salt=291, h=32, void=False):
             else:
                 c = rock[2]
             sp.set(x, y, c)
-        if not void and h2(x, 29, salt) % 5 == 0:
-            sp.set(x, h * 28 // 32, rock[3])               # foot scree fleck
+        if h2(x, 29, salt) % 5 == 0:
+            sp.set(x, h * 28 // 32, rock[3])           # foot scree fleck
+    if wall:
+        # CINDERBLOCK. A running bond on a REGULAR grid — 16x8 blocks, the
+        # vertical joint alternating between the column's two edges course by
+        # course. Cement is FLAT: all of the contrast lives in the joint grid
+        # and none of it in per-stone value, which is the whole difference
+        # between a cast wall and a rubble one. Joints are two steps down the
+        # ramp rather than black, or the wall reads as a lattice.
+        BH = 8
+        row, n = top, 0
+        while row < h:
+            bed = min(row + BH - 1, h - 1)
+            base = 2 if (row - top) / max(1.0, h - 1 - top) < 0.55 else 3
+            vj = 0 if n % 2 == 0 else 8
+            for x in range(16):
+                k = base
+                if h2(x, row, salt + 7) % 11 == 0:
+                    k = min(5, base + 1)               # aggregate, showing
+                elif h2(x, row, salt + 13) % 17 == 0:
+                    k = max(0, base - 1)
+                for y in range(row, bed + 1):
+                    sp.set(x, y, rock[k])
+                sp.set(x, row, rock[max(0, k - 1)])    # the block's lit bed
+                sp.set(x, bed, rock[min(5, k + 2)])    # and the joint under it
+                if x == vj:
+                    for y in range(row, bed + 1):
+                        sp.set(x, y, rock[min(5, k + 2)])
+            row += BH
+            n += 1
+        for x in range(16):
+            sp.set(x, h - 1, rock[5])                  # contact dark at the foot
+        clipw(sp, 16)
+        return sp
+
     # Dashed strata. THREE evenly spaced courses is right on a 32px step and
     # reads as MASONRY on a 64px wall, so both the count and a per-column wobble
     # scale with the face — but only above h=32, which keeps Alembic's shipped
@@ -1051,6 +1196,93 @@ def town_cliff(rock, grass, salt=291, h=32, void=False):
             a, b, c = a + k * h // 9, b + k * h // 11, min(c + k * h // 13, h - 1)
         ln(sp, cx, a, cx + (salt % 3) - 1, b, rock[4])
         ln(sp, cx + (salt % 3) - 1, b, cx, c, rock[5])
+    clipw(sp, 16)
+    return sp
+
+
+def town_cliff_return(rock, grass, salt=291, face=-1, w=5, cap=True):
+    """The RETURN at a terrace band's STAIRCASE STEP (2026-07-29) — the short
+    piece of wall you see edge-on where one run steps down to the next. 16x16,
+    painting only a `w`-px strip down the exposed side, blitted over the top
+    cell of the higher run by TileScene.stamp_columns.
+
+    WHY. Every band in this town staircases (uniform bands read as one cliff
+    drawn twice), and at each step the higher run's face simply STOPPED at a
+    straight vertical cut against open snow. Two runs sitting near each other
+    with nothing joining them do not read as one wall that steps down; they read
+    as two walls, or as a mistake. The fix is the corner: carry the coping
+    AROUND it and down to meet the lower run's coping, and the whole terrace
+    resolves into a single structure.
+
+    Same crest rows as town_cliff(wall=True) so the cap line crosses the corner
+    without a seam, one step darker through the body (a side face turned off the
+    light), a lit arris on the inner corner and the silhouette's own shadow on
+    the outer edge. `face` is which side is exposed: -1 west, +1 east."""
+    sp = S(16, 16, salt)
+    xs = range(w) if face < 0 else range(16 - w, 16)
+    inner = w - 1 if face < 0 else 16 - w          # the corner, catching light
+    outer = 0 if face < 0 else 15                  # the silhouette edge
+    CAP = 3 if cap else -1
+    for x in xs:
+        if cap:
+            for y in range(CAP):                   # the cap, carried around
+                c = grass[2]
+                if h2(x, y, salt + 3) % 9 == 0:
+                    c = grass[3]
+                sp.set(x, y, c)
+            sp.set(x, CAP, grass[5])               # the snow's own underside
+            sp.set(x, CAP + 1, rock[2])            # the coping's return face:
+            sp.set(x, CAP + 2, rock[2])            # dimmer than the front arris,
+            sp.set(x, CAP + 3, rock[3])            # because it is turned away
+            sp.set(x, CAP + 4, rock[5])            # and the shadow under it
+        for y in range(CAP + 5, 16):               # the body, two steps darker
+            sp.set(x, y, rock[4])
+    for y in range(CAP + 1, 16):
+        sp.set(inner, y, rock[1])                  # lit arris ON the corner
+        sp.set(outer, y, rock[5])                  # near-black silhouette
+    clipw(sp, 16)
+    return sp
+
+
+def town_gatepost(timber, stone, snow, face=1, salt=345):
+    """One pier of a town GATE (2026-07-29): a squared log post on a coursed
+    fieldstone footing under settled snow, with a hooded oil lamp on an iron
+    bracket reaching out over the road. 16x48 on a 1x3 footprint — two WALKABLE
+    crown cells over a solid base, the conifer/lamp idiom — so a pair can stand
+    either side of a gate mouth and pinch it without walling it shut.
+
+    Three cells, not two, and that is the whole design. At 32px these read as
+    bollards beside a 33px cat; at 48 they stand OVER the lane and the gate is
+    legible from the far end of the street, which is the entire point of it.
+
+    `face` is the side the lamp reaches, +1 east / -1 west, so a pair aims both
+    lamps INTO the lane. Everything else about the two is identical, which is
+    what keeps the finished atlas paying for one silhouette rather than two.
+
+    WHY THIS EXISTS. Lanternwood's south lane used to run three cells past the
+    stairs and stop in open snow, with the exit trigger floating invisibly on
+    it. Nothing on screen said "this is the way out of town", so a fight in the
+    lower street kept ending with the player on the overworld by accident. A
+    gate is the cheapest possible fix: it names the boundary, and it narrows the
+    way through it from a whole snowfield to two cells."""
+    h = 48
+    sp = S(16, h, salt)
+    _stone_courses(sp, 1, 34, 14, h - 1, stone)            # the fieldstone foot
+    sp.rect(1, 34, 14, 34, snow[3])                        # snow on its top course
+    sp.rect(1, h - 1, 14, h - 1, stone[5])
+    sp.rect(4, 7, 11, 35, timber[2])                       # the squared post
+    sp.rect(4, 7, 5, 35, timber[1])                        # lit west face
+    sp.rect(10, 7, 11, 35, timber[4])                      # shaded east face
+    for y in range(11, 34, 7):                             # adze marks
+        sp.rect(6, y, 9, y, timber[3])
+    sp.rect(2, 5, 13, 6, timber[4])                        # the capping plate,
+    sp.rect(2, 4, 13, 4, timber[3])                        # overhanging the post
+    sp.rect(2, 1, 13, 3, snow[2])                          # and its snow load
+    sp.rect(2, 0, 13, 0, snow[1])
+    sp.set(3, 1, snow[3])
+    sp.set(12, 1, snow[3])
+    _bracket_lamp(sp, 8 if face > 0 else 7, 15, face)
+    edge(sp, h)
     clipw(sp, 16)
     return sp
 
@@ -1611,16 +1843,28 @@ def town_conifer_big(f, trunk, snow, salt=323):
     return sp
 
 
-def frozen_pond(snow, salt=331):
-    """The skating pond (64x48 over 4x3 WALKABLE pond cells — flat Tier-1
-    ground art baked via place(), never sea/river: those classes ANIMATE):
-    a pale ice sheet, long pressure cracks, swept glints, a drifted rim."""
+def frozen_pond(snow, salt=331, w=64, h=48, skated=False):
+    """The skating pond — flat Tier-1 ground art baked via place() over WALKABLE
+    pond cells, never sea/river (those classes ANIMATE): a pale ice sheet, long
+    pressure cracks, swept glints, a drifted rim.
+
+    `w`/`h` default to the shipped 64x48 (4x3 cells) and every feature is placed
+    proportionally, so the default regenerates byte-identical while the town
+    RINK can be the same treatment at 128x64.
+
+    `skated=True` cuts the loops people leave. It is the whole difference
+    between a rink and a puddle: an untouched sheet of ice reads as scenery,
+    and a figure-eight reads as somewhere the town goes."""
     ICE = ((222, 238, 248, 255), (196, 220, 240, 255), (168, 196, 228, 255),
            (136, 162, 204, 255), (104, 126, 172, 255))
-    sp = S(64, 48, salt)
-    for y in range(48):
-        for x in range(64):
-            dx, dy = (x - 32) / 31.0, (y - 24) / 23.0
+    sx, sy = w / 64.0, h / 48.0
+    def _p(x, y):                                          # shipped coords ->
+        return (int(round(x * sx)), int(round(y * sy)))     # this pond's
+    sp = S(w, h, salt)
+    cx, cy = w / 2.0, h / 2.0
+    for y in range(h):
+        for x in range(w):
+            dx, dy = (x - cx) / (cx - 1.0), (y - cy) / (cy - 1.0)
             q = dx * dx + dy * dy
             if q > 1.0:
                 continue
@@ -1630,11 +1874,65 @@ def frozen_pond(snow, salt=331):
             t = 0.18 + 0.5 * q
             i = min(3, int(t * 4 + ((x * 7 + y * 13) % 5 - 2) * 0.12))
             sp.set(x, y, ICE[max(0, i)])
+    if skated:
+        # (1) the shadow the snow banked round the rim throws in across the
+        # north-west arc, and (2) a sheen sweeping the other way. Both STEP the
+        # ice ramp by one rather than painting a tone, so they ride the radial
+        # shading already there instead of flattening it — a white oval with no
+        # depth in it was most of what made this read as unfinished.
+        for y in range(h):
+            for x in range(w):
+                dx, dy = (x - cx) / (cx - 1.0), (y - cy) / (cy - 1.0)
+                q = dx * dx + dy * dy
+                if q > 0.82:
+                    continue
+                cur = sp.get(x, y)
+                if cur not in ICE:
+                    continue
+                i = ICE.index(cur)
+                if q > 0.44 and dx + dy < -0.35:
+                    i = min(4, i + 1)                      # banked-rim shadow
+                elif abs((x * 0.55 + y) - w * 0.42) < h * 0.09:
+                    i = max(0, i - 1)                      # sheen
+                sp.set(x, y, ICE[i])
+        for k in range(3):                                 # (3) wind scour
+            ry = int(h * (0.30 + 0.19 * k)) + h2(k, salt, 5) % 3
+            for x in range(w):
+                dx, dy = (x - cx) / (cx - 1.0), (ry - cy) / (cy - 1.0)
+                if dx * dx + dy * dy > 0.70 or h2(x // 5, k, salt) % 4 == 0:
+                    continue
+                cur = sp.get(x, ry)
+                if cur in ICE:
+                    sp.set(x, ry, ICE[min(4, ICE.index(cur) + 1)])
+        for xa, ya, xb, yb in ((0.17, 0.64, 0.43, 0.33),   # (4) straight strides
+                               (0.59, 0.70, 0.85, 0.44)):
+            ln(sp, int(w * xa), int(h * ya) + 1, int(w * xb), int(h * yb) + 1,
+               ICE[3])
+            ln(sp, int(w * xa), int(h * ya), int(w * xb), int(h * yb), ICE[0])
+        # ...then the loops, cut in the ice's brightest tone with a shaded lip
+        # under each — the shading is what stops them reading as cracks, which
+        # the pond already has three of.
+        for ex, ey, rx, ry in ((0.41, 0.42, 0.085, 0.115),
+                               (0.57, 0.60, 0.075, 0.100)):
+            pts = []
+            for k in range(33):
+                a = k * 6.283185 / 32.0
+                pts.append((int(cx * 2 * ex + w * rx * math.cos(a)),
+                            int(cy * 2 * ey + h * ry * math.sin(a))))
+            for (xa, ya), (xb, yb) in zip(pts, pts[1:]):
+                ln(sp, xa, ya + 1, xb, yb + 1, ICE[3])
+                ln(sp, xa, ya, xb, yb, ICE[0])
+        sweep = [(int(w * f), int(h * (0.34 + 0.26 * math.sin(f * 3.4))))
+                 for f in (0.16, 0.30, 0.44, 0.58, 0.72, 0.84)]
+        for (xa, ya), (xb, yb) in zip(sweep, sweep[1:]):
+            ln(sp, xa, ya + 1, xb, yb + 1, ICE[3])
+            ln(sp, xa, ya, xb, yb, ICE[0])
     for pts in (((14, 30), (30, 22), (44, 26)),            # pressure cracks
                 ((26, 14), (34, 24)), ((40, 34), (50, 28))):
-        for (xa, ya), (xb, yb) in zip(pts, pts[1:]):
+        for a, b in zip(pts, pts[1:]):
+            (xa, ya), (xb, yb) = _p(*a), _p(*b)
             ln(sp, xa, ya, xb, yb, ICE[4])
     for x, y in ((20, 18), (38, 16), (46, 32), (24, 34)):
-        sp.set(x, y, SPEC)                                 # swept glints
-    edge(sp, 48)
+        sp.set(*_p(x, y), SPEC)                            # swept glints
+    edge(sp, h)
     return sp

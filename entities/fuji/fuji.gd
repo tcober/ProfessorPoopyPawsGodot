@@ -132,4 +132,8 @@ func _spawn_dart() -> void:
 	dart.direction = facing
 	dart.shooter = self
 	get_parent().add_child(dart)
-	dart.global_position = global_position + facing * muzzle_offset
+	# Placed against the wall layer — the 19px pipe tip reaches further past her
+	# feet-hugging collision box than she can be stopped from a cliff face, and
+	# her origin sinks 2px into a cell she is pressed against, so the raw offset
+	# spawns darts inside rock both ways. See PartyMember.place_muzzle.
+	place_muzzle(dart, muzzle_offset)

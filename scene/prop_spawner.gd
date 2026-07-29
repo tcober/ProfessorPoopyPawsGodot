@@ -9,8 +9,15 @@ extends Object
 ## "Z-order / layering doctrine"). Collision stays on the map's solid cells;
 ## the spawned sprites are visual only.
 ##
-## Manifest row: prop <Name> <chars> <png> [anchor=top:<px>] [base_inset=<px>]
-##               [hframes=<n>] [each]
+## Manifest rows:
+##   prop <Name> <chars> <png> [anchor=top:<px>] [base_inset=<px>]
+##                             [hframes=<n>] [each]
+##   mask <png> <x> <y> <ysort_y>   — a TileScene.mask_band depth strip, placed
+##     at an explicit pixel rect rather than derived from map chars (a band's
+##     runs aren't a feature bbox). It hides the ~11px of sprite that hangs over
+##     a cliff's lip from above, and BEING Y-SORTED is the point: as upper-layer
+##     tiles the same pixels also sliced the head off anyone hopping on the
+##     terrace below. See TileScene.mask_band.
 
 ## The party's feet convention: feet sit at node.y + 20 (48px cell, feet
 ## baseline 44). Props place their node origin on the same line to sort true.
@@ -26,6 +33,10 @@ static func build(props_path: String, map: Dictionary, world: Node2D) -> void:
 		if line.is_empty() or line.begins_with(";"):
 			continue
 		var parts := line.split(" ", false)
+		if parts[0] == "mask":
+			assert(parts.size() == 5, "bad mask row: " + line)
+			spawned.append(_mask_strip(parts, world))
+			continue
 		assert(parts.size() >= 4 and parts[0] == "prop", "bad prop row: " + line)
 		var top := -1
 		var base_inset := 0.0
@@ -71,6 +82,21 @@ static func build(props_path: String, map: Dictionary, world: Node2D) -> void:
 	# node order this replaces — TravelScene spawns the party first).
 	for i in spawned.size():
 		world.move_child(spawned[i], i)
+
+
+## A mask_band depth strip: art at an explicit pixel rect, y-sorted at its own
+## key rather than at the feet convention (it is scenery, not a body).
+static func _mask_strip(parts: PackedStringArray, world: Node2D) -> Sprite2D:
+	var spr := Sprite2D.new()
+	spr.name = parts[1].get_basename()
+	spr.texture = load("res://assets/tilesets/" + parts[1])
+	spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	spr.centered = false
+	var art := Vector2(float(parts[2]), float(parts[3]))
+	spr.position = Vector2(art.x, float(parts[4]))
+	spr.offset = Vector2(0.0, art.y - spr.position.y)
+	world.add_child(spr)
+	return spr
 
 
 ## 4-connected components of the chars' cells (several lamp posts share one

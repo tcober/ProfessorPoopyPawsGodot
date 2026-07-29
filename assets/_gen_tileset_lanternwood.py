@@ -16,9 +16,9 @@ and all three are cheap because none of them is an engine feature:
      wearing opaque authored face art, pierced by a walkable stair gap. Alembic's
      Academy terrace proved the idiom; this is the second user and the reason it
      moved into the kit.
-  3. THE RIFT. A chasm is the same stamped band with town_cliff(void=True) — a
-     cliff seen from above with the top taken away — crossed by a Tier-1
-     town_trestle. No new render class, no animated water, no upper-layer art.
+  3. THE RINK. The east flank of LEVEL 3 carries the town's skating rink —
+     frozen_pond at 8x4 and `skated`, flanked by two lamps. It replaced a
+     chasm-and-trestle that never read as a chasm; see lanternwood.txt.
 
 The winter cabin kit is unchanged: log-walled cabins under deep snow gable
 roofs, every window fire-lit and softly PULSING (the 8-frame sheets' `windows`
@@ -38,8 +38,9 @@ sys.path.insert(0, HERE)
 from _overworld_tiles import OverWorld, T
 from _tilekit import GLOW_WARM as WARM, sprite_img
 from _town_props import (town_cabin, town_library, town_conifer, town_lamp,
-                         town_conifer_big, town_cliff, town_stairs,
-                         town_trestle, frozen_pond,
+                         town_conifer_big, town_cliff, town_cliff_return,
+                         town_stairs,
+                         town_gatepost, frozen_pond,
                          WARM as WARMC)
 
 tn = OverWorld("lanternwood", "lanternwood")
@@ -56,7 +57,7 @@ TIMBER = tn.mat("timber")
 
 tn.paint_terrain()
 
-# ---- THE TERRACES: four bands at THREE HEIGHTS, plus the rift. One opaque
+# ---- THE TERRACES: four bands at THREE HEIGHTS. One opaque
 # 16x(16*n) face column per map column, hash-picked from three salted variants.
 #
 # The height VARIETY is the point, and it is what the first draft of this map
@@ -73,22 +74,33 @@ tn.paint_terrain()
 for ch, rows, salts in (("C", 2, (291, 293, 297, 373, 379)),
                         ("X", 3, (301, 303, 307, 383, 389)),
                         ("B", 4, (311, 313, 317, 397, 401))):
-    tn.stamp_columns(ch, [town_cliff(tn.ROCK, SNOWCAP, salt=s, h=16 * rows)
-                          for s in salts], run=rows)
+    # wall=True: a cast cement/cinderblock wall under a snow-broken coping,
+    # not an eroded rock face. Alembic does NOT pass the flag and stays
+    # byte-identical — there the terrace sits on pale grass and the eroded read
+    # is right. Here it sat on a dark snow field where a rambling bright lip is
+    # indistinguishable from a snowdrift and dashed strata read as railings.
+    # See town_cliff, which carries the three passes this took.
+    # ret=: the corner at every staircase step, without which the higher run's
+    # face stops at a straight cut against open snow and the band reads as two
+    # unrelated walls. See town_cliff_return.
+    tn.stamp_columns(ch, [town_cliff(tn.ROCK, SNOWCAP, salt=s, h=16 * rows,
+                                     wall=True)
+                          for s in salts], run=rows,
+                     ret=tuple(town_cliff_return(tn.ROCK, SNOWCAP,
+                                                 salt=salts[0], face=f,
+                                                 w=6, cap=c)
+                               for f in (-1, 1) for c in (True, False)))
     tn.foot_shade(ch)
-chasms = [town_cliff(tn.ROCK, SNOWCAP, salt=s, void=True) for s in (361, 363, 367)]
-tn.stamp_columns("V", chasms, salt=57)
-# the driver's own struct shade band skips `snow` (so the overworld's ice land
-# isn't shadow-crusted), which is exactly the class these sit on — without this
-# every terrace floats a pixel off the ground it is cut into.
-tn.foot_shade("V")
+# NOTE the RIFT is gone (2026-07-29) — see the note in lanternwood.txt. A 2-row
+# band of dark in flat top-down is a wall no matter which way its ramp runs, and
+# the trestle over it read as a wooden panel set into one. town_cliff(void=) and
+# town_trestle stay in the kit; no map uses them.
 
-# ---- the crossings: a stair per band height, the trestle over the rift -------------
+# ---- the crossings: a stair per band height ----------------------------------------
 # place_each, not place: two stairs share a char, and place() would blit one
 # sprite across their combined bbox — i.e. across the whole town.
 for ch, rows in (("S", 2), ("s", 3), ("T", 4)):
     tn.place_each(ch, town_stairs(tn.ROCK, cheek=SNOWCAP, cells=rows))
-tn.place_each("=", town_trestle(TIMBER, SNOWCAP, cells=2))
 
 # ---- the library + four cabins: 8-frame Tier-3 sheets (breath + woodsmoke) ----------
 # hframes MUST match the builders' `frames` (8 — one slow hearth pulse per sheet).
@@ -117,7 +129,18 @@ tn.emit_prop("BigConifer", "Pp",
              each=True)
 tn.emit_prop("Lamp", "lL", sprite_img(town_lamp(mantle=WARMC), 16, 32),
              each=True)
+# THE SOUTH GATE'S TWO PIERS. Separate char pairs rather than one, only so each
+# lamp can reach INTO the lane — everything else about the two sprites is the
+# same call. See town_gatepost for why the gate exists at all.
+for _ch, _face in (("nN", 1), ("mM", -1)):
+    tn.emit_prop("GatePost" + ("W" if _face > 0 else "E"), _ch,
+                 sprite_img(town_gatepost(TIMBER, tn.ROCK, SNOWCAP,
+                                          face=_face), 16, 48), each=True)
 tn.place("o", frozen_pond(SNOWCAP))                        # baked Tier-1 ice
+# THE RINK: the same treatment at 8x4, and SKATED. A separate CHAR rather than
+# more `o` cells because place() works off a char's whole-map bbox — a second
+# `o` region would blit ONE pond sprite across everything between the two.
+tn.place("O", frozen_pond(SNOWCAP, w=128, h=64, skated=True))
 
 
 # ---- additive glow: the town of lanterns --------------------------------------------
@@ -145,6 +168,11 @@ def _glow(img):
         _blob(img, ax + dx, by + 2, 11, WARM, 14)
     _blob(img, ax + 72, by + 6, 18, WARM, 30)
     _blob(img, ax + 72, by + 2, 10, WARM, 22)
+    for chars, lx in (("nN", 13), ("mM", 2)):              # the gate lamps,
+        for comp in tn.comps(chars):                       # each aimed at the
+            x0, y0, _x1, y1 = tn.comp_bbox(comp)           # lane between them
+            _blob(img, x0 * T + lx, y0 * T + 20, 4, WARM, 44)
+            _blob(img, x0 * T + lx, (y1 + 1) * T, 8, WARM, 18)
     for comp in tn.comps("lL"):                            # the lamps
         x0, y0, x1, y1 = tn.comp_bbox(comp)
         # Small and dim, and BOTH dabs the same amber. A radial dab falls off
@@ -160,7 +188,7 @@ def _glow(img):
     # terrace — the single thing this whole rebuild is for.
     for y in range(tn.m.rows_n):
         for x in range(tn.m.cols):
-            if tn.m.at(x, y) in "CXBV":
+            if tn.m.at(x, y) in "CXB":
                 for py in range(y * T, (y + 1) * T):
                     for px in range(x * T, (x + 1) * T):
                         img.put(px, py, (0, 0, 0, 0))
@@ -170,12 +198,9 @@ tn.write_glow(_glow)
 
 # ---- the mask bands: swallow the ~11px of sprite that hangs past a cliff's
 # physics boundary when a body presses south into it. All four faces get one —
-# the rift most of all, because town_cliff(void=True) has no lip and no brow, so
-# a body standing on its north edge hangs over nothing at all. The rift's SOUTH
-# edge deliberately gets none: a body there overlaps the far wall with its
-# torso, which reads correctly as depth. Must come after every lower-canvas
-# write, because the band copies finished art. -------------------------------------
-for _face in ("C", "X", "B", "V"):
+# Must come after every lower-canvas write, because the band copies finished
+# art. -----------------------------------------------------------------------------
+for _face in ("C", "X", "B"):
     tn.mask_band(_face)
 
 # ---- spruce authoring guard. Each spruce is one 2x4 connected component of

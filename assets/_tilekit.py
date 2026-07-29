@@ -186,13 +186,19 @@ class TileScene:
                     ty += 1
         return out
 
-    def stamp_columns(self, chars, sprites, salt=51, run=2):
+    def stamp_columns(self, chars, sprites, salt=51, run=2, ret=None):
         """Stamp one opaque face column per vertical run of `chars`, hash-picked
         from `sprites` — the cliff/chasm band. Blits straight onto the LOWER
         canvas over whatever fabric paint_terrain already put there, because a
         face is fully opaque and un-outlined: it dedupes no matter what the
         underlay's 32-phase is doing beneath it, and a per-column outline would
         print a seam every 16px.
+
+        `ret` is an optional (west_cap, west_foot, east_cap, east_foot) set of
+        town_cliff_return strips,
+        blitted over the exposed side of every staircase STEP — see the note at
+        the step loop below, and town_cliff_return for why a stepped band needs
+        a corner to read as one wall.
 
         The `run` assert is the whole reason this is a shared primitive. The art
         is T*run tall and lands on the run's TOP cell, so an off-by-one run is a
@@ -202,6 +208,7 @@ class TileScene:
           - too SHORT -> the art spills onto the WALKABLE cell below and the
                          player walks through a painted rock wall. NOTHING in
                          _check_art.py catches that. Hence the assert."""
+        tops = {}                          # tx -> the run tops in that column
         for tx, ty, h in self._col_runs(chars):
             assert h == run, (
                 f"{self.name}.txt: {chars!r} run at ({tx},{ty}) is {h} cells "
@@ -209,6 +216,57 @@ class TileScene:
                 f"lands on the run's top cell")
             self.bg.blit_cell(sprites[h2(tx, ty, salt) % len(sprites)],
                               tx * T, ty * T)
+            tops.setdefault(tx, []).append(ty)
+        if ret is None:
+            return
+        # THE STEPS. Where a run's neighbour in the same band starts a row
+        # LOWER, this column's face carries on past it and its side is exposed
+        # to open ground — a straight vertical cut that reads as two unrelated
+        # walls rather than one that steps down. Blit the return over that side.
+        #
+        # Matched on `ty + 1 in neighbour` rather than on the neighbour's
+        # height, because ONE CHAR SERVES SEVERAL BANDS — Lanternwood spends
+        # `C` on both the level-4 band and the gate band twenty rows away, and
+        # comparing their tops finds an eighteen-row "step" that is really two
+        # unrelated walls. A step is a neighbouring run exactly one row lower,
+        # and no run of its own at this row.
+        # A step exposes TWO legs and needs a band on both, or the corner is
+        # only half closed: the HIGHER run's top row (the neighbour starts one
+        # row lower) and the LOWER run's bottom row (the neighbour starts one
+        # row higher, so its face ends a row short of this one's).
+        w_cap, w_foot, e_cap, e_foot = ret
+        for tx, tys in tops.items():
+            for ty in tys:
+                for dx, cap, foot in ((-1, w_cap, w_foot), (1, e_cap, e_foot)):
+                    nb = tops.get(tx + dx, ())
+                    if ty in nb:
+                        continue                   # level: nothing exposed
+                    if ty + 1 in nb:
+                        self.bg.blit_cell(cap, tx * T, ty * T)
+                        self._end_shade(tx, ty, dx)
+                    elif ty - 1 in nb:
+                        self.bg.blit_cell(foot, tx * T, (ty + run - 1) * T)
+                        self._end_shade(tx, ty + run - 1, dx)
+
+    def _end_shade(self, tx, ty, dx, cols=3):
+        """The shadow a wall END throws sideways onto the open ground beside it.
+
+        From the terrace above, a step's exposed corner is the one place the
+        wall's cap sits at the WALKER'S OWN feet level, so the eye follows the
+        cap line straight past it and reads more ground — you walk into a wall
+        that is not there to look at. A cast shadow is the cue that fixes it:
+        nothing else in a flat top-down view says "something tall stands here"
+        as cheaply. The band's own foot_shade only shades SOUTH, which is no
+        help at a corner."""
+        for i, a in enumerate((0.34, 0.20, 0.10)[:cols]):
+            sx = tx * T - 1 - i if dx < 0 else (tx + 1) * T + i
+            gx = sx // T
+            ch = self.m.at(gx, ty)
+            if ch is None or self.m.legend[ch]["solid"]:
+                break                          # shading a wall, not the ground
+            for y in range(ty * T, ty * T + T):
+                base = self.bg.get(sx, y)
+                self.bg.put(sx, y, lerp(base[:3], VOID[:3], a) + (255,))
 
     def foot_shade(self, chars, rows=3):
         """Contact shadow on the ground at the FOOT of each stamped column run.
@@ -230,54 +288,101 @@ class TileScene:
                                 lerp(base[:3], VOID[:3], a) + (255,))
 
     def mask_band(self, chars, band=12, run_min=2):
-        """Mirror the TOP `band` px of every `chars` column run onto the UPPER
-        canvas — the tile-layer twin of _town_props._eave_lift, for the terrace
-        kit's stamped faces. This is the fix for "the player hangs off the edge
-        of the cliff".
+        """The TOP `band` px of every `chars` column run, re-emitted as a Tier-3
+        Y-SORTED strip. This is the fix for "the player hangs off the edge of
+        the cliff".
 
         THE ARITHMETIC, because the magic number 12 is not arbitrary. A body's
         CollisionShape2D hugs its FEET (12x8 centred at +6, so the box bottom is
         origin+10) while the ~22x38 figure's last row draws at origin+21.
         Pressed SOUTH into a solid cell, the box stops at the cell's top edge
         and ELEVEN px of sprite hangs past the physics boundary, over the face
-        below. Copying that face's own top 12px onto the layer that renders
-        ABOVE the y-sorted World swallows exactly that sliver — same paint, same
-        coordinates, so it can never seam.
+        below. Re-drawing that face's own top 12px over the body swallows
+        exactly that sliver — same paint, same coordinates, so it can never
+        seam.
 
-        Legal only on a run >= `run_min` cells, and only with band <= 14: a body
-        pressed from the SOUTH tops its head out 18px above the run's south
-        edge, i.e. at run_top+14 on a 2-row run, so a 12px band on the run's
-        FIRST row clears the head by three rows. On a 1-row run the same band
-        eats that head, which is the z-order doctrine's "never on a 1-row solid
-        between walk rows" stated in pixels.
+        IT USED TO BE UPPER-LAYER TILES, AND THAT WAS A BUG (2026-07-29). The
+        upper layer draws over every body UNCONDITIONALLY, and the strip a body
+        overhangs from the NORTH is the same strip a body JUMPING from the
+        terrace below rises into: at rest a lower head tops out 2px under the
+        band, and the hop lifts it 26. So hopping anywhere within ~1.5 tiles of
+        a cliff sliced the top off your head. No band height fixes that — the
+        two sprites want opposite answers from the same pixels — which is the
+        whole reason the doctrine says depth belongs to Y-SORT and not to the
+        static layers.
 
-        Runs whose north neighbour is itself solid are skipped: nobody can press
-        them, and every banded cell is an upper tile the atlas has to carry.
+        THE KEY IS `run_top - 8`, and every one of those pixels is argued for.
+        Three kinds of body meet a run's top row and they want three answers:
+
+          - ON TOP, pressed south. Its box bottom stops at the run's top edge,
+            so its origin is EXACTLY run_top-10 and no closer. Wants masking —
+            this is the case the whole band exists for.
+          - IN THE NOTCH beside the run. Every band staircases, so at each step
+            the neighbouring column's ground runs one row FURTHER SOUTH and a
+            body can stand level with the wall, at origin run_top-10..run_top+6.
+            Wants NO masking: it is beside the drop, not on top of it, and
+            masking it clips the character's FACE against the wall by its head.
+          - ON THE TERRACE BELOW, hopping. Origin run_top+30 or more. Wants no
+            masking (see above).
+
+        run_top-8 is the only 2px of daylight between the first and the second,
+        and it exists at all only because the on-top body cannot press past
+        run_top-10. Anything keyed lower re-clips the overhang; anything keyed
+        higher — the original run_top+band — clips a face at every corner.
+
+        Legal only on a run >= `run_min` cells, and only with band <= 14. Runs
+        whose north neighbour is itself solid are skipped: nobody can press
+        them. Consecutive columns sharing a top row are emitted as ONE strip, so
+        a staircased band costs a handful of sprites rather than one per column.
 
         CALL LAST — after stamp_columns / foot_shade / place / bake_shadow and
-        before finish() — because the band copies the FINISHED lower art.
-
-        Adding a band to a map whose upper layer was empty ARMS three z-order
-        lints that were short-circuiting on `if not upper: continue`. Two of
-        them pass by construction (a banded cell is solid). The third,
-        "ridge cells under upper art", scans the WHOLE map and has no
-        mask-band exemption — see the note in maps/town.txt about retyping the
-        vestigial `ridge` chars."""
+        before finish() — because the strip copies the FINISHED lower art."""
         m = self.m
+        keep = []
+        tops = {}
         for tx, ty, h in self._col_runs(chars):
             assert h >= run_min, (
                 f"{self.name}.txt: {chars!r} run at ({tx},{ty}) is {h} cells "
                 f"tall, want >= {run_min} — a south-pressed head reaches 18px "
                 f"above a run's south edge and a 1-row band would eat it")
+            assert band <= 14, f"{self.name}: mask band {band} > 14"
             north = m.at(tx, ty - 1)
             if north is None or m.legend[north]["solid"]:
                 continue                           # nobody can press this run
-            x0, y0 = tx * T, ty * T
-            for y in range(y0, y0 + band):
-                for x in range(x0, x0 + T):
-                    px = self.bg.get(x, y)
-                    if px[3]:
-                        self.ov.put(x, y, px)
+            keep.append((ty, tx))
+        for tx, ty, _h in self._col_runs(chars):
+            tops.setdefault(tx, []).append(ty)
+        segs = []                                  # (ty, tx0, cols)
+        for ty, tx in sorted(keep):
+            if segs and segs[-1][0] == ty and segs[-1][1] + segs[-1][2] == tx:
+                segs[-1][2] += 1
+            else:
+                segs.append([ty, tx, 1])
+        # A STRIP MUST OVERHANG ITS RUN BY A COLUMN wherever the neighbouring
+        # run sits one row HIGHER. A body in the notch beside such a step stands
+        # at the very edge of its own column, and the figure is 22px wide — a
+        # third of it hangs into the next column, where this run's strip does
+        # not reach and the neighbour's strip is 16px too high to help. The foot
+        # and the coat-tail poke out over the wall, which is the exact artefact
+        # the band exists to prevent, just moved sideways. The extra column
+        # copies the FINISHED art at those coordinates, so it lands on the
+        # neighbour's own face, same paint, same coords, no seam.
+        for seg in segs:
+            ty, tx, n = seg
+            if ty - 1 in tops.get(tx - 1, ()):
+                seg[1] -= 1
+                seg[2] += 1
+            if ty - 1 in tops.get(tx + n, ()):
+                seg[2] += 1
+        for i, (ty, tx, n) in enumerate(segs):
+            img = Img(n * T, band)
+            for y in range(band):
+                for x in range(n * T):
+                    img.put(x, y, self.bg.get(tx * T + x, ty * T + y))
+            fname = f"{self.name}_mask{chars}{i}.png"
+            img.save(os.path.join(OUTDIR, fname))
+            self._props.append("mask %s %d %d %d"
+                               % (fname, tx * T, ty * T, ty * T - 8))
 
     def upper_cell(self, tx, ty, sprite):
         """Blit one sprite onto the UPPER canvas at a single cell. The `chars`

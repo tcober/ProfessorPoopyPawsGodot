@@ -97,6 +97,7 @@ func _extra_setup() -> void:
 	_collect_animated()
 	$ExitSouth.position = MapData.anchor_px(map, "exit_south")
 	$ExitSouth.body_entered.connect(_on_exit_south)
+	_wall_gate_mouth()
 	Party.clamp_cameras(MapData.size_px(map))
 	# TravelScene gates its markers on `body != player` — re-aim it when the
 	# lead changes hands mid-town.
@@ -107,10 +108,39 @@ func _extra_setup() -> void:
 		_start_defence()
 
 
+## The gate-mouth road runs to the map's last row and the collision layer only
+## stamps grid cells, so nothing stops a body walking off the south edge into
+## the void on the one frame the exit refuses. Wall it just past the edge — the
+## same guard both Alembic maps carry, and new here because the lane used to
+## dead-end in open snow instead of running out through the pines.
+func _wall_gate_mouth() -> void:
+	var wall := StaticBody2D.new()
+	wall.collision_layer = 1
+	var shape := CollisionShape2D.new()
+	var rect := RectangleShape2D.new()
+	rect.size = Vector2(64.0, 8.0)
+	shape.shape = rect
+	wall.add_child(shape)
+	wall.position = Vector2($ExitSouth.position.x, MapData.size_px(map).y + 4.0)
+	add_child(wall)
+
+
 ## Out the south gate lane, back to the overworld at the Lanternwood icon.
+##
+## REFUSED while the defence is running (2026-07-29). The fight is staged in
+## the lower street, a step or two from the gate, and slime knockback plus a
+## backpedal is all it takes to leave town mid-beat — which drops the whole
+## set-piece and re-arms it from scratch on the way back in. Nobody can lose
+## this fight (a party member cannot die), so holding the gate costs the player
+## nothing but the option to walk out on it. Said out loud, because a travel
+## door that silently refuses reads as broken.
 func _on_exit_south(body: Node) -> void:
-	if body.is_in_group("player"):
-		_exit_to_overworld("lanternwood")
+	if not body.is_in_group("player"):
+		return
+	if _alive > 0:
+		theater.hint("NOT WITH SOMETHING STILL IN THE LANES.", 2.2)
+		return
+	_exit_to_overworld("lanternwood")
 
 
 ## Through the library arch. The phase is ALWAYS named explicitly — "" is the

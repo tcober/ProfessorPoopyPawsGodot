@@ -285,6 +285,11 @@ for map_rel, props_rel in PROPS.items():
         if not ln or ln.startswith(";"):
             continue
         parts = ln.split()
+        if parts[0] == "mask":
+            # a mask_band depth strip: explicit pixel rect, no map chars, and
+            # no footprint for the T3 coverage lint to measure
+            check(f"{props_rel} mask row well-formed", len(parts) == 5, ln)
+            continue
         ok = len(parts) >= 4 and parts[0] == "prop"
         if ok:
             T3_CHARS.setdefault(map_rel, set()).update(parts[2])

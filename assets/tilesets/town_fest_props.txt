@@ -14,3 +14,5 @@ prop Fence F town_fest_fence.png each
 prop FenceLong G town_fest_fencelong.png
 prop TreeTrunk Tt^ town_fest_treetrunk.png each
 prop TreeCrown Tt^ town_fest_treecrown.png anchor=top:0 base_inset=-16 each
+mask town_fest_maskC0.png 128 176 168
+mask town_fest_maskC1.png 464 176 168

@@ -98,6 +98,19 @@ func _run() -> void:
 	_check("one of them is a bruiser",
 		foes.any(func(f): return f.get("exp_value") == 30))
 
+	# --- 3b. the gate is HELD while the lanes are full (2026-07-29). The fight
+	# is staged a few cells from the south gate, so knockback plus a backpedal
+	# used to end it on the overworld by accident, dropping the set-piece. Walk
+	# her onto the exit and assert she is still in town.
+	fuji.global_position = MapData.anchor_px(map, "exit_south")
+	fuji.velocity = Vector2.ZERO
+	await _wait_frames(12)
+	_check("the gate refuses while something is in the lanes",
+		current_scene.scene_file_path.ends_with("lanternwood.tscn"))
+	# ...and off it again, or `body_entered` never re-fires when it reopens.
+	fuji.global_position = MapData.anchor_px(map, "player_start")
+	await _wait_frames(6)
+
 	# --- 4. the second kill levels her
 	var sheet = game.call("sheet", &"fuji")
 	_check("she starts at level 1", sheet.level == 1)
@@ -128,6 +141,15 @@ func _run() -> void:
 		await _wait_frames(12)
 		_check("walking over it fills the satchel",
 			game.call("item_count", &"tonic") >= 1)
+
+	# --- 6b. ...and the gate opens again once they are. The refusal above is
+	# only safe if it lifts, and it lifts on a marker that fires ONCE per entry
+	# — hence the step-off above.
+	fuji.global_position = MapData.anchor_px(map, "exit_south")
+	fuji.velocity = Vector2.ZERO
+	await _wait_frames(40)
+	_check("the gate opens once the lanes are clear",
+		current_scene.scene_file_path.ends_with("overworld.tscn"))
 
 	# --- 7. a defended town stays quiet
 	game.set("town_spawn", "")

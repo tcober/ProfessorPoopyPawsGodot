@@ -151,7 +151,11 @@ func _spawn_bolt() -> void:
 	# and the colour on the instance, the same way direction/shooter already are.
 	bolt.apply_compound(loaded)
 	get_parent().add_child(bolt)
-	bolt.global_position = global_position + facing * muzzle_offset
+	# Placed, not `global_position + facing * muzzle_offset`: near a wall the raw
+	# offset spawns the bolt INSIDE the rock — along the facing when he shoots at
+	# it, ACROSS the facing when he shoots past it — and it dies without ever
+	# travelling. See PartyMember.place_muzzle.
+	place_muzzle(bolt, muzzle_offset)
 	# Blast at the gun root.
 	var flash := MuzzleFlashScene.instantiate()
 	add_child(flash)

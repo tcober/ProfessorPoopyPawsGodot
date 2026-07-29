@@ -173,6 +173,7 @@ TERRAIN_CLS = {
     # the zone map's cabins/conifers/lamps/pond riding snow underlays
     "lanternwood": "snow", "snowdoor": "snow", "bigmountain": "mountain",
     "snowridge": "snow", "snowlamp": "snow", "pond": "snow",
+    "gatepost": "snow",                 # the south gate's two piers
     "conifer": "snow", "conifer2": "snow",
     "fujibody": "snow", "fujiroof": "snow",
     "librarybody": "snow", "libraryroof": "snow",
@@ -224,7 +225,7 @@ STRUCT_TERRAIN = {"well", "lamp", "stall", "fence", "town", "tree", "boulder",
                   "homebody", "cotWbody", "cotEbody", "academybody",
                   "weaponbody", "itembody", "innbody",
                   "cliff", "fountain", "treetrunk",
-                  "lanternwood", "bigmountain", "snowlamp",
+                  "lanternwood", "bigmountain", "snowlamp", "gatepost",
                   "conifer", "conifer2",
                   "fujibody", "librarybody", "cabAbody", "cabBbody", "cabCbody",
                   "snowcliff", "chasm"}

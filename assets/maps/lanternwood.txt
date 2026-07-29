@@ -8,14 +8,24 @@
 ;   rows 11-14  BAND A   - B, FOUR rows: the big back wall. Stair T (cols 30-31)
 ;   rows 15-22  LEVEL 4  - two cabins
 ;   rows 22-23  BAND B   - C, TWO rows. Stair S (cols 12-13)
-;   rows 24-31  LEVEL 3  - a cabin, and THE RIFT (V, rows 27-28) on the east
-;                          flank, crossed by the TRESTLE (=). The rift is a
-;                          SHORTCUT, not a gate - you can walk around its west
-;                          end - so a mis-authored bridge can't strand anyone.
+;   rows 24-31  LEVEL 3  - a cabin, and the SKATING RINK (O) on the east flank
 ;   rows 31-33  BAND C   - X, THREE rows. Stair s (cols 26-27)
 ;   rows 34-40  LEVEL 2  - Fuji's family home, the pond
 ;   rows 41-42  BAND D   - C, TWO rows. Stair S (cols 24-25)
 ;   rows 43-47  LEVEL 1  - the gate
+;   rows 48-49  THE GATE MOUTH - two road cells cut through the pine border
+;
+; THE SOUTH GATE (2026-07-29). Until now LEVEL 1 was an open snow field: the
+; lane ran three cells past the stairs, stopped, and the exit trigger floated
+; invisibly on it. Nothing said "this is the way out", so a fight in the lower
+; street kept ending with the player on the overworld by accident. Now the lane
+; is TWO cells wide the whole way down, a three-cell pier stands either side of
+; it (N/n west, M/m east - two walkable crowns over a solid base, the conifer
+; idiom, each with a bracket lamp aimed into the lane), and the road runs OUT
+; through a two-cell cut in the pine border. exit_south sits in that mouth, so
+; leaving is a thing you walk INTO rather than a thing you wander onto. The road
+; reaching the map's last row is why lanternwood.gd walls just past the south
+; edge, the same as both Alembic maps.
 ;
 ; EVERY BAND STAIRCASES. Bands A/B/C each shift their top row by one between
 ; column segments, which is the difference between rock and a stripe: two
@@ -31,6 +41,16 @@
 ; TileScene.assert_reachable then proves every door and anchor is still
 ; walkable-to from the gate - with five levels and four chokepoints, one
 ; mistyped band cell would otherwise strand a whole terrace silently.
+;
+; THE RINK (2026-07-29) replaced a chasm-and-trestle that used to cut the east
+; flank. The rift never read as a rift no matter how its face was drawn: a
+; 2-row band of dark in flat top-down is a wall, and the trestle across it
+; looked like a wooden panel set into one. Verticality here is authoring, and
+; authoring an absence is the one thing it is bad at - a hole is defined by
+; what you CAN'T see. So the east terrace is open ground now, with the town's
+; rink on it (O - the same frozen_pond treatment as the little pond by Fuji's
+; home, at 8x4 and SKATED, so it reads as somewhere the town goes) and a lamp
+; either side. Nothing is lost that was working.
 ;
 ; A stair is a 2-wide walkable block spanning ALL of its band's rows with a road
 ; cell directly north and south, so the trail painter's ribbon connects through
@@ -59,14 +79,13 @@ legend . snow walk
 legend - road walk
 legend D door walk
 legend o pond walk
+legend O pond walk
 legend C snowcliff solid
 legend X snowcliff solid
 legend B snowcliff solid
-legend V chasm solid
 legend S stairs walk
 legend s stairs walk
 legend T stairs walk
-legend = trestle walk
 legend k libraryroof solid
 legend K librarybody solid
 legend q fujiroof solid
@@ -83,12 +102,18 @@ legend P conifer2 walk
 legend p conifer2 solid
 legend l snowlamp solid
 legend L snowlamp walk
+legend N gatepost walk
+legend n gatepost solid
+legend M gatepost walk
+legend m gatepost solid
 anchor player_start 24 44
-anchor exit_south 24 46
+anchor exit_south 24 48
 ; player_start sits TWO cells clear of exit_south, never one: $ExitSouth is a
 ; 32x16 rect centred on the anchor and a body`s collision box rides at its
 ; FEET, so a one-cell gap overlaps the trigger on spawn and the zone bounces
-; straight back out to the overworld the instant it loads.
+; straight back out to the overworld the instant it loads. Since the GATE
+; (below) it is four clear, and the trigger sits inside the mouth rather than
+; loose on the lane.
 anchor library 24 10
 anchor fuji_home 9 39
 anchor cabin_a 8 20
@@ -127,10 +152,10 @@ map
 ###CCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC###
 ###........L--.......CCCCCCCCCCCCCCCCCCCC............###
 #######.PP.l.-zzzzz..YY.YY.........PP................###
-#######.PP.YY-zzzzz..YY.YY.........PP................###
-#######.PP.YY-ZZZZZ..YY.YY.........PP...VVVV==VVVVVVV###
-#######.pp.YY-ZZZZZ..yy.yy....L....pp...VVVV==VVVVVVV###
-#######....yy-..D.............l......................###
+#######.PP.YY-zzzzz..YY.YY.........PP.....OOOOOOOO...###
+#######.PP.YY-ZZZZZ..YY.YY.........PP...L.OOOOOOOO.L.###
+#######.pp.YY-ZZZZZ..yy.yy....L....pp...l.OOOOOOOO.l.###
+#######....yy-..D.............l...........OOOOOOOO...###
 #######......---------------.........................###
 #######........XXXXXXXXXXXssXXXXXXXXXXX..............###
 ###XXXXXXXXXXXXXXXXXXXXXXXssXXXXXXXXXXXXXXXXXXXXXXXXX###
@@ -145,9 +170,9 @@ map
 ###CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCCCCCCCC###
 ###CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCCCCCCCC###
 #########.YY..PP........--.L.....PP......YY..###########
-#########.YY..PP....YY..-..l.....PP......YY..###########
-#########.YY..PP....YY..-........PP......YY..###########
-#########.yy..pp....YY..-........pp......yy..###########
-#########...........yy.......................###########
-########################################################
-########################################################
+#########.YY..PP....YY..--.l.....PP......YY..###########
+#########.YY..PP....YY.N--M......PP......YY..###########
+#########.yy..pp....YY.N--M......pp......yy..###########
+#########...........yy.n--m..................###########
+########################--##############################
+########################--##############################
