@@ -337,7 +337,27 @@ a SECOND bob set treats that as rest and the tier sinks — reset
 `sprite.position.y` after every kill (`_kill_bobs`); (3) the fireworks
 are MIX, not the additive magic-mote idiom — cream at ~250 added onto the
 hall's plum saturates every channel and all four colours arrive the same
-pale white, and which colour it is IS the beat. A door that must change
+pale white, and which colour it is IS the beat.
+**THE HOUSELIGHTS (2026-07-28) — the one scene light that is NOT a
+CanvasModulate:** on Basil's "...Yes." the room goes down to almost black
+for the act and comes back up on Strix's "Stop. STOP." — no line
+announces it (the narration purge). It CAN'T ride `$Dim`: a
+CanvasModulate multiplies the whole canvas, fireworks included, so it
+would darken the bursts by the same factor and buy nothing. `_house_take()`
+snapshots the ROOM instead — both tile layers, the glow overlay, and every
+prop/cast/player node in `$World` at that instant — and `_house_apply()`
+paints one interpolated colour across the lot (one `tween_method`, not
+fifty tweeners). Everything spawned AFTERWARDS — the rig, its pulsing
+payload, every burst and spark — is by construction outside the dim and
+burns full strength against it; that, not the blend mode, is where the
+brightness comes from. Each burst then `_house_wash()`es its own colour
+back over the walls and the eighteen backs (own tween, so it can never
+kill and hang an awaited `_house_set`), the ring grows via `_burst_scale`
+(scale multiplies a Sprite2D's `offset` too — divide the lift by the
+scale or the ring flies 80px up the wall), and the flask's readability
+pulse is a LOOPED `modulate` tween that must be killed before
+`_fireworks` drains its alpha, or a=1 gets rewritten twice a second.
+A door that must change
 from announce to travel FLIPS `target_scene` on the same
 `OverworldLocation` — never a second zone on the anchor (the
 `_free_home_location` softlock).
@@ -611,7 +631,14 @@ the body ON the door marker/zone (feet on the lane under the arch — the
 old tile-and-a-half drop read as appearing nowhere near the door);
 `_standing`/`_home_armed` suppress the re-fire until the body steps off
 once, and interior front-door spawns/exits x-center on the 2-cell door
-bbox. **Interior south walls carry a `south_lift()` mask band** (the
+bbox. The flip side (2026-07-28): `body_entered` fires ONCE per entry, so
+any marker event `TravelScene` swallows — the entry lock, or `_busy` while
+a banner plays — is gone for good and the marker sits dead until the body
+steps off and back on. A travel door that silently refuses reads as broken
+(step off a cabin banner onto the library arch inside its ~2s), so both
+swallow sites now end in `_deliver_standing()`, which re-scans the overlaps
+and delivers what was missed; the `_standing` latch is what makes it safe
+to call at will. **Interior south walls carry a `south_lift()` mask band** (the
 `_eave_lift` twin in `_interior.py`: top 12px of body-pressable `#` south
 cells mirrored to the upper layer — no more standing ON the bottom wall);
 town-building smoke RISES into `SMOKE_PAD` sky rows padded atop the

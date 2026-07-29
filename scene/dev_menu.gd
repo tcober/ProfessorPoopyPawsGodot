@@ -56,6 +56,12 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
 
+## The modal contract's half of the bargain (Overlay.any_open asks every entry
+## in Overlay.MODALS this, and asserts the method exists).
+func is_open() -> bool:
+	return _ui != null
+
+
 func _process(delta: float) -> void:
 	if _ui == null:
 		# Overlay.any_open is the shared modal rule (see overlay.gd): opening on

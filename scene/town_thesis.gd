@@ -41,7 +41,6 @@ const TINT_MORNING := Color(0.98, 0.93, 0.86)
 const TINT_DUSK := Color(0.74, 0.56, 0.66)
 
 var phase := "plant"
-var _print_accum := 0.0
 var _last_print := Vector2.ZERO
 var _dashing := false
 

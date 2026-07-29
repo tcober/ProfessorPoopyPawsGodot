@@ -53,8 +53,20 @@ func _ready() -> void:
 	_entry_locked = false
 	# A body that pushed into a marker during the entry fade already fired its
 	# body_entered (swallowed by the lock) and won't re-fire — deliver it now.
+	_deliver_standing()
+
+
+## Re-deliver the marker the body is ALREADY standing in. Godot fires
+## body_entered once per entry, so any marker whose event we swallowed — the
+## entry lock above, or a banner still playing (_busy) — stays dead until the
+## player steps off and back on. That is only a missed line for an announce
+## marker, but a TRAVEL marker silently refusing to open is a door that looks
+## broken: step off a cabin banner onto the library arch inside its ~2s and
+## nothing happens. The _standing latch makes this safe to call at will — a
+## marker that fired properly is already latched and won't fire twice.
+func _deliver_standing() -> void:
 	for loc: OverworldLocation in locations.get_children():
-		if loc.overlaps_body(player):
+		if not _standing.get(loc.id, false) and loc.overlaps_body(player):
 			_on_location_entered(player, loc)
 
 
@@ -124,6 +136,8 @@ func _announce(loc: OverworldLocation) -> void:
 	if loc.locked_text != "":
 		await _show_banner(loc.locked_text, BANNER_HOLD)
 	_busy = false
+	# whatever the player walked onto while this banner held the scene busy
+	_deliver_standing()
 
 
 func _show_banner(text: String, hold: float) -> void:

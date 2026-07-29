@@ -45,10 +45,20 @@ const MODALS: Array[StringName] = [&"DevMenu", &"MixMenu"]
 ## Looked up by node name rather than by the autoload identifier so the same
 ## call works from both sides regardless of registration order (DevMenu is
 ## registered before MixMenu).
+##
+## Asks each modal through its own is_open() rather than reading a private
+## field off it. Reaching in for `_ui` worked, but it made the contract depend
+## on two files happening to spell one variable the same way — which is the
+## exact class of drift this file was extracted to end. The assert names a
+## modal that forgot the method instead of silently reporting it closed.
 static func any_open(tree: SceneTree, except: Node = null) -> bool:
-	for name in MODALS:
-		var node := tree.root.get_node_or_null(NodePath(name))
-		if node != null and node != except and node.get("_ui") != null:
+	for modal in MODALS:
+		var node := tree.root.get_node_or_null(NodePath(modal))
+		if node == null or node == except:
+			continue
+		assert(node.has_method("is_open"),
+				"modal %s must expose is_open()" % modal)
+		if node.call("is_open"):
 			return true
 	return false
 

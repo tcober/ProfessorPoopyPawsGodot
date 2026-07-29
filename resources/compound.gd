@@ -52,7 +52,3 @@ enum Kind { BASE, FROST, FLAME, PLASMA }
 
 func hit_damage() -> int:
 	return damage * potency
-
-
-func total_charges() -> int:
-	return charges
