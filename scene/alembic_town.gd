@@ -67,6 +67,7 @@ func _extra_setup() -> void:
 	_collect_animated()
 	$ExitSouth.position = MapData.anchor_px(map, "exit_south")
 	$ExitSouth.body_entered.connect(_on_exit_south)
+	_wall_gate_mouth()
 	_spawn_lift()
 	Party.clamp_cameras(MapData.size_px(map))
 	# TravelScene gates its markers on `body != player` — re-aim it when the
@@ -84,6 +85,24 @@ func _on_travel(loc: OverworldLocation) -> void:
 func _on_exit_south(body: Node) -> void:
 	if body.is_in_group("player"):
 		_exit_to_overworld("town")
+
+
+## The same wall town_fest, town_thesis and lanternwood all put here, and the one
+## this scene was missing (2026-07-29): the gate-mouth road runs to the map's last
+## row and the collision layer only stamps grid cells, so past the mouth there is
+## nothing. It never bit because the exit trigger happened to cover the whole
+## 2-cell mouth — but the adult sandbox has no backstop and no refusal state, so
+## the day the mouth widens the player walks off the collision grid into the void.
+func _wall_gate_mouth() -> void:
+	var wall := StaticBody2D.new()
+	wall.collision_layer = 1
+	var shape := CollisionShape2D.new()
+	var rect := RectangleShape2D.new()
+	rect.size = Vector2(64.0, 8.0)
+	shape.shape = rect
+	wall.add_child(shape)
+	wall.position = Vector2($ExitSouth.position.x, MapData.size_px(map).y + 4.0)
+	add_child(wall)
 
 
 # ---- THE DINGHY LIFT ---------------------------------------------------------

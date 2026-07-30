@@ -302,6 +302,22 @@ class TileScene:
                         self.bg.blit_cell(foot, tx * T, (ty + run - 1) * T)
                         self._end_shade(tx, ty + run - 1, dx)
 
+    def _shadeable(self, tx, ty):
+        """May a contact shadow be painted onto this cell?
+
+        NO for an ANIMATED cell, and the reason is the same one that gives the
+        stream bridge its hand-drawn `bridge_fascia` instead of a mirrored mask
+        band: sea, river and lava cells are repainted per frame from the finished
+        canvas, and a shadow baked into frame 0 would survive in frame 0 alone —
+        so the cell strobes. The driver catches it (`_lower_frames` asserts frame
+        0 reproduces the still canvas byte for byte) but only at finish() time,
+        with a message about purity that says nothing about which band did it.
+
+        A base scene has nothing animated, so this defaults to yes; the OverWorld
+        driver overrides it, because knowing which render class a cell is IS the
+        driver's job and TileScene deliberately has no idea."""
+        return True
+
     def _end_shade(self, tx, ty, dx, cols=3):
         """The shadow a wall END throws sideways onto the open ground beside it.
 
@@ -318,6 +334,8 @@ class TileScene:
             ch = self.m.at(gx, ty)
             if ch is None or self.m.legend[ch]["solid"]:
                 break                          # shading a wall, not the ground
+            if not self._shadeable(gx, ty):
+                break                          # ...or animated water (see above)
             for y in range(ty * T, ty * T + T):
                 base = self.bg.get(sx, y)
                 self.bg.put(sx, y, lerp(base[:3], VOID[:3], a) + (255,))
@@ -334,6 +352,8 @@ class TileScene:
         for tx, ty, h in self._col_runs(chars):
             by = ty + h                                    # the cell below
             if self.m.at(tx, by) is None or self.m.at(tx, by) in chars:
+                continue
+            if not self._shadeable(tx, by):
                 continue
             for dy, a in fall:
                 for x in range(tx * T, tx * T + T):
@@ -760,7 +780,7 @@ class TileScene:
             + "; ".join(bad[:6]))
 
     def assert_lift(self, head, shaft, drum_walk, drum_solid,
-                    down="lift_down", up="lift_up", clear=2):
+                    down="lift_down", up="lift_up", clear=2, canopy="canopy"):
         """THE ONE MACHINE. A scripted rope hoist joining the canopy to the floor
         in ONE 3-cell column: a walkable top landing (`head`), a SOLID shaft
         (`shaft`) carved out of the fascia band, and a crank drum at the bottom
@@ -799,7 +819,13 @@ class TileScene:
              way onto the canopy were the ride itself, a player who rode up and
              then reloaded — or a scene that never wires the zones, which is
              every era but the present — is stranded up a tree;
-          7. the car sheet's frame count is whole (checked by the caller)."""
+          7. the car sheet's frame count is whole (checked by the caller).
+
+        `canopy` names the stratum the head landing stands on. It is a PARAMETER
+        and no longer the literal it used to be, because a town can have more than
+        one canopy: the rebuilt Alembic has `canopy_hi` and `canopy_lo`, the lift
+        serves the lower one, and a hardcoded "canopy" made clause 2 a check that
+        could only ever fail."""
         m = self.m
         cols = None
         pieces = [("head", head), ("shaft", shaft),
@@ -832,9 +858,9 @@ class TileScene:
                 f"unbroken north to south")
         # (2) the strata and the shaft's height
         for x in cols:
-            assert m.stratum(x, rows["head"][0]) == "canopy", (
+            assert m.stratum(x, rows["head"][0]) == canopy, (
                 f"{self.name}.txt: the lift's head at ({x},{rows['head'][0]}) is "
-                f"not walkable canopy")
+                f"{m.stratum(x, rows['head'][0])!r}, not walkable {canopy!r}")
             for y in rows["shaft"]:
                 assert m.legend[m.at(x, y)]["solid"], "the lift shaft must be solid"
             assert m.stratum(x, rows["drum crown"][0]) == "ground", (
@@ -869,8 +895,8 @@ class TileScene:
                     f"{self.name}.txt: the lift anchor {name!r}({ax},{ay}) is "
                     f"{max(abs(ax - ox), abs(ay - oy))} cells from {other!r} — "
                     f"two zones on one anchor is a softlock, keep {clear}")
-        assert m.stratum(*m.anchors[down]) == "canopy", \
-            f"{self.name}.txt: {down!r} must stand on the canopy"
+        assert m.stratum(*m.anchors[down]) == canopy, \
+            f"{self.name}.txt: {down!r} must stand on {canopy!r}"
         assert m.stratum(*m.anchors[up]) == "ground", \
             f"{self.name}.txt: {up!r} must stand on the ground"
         # (6) THE NO-SOFTLOCK PROOF — reachable without the machine

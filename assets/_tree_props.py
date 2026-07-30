@@ -59,8 +59,8 @@ sys.path.insert(0, HERE)
 from _core import h2
 from _overworld_props import _chimney, DOORDARK, WARM, WARMD
 from _propkit import S, ln, edge, split_rows
-from _tilekit import (ramp, Img, BRASS, COPPER, IRON, SPEC, STEEL, GLASS, MINT,
-                      VIOLETF)
+from _tilekit import (ramp, Img, BRASS, COPPER, IRON, SPEC, STEAM, STEEL, GLASS,
+                      MINT, VIOLETF)
 from _town_props import (_anim_building, _breathe, _finish, _ph, _pv, _valve,
                          clipw, WIN_PULSE)
 
@@ -740,6 +740,57 @@ def great_crown(f, bark, salt=451, w=96, h=48, lean=0.0):
         sp.blob(tx + r * 0.05, ty + r * 0.18, r * 0.26, r * 0.11, f[4])
         sp.blob(tx - r * 0.16, ty - r * 0.18, r * 0.14, r * 0.10, f[0])
     sp.despeckle(2, 1)
+    # ---- THE SKYLIGHTS, and they are load-bearing, not texture ---------------------
+    # The ring deck's north arc runs UNDER this crown, so the crown is the one piece
+    # of the tree a body is allowed to stand inside — and a leaf mass drawn as a solid
+    # sheet makes that body 100% INVISIBLE. `_check_art.py`'s walk-behind visibility
+    # rule measured exactly that on the first pass: every middle-row cell at 100%.
+    #
+    # So the gaps are punched deliberately, AFTER the mass is finished, and they are
+    # honest for what this is — a canopy seen from above has daylight through it, and
+    # what you glimpse through the gaps is the boards, and whoever is walking on them.
+    # Kept off the centreline, because that is where the shaft comes up and a hole
+    # there would read as a bite out of the trunk.
+    # Each gap is TWO overlapping ellipses at different angles rather than one disc,
+    # and every radius, aspect and offset is hashed. A ring of equal circles is the
+    # failure to avoid — the first pass punched seven of those and the crown came out
+    # POLKA-DOTTED, which is somehow worse than the solid sheet it replaced. Leaves
+    # part in ragged lens shapes, never in holes.
+    # ALL OF THEM LOW. The gaps exist to keep a body on the ring's north arc from
+    # vanishing, and that body's head tops out around 60% of the crown's height — so
+    # daylight up in the crown's shoulders buys nothing and costs the silhouette,
+    # which is where a canopy is read. Eleven evenly-scattered gaps came out as
+    # Swiss cheese; six in the lower half read as the underside of a canopy, which
+    # is what you are actually looking at from a deck built inside one.
+    for i, (hx, hy, hr) in enumerate((
+            (0.17, 0.62, 5.4), (0.32, 0.80, 5.0), (0.45, 0.66, 5.6),
+            (0.58, 0.82, 5.0), (0.71, 0.64, 5.4), (0.86, 0.78, 4.6))):
+        cut = []
+        for k in range(2):
+            rr = hr * (0.72 + 0.16 * (h2(i, 17 + k, salt) % 4))
+            ax = rr * (0.78 + 0.10 * (h2(i, 23 + k, salt) % 4))
+            by = rr * (0.52 + 0.12 * (h2(i, 29 + k, salt) % 4))
+            ox = (h2(i, 31 + k, salt) % 5) - 2
+            oy = (h2(i, 37 + k, salt) % 5) - 2
+            cut.append((w * hx + ox, h * hy + oy, ax, by))
+        lo_x = int(min(c[0] - c[2] for c in cut)) - 2
+        hi_x = int(max(c[0] + c[2] for c in cut)) + 3
+        lo_y = int(min(c[1] - c[3] for c in cut)) - 2
+        hi_y = int(max(c[1] + c[3] for c in cut)) + 3
+        for y in range(lo_y, hi_y):
+            for x in range(lo_x, hi_x):
+                d = min(((x - c[0]) / c[2]) ** 2 + ((y - c[1]) / c[3]) ** 2
+                        for c in cut)
+                if d <= 1.0:
+                    sp.set(x, y, None)
+        # a dark inner lip around each gap, so it reads as leaves PARTING rather than
+        # as a hole cut in a sheet of green
+        for y in range(lo_y, hi_y):
+            for x in range(lo_x, hi_x):
+                d = min(((x - c[0]) / c[2]) ** 2 + ((y - c[1]) / c[3]) ** 2
+                        for c in cut)
+                if 1.0 < d <= 1.6 and sp.get(x, y) is not None:
+                    sp.set(x, y, f[4] if (x + y) % 2 else f[5])
     edge(sp, h)
     clipw(sp, w)
     return sp
@@ -1261,10 +1312,23 @@ def tree_hut(wood, f, deck, bark, salt=481, composite=True, frames=4, w=96, h=80
         lo.rect(bx - 8, top + 2, bx + 7, top + 2, deck[1])
         lo.rect(bx - 8, top + 14, bx + 7, top + 14, deck[5])
         lo.rect(bx - 8, top + 2, bx - 8, top + 14, deck[2])
+        # THE DEVICE, never lettering: this game has no font and a painted word at
+        # 16px is mud, so a trade is announced by its OBJECT. That is also the
+        # scholarly-village register the town wants — a licensed trade hangs its
+        # sign, and you read the shop off the thing painted on the board.
         if sign == "sword":
             ln(lo, bx - 5, top + 11, bx + 4, top + 5, STEEL[1])
             ln(lo, bx - 5, top + 12, bx + 3, top + 6, STEEL[2])
             lo.rect(bx - 7, top + 10, bx - 4, top + 12, BRASS[1])
+        elif sign == "kettle":
+            lo.rect(bx - 4, top + 8, bx + 3, top + 12, COPPER[1])   # the belly
+            lo.rect(bx - 4, top + 8, bx + 3, top + 8, COPPER[0])
+            lo.rect(bx - 4, top + 12, bx + 3, top + 12, COPPER[3])
+            lo.rect(bx - 2, top + 6, bx + 1, top + 7, COPPER[2])    # the lid
+            lo.set(bx + 4, top + 9, COPPER[2])                      # the spout
+            lo.set(bx + 5, top + 10, COPPER[2])
+            ln(lo, bx - 1, top + 5, bx + 1, top + 3, STEAM)         # one steam curl
+            lo.set(bx, top + 4, STEAM)
         else:
             lo.rect(bx - 2, top + 5, bx + 1, top + 6, GLASS)
             lo.rect(bx - 4, top + 7, bx + 3, top + 11, MINT)

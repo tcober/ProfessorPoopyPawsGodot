@@ -1,72 +1,86 @@
-; Alembic Town — 56x34 tiles (896x544 px), Basil's origin village, and since
-; 2026-07-29 a TWO-STRATA CANOPY TOWN: houses up in the boughs on plank
-; platforms, rope bridges between them, the forest floor walkable below, and
-; rope ladders plus one rope DINGHY LIFT joining the two. Shared source of
-; truth: tiled by assets/_gen_tileset_town.py on the shared OverWorld driver,
-; collision/markers by scene/alembic_town.gd.
+; Alembic Town — 72x48 tiles (1152x768 px), Basil's origin village, and since
+; 2026-07-30 a FOUR-STOREY CANOPY VILLAGE: the Academy's cut-stone terrace over
+; the homes in the crowns over the public town on the low boardwalk over the
+; forest floor. Tiled by assets/_gen_tileset_town.py on the shared OverWorld
+; driver; collision/markers by scene/alembic_town.gd.
 ;
 ; THERE IS NO ELEVATION SYSTEM AND THERE DOES NOT NEED TO BE ONE. A cell is
 ; exactly one (x, y) with one legend char and one walk/solid bit, so a body is
 ; never "on-bridge-or-under-bridge": there IS no cell under a bridge, the deck IS
-; the cell. Two storeys are therefore unambiguous IFF THEY ARE DISJOINT IN THE
-; GRID, which is exactly the shape of a terrace — two flat walkable regions
-; separated by a band of solid cells wearing opaque face art. The `stratum:`
-; token below declares which storey a char belongs to and TileScene.assert_strata
-; is the whole system: fuse the canopy to the floor with ONE mistyped cell and
-; the boardwalk silently stops being a storey and becomes a wooden patch of
-; forest, which renders, dedupes, lints clean and ships.
+; the cell. Storeys are unambiguous IFF THEY ARE DISJOINT IN THE GRID, which is
+; exactly the shape of a terrace. The `stratum:` token declares which storey a
+; walkable char belongs to and TileScene.assert_strata is the whole system: fuse
+; two storeys with ONE mistyped cell and the upper one silently stops being a
+; storey, and it renders, dedupes, lints clean and ships.
 ;
-; THE CENTRAL AXIS IS GROUND, FLOOR TO GATE, AND THAT IS FORCED. The ground must
-; reach both the south gate and the Academy stair, so it cuts the map
-; north-south, so THE CANOPY IS PERMANENTLY TWO NETWORKS — west and east — and
-; you cross between them on the ground, through the square. Cols 25 and 30 are
-; the `a` bough curtains that keep the two strata from touching across it.
+; THE TRUNKS ARE THE ARMATURE AND THE TOWN HANGS ON THEM. Five great trees, each
+; a FIVE-column channel, and the trunk's solid footprint is only the middle three
+; — so the deck closes north, south, east and west of every shaft and YOU CAN WALK
+; THE FULL CIRCLE AROUND EVERY TREE, PASSING BEHIND IT, on all three walkable
+; storeys. That ring is the single most recognisable thing about Slitherbough and
+; the Ewok village, and it is why the channel is 5 wide and not 3: a 3-col channel
+; is all trunk, and a trunk you cannot walk round is a pillar.
 ;
-; THE HOME PLATFORM IS SEVEN ROWS DEEP (13-19) AND THAT IS ARITHMETIC, NOT TASTE.
-; scene/town_thesis.gd's `plant` beat walk-gates to `home + (0,26)` and drops
-; Schweinler's bag at `home + BAG_OFF (0,38)`, and its `dash` beat walks to
-; `home + (0,22)`. With the door at (10,17) — anchor pixel (168,280) — those land
-; on rows 19, 19 and 18. Shave a deck row off this platform and three shipped
-; cutscenes end early against a wall with no lint and no error.
-; TileScene.assert_door_approach enforces two clear rows under EVERY door here.
+; Per channel, north to south — and every walkable row here is part of a ring:
+;   14-16  g  the CROWN's leaf mass, all 5 cols   WALK canopy_hi   north arc
+;   17-18  J  the shaft, cols 1-3                 solid
+;   17-18  Y  the side arcs, cols 0 and 4         WALK canopy_hi
+;   19-20  Y  the through-lane, all 5 cols        WALK canopy_hi   south arc
+;   21-23  %  the high fascia, trunk crossing it  solid  (paint twin of y)
+;   24-25  B  north arc                           WALK canopy_lo
+;   26-27  j  the shaft, cols 1-3                 solid
+;   28-30  B  the through-lane                    WALK canopy_lo   south arc
+;   31-33  &  the low fascia, trunk crossing it   solid  (paint twin of v)
+;   34-35  .  north arc                           WALK ground
+;   36-38  !  the FOOT + buttress roots, cols 1-3 solid
+;   39+    .  the floor                           WALK ground
+; ONE SPRITE PER SEGMENT, because one sprite cannot depth-sort against bodies on
+; two storeys at once — see _tree_props.great_trunk. A single trunk sprite keyed at
+; its foot draws over a body standing anywhere above it, and since a shaft is an
+; opaque mass that body is not "behind" anything, it is GONE. That shipped once.
 ;
-; Geography, depth-first: the barred ACADEMY still crowns the north stone
-; terrace on the central axis (rows 0-12 are untouched — the establishment is
-; built of cut stone on a cliff; the town is GROWN, and built of wood), and the
-; grand stone stair (S) descends through the cliff band (C) to the lamp-flanked
-; stair plaza. West canopy: BASIL'S HOUSE (hH3) on its own platform, the rope
-; span W1 over a bough mass, then THE BRASS FANG (xX7) — the whole west
-; boardwalk, reached by Basil's own ladder (z, cols 8-9) or the square's (Z,
-; cols 22-23). East canopy: the DINGHY LIFT's top landing (M) over its shaft
-; (Q) and crank drum (I/i) in the square's NE nook, the boardwalk east to THE
-; CRACKED FLASK (pP8), a GREAT TREE (j trunk / J decked crown) rising through
-; the boards, the HERO SPAN over the creek, and THE LOOKOUT with its bough mass
-; (A) where the goose hides. Forest floor: the fountain SQUARE cell-for-cell
-; where it always was, the two ground cottages (a neighbour's, and THE DOCTOR'S
-; OFFICE — you do not carry a cat who has been run over up a rope ladder), the
-; well, THE COPPER KETTLE (nN9) tucked under the east boardwalk at the great
-; tree's foot, the creek (r) with its footbridge (=), the fenced orchard, the SE
-; pond, and the lamp-and-fence-flanked south gate out to the overworld.
+; THE ROW BUDGET IS ARITHMETIC, NOT TASTE. scene/town_thesis.gd walk-gates to
+; `home + (0,26)` and drops Schweinler's bag at `home + (0,38)`; with Basil's door
+; on row 18 those land on rows 20 and 20, both inside the high lane. The forecourt
+; is three rows because the dash goal is a 48x16 Area2D at `school + (0,24)`.
+; Every fascia is exactly 3 rows because stamp_columns asserts the run height.
+; Shave a row anywhere and three shipped cutscenes end early against a wall with
+; no lint and no error. TileScene.assert_door_approach enforces two clear rows
+; under EVERY door.
+;
+; THE STAIR IS A LINK, NOT GROUND. It joins the Academy's forecourt to canopy_hi,
+; so you reach the establishment from the TOP of the town rather than from the
+; lane — which is why the canopy no longer has to be cut in two the way the
+; two-strata version was, and why every storey is one connected network.
+;
+; Geography: the barred ACADEMY crowns its stone terrace (the forecourt is cut
+; into the hillside, so the C band exists only where the terrace does). CANOPY
+; HIGH is the homes — BASIL'S HOUSE in bay A at the west end, two neighbours east,
+; the hero span over a bough mass in bay B, and the stair plaza in bay C. CANOPY
+; LOW is the public town — THE BRASS FANG, THE CRACKED FLASK (adult Sage's shop),
+; THE COPPER KETTLE, a second span in bay A, and the DINGHY LIFT's top landing in
+; bay E over its solid shaft and crank drum. THE FOREST FLOOR keeps the OLD
+; village: the fountain square you arrive into from the gate, THE DOCTOR'S OFFICE
+; with its clear lane east, the neighbour's cottage, the well, the market stall,
+; the creek and its footbridge, the fenced orchard, the SE pond, and the
+; lamp-flanked south gate. A second mouth leaves east at rows 42-43 for beat 5b.
 ;
 ; Buildings, trees AND street furniture are Tier-3 y-sorted World sprites from
-; town_props.txt (scene/prop_spawner.gd); each building spans THREE chars (solid
-; facade + walkable roof + solid body-top digit) only for collision and the
-; sprite's footprint bbox. The upper tile layer carries ONLY mask-band depth
-; strips and the spans' near rails. Silhouette-fit retypes: a footprint cell
-; whose y-sorted art is transparent or a thin walk-behind head is a WALKABLE
-; TWIN of its solid char (O/L/U, and the case pairs below) — same terrain name,
-; so the paint is identical and only collision changes; the T3 coverage lint in
-; _check_art.py keeps the pairing honest.
+; town_props.txt; each building spans THREE chars (solid facade + roof + ridge
+; digit) only for collision and the sprite's footprint bbox. The upper tile layer
+; carries ONLY the spans' near rails. A footprint cell whose art is transparent is
+; a WALKABLE TWIN of its solid char (O/U/L and the case pairs) — same terrain name,
+; so the paint is identical and only collision changes.
 legend # forest solid
 legend . grass walk
 legend , flowers walk
 legend - road walk
 legend D door walk
-legend d door walk stratum:canopy
 legend F fence solid
 legend G fence solid
 legend C cliff solid
-legend S stairs walk
+legend S stairs walk stratum:link
+legend ^ treecanopy solid
 legend T treecanopy solid
 legend t treetrunk solid
 legend r river solid
@@ -80,112 +94,113 @@ legend U well walk
 legend l lamp solid
 legend L lamp walk
 legend m stall solid
-legend h homeroof solid
-legend H homebody solid
 legend q cotWroof solid
 legend 1 cotWbody solid
+legend 4 cotWbody solid
 legend w cotEroof solid
 legend 2 cotEbody solid
+legend 5 cotEbody solid
 legend k academyroof solid
 legend K academybody solid
-legend x weaponroof solid
-legend X weaponbody solid
-legend p itemroof solid
-legend P itembody solid
-legend n innroof solid
-legend N innbody solid
-legend 3 homebody solid
-legend 4 cotWbody solid
-legend 5 cotEbody solid
 legend 6 academybody solid
-legend 7 weaponbody solid
-legend 8 itembody solid
-legend 9 innbody solid
-legend ^ treecanopy solid
-; ---- THE CANOPY STOREY (2026-07-29) ------------------------------------------
-; Every one of these is a CASE PAIR whose case means walkable-vs-solid, which is
-; both the shipped conifer/lamp idiom and, by construction, the walkable twin the
-; invisible-wall and T3-coverage lints demand.
-legend B deck walk stratum:canopy
-legend b deckedge solid
-legend V deck walk stratum:canopy
-legend v deckedge solid
-legend W plank walk stratum:canopy
-legend e plankedge solid
-legend A boughtop walk stratum:canopy
-legend a bough solid
-legend J crown walk stratum:canopy
-legend j greattrunk solid
-legend Z ropeladder walk stratum:link
+legend Y deck walk stratum:canopy_hi
+legend y deckedge solid
+legend f door walk stratum:canopy_hi
+legend g crown walk stratum:canopy_hi
+legend c boughtop walk stratum:canopy_hi
+legend R plank walk stratum:canopy_hi
+legend E plankedge solid
 legend z ropeladder walk stratum:link
-legend M deck walk stratum:canopy
+legend h hutroof solid
+legend H hutbody solid
+legend 3 hutbody solid
+legend n hutroof solid
+legend N hutbody solid
+legend 0 hutbody solid
+legend B deck walk stratum:canopy_lo
+legend v deckedge solid
+legend d door walk stratum:canopy_lo
+legend A boughtop walk stratum:canopy_lo
+legend W plank walk stratum:canopy_lo
+legend e plankedge solid
+legend Z ropeladder walk stratum:link
+legend x shoproof solid
+legend X shopbody solid
+legend 7 shopbody solid
+legend p shoproof solid
+legend P shopbody solid
+legend 8 shopbody solid
+legend i shoproof solid
+legend I shopbody solid
+legend 9 shopbody solid
+legend a bough solid
+legend J greattrunk solid
+legend j greattrunk solid
+legend ! greattrunk solid
+legend % deckedge solid
+legend & deckedge solid
+legend M deck walk stratum:canopy_lo
 legend Q deckedge solid
-legend I liftdrum walk stratum:ground
-legend i liftdrum solid
-; `d` is the CANOPY door: the same `door` TERRAIN as D — so every door lint, the
-; door-approach assert and the reachability sweep see it — and a different CHAR
-; only because a legend char carries exactly one stratum, and three of this
-; town's six doors are now up in the boughs.
-; B/V and b/v are the same paint; the case pair records the FASCIA HEIGHT, which
-; is the one thing about a deck a reader needs and cannot see: a `V` deck sits
-; over a 3-row `v` band (a HIGH platform), a `B` deck over a 2-row `b` band.
-; stamp_columns asserts those heights, and it is the assert that matters — the
-; art is T*run tall and lands on the run's TOP cell, so a short run paints a
-; timber wall over the walkable cell below it and nothing else lints that.
-; W spans are TWO ROWS DEEP because the rails live in the second row; a 1-cell
-; span would put a rail on the walking line. `e` is a span's 1-row fascia, whose
-; art goes to the UPPER layer (the shipped bridge_fascia idiom) — the plan below
-; a span is always a NAMED POSITIVE THING (`a` bough, `j` trunk, `r` creek),
-; never an absence: authoring an absence is the one thing this format is bad at.
-; z/Z are `link`, the only stratum allowed to touch two storeys at once, and
-; assert_strata requires every link component to border EXACTLY TWO.
-; Q is the lift SHAFT: a paint twin of `v` so the boat hangs in front of finished
-; fascia art, SOLID because the ride is scripted, and EXCLUDED from mask_band —
-; that unmasked 3-cell gap in the railing IS the gate you step through onto the
-; boat.
-anchor player_start 27 30
-anchor home 10 17
-anchor cottage_w 7 27
-anchor cottage_e 16 29
-anchor school 27 9
-anchor weapons 22 16
-anchor items 38 16
-anchor inn 38 27
-anchor lift_down 32 17
-anchor lift_up 32 22
-anchor exit_south 27 32
+legend : liftdrum walk stratum:ground
+legend + liftdrum solid
+anchor player_start 34 44
+anchor home 11 18
+anchor cottage_w 10 42
+anchor cottage_e 23 42
+anchor school 35 9
+anchor weapons 24 27
+anchor items 37 27
+anchor inn 50 27
+anchor lift_down 63 29
+anchor lift_up 63 34
+anchor exit_south 34 46
+anchor exit_se 69 42
 map
-#####################66kk66kk66kk66#####################
-#####################kkkkkkkkkkkkkk#####################
-#####################kkkkkkkkkkkkkk#####################
-#####################kkkkkkkkkkkkkk#####################
-#####################kkkkkkkkkkkkkk#####################
-#####################KKKKKKKKKKKKKK#####################
-#####################KKKKKKKKKKKKKK#####################
-###################.,KKKKKKKKKKKKKK,.###################
-#################..,,KKKKKKKKKKKKKK,,..#################
-########............,,.....-......,,............########
-########..,,...............-................,,..########
-######CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCC######
-######CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCC######
-#####aVV3333VVaaaaBx7777xaL-.Laaaaap8888pBBaaraAAAB#####
-#####aVhhhhhhVWWWWBxxxxxxal-.laaaaappppppBBWWWWAAAB#####
-#####aVhhhhhhVWWWWBXXXXXXa.-..aaaaaPPPPPPBBWWWWAAAB#####
-#####aVHHHHHHVeeeeBXXXdXXa.-..aMMMBPPPdPPBBeereBBBB#####
-#####aVHHHdHHVaaaaBBBBBBBa.-..aMMMBBBBBBJJJaarabZZb#####
-#####aVVVVVVVVaaaaBBBBBBBa.-..aMMMBBBBBBJJJaarabZZb#####
-#####aVVVVVVVVaaaaBBbbZZb..-...QQQbbbbbbjjj,.r.....#####
-#####avvzzvvvv....bbbbZZb-OoO-.QQQbbbbbbjjj,.r.,,..#####
-#####avvzzvvvv....bb.....-ooo-.QQQ......jjj..r.....#####
-#####avvzzvvvv.....mmm...-ooo-.III...........r.....#####
-#####.,,..L....,,..mmm...-----.iii9nnnnnnn9..=.....#####
-#####q444ql.......,........-......nnnnnnnnn..=...,,#####
-#####qqqqq........,........-......NNNNNNNNN..=.....#####
-#####11111.^^.w555w........-......NNNNNNNNN..r.....#####
-#####11D11.TT.wwwww....^^..-......NNNNDNNNN..rGGGGG#####
-#####......tt.22222....TT..-.....^^.........s~~~~~s#####
-#####......UU.22D22....tt..-.....TT.........s~~~~~s#####
-#####......uu............L,-,.L..tt.,,......s~~~~~s#####
-#####.......,,........FFFl.-..lFFF.......,,.sssssss#####
-###########################--###########################
-###########################--###########################
+#############################66kk66kk66kk66#############################
+#############################kkkkkkkkkkkkkk#############################
+#############################kkkkkkkkkkkkkk#############################
+#############################kkkkkkkkkkkkkk#############################
+#############################kkkkkkkkkkkkkk#############################
+#############################KKKKKKKKKKKKKK#############################
+#############################KKKKKKKKKKKKKK#############################
+#############################KKKKKKKKKKKKKK#############################
+#############################KKKKKKKKKKKKKK#############################
+########################.L.,,,,,,,,,,--,,,,,,.L.########################
+########################.l...........--.......l.########################
+########################..,,,,,,,,,,,--,,,,,,,..########################
+########################CCCCCCCCCCCCCSSCCCCCCCCC########################
+########################CCCCCCCCCCCCCSSCCCCCCCCC########################
+###gggggYY3333YYgggggYYRRRRYYgggggcccYYcccgggggYY0000YYgggggYY0000YY####
+###gggggYhhhhhhYgggggYYRRRRYYgggggcccYYcccgggggYnnnnnnYgggggYnnnnnnY####
+###gggggYhhhhhhYgggggYYEEEEYYgggggcccYYcccgggggYnnnnnnYgggggYnnnnnnY####
+###YJJJYYHHHHHHYYJJJYYYaaaaYYYJJJYYYYYYYYYYJJJYYNNNNNNYYJJJYYNNNNNNY####
+###YJJJYYHHfHHHYYJJJYYYaaaaYYYJJJYYYYYYYYYYJJJYYNNfNNNYYJJJYYNNfNNNY####
+###YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY####
+###YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY####
+###%%%%%yzzyyyyy%%%%%yyyyyyyy%%%%%yyyyyyyy%%%%%yyyyyyyy%%%%%yyyyyzzy####
+###%%%%%yzzyyyyy%%%%%yyyyyyyy%%%%%yyyyyyyy%%%%%yyyyyyyy%%%%%yyyyyzzy####
+###%%%%%yzzyyyyy%%%%%yyyyyyyy%%%%%yyyyyyyy%%%%%yyyyyyyy%%%%%yyyyyzzy####
+###BBBBBBBBWWWWBBBBBBBB7777BBBBBBBBB8888BBBBBBBBB9999BBBBBBBBBBBBAAA####
+###BBBBBBBBWWWWBBBBBBBxxxxxxBBBBBBBppppppBBBBBBBiiiiiiBBBBBBBBBBBAAA####
+###BjjjBBBBeeeeBBjjjBBXXXXXXBBjjjBBPPPPPPBBjjjBBIIIIIIBBjjjBBBaaaAAA####
+###BjjjBBBBaaaaBBjjjBBXXdXXXBBjjjBBPPdPPPBBjjjBBIIdIIIBBjjjBBBaaaBBB####
+###BBBBBBBBaaaaBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBMMMBBB####
+###BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBMMMBBB####
+###BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBMMMBBB####
+###&&&&&vZZvvvvv&&&&&vvvvvvvv&&&&&vvvvvvvv&&&&&vvvvvZZv&&&&&vvQQQvvv####
+###&&&&&vZZvvvvv&&&&&vvvvvvvv&&&&&vvvvvvvv&&&&&vvvvvZZv&&&&&vvQQQvvv####
+###&&&&&vZZvvvvv&&&&&vvvvvvvv&&&&&vvvvvvvv&&&&&vvvvvZZv&&&&&vvQQQvvv####
+###......................................r....................:::...####
+###......................................r....................+++...####
+###.!!!.......^^.!!!.......^^.!!!...^^...r.!!!....^^....!!!......^^.####
+###.!!!.......TT.!!!.......TT.!!!...TT...r.!!!....TT....!!!......TT.####
+###.!!!.......tt.!!!.......tt.!!!...tt...r.!!!....tt....!!!......tt.####
+###.....q444q........w555w........--.....r..........................####
+###.....qqqqq........wwwww.^^.....--.....r.......^^.^^.......^^.....####
+###.....11111........22222.TT..,,,--.OOO.=.......TT.TT.......TT.....####
+###.....11D11........22D22.tt..,,,--.ooo.=.......tt.tt.......tt.....----
+###.^^........^^...............,,,--.ooo.r.....FFFGGGGG..^^.ssssssss----
+###.TT........TT.UU.........mmm,,L--L....r...............TT.~~~~~~~s####
+###.tt........tt.uu.........mmm..l--l....r...............tt.~~~~~~~s####
+##################################--####################################
+##################################--####################################

@@ -251,12 +251,16 @@ for map_rel, (layout, atlas, tres) in TILED.items():
 # ground (or more upper art), with walk-behind corridors capped by a solid
 # ridge row so at most a head-peek crosses the silhouette.
 print("z-order:")
-# maps/town.txt is intentionally absent: its buildings + trees are now Tier-3
-# y-sorted World sprites (not upper-layer tiles), so its upper layer is empty
-# and the z-order checks below short-circuit for it (the invisible-wall +
-# T3-coverage lint carry the load). town_fest still bakes them, so it stays.
-# maps/bluff.txt is absent for the same reason: the headland's one prop (the
-# windswept tree) is a Tier-3 y-sorted sprite, so its upper layer is empty.
+# UPPER_REQUIRED is the "this map MUST have a non-empty upper layer" list, and the
+# towns are absent from it because their buildings and trees are Tier-3 y-sorted
+# World sprites rather than upper-layer tiles, so they are ALLOWED an empty one.
+# That is not the same as HAVING one, and the comment here used to claim it was —
+# it said the towns' upper layers were empty and the z-order checks below
+# short-circuited. They are not and it does not: both town maps carry 9 upper
+# cells (the spans' near rails), so the support / corridor-cap / ridge-placement
+# lints DO run on them, which is what you want. Only the claim was wrong.
+# maps/bluff.txt is genuinely empty up there: its one prop (the windswept tree) is
+# a Tier-3 sprite and nothing else is drawn over a body.
 UPPER_REQUIRED = {"maps/overworld.txt", "maps/overworld_bright.txt",
                   "maps/house.txt", "maps/downstairs.txt", "maps/hall.txt",
                   "maps/sickroom.txt", "maps/library.txt"}

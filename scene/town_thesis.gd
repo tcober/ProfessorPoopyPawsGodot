@@ -225,7 +225,12 @@ func _phase_dash() -> void:
 	rect.size = Vector2(48, 16)
 	shape.shape = rect
 	goal.add_child(shape)
-	goal.position = MapData.anchor_px(map, "school") + Vector2(0.0, 40.0)
+	# +24, not the +40 this used to be. The dash finishes on the Academy's FORECOURT,
+	# which is three rows deep — 40px below the school anchor is the cliff band, i.e.
+	# a goal rect made entirely of solid cells, which the player can never enter and
+	# which would hang the beat forever with no error. The plant spawn uses the same
+	# offset and that is fine: the two are in different phases and never coexist.
+	goal.position = MapData.anchor_px(map, "school") + Vector2(0.0, 24.0)
 	add_child(goal)
 	goal.body_entered.connect(_on_reach_school)
 

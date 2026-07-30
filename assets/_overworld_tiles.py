@@ -258,6 +258,14 @@ TERRAIN_CLS = {
     "deckedge": "grass", "plankedge": "grass",
     "bough": "forest",
     "greattrunk": "grass", "liftdrum": "grass",
+    #  - a canopy BUILDING renders `deck`, and that is the one place these differ
+    #    from the ground town's `homeroof` / `cotWbody` family, which render grass.
+    #    A hut stands on the boardwalk, so the fabric under its footprint is boards:
+    #    `tree_hut` is deliberately smaller than its 6-cell footprint (the cone's
+    #    radius is fixed by its height), so a good half of those cells shows the
+    #    underlay, and grass showing through a plank deck reads as a hole in it.
+    "hutroof": "deck", "hutbody": "deck",
+    "shoproof": "deck", "shopbody": "deck",
     # the WINTER depth kit (2026-07-28): the same authored-column idiom on a
     # snow underlay, plus the chasm a trestle walkway spans. All three render
     # nothing but an underlay — TileScene.stamp_columns/place lay fully opaque
@@ -285,7 +293,11 @@ STRUCT_TERRAIN = {"well", "lamp", "stall", "fence", "town", "tree", "boulder",
                   # the canopy's fascia, the great trunks and the lift's crank
                   # drum — the same reason `cliff` is here: a face needs a
                   # contact shade on the ground at its foot or it floats
-                  "deckedge", "greattrunk", "liftdrum"}
+                  "deckedge", "greattrunk", "liftdrum",
+                  # a canopy building's contact shade lands on the BOARDS south of
+                  # it, which is the cue that says the hut is standing ON the deck
+                  # rather than pasted over it
+                  "hutbody", "shopbody"}
 # NOTE `berth` is deliberately absent: a contact shadow is a thing the ground
 # gets, and the launch's footprint is water.
 
@@ -407,6 +419,17 @@ class OverWorld(TileScene):
     def cls_at(self, tx, ty):
         ch = self.m.at(tx, ty)
         return self._cls[ch] if ch else None
+
+    def _shadeable(self, tx, ty):
+        """TileScene's hook: never bake a contact shadow into an ANIMATED cell.
+
+        Sea, river and lava are repainted per frame from the finished canvas, so a
+        shadow baked in frame 0 exists only in frame 0 and the cell strobes at 4Hz.
+        `_lower_frames` does catch it — it asserts frame 0 reproduces the still
+        canvas byte for byte — but only at finish(), and its message is about
+        purity rather than about which band walked into the creek. Alembic's low
+        fascia runs straight over the creek's head, so this is not hypothetical."""
+        return self.cls_at(tx, ty) not in ("sea", "river", "lava")
 
     def _water_distance(self):
         """Chebyshev tile distance to the nearest non-water cell (capped at 5):
