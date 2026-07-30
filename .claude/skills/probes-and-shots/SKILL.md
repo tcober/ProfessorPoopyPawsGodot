@@ -30,6 +30,8 @@ probe, or a `tools/shot.gd` screenshot.
 | `tools/party_probe.gd` | — | brain moods, no in-view pops, settle distances, and **phase 3: the leash ACROSS A FASCIA** — the one genuinely new systems risk in a stacked map. It checks the follower's STRATUM, not the distance: the distance passes even when the follower is stuck directly below the leader against the boardwalk |
 | `tools/overlay_probe.gd` | — | the paused-modal stack |
 | `tools/status_shot.gd` | — | poses the status tells and the mixing bench for eyeballing |
+| `tools/zwalk.gd` | — | **THE Z-ORDER WALKAROUND.** Derives every position in a scene where the layering doctrine can go wrong — pressed into a face band, in the NOTCH beside a band step, below a run's foot, around every Tier-3 prop — and tiles cropped frames into contact sheets. Add `lint` and it MEASURES instead: it recovers the body's visible silhouette at each spot (three captures, sprite hidden/shown/hidden, keeping pixels that changed in the middle frame AND agree in the outer two, which is what makes it immune to animated water and breathing windows) and asserts per family, exit 1 on any finding. It reads the props manifest for real art rects and sort keys, so legitimate walk-behind is not reported. Run it after ANY change to a map's bands, props or strata |
+| `tools/pngcrop.py` | — | pulls named cells back out of a zwalk contact sheet at native scale, magnified, with the sheet's own labels as captions — for when a sheet shows an outlier and you need to judge eleven pixels of coat-tail. stdlib-only PNG read/write |
 
 **`tools/party_probe.gd` must be re-run after anything that changes member movement
 speed** — the brain hysteresis bands are tuned to 150px/s.

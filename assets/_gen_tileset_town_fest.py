@@ -18,7 +18,7 @@ import os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from _alembic import build, FACES, T
+from _alembic import build, FACES, T, BAND_SALT, lantern_cells
 from _tilekit import GLOW_WARM as WARM, GLOW_MINT as MINTG
 from _overworld_tiles import OverWorld
 
@@ -52,6 +52,12 @@ def glow(tn, img):
                 for py in range(y * T, y * T + T):
                     for px in range(x * T, x * T + T):
                         img.put(px, py, (0, 0, 0, 0))
+    # The boardwalk's hanging lanterns are LIT EVEN BY DAY here, faintly — a
+    # festival is a thing you light lamps for in the afternoon, and it is the one
+    # warm note in an era whose light is otherwise all charm-mint.
+    for chars, salt in BAND_SALT.items():
+        for x, y in lantern_cells(m, chars, salt):
+            _blob(img, x * T + 8, y * T + 17, 8, WARM, 34)
 
 
 build("town_fest", "town_fest", glow, open_door=True)

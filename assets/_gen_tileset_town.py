@@ -16,7 +16,7 @@ import os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from _alembic import build, FACES, T
+from _alembic import build, FACES, T, BAND_SALT, lantern_cells
 from _tilekit import GLOW_WARM as WARM, GLOW_MINT as MINTG
 from _overworld_tiles import OverWorld
 
@@ -65,6 +65,13 @@ def glow(tn, img):
                     for px in range(x * T, x * T + T):
                         img.put(px, py, (0, 0, 0, 0))
     _blob(img, qx + 24, qy + 30, 7, WARM, 54)
+    # THE FASCIA LANTERNS, laid AFTER the clip pass for the same reason the lift
+    # car's dab is: the clip exists to stop light spilling down a face, and these
+    # lights are ON the face. Their columns are recomputed from stamp_columns' own
+    # hash, so a light can never end up on a column with no lantern under it.
+    for chars, salt in BAND_SALT.items():
+        for x, y in lantern_cells(m, chars, salt):
+            _blob(img, x * T + 8, y * T + 17, 10, WARM, 60)
 
 
 build("town", "town", glow)

@@ -2,13 +2,16 @@ extends TravelScene
 
 ## Alembic Town, walkable at zone scale — the Kakariko-style village the
 ## overworld's town icon opens into (see TravelScene for the shared machinery),
-## and since 2026-07-29 a TWO-STRATA CANOPY TOWN: the forest floor, the plank
-## boardwalk in the boughs above it, and the DINGHY LIFT joining them.
+## and since 2026-07-30 a FOUR-STOREY CANOPY VILLAGE: the Academy's cut-stone
+## terrace, the homes in the crowns (`canopy_hi`), the public town on the low
+## boardwalk (`canopy_lo`), and the forest floor — joined by a grand stone stair,
+## four rope ladders, two rope spans and the DINGHY LIFT below.
 ## Basil's open door travels down to the lab (downstairs); the shops, inn,
 ## neighbor cottages and the terrace's barred Academy announce in the banner;
-## the south lane exits to the overworld. The spawn is routed through
-## Game.town_spawn (read-and-clear; "home" = below Basil's door for the
-## downstairs front door, "" = the south gate, where the overworld drops you).
+## the south lane exits to the overworld, and a second mouth leaves east for
+## Act 1 beat 5b (authored in the grid, wired by nothing yet). The spawn is
+## routed through Game.town_spawn (read-and-clear; "home" = Basil's door up in
+## the crowns, "" = the south gate, where the overworld drops you).
 
 const MAP_PATH := "res://assets/maps/town.txt"
 const LAYOUT_PATH := "res://assets/tilesets/town_layout.txt"

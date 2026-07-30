@@ -797,7 +797,15 @@ def great_crown(f, bark, salt=451, w=96, h=48, lean=0.0):
 
 
 def tree_trunk(bark, ground, salt=401, cells=5, base=1, w=48):
-    """THE GREAT TRUNK — the structural column a canopy platform rests on, and
+    """SUPERSEDED BY `great_trunk` (2026-07-30) AND CALLED BY NOTHING. Kept as the
+    single-storey case: one trunk, one sprite, one y-sort key, a walkable crown
+    over a solid base. That is correct for a tree standing on ONE floor and it is
+    exactly what breaks on a stacked map — one sprite cannot depth-sort against
+    bodies on two storeys, and its walkable crown is the invisible-body defect the
+    walk-behind visibility lint now catches. Reach for `great_trunk` in any town
+    with more than one walkable storey.
+
+    THE GREAT TRUNK — the structural column a canopy platform rests on, and
     the piece the whole town is measured against: hard-banded bark, broken
     grooves, two burls, and BUTTRESS ROOTS flaring at the foot onto a ground
     contact shadow. The shaft runs clean off the canvas top, so it reads as
@@ -880,7 +888,14 @@ def tree_trunk(bark, ground, salt=401, cells=5, base=1, w=48):
 # ---- 2. THE CANOPY HOUSE -------------------------------------------------------------
 
 def tree_house(f, wall, deck, salt=411, composite=True, frames=8, wide=False):
-    """A CANOPY HOUSE — 80x64 over a 5x4 footprint, or 112x80 over 7x5 with
+    """SUPERSEDED BY `tree_hut` (2026-07-29) AND CALLED BY NOTHING. Kept because
+    it is the evidence for the doctrine below: this is Alembic's OWN language
+    (plaster, leaf-canopy roof, copper plumbing) lifted onto a boardwalk, and a row
+    of them read as a raised HIGH STREET, because the silhouette is still a
+    rectangular cottage. The structure was right and the BUILDING was wrong. Do not
+    reach for it for a canopy town; see `tree_hut` and the four cues.
+
+    A CANOPY HOUSE — 80x64 over a 5x4 footprint, or 112x80 over 7x5 with
     `wide`. The naturey-steampunk alchemist-botanist language, built for the
     boughs: an overgrown LIVING leaf-canopy roof with a copper flue venting
     through it, light-cement plaster walls on a TIMBER SILL PLATE and joists
@@ -1526,7 +1541,7 @@ def _edge_crest(sp, deck, f, x0, x1, salt, rail=True, post=7):
         _lash(sp, px_ - 1, px_ + 2, 2, across=False)   # seized to the beam
 
 
-def tree_edge(deck, f, salt=471, h=32, rail=True):
+def tree_edge(deck, f, salt=471, h=32, rail=True, lantern=False):
     """THE CANOPY EDGE — one 16 x `h` column of the fascia along a deck's south
     lip, stamped per vertical run by TileScene.stamp_columns. The timber twin of
     town_cliff, and the piece the whole "this is UP" read hangs on.
@@ -1626,6 +1641,28 @@ def tree_edge(deck, f, salt=471, h=32, rail=True):
         vx = 12 + h2(salt, 3, 7) % 2
         for vy in range(_EDGE_CREST, min(foot, ly + 4 + h2(salt, 4, 11) % 5)):
             sp.set(vx, vy, f[2] if (vy - _EDGE_CREST) % 3 else f[4])
+    if lantern:
+        # A CANDLE LANTERN ON A WROUGHT-IRON HOOK, swung under the nose. One
+        # variant in six carries it, so a boardwalk gets a light roughly every six
+        # tiles rather than a string of them — and the generator's glow pass
+        # recomputes the SAME hash to lay a warm dab on exactly these columns.
+        #
+        # It is the town's one piece of scholarly-trade dressing that costs no
+        # legend char and no manifest row: the fascia is already an authored
+        # per-column sprite, so the light hangs off the structure that is there.
+        # A lantern on a POST would have wanted a walkable mantle char per storey,
+        # and a mantle carries a stratum — which is how deck lamps fused two
+        # storeys the first time they were tried.
+        lx, ly2 = 8, _EDGE_CREST + 2
+        sp.set(lx, ly2 - 1, IRON[2])                   # the hook off the nose
+        sp.set(lx + 1, ly2 - 1, IRON[1])
+        sp.set(lx + 1, ly2, IRON[2])
+        sp.rect(lx - 1, ly2 + 1, lx + 2, ly2 + 1, BRASS[1])      # the cap
+        sp.rect(lx - 1, ly2 + 2, lx + 2, ly2 + 5, WARMD)         # the horn panes
+        sp.rect(lx, ly2 + 3, lx + 1, ly2 + 4, WARM)              # the flame
+        sp.rect(lx - 1, ly2 + 6, lx + 2, ly2 + 6, IRON[2])       # the base ring
+        sp.set(lx - 2, ly2 + 3, IRON[3])                         # the stays
+        sp.set(lx + 3, ly2 + 3, IRON[3])
     for y in range(h - 4, h):                          # the shade deepening to
         for x in range(16):                            # a near-black contact
             sp.set(x, y, deck[5] if y >= h - 2 else deck[4])

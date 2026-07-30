@@ -23,7 +23,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from _core import h2, lerp
 from _overworld_tiles import OverWorld, T
-from _tilekit import sprite_img, VOID
+from _tilekit import sprite_img, VOID, IRON
+from _culture_props import notice_board, PAPER_STOCK
 from _town_props import (town_cottage, town_academy, town_well, town_lamp,
                          town_stall, town_fountain, town_stairs, town_cliff,
                          town_cliff_return, town_tree, town_fence, bridge_fascia)
@@ -44,8 +45,8 @@ from _tree_props import (tree_edge, tree_edge_return, tree_span_edge, tree_hut,
 #   %     21-23     7-9       the high fascia it crosses  5 cols
 #   j     26-27     12-13     the shaft at canopy_lo      3 cols
 #   &     31-33     17-19     the low fascia it crosses   5 cols
-#   !     36-38     22-24     the foot + buttress roots   3 cols
-TRUNK_SPANS = [(3, 4), (7, 9), (12, 13), (17, 19), (22, 24)]
+#   !     34-36     20-22     the foot + buttress roots   3 cols
+TRUNK_SPANS = [(3, 4), (7, 9), (12, 13), (17, 19), (20, 22)]
 TRUNK_NAMES = [("J", "TrunkHi"), ("%", "TrunkHiFascia"), ("j", "TrunkLo"),
                ("&", "TrunkLoFascia"), ("!", "TrunkFoot")]
 TRUNK_W = 64
@@ -58,6 +59,29 @@ CROWN_W = 112              # wider than its channel, so the crown spills over th
 SHADERS = "v&Qaj!%JgC"
 # every char whose cell the night-glow must be WIPED off — see the clip pass
 FACES = "v&Qy%CajJ!"
+# stamp_columns picks its face variant with h2(tx, ty, salt) % len(sprites), and the
+# LAST variant is the one carrying a lantern. The glow pass repeats that arithmetic
+# rather than being handed a list, so the lights can never drift off the lanterns:
+# one source of truth, evaluated twice.
+LANTERN_OF = 6                     # variants per band
+BAND_SALT = {"y%": 53, "v&Q": 57}  # must match the stamp_columns calls below
+
+
+def lantern_cells(m, chars, salt):
+    """The (tx, ty) of every fascia column that got the lantern variant."""
+    out = []
+    for x in range(m.cols):
+        y = 0
+        while y < m.rows_n:
+            if m.at(x, y) in chars:
+                top = y
+                while m.at(x, y) in chars:
+                    y += 1
+                if h2(x, top, salt) % LANTERN_OF == LANTERN_OF - 1:
+                    out.append((x, top))
+            else:
+                y += 1
+    return out
 
 
 def shaded(ramp, t0=0.40, t1=0.12):
@@ -141,6 +165,14 @@ def build(map_name, scene_key, glow, open_door=False):
     tn.emit_prop("Well", "uU", sprite_img(town_well(STONE), 32, 32))
     tn.emit_prop("Lamp", "lL", sprite_img(town_lamp(), 16, 32), each=True)
     tn.emit_prop("Stall", "m", sprite_img(town_stall(), 48, 32))
+    # THE NOTICE BOARD, free-standing in the stair plaza. `bake_shadow(each=True)`
+    # per the builder's own contract: its contact band is deliberately NOT drawn
+    # into the sprite, and a merged bbox would smear one band across the gap
+    # between two boards (the hall-benches lesson).
+    tn.bake_shadow("*", 3, each=True)
+    tn.emit_prop("Notice", "*",
+                 sprite_img(notice_board(DECK, PAPER_STOCK, IRON), 48, 32),
+                 each=True)
     # the fences y-sort like everything a body can stand both sides of (2026-07-19):
     # F = the 3-cell orchard gate runs, G = the 5-cell run
     tn.emit_prop("Fence", "F", sprite_img(town_fence(3), 48, 16), each=True)
@@ -189,7 +221,12 @@ def build(map_name, scene_key, glow, open_door=False):
                  town_cliff_return(tn.ROCK, tn.GRASS, face=1, cap=True),
                  town_cliff_return(tn.ROCK, tn.GRASS, face=1, cap=False))
     tn.stamp_columns("C", cliffs, ret=cliff_ret)
-    edge3 = [tree_edge(FACE, FOL, salt=s, h=48) for s in (471, 473, 477)]
+    # SIX variants, and the sixth carries a hanging lantern — so a boardwalk edge
+    # gets a light roughly every six tiles instead of a string of them. The glow
+    # pass recomputes these same hashes (see LANTERN_VARIANTS) to put a warm dab on
+    # exactly the columns that have one.
+    edge3 = [tree_edge(FACE, FOL, salt=s, h=48) for s in (471, 473, 477, 479, 481)]
+    edge3.append(tree_edge(FACE, FOL, salt=483, h=48, lantern=True))
     ret3 = (tree_edge_return(FACE, FOL, face=-1, cap=True),
             tree_edge_return(FACE, FOL, face=-1, cap=False),
             tree_edge_return(FACE, FOL, face=1, cap=True),
@@ -342,7 +379,7 @@ def assert_all(tn, map_name):
     # every other check here.
     for chars, w, h, n in (("g", 5, 3, 5), ("J", 3, 2, 5), ("%", 5, 3, 5),
                            ("j", 3, 2, 5), ("&", 5, 3, 5), ("!", 3, 3, 5),
-                           ("c", 3, 3, 2), ("A", 3, 3, 1),
+                           ("c", 3, 3, 2), ("A", 3, 3, 1), ("*", 3, 2, 1),
                            ("hH3", 6, 5, 1), ("nN0", 6, 5, 2),
                            ("xX7", 6, 4, 1), ("pP8", 6, 4, 1), ("iI9", 6, 4, 1),
                            ("Tt^", 2, 3, 12)):
@@ -359,7 +396,11 @@ def assert_all(tn, map_name):
     # — that is what "you can walk the full circle around the tree" means, and it is
     # one mistyped cell away from a dead end nobody notices, because the deck still
     # looks continuous from the south where the player is standing.
-    for ch in ("J", "j", "!"):
+    # J and j ONLY. The foot has no ring and must not: it meets the low fascia
+    # directly, because two rows of open floor between them made every great tree
+    # read as a STUMP — and you cannot walk between a trunk and the structure
+    # behind it anyway. The raised circular walk belongs to the canopy storeys.
+    for ch in ("J", "j"):
         for c in tn.comps(ch):
             a, b, c2, d = tn.comp_bbox(c)
             ring = [(a - 1, b), (c2 + 1, b), (a - 1, d), (c2 + 1, d),

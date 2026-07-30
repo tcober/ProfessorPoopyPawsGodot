@@ -108,6 +108,7 @@ legend y deckedge solid
 legend f door walk stratum:canopy_hi
 legend g crown walk stratum:canopy_hi
 legend c boughtop walk stratum:canopy_hi
+legend * notice solid
 legend R plank walk stratum:canopy_hi
 legend E plankedge solid
 legend z ropeladder walk stratum:link
@@ -173,8 +174,8 @@ map
 ###gggggYY3333YYgggggYYRRRRYYgggggcccYYcccgggggYY0000YYgggggYY0000YY####
 ###gggggYhhhhhhYgggggYYRRRRYYgggggcccYYcccgggggYnnnnnnYgggggYnnnnnnY####
 ###gggggYhhhhhhYgggggYYEEEEYYgggggcccYYcccgggggYnnnnnnYgggggYnnnnnnY####
-###YJJJYYHHHHHHYYJJJYYYaaaaYYYJJJYYYYYYYYYYJJJYYNNNNNNYYJJJYYNNNNNNY####
-###YJJJYYHHfHHHYYJJJYYYaaaaYYYJJJYYYYYYYYYYJJJYYNNfNNNYYJJJYYNNfNNNY####
+###YJJJYYHHHHHHYYJJJYYYaaaaYYYJJJY***YYYYYYJJJYYNNNNNNYYJJJYYNNNNNNY####
+###YJJJYYHHfHHHYYJJJYYYaaaaYYYJJJY***YYYYYYJJJYYNNfNNNYYJJJYYNNfNNNY####
 ###YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY####
 ###YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY####
 ###%%%%%yzzyyyyy%%%%%yyyyyyyy%%%%%yyyyyyyy%%%%%yyyyyyyy%%%%%yyyyyzzy####
@@ -190,11 +191,11 @@ map
 ###&&&&&vZZvvvvv&&&&&vvvvvvvv&&&&&vvvvvvvv&&&&&vvvvvZZv&&&&&vvQQQvvv####
 ###&&&&&vZZvvvvv&&&&&vvvvvvvv&&&&&vvvvvvvv&&&&&vvvvvZZv&&&&&vvQQQvvv####
 ###&&&&&vZZvvvvv&&&&&vvvvvvvv&&&&&vvvvvvvv&&&&&vvvvvZZv&&&&&vvQQQvvv####
-###......................................r....................:::...####
-###......................................r....................+++...####
+###.!!!..........!!!..........!!!........r.!!!..........!!!...:::...####
+###.!!!..........!!!..........!!!........r.!!!..........!!!...+++...####
 ###.!!!.......^^.!!!.......^^.!!!...^^...r.!!!....^^....!!!......^^.####
-###.!!!.......TT.!!!.......TT.!!!...TT...r.!!!....TT....!!!......TT.####
-###.!!!.......tt.!!!.......tt.!!!...tt...r.!!!....tt....!!!......tt.####
+###...........TT...........TT.......TT...r........TT.............TT.####
+###...........tt...........tt.......tt...r........tt.............tt.####
 ###.....q444q........w555w........--.....r..........................####
 ###.....qqqqq........wwwww.^^.....--.....r.......^^.^^.......^^.....####
 ###.....11111........22222.TT..,,,--.OOO.=.......TT.TT.......TT.....####

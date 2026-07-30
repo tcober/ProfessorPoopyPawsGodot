@@ -2844,33 +2844,33 @@ driven by its `assets/maps/*.txt` file.
 	row of solid between two walkable rows has no assignment of those twelve pixels
 	that serves both bodies.
   - **THE TRUNKS ARE THE ARMATURE AND THE TOWN HANGS ON THEM (2026-07-30).** The
-    two-strata version was structurally correct and read as a RAISED HIGH STREET,
-    because a boardwalk was the biggest mass on screen. In both references the
-    TRUNKS are, and the buildings are subordinate to them. So the grid is authored
-    trunks-first: five great trees, each a **five-column channel**, and the town is
-    hung in the bays between them.
-    - **ONE SPRITE PER STOREY, because one sprite cannot depth-sort against bodies
-      on two storeys at once.** A Tier-3 prop carries ONE y-sort key — its
-      footprint's south edge — so a trunk with its foot on the forest floor draws
+	two-strata version was structurally correct and read as a RAISED HIGH STREET,
+	because a boardwalk was the biggest mass on screen. In both references the
+	TRUNKS are, and the buildings are subordinate to them. So the grid is authored
+	trunks-first: five great trees, each a **five-column channel**, and the town is
+	hung in the bays between them.
+	- **ONE SPRITE PER STOREY, because one sprite cannot depth-sort against bodies
+	  on two storeys at once.** A Tier-3 prop carries ONE y-sort key — its
+	  footprint's south edge — so a trunk with its foot on the forest floor draws
       over a body standing anywhere on either boardwalk above it. Behind an opaque
       shaft that is not depth, it is deletion. So a trunk is FIVE sprites cut from
       one virtual trunk (`_tree_props.great_trunk`), and the gaps between them are
       not missing art but the DECK, which is what a tree passing through a platform
       looks like from above: trunk, boards, trunk again.
-    - **THE RING DECK IS THE FEATURE.** The trunk's solid footprint is only the
-      middle three of its five columns, so the deck closes north, south, east and
-      west of every shaft and **you walk the full circle around every tree, passing
-      behind it**, on every walkable storey. That raised circular path is the single
-      most recognisable thing about Slitherbough and the Ewok village. It is also
-      why the channel is 5 wide and not 3 — a 3-col channel is all trunk, and a
-      trunk you cannot walk round is a pillar — and why there are five heavier
-      trunks rather than six thin ones, which read as a colonnade. `assert_all`
-      proves the ring: for every trunk, on every storey, the cells around the shaft
-      must be walkable and on ONE stratum. A ring is one mistyped cell from a dead
-      end nobody notices, because the deck still looks continuous from the south,
-      which is the side the player is standing on.
-    - **THE STAIR IS A LINK, NOT GROUND**, and that is what freed the layout. It
-      joins the Academy's forecourt to `canopy_hi`, so you reach the establishment
+	- **THE RING DECK IS THE FEATURE.** The trunk's solid footprint is only the
+	  middle three of its five columns, so the deck closes north, south, east and
+	  west of every shaft and **you walk the full circle around every tree, passing
+	  behind it**, on every walkable storey. That raised circular path is the single
+	  most recognisable thing about Slitherbough and the Ewok village. It is also
+	  why the channel is 5 wide and not 3 — a 3-col channel is all trunk, and a
+	  trunk you cannot walk round is a pillar — and why there are five heavier
+	  trunks rather than six thin ones, which read as a colonnade. `assert_all`
+	  proves the ring: for every trunk, on every storey, the cells around the shaft
+	  must be walkable and on ONE stratum. A ring is one mistyped cell from a dead
+	  end nobody notices, because the deck still looks continuous from the south,
+	  which is the side the player is standing on.
+	- **THE STAIR IS A LINK, NOT GROUND**, and that is what freed the layout. It
+	  joins the Academy's forecourt to `canopy_hi`, so you reach the establishment
       from the TOP of the town instead of from the lane — which means the ground no
       longer has to reach the Academy, so it no longer has to cut the map in two,
       so no storey is split into a west and an east network any more.
@@ -2879,10 +2879,10 @@ driven by its `assets/maps/*.txt` file.
 	layer it reads as *standing on the rail* (the 2026-07-19 fence lesson); as a
 	Tier-3 prop it is a whole new manifest family. Instead **draw the posts and the
 	lashed hemp handline into the fascia art's top 12px**, which `mask_band()`
-    already re-emits as a Tier-3 y-sorted strip keyed at `run_top - 8`. A body on
-    the deck pressed south is then drawn BEHIND the rail, a body in the notch
-    beside a step is not, and a body on the floor below is not — the three answers
-    the three bodies want, for free, from shipped code.
+	already re-emits as a Tier-3 y-sorted strip keyed at `run_top - 8`. A body on
+	the deck pressed south is then drawn BEHIND the rail, a body in the notch
+	beside a step is not, and a body on the floor below is not — the three answers
+	the three bodies want, for free, from shipped code.
   - **A ONE-ROW FASCIA GETS AUTHORED UPPER ART, NEVER A BAND** — a span's south row
 	is exactly the 1-row strip the mask-band rule forbids, so it takes
 	`_tree_props.tree_span_edge` on the upper layer (laid on the lower canvas too,
@@ -2890,27 +2890,27 @@ driven by its `assets/maps/*.txt` file.
 	`_lower_frames` repaints river cells per frame and asserts frame 0 is
 	byte-identical.
   - **THE ONE MACHINE IS JOINED BY CODE, NOT BY AUTHORING.** The dinghy lift's
-    shaft is SOLID and its ride is a scripted ~1.1s tween (`alembic_town.gd`, and
-    only there — the bright era wires no zones, so the Prologue takes no new risk).
-    A *cosmetic* lift that is mechanically one more link would need a walkable
-    shaft, and then you must answer what the floor of those cells is: there are no
-    treads and no ground, the honest art is nothing, and the player walks up a wall
-    with a boat overhead. The mechanism IS the motion. So the two landings are
-    walkable on their own strata behind a solid curtain with ZERO adjacency,
-    `assert_strata` is satisfied with no link at all, and the lift is the same
-    thing a door is — a scripted crossing of a wall. `assert_lift` proves at BUILD
-    TIME that the top landing is reachable with the shaft treated as impassable, so
-    riding up and reloading cannot strand you.
+	shaft is SOLID and its ride is a scripted ~1.1s tween (`alembic_town.gd`, and
+	only there — the bright era wires no zones, so the Prologue takes no new risk).
+	A *cosmetic* lift that is mechanically one more link would need a walkable
+	shaft, and then you must answer what the floor of those cells is: there are no
+	treads and no ground, the honest art is nothing, and the player walks up a wall
+	with a boat overhead. The mechanism IS the motion. So the two landings are
+	walkable on their own strata behind a solid curtain with ZERO adjacency,
+	`assert_strata` is satisfied with no link at all, and the lift is the same
+	thing a door is — a scripted crossing of a wall. `assert_lift` proves at BUILD
+	TIME that the top landing is reachable with the shaft treated as impassable, so
+	riding up and reloading cannot strand you.
   - **REJECTED: a two-scene split** (ground town / canopy town linked like
-    interiors). It doubles the byte-lock invariant from 2 grids to 4, and several
-    shipped Prologue beats span both halves in one unbroken playable stretch — so a
-    scene boundary mid-beat means a fade to black, and **a fade to black to climb a
-    ladder inside one town destroys the sense of place**, which is the entire reason
-    to build a treehouse town.
+	interiors). It doubles the byte-lock invariant from 2 grids to 4, and several
+	shipped Prologue beats span both halves in one unbroken playable stretch — so a
+	scene boundary mid-beat means a fade to black, and **a fade to black to climb a
+	ladder inside one town destroys the sense of place**, which is the entire reason
+	to build a treehouse town.
   - **REJECTED: a real per-body elevation system.** Per-cell level field, per-level
-    collision layers, per-body level state, a third static tile layer (so
-    `_tiles.py`, `write_layout`, `tiled_map.gd` and the layout format all change), a
-    3-D `assert_reachable`, level-awareness in both brains, in the leash teleport
+	collision layers, per-body level state, a third static tile layer (so
+	`_tiles.py`, `write_layout`, `tiled_map.gd` and the layout format all change), a
+	3-D `assert_reachable`, level-awareness in both brains, in the leash teleport
 	and in `theater.walk`, and a redo of `mask_band`'s `run_top - 8` derivation —
 	which is a **2-D y-sort result** with no per-level meaning. A rewrite of the
 	z-order doctrine, the tile pipeline, the collision builder, the party AI and the
@@ -2937,12 +2937,12 @@ driven by its `assets/maps/*.txt` file.
 	 a rim ellipse, and lay the reed RADIALLY from the peak (horizontal courses on
 	 a round roof read as a coil of rope). **The radius is solved backwards from
 	 the vertical room**, never chosen: a cone's proportions are fixed by its
-     height, and scaling it off the footprint width is exactly how the parasol
-     happened.
+	 height, and scaling it off the footprint width is exactly how the parasol
+	 happened.
   2. **THE BARREL.** The body curves in at both flanks, so the silhouette carries
-     no vertical edge anywhere — the precise opposite of a cottage.
+	 no vertical edge anywhere — the precise opposite of a cottage.
   3. **WOVEN, NOT BUILT.** Vertical withy staves between lashed hemp hoops. A hut
-     is made of the forest; a cottage is made of quarried and milled things. The
+	 is made of the forest; a cottage is made of quarried and milled things. The
 	 stave tone is a function of x ALONE — keyed on the barrel's curvature per row
 	 as well, it put a horizontal band across every course and the hut came out a
 	 barrel lying on its side.

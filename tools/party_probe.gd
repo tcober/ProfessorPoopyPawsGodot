@@ -117,10 +117,12 @@ func _run() -> void:
 	quit(0 if ok else 1)
 
 
-## PHASE 3 — THE LEASH ACROSS A FASCIA (2026-07-29, the two-strata town). The one
-## genuinely new systems risk in a stacked map: the follower walks with COLLISION,
-## so it cannot cross the boardwalk's fascia the way its leader can (up a ladder),
-## and `_follow` will happily push it into the underside of a storey forever.
+## PHASE 3 — THE LEASH ACROSS TWO FASCIAS (2026-07-29; four storeys 2026-07-30).
+## The one genuinely new systems risk in a stacked map: the follower walks with
+## COLLISION, so it cannot cross a boardwalk's fascia the way its leader can (up a
+## ladder), and `_follow` will happily push it into the underside of a storey
+## forever. Basil's door is on `canopy_hi` now, so this drops the follower all the
+## way to the forest floor and it has TWO fascias and a whole storey to climb.
 ##
 ## What must hold is that the OFF-SCREEN CATCH-UP TELEPORT resolves it — and that
 ## it resolves it by landing the follower on THE LEADER'S STOREY, because a warp
@@ -129,7 +131,9 @@ func _run() -> void:
 ## re-deriving: `_teleport_home` lands a step behind the LEADER, so the follower
 ## inherits whichever storey the leader is standing on by construction. The
 ## stratum is checked, not the distance alone, because the distance passes even
-## when the follower is stuck directly BELOW the leader against the fascia.
+## when the follower is stuck directly BELOW the leader against the fascia — and
+## it is compared against the LEADER's stratum rather than a spelled name, or the
+## check stops meaning anything the next time a storey is added.
 func _phase3_across_a_fascia() -> bool:
 	change_scene_to_file("res://scene/alembic_town.tscn")
 	for i in 20:

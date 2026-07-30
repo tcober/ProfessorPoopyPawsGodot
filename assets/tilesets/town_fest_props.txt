@@ -11,6 +11,7 @@ prop Fountain oO town_fest_fountain.png hframes=4
 prop Well uU town_fest_well.png
 prop Lamp lL town_fest_lamp.png each
 prop Stall m town_fest_stall.png
+prop Notice * town_fest_notice.png each
 prop Fence F town_fest_fence.png each
 prop FenceLong G town_fest_fencelong.png
 prop TrunkHi J town_fest_trunkhi.png each

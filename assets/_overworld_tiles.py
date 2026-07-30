@@ -266,6 +266,10 @@ TERRAIN_CLS = {
     #    underlay, and grass showing through a plank deck reads as a hole in it.
     "hutroof": "deck", "hutbody": "deck",
     "shoproof": "deck", "shopbody": "deck",
+    #  - the village NOTICE BOARD renders `deck` and is NOT a struct: it draws its
+    #    own posts in the round and the generator bakes its contact band with
+    #    bake_shadow(each=True), so a struct band here would double it.
+    "notice": "deck",
     # the WINTER depth kit (2026-07-28): the same authored-column idiom on a
     # snow underlay, plus the chasm a trestle walkway spans. All three render
     # nothing but an underlay — TileScene.stamp_columns/place lay fully opaque
