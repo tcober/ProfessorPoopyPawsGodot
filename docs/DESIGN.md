@@ -1483,8 +1483,9 @@ Markers in the live build:
   obelisk network survives as lore — one dark obelisk per landmass, the
   Act 2+ dungeon skeleton (see "Lore spine").
 
-**Alembic Town, walkable** (`scene/alembic_town.tscn`, 56×34 tiles — rebuilt
-from scratch 2026-07-11 as the Kakariko-style hub, LIVE in the flow) — the
+**Alembic Town, walkable** (`scene/alembic_town.tscn`, 72×48 tiles — rebuilt
+from scratch 2026-07-11 as the Kakariko-style hub, and again 2026-07-30 as the
+four-storey canopy village, LIVE in the flow) — the
 village at zone scale (48px player), riding the SAME OverWorld tile driver
 (tree borders = the forest class, lanes = the trail painter, fence class
 yards, sea+beach pond, a river stream with one bridge cell), composed
@@ -2388,7 +2389,7 @@ actually cycle; hand-drawn sheets can still drop in later against "Asset Specs" 
   TilesUpper + additive glow + the town/meadow/lanternwood markers) ·
   `scene/overworld_bright.gd/.tscn` (the byte-locked pre-Ebb twin —
   staging/screenshots only) ·
-  `scene/alembic_town.gd/.tscn` (56×34 TILED walkable town: same
+  `scene/alembic_town.gd/.tscn` (72×48 TILED walkable town, FOUR storeys: same
   stamp-and-anchor pattern with the full-scale party, door/announce markers
   + the south exit) ·
   `scene/lanternwood.gd/.tscn` (44×28 TILED walkable snow town on the same
@@ -2804,10 +2805,12 @@ driven by its `assets/maps/*.txt` file.
   legitimately sit under y-sorted sprites).
   Generator-side, `place_upper` asserts a non-empty upper sprite (no dead
   splits).
-- **STACKED WALKABLE STOREYS — the strata doctrine (2026-07-29, assert-enforced).**
-  Alembic Town is a **two-strata canopy town**: a forest floor, a plank boardwalk
-  in the boughs above it, and the Academy's stone terrace above that, all in ONE
-  56x34 grid. **There is no elevation system and there does not need to be one.**
+- **STACKED WALKABLE STOREYS — the strata doctrine (2026-07-29, assert-enforced;
+  four storeys since 2026-07-30).**
+  Alembic Town is a **four-storey canopy village** in ONE 72x48 grid: the
+  Academy's cut-stone terrace, over the HOMES in the crowns (`canopy_hi`), over
+  the PUBLIC TOWN on the low boardwalk (`canopy_lo`), over the forest floor.
+  **There is no elevation system and there does not need to be one.**
   The reason is not thrift, it is expressiveness: a cell is exactly one `(x, y)`
   with one legend char and one walk/solid bit, so a body is never
   "on-bridge-or-under-bridge" — there IS no cell under a bridge, the deck **is**
@@ -2840,6 +2843,37 @@ driven by its `assets/maps/*.txt` file.
 	ground on another storey. The `≥2` is the mask-band rule above, not taste: one
 	row of solid between two walkable rows has no assignment of those twelve pixels
 	that serves both bodies.
+  - **THE TRUNKS ARE THE ARMATURE AND THE TOWN HANGS ON THEM (2026-07-30).** The
+    two-strata version was structurally correct and read as a RAISED HIGH STREET,
+    because a boardwalk was the biggest mass on screen. In both references the
+    TRUNKS are, and the buildings are subordinate to them. So the grid is authored
+    trunks-first: five great trees, each a **five-column channel**, and the town is
+    hung in the bays between them.
+    - **ONE SPRITE PER STOREY, because one sprite cannot depth-sort against bodies
+      on two storeys at once.** A Tier-3 prop carries ONE y-sort key — its
+      footprint's south edge — so a trunk with its foot on the forest floor draws
+      over a body standing anywhere on either boardwalk above it. Behind an opaque
+      shaft that is not depth, it is deletion. So a trunk is FIVE sprites cut from
+      one virtual trunk (`_tree_props.great_trunk`), and the gaps between them are
+      not missing art but the DECK, which is what a tree passing through a platform
+      looks like from above: trunk, boards, trunk again.
+    - **THE RING DECK IS THE FEATURE.** The trunk's solid footprint is only the
+      middle three of its five columns, so the deck closes north, south, east and
+      west of every shaft and **you walk the full circle around every tree, passing
+      behind it**, on every walkable storey. That raised circular path is the single
+      most recognisable thing about Slitherbough and the Ewok village. It is also
+      why the channel is 5 wide and not 3 — a 3-col channel is all trunk, and a
+      trunk you cannot walk round is a pillar — and why there are five heavier
+      trunks rather than six thin ones, which read as a colonnade. `assert_all`
+      proves the ring: for every trunk, on every storey, the cells around the shaft
+      must be walkable and on ONE stratum. A ring is one mistyped cell from a dead
+      end nobody notices, because the deck still looks continuous from the south,
+      which is the side the player is standing on.
+    - **THE STAIR IS A LINK, NOT GROUND**, and that is what freed the layout. It
+      joins the Academy's forecourt to `canopy_hi`, so you reach the establishment
+      from the TOP of the town instead of from the lane — which means the ground no
+      longer has to reach the Academy, so it no longer has to cut the map in two,
+      so no storey is split into a west and an east network any more.
   - **THE MASK BAND IS THE RAILING.** Do not add a railing char. A rail on a
 	walkable deck cell fails two z-order lints by construction; baked on the lower
 	layer it reads as *standing on the rail* (the 2026-07-19 fence lesson); as a
@@ -2927,6 +2961,38 @@ driven by its `assets/maps/*.txt` file.
   The **GROUND** buildings keep Alembic's plaster-and-cement language on purpose:
   the old town on the forest floor, the woven canopy above it, and the two do not
   have to be the same town.
+- **A VERTICAL FACE MUST BE DARKER THAN THE SURFACE IT HANGS OFF (2026-07-30).**
+  The four-storey grid's first build was structurally perfect and came out a
+  **LUMBER YARD**: deck, fascias, porches and spans were all drawn from the one
+  `DECK` ramp, so three tiers of near-identical honey planks stacked into
+  horizontal stripes with no cue anywhere that one band was a floor and the next
+  was a wall you were standing on top of. Structure was right, VALUE was flat, and
+  no amount of extra detail would have fixed it. `_alembic.shaded()` is the whole
+  answer and it costs one ramp: the same timber pulled toward the void, **graded**
+  — hard at the light end, gentle at the dark — so the contrast lands on the turned
+  edge where an eye reads it, and the shadow end never silts up into the mud the
+  palette doctrine bans. Any kit that draws a floor and its own edge from one ramp
+  has this bug waiting in it.
+- **WALK-BEHIND IS ONLY LEGAL UNDER PERFORATED ART (2026-07-29, lint-enforced).**
+  A Tier-3 prop is y-sorted at its footprint's south edge, so **every walkable cell
+  inside its own footprint draws behind its art.** That is the walk-behind idiom
+  and it is the point of it — a tree crown, a lamp mantle, a leaf mass is partial
+  art and being half-hidden is what reads as depth. Under a CONTINUOUS OPAQUE MASS
+  it is not depth, it is deletion: Alembic's great tree carried a walkable crown
+  over its own 35px shaft and standing there left **zero visible pixels**. Nothing
+  was looking — every other assert reasons about cells and layers, never about
+  whether the pixels over a standable cell leave a body visible.
+  `_check_art.py`'s **walk-behind visibility** rule is the mirror of the T3
+  coverage rule (a SOLID footprint cell needs ≥20% art; a WALKABLE one must leave
+  ≥10% of the FIGURE showing) and it must be measured against the figure, not the
+  cell: per-cell coverage cannot separate the cases, since a trunk's centre column
+  and a bough's own leaf cell are both 100% of their 16×16 square, while against
+  the 22×38 body the two clusters part with fifteen points of daylight.
+  The fix is never to lower the threshold. **Retype it solid, or perforate the
+  art** — and perforate it LOW: the crown a ring deck passes under got eleven
+  evenly-scattered gaps and read as POLKA DOTS, where six ragged two-ellipse gaps
+  in its lower half read as the underside of a canopy, which is what you are in
+  fact looking at from a deck built inside one.
 - **`assets/_sprites.py`** — the sprite construction kit: `Sprite` canvas with
   steer-lit `ball`/`capsule`/`panel` volumes, cluster-jittered tone selection,
   `cluster_shade`/`despeckle`/`outline`/`crease` finishing passes, and `Rig`

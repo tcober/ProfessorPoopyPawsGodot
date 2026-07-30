@@ -176,11 +176,12 @@ that is the proof it is shared rather than forked.
 - The bluff's north drop is the other answer: a 1-row authored cliff-LIP band (ragged
   sunlit brow + dark crevice line, three salted 16×16 variants).
 
-## STACKED WALKABLE STOREYS — the strata kit (2026-07-29)
+## STACKED WALKABLE STOREYS — the strata kit (2026-07-29, four storeys 2026-07-30)
 
-Alembic Town has **two strata in one grid**: the forest floor and the plank boardwalk
-in the boughs above it (plus the Academy's stone terrace). Full statement:
-**docs/DESIGN.md → "STACKED WALKABLE STOREYS"**. What you need at the keyboard:
+Alembic Town has **four storeys in one 72×48 grid**: the Academy's stone terrace,
+the HOMES in the crowns (`canopy_hi`), the PUBLIC TOWN on the low boardwalk
+(`canopy_lo`), and the forest floor. Full statement: **docs/DESIGN.md → "STACKED
+WALKABLE STOREYS"**. What you need at the keyboard:
 
 **There is no elevation system.** A cell is one `(x,y)` with one walk/solid bit, so a
 body is never "on-bridge-or-under-bridge" — there is no cell *under* a bridge, the deck
@@ -234,6 +235,28 @@ gap every 4px and the whole boardwalk came out **brickwork**.
 rectangular cottages reads as a raised HIGH STREET. `tree_hut` is the treehouse building
 (Slitherbough / Ewok): a CONE over a woven BARREL on a PORCH, nested in a leaf mass,
 smaller than its footprint. See DESIGN.md for the four cues and why each is not optional.
+
+**AND THE TRUNKS MATTER MORE THAN EITHER (2026-07-30).** Author the trunks FIRST and
+hang the town in the bays between them; a boardwalk sprinkled with trunks afterwards is
+how the high street happened. Five great trees, each a **5-column channel** whose solid
+footprint is only the middle 3 — so the deck closes on all four sides and **you walk the
+full circle round every tree, passing behind it**, on every storey. That ring is the
+most recognisable thing about both references, and it is why a channel is 5 wide (a
+3-col channel is all trunk) and why five heavy trunks beat six thin ones (a colonnade).
+
+- **ONE SPRITE PER STOREY** — `_tree_props.great_trunk` slices one virtual trunk into
+  five segments, so bark, grooves and taper stay continuous and the seams fall where the
+  ring decks are. A single sprite carries ONE y-sort key, so it cannot depth-sort against
+  bodies on two storeys at once; keyed at its foot it draws over a body standing anywhere
+  above, and behind an opaque shaft that body is GONE, not "behind".
+- **THE INSETS ARE THE WHOLE TRICK.** The crown takes `top=0, base_inset=-16` so it
+  sorts SOUTH of a body on the ring's north arc (the leaves are in front of whoever is
+  walking behind the tree). The band-crossing segments take none: their footprint's
+  south edge already sits below a pressed body's origin, which is what makes the trunk
+  mask its own deck edge — so `mask_band` is called on the FASCIA chars only, never on
+  the trunk twins, or a strip prints fascia planking over the trunk.
+- **ASSERT THE RING.** It is one mistyped cell from a dead end nobody notices, because
+  the deck still looks continuous from the south, which is the side you stand on.
 
 ## Walk-behind trees
 

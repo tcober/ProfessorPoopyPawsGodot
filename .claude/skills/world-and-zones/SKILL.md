@@ -61,9 +61,14 @@ author it as one.)
 never sharing an anchor between travel and announce zones, flipping `target_scene` rather
 than adding a second zone — are in the `story-scenes` skill.**
 
-## Alembic Town (`scene/alembic_town.tscn`, 56×34)
+## Alembic Town (`scene/alembic_town.tscn`, 72×48)
 
-The Kakariko-style hub, rebuilt from scratch 2026-07-11.
+The Kakariko-style hub, rebuilt from scratch 2026-07-11 and again 2026-07-30 as a
+**four-storey canopy village**: the Academy's terrace, the homes in the crowns
+(`canopy_hi`), the public town on the low boardwalk (`canopy_lo`), and the forest
+floor. Five great trees are the armature and you can walk a full circle around each
+one. Load **map-authoring** before touching the grid; the doctrine is in DESIGN.md
+→ "STACKED WALKABLE STOREYS".
 
 - The barred **Academy** crowns a north cliff **terrace** on the central axis (authored
   16×32 cliff-face columns, 3 salted variants per column; a grand stone stair descends to
@@ -71,11 +76,11 @@ The Kakariko-style hub, rebuilt from scratch 2026-07-11.
 - A **fountain square** at the lane crossing — trail ring forks around the basin + brass
   alembic finial; a flask stall on the rim. (The stall is generic scenery — the Kitty
   stall canon was CUT 2026-07-18; her wheel workshop is off-screen and never seen.)
-- Weapons shop **"THE BRASS FANG"** + item shop **"THE CRACKED FLASK"** — **ONE shared
-  `town_shop` builder, SAME salt**, so only roof/sign/wares differ and the facade tiles
-  dedupe.
-- The two-story inn **"THE COPPER KETTLE"** by the stream bridge (river + sea/beach pond
-  classes at town scale).
+- Weapons shop **"THE BRASS FANG"**, item shop **"THE CRACKED FLASK"** (adult Sage's,
+  where Act 1 beat 4 happens) and the inn **"THE COPPER KETTLE"** — all three on
+  `canopy_lo`, **ONE shared `tree_hut` builder** with only the salt and the hanging
+  trade sign differing, so the facades dedupe. A trade is announced by its OBJECT
+  painted on a swinging board, never by lettering: there is no font at 16px.
 - Locked cottages around the well + a fenced garden, a fenced NE orchard, six
   walk-behind trees.
 - All shop / inn / cottage / school doors are **announce-only banners (caps-only font)**.

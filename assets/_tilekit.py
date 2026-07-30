@@ -533,9 +533,9 @@ class TileScene:
                 for st, cs in sorted(stranded.items())))
 
     # -- THE STRATA KIT (2026-07-29) ------------------------------------------------------
-    # A town with THREE walkable storeys in one 56x34 grid — a forest floor, the
-    # plank canopy over it, the Academy's stone terrace — needs no elevation
-    # feature, for the same reason the terrace kit above needs none. It needs the
+    # A town with FOUR walkable storeys in one 72x48 grid — a forest floor, the low
+    # boardwalk, the homes in the crowns, the Academy's stone terrace — needs no
+    # elevation feature, for the same reason the terrace kit above needs none. It needs the
     # storeys to be DISJOINT IN THE GRID, because a cell is exactly one (x, y)
     # with one walk/solid bit: disjoint, and two storeys are unambiguous and "a
     # bridge over walkable ground" is unrepresentable rather than merely

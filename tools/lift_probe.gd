@@ -45,10 +45,17 @@ func _run() -> void:
 	var map: Dictionary = scene.map
 	var up_px: Vector2 = MapData.anchor_px(map, "lift_up")
 	var down_px: Vector2 = MapData.anchor_px(map, "lift_down")
+	# WHICH canopy the lift serves is ASKED OF THE MAP, never spelled. This probe
+	# used to compare against the literal "canopy", which was true of the two-strata
+	# town and became unsatisfiable the moment the rebuild split the boardwalk into
+	# canopy_hi and canopy_lo — three checks failed at once and none of them was
+	# about the lift. What actually has to hold is that the two landings are on
+	# DIFFERENT storeys and the ride moves a body between exactly those two.
+	var CANOPY: String = MapData.stratum_at_px(map, down_px)
 	_check("lift_up stands on the forest floor",
 			MapData.stratum_at_px(map, up_px) == "ground")
-	_check("lift_down stands on the canopy",
-			MapData.stratum_at_px(map, down_px) == "canopy")
+	_check("lift_down stands on a canopy above it",
+			CANOPY != "" and CANOPY != "ground", CANOPY)
 
 	# ---- UP: the plaza landing -> the boardwalk ------------------------------
 	party.place(up_px)
@@ -59,10 +66,10 @@ func _run() -> void:
 			follower = m
 	await _settle(120)
 	_check("the ride up crosses to the canopy",
-			MapData.stratum_at_px(map, leader.global_position) == "canopy",
+			MapData.stratum_at_px(map, leader.global_position) == CANOPY,
 			str(leader.global_position))
 	_check("the ride up carries the follower",
-			MapData.stratum_at_px(map, follower.global_position) == "canopy",
+			MapData.stratum_at_px(map, follower.global_position) == CANOPY,
 			str(follower.global_position))
 	# R33 — an arrival must not re-fire the zone it lands in. It lands ON the
 	# destination anchor (the door convention), so what has to hold is that the

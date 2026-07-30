@@ -141,20 +141,31 @@ shipped "honest oil, honest fire" line. Flags `mayor_briefed` / `boat_ready` →
 stepping onto the pier casts off (`left_lanternwood`) and lands her on the overworld's
 new `landing` marker, Forest Land's west shingle, five cells from Alembic Town.
 
-**THE TREEHOUSE ALEMBIC (2026-07-29) — DONE.** Basil's origin town is a **two-strata
-canopy town**: the forest floor, the plank boardwalk in the boughs above it, four rope
-ladders, two rope spans and one scripted **dinghy lift**, all in the same 56×34 grid.
-There is no elevation system — a storey is a flat walkable region *disjoint in the
-grid*, and the whole "system" is the `stratum:` legend token plus the assert block at
-the tail of each town generator. The doctrine (why the two alternatives were rejected,
-the SPAN LAW, "the mask band IS the railing", the lift's solid shaft, and why a
-treehouse village reads from `tree_hut`'s silhouette and nothing else) is in
+**THE CANOPY ALEMBIC (2026-07-30) — DONE, and rebuilt once.** Basil's origin town is a
+**four-storey canopy village** in one 72×48 grid: the Academy's cut-stone terrace, the
+HOMES in the crowns (`canopy_hi`), the PUBLIC TOWN on the low boardwalk (`canopy_lo`),
+and the forest floor — joined by a grand stone stair (now a `link`), four rope ladders,
+two rope spans and one scripted **dinghy lift**. There is no elevation system — a storey
+is a flat walkable region *disjoint in the grid*, and the whole "system" is the
+`stratum:` legend token plus `_alembic.assert_all`.
+
+**THE TRUNKS ARE THE ARMATURE.** Five great trees, each a 5-column channel whose solid
+footprint is only the middle 3 — so the deck closes on all four sides and **you walk the
+full circle around every tree, passing behind it**, on every storey. Author trunks
+first and hang the town in the bays; the previous pass authored a boardwalk and
+sprinkled trunks into it, which is exactly how it came out a raised HIGH STREET. A trunk
+is FIVE sprites, one per storey, because one sprite cannot depth-sort against bodies on
+two storeys at once. The doctrine — the ring, the insets, the SPAN LAW, "the mask band
+IS the railing", the lift's solid shaft, why a vertical face must be darker than the
+surface it hangs off, and why walk-behind is only legal under perforated art — is in
 **DESIGN.md → "STACKED WALKABLE STOREYS"** and the `map-authoring` skill.
-Basil's house is UP: his door → the lab in the hollow → the bedroom in the fork, and
-the hermit is the one cat in town who stopped coming down. The doctor's clinic and the
-neighbour's cottage stay on the ground — you do not carry a cat who has been run over
-up a rope ladder — and they keep Alembic's plaster-and-cement language, so the town
-reads as an old ground village with a woven canopy grown over it.
+
+Basil's house is UP in the crowns: his door → the lab in the hollow → the bedroom in the
+fork, and the hermit is the one cat in town who stopped coming down. The doctor's clinic
+and the neighbour's cottage stay on the forest floor — you do not carry a cat who has
+been run over up a rope ladder — and they keep Alembic's plaster-and-cement language, so
+the town reads as an old ground village with a woven canopy grown over it. A second gate
+mouth leaves east at rows 42-43, authored for beat 5b and wired by nothing yet.
 
 Designed but NOT built — both live in Alembic Town, and the grids they were waiting on
 have now settled: **Act 1 beat 4 — ASKING AROUND**, where the wander gate is not a crowd

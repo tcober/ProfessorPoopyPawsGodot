@@ -141,15 +141,26 @@ func _phase3_across_a_fascia() -> bool:
 	for m in party.members:
 		if m != leader:
 			follower = m
-	# the leader on Basil's canopy deck, the follower on the forest floor below
+	# the leader on Basil's canopy deck, the follower on the forest floor below.
+	# +256 clears BOTH fascias and both boardwalks — Basil's door is on canopy_hi
+	# now, so the old +190 only fell as far as canopy_lo and the test quietly became
+	# "one storey down" instead of "all the way down", which is a strictly easier
+	# case for the teleport to get right.
 	leader.global_position = MapData.anchor_px(map, "home") + Vector2(0.0, 26.0)
-	follower.global_position = MapData.anchor_px(map, "home") + Vector2(0.0, 190.0)
+	follower.global_position = MapData.anchor_px(map, "home") + Vector2(0.0, 256.0)
 	for c in leader.get_children():
 		if c is Camera2D:
 			(c as Camera2D).reset_smoothing()
+	var want := MapData.stratum_at_px(map, leader.global_position)
+	var start := MapData.stratum_at_px(map, follower.global_position)
 	for i in 600:
 		await physics_frame
 	var st := MapData.stratum_at_px(map, follower.global_position)
 	var dist := follower.global_position.distance_to(leader.global_position)
-	print("phase-3 follower stratum: %s  dist %.1f  (PASS canopy, < 60)" % [st, dist])
-	return st == "canopy" and dist < 60.0
+	# ASKED OF THE MAP, not spelled: the point is that the follower ends up on THE
+	# LEADER'S storey, whatever it is called. Comparing against the literal "canopy"
+	# made this check unsatisfiable the moment the boardwalk split into canopy_hi and
+	# canopy_lo, and it failed for a reason that had nothing to do with the leash.
+	print("phase-3 follower %s -> %s (leader %s)  dist %.1f  (PASS same, < 60)"
+			% [start, st, want, dist])
+	return st == want and start != want and dist < 60.0
