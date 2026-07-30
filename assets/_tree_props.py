@@ -89,6 +89,24 @@ SHROOM = ((248, 242, 228, 255), (214, 204, 190, 255),    # bone-ivory caps — t
 # and two for the eave fringe's own shadow.
 THATCH = ((246, 222, 158, 255), (226, 190, 118, 255), (196, 154, 88, 255),
           (154, 112, 70, 255), (108, 74, 62, 255), (66, 44, 54, 255))
+# BARK — the fourth hand-pinned material, and the one with the most riding on it,
+# because a great trunk is the LARGEST SINGLE MASS in a canopy town's frame.
+#
+# The scene's own `trunk` seed is (52, 62, 118): a cold blue-violet, which is
+# correct for a distant conifer read against sky on the overworld and completely
+# wrong here. Run up to a 350px column it stops being a tree — a huge, smooth,
+# blue-grey cylinder is a STONE PIER, and six of them turn a village in the
+# boughs into a viaduct. The first preview of the armature was exactly that.
+#
+# So: honest warm brown, which the palette doctrine explicitly permits for wood,
+# with the darks pulled toward violet by hand so it still sits in a teal-biased
+# scene rather than glowing orange out of it. Six tones because a cylinder this
+# wide needs real midtone form — two lit bands, two turning, two in core shadow.
+# Kept clearly DARKER than DECK's honey (240/214/192 at the light end) so a trunk
+# never reads as more boardwalk where the two meet, which is the whole risk of
+# building both out of wood.
+BARK = ((178, 134, 96, 255), (148, 106, 76, 255), (118, 82, 64, 255),
+        (88, 60, 58, 255), (58, 40, 52, 255), (34, 24, 38, 255))
 
 
 # ---- shared sub-builders ------------------------------------------------------------
@@ -124,7 +142,7 @@ def _bark_index(t):
 
 
 def _shaft(sp, bark, cx, y0, y1, half0, half1, salt,
-           grooves=(0.13, 0.31, 0.52, 0.72, 0.89)):
+           grooves=(0.13, 0.31, 0.52, 0.72, 0.89), lean=0.0):
     """A hard-banded bark cylinder from y0 (half-width `half0`) to y1
     (`half1`), with broken vertical grooves at the given width fractions.
 
@@ -132,20 +150,35 @@ def _shaft(sp, bark, cx, y0, y1, half0, half1, salt,
     an unbroken 1px line down 80px of trunk reads as a seam in the art rather
     than as bark. Each groove sits two ramp steps under its own band, so a
     groove in the lit band stays lighter than the shadow band beside it and the
-    cylinder never loses its form to the texture."""
+    cylinder never loses its form to the texture.
+
+    `lean` slides the centreline by that many px from y0 to y1, so a tall trunk
+    can be off-plumb. Over the ~350px of a great trunk a dead-straight shaft
+    reads as a column, and six of them read as a colonnade."""
     span_y = max(1, y1 - y0)
     for y in range(y0, y1 + 1):
         u = (y - y0) / span_y
         half = half0 + (half1 - half0) * u
-        xl, xr = int(round(cx - half)), int(round(cx + half))
+        mid = cx + lean * u
+        xl, xr = int(round(mid - half)), int(round(mid + half))
         span = max(1, xr - xl)
         for x in range(xl, xr + 1):
             sp.set(x, y, bark[_bark_index((x - xl) / span)])
+        # BARK PLATES, not stripes. A groove that runs the whole height is a seam
+        # in the art; a groove broken into 6-10px staves with the breaks staggered
+        # per column is bark. The stagger comes from keying the hash on the groove
+        # index as well as the row band, so two neighbouring grooves never break on
+        # the same row and print a horizontal join across the trunk.
         for gi, gt in enumerate(grooves):
-            if h2(gi, y // 6, salt + 3) % 5 == 0:
+            if h2(gi, (y + gi * 3) // 7, salt + 3) % 4 == 0:
                 continue                               # the groove breaks
             k = _bark_index(gt)
-            sp.set(xl + int(round(span * gt)), y, bark[min(5, k + 2)])
+            gx = xl + int(round(span * gt))
+            sp.set(gx, y, bark[min(5, k + 2)])
+            # a 1px lit lip on the west side of each fissure, so the plate between
+            # two grooves turns rather than sitting flat
+            if h2(gi, y // 5, salt + 9) % 3:
+                sp.set(gx - 1, y, bark[max(0, k - 1)])
 
 
 def _leaf_mass(sp, f, lobes):
@@ -485,6 +518,232 @@ def _rail_v(sp, deck, y0, y1, x, salt, pitch=14, dip=1):
 
 
 # ---- 1. THE GREAT TRUNK --------------------------------------------------------------
+
+def great_trunk(bark, ground, spans, salt=401, w=48, lean=0.0):
+    """THE TRUNK ARMATURE — one great tree crossing a town of STACKED STOREYS,
+    returned as ONE IMG PER SEGMENT.
+
+    A treehouse village reads as one because the TRUNKS are the biggest mass in
+    frame and the buildings are subordinate to them (Slitherbough, Endor). That
+    needs a trunk tall enough to pass a boardwalk, and passing a boardwalk is
+    exactly where a single sprite stops working.
+
+    WHY THIS IS SLICED AND NOT ONE SPRITE, which is the whole reason this
+    function exists. A Tier-3 prop carries ONE y-sort key — its footprint's
+    south edge (scene/prop_spawner.gd) — so it draws over every body whose feet
+    line is north of that edge. A trunk with its foot on the forest floor
+    therefore draws over a body standing ANYWHERE on either boardwalk above it,
+    and since a trunk's shaft is an opaque ~35px mass in a 48px canvas, a body
+    on the deck cell behind it is not "behind" anything: it is GONE. That
+    shipped once, in the v1 canopy town, and `tools/zwalk.gd lint` measured it
+    at zero visible pixels on the great tree's own walkway.
+
+    ONE SPRITE CANNOT DEPTH-SORT AGAINST BODIES ON TWO STOREYS AT ONCE. So the
+    trunk is one sprite PER STOREY, each with the storey's own footprint, and
+    each storey's walking lane is authored SOUTH of its segment — where the
+    body's feet line is south of the segment's base line and the body is
+    unconditionally in front. The segments are cut from ONE virtual trunk, so
+    the bark bands, the grooves and the taper are continuous across them and the
+    seam is invisible; and the rows between segments are not missing art but the
+    DECK ITSELF, which is what a tree passing through a platform looks like from
+    above — trunk, boards, trunk again.
+
+    THE RING DECK IS WHY THE SEGMENTS ARE SHORT. Each storey's solid trunk
+    footprint is a compact block in the MIDDLE of a wider channel, so the deck
+    closes all the way around it — north, south, east and west — and you can walk
+    a full circle round the tree, passing BEHIND it, which is the single most
+    recognisable thing about both references. That works only because every one of
+    the trunk's own segments sorts SOUTH of a body on the ring's north arc: the
+    crown carries `base_inset=-16` and each band-crossing `-32`, so a body up
+    there is behind the leaves, behind the shaft below it and behind the fascia
+    above it, all at once. Get one of those insets wrong and the body pops in
+    front of the trunk it is standing behind.
+
+    `spans` — [(cell_from, cell_to), ...] INCLUSIVE, in the trunk's own cell
+    space where 0 is the top of the shaft, ordered top to bottom. The gaps
+    between spans are the ring decks and are deliberately not drawn: the boards
+    are what you see there, which is what a tree passing through a platform looks
+    like.
+    Returns one Img per span, each `w` wide and (to-from+1)*16 tall.
+
+    `lean` tilts the whole shaft by that many px from top to bottom. Six great
+    trees cut from one builder are six identical columns without it, and identical
+    columns read as ARCHITECTURE — which is the exact failure this rebuild exists
+    to undo. Keep it small (±5): the channel is only a tile wider than the shaft.
+
+    FOOTPRINT: `w // 16` cells wide per segment (3 at w=48) and EVERY CELL SOLID.
+    That is not a lost opportunity for walk-behind — it is the rule above: nothing
+    standable may sit under a continuous mass. Walk-behind belongs to the crown's
+    perforated leaves (`great_crown`) and to the 8px of shaft that overhangs the
+    ring's side arcs, both of which the visibility lint measures.
+    ANCHOR: `emit_prop(name, chars, img, each=True)`, one char per SEGMENT ROLE.
+    Band-crossing segments take `base_inset=-32` (see above); shaft and foot
+    slices take none.
+    COVERAGE: >= 50% on every cell of the shaft, 82% on the foot.
+    """
+    total = max(s[1] for s in spans) + 1
+    h = 16 * total
+    sp = S(w, h, salt)
+    cx0 = w / 2.0 - lean * 0.5
+
+    def cx_at(y):
+        return cx0 + lean * (y / float(max(1, h - 4)))
+
+    # The taper runs over the WHOLE trunk, not per segment — that is the point of
+    # building it once. A great tree is barely conical over 22 cells (2-3px), and
+    # that restraint is deliberate: a strong taper at this scale reads as a spike.
+    top_half, bot_half = w * 0.27, w * 0.335
+    cx = cx_at(h - 4)
+    sp.blob(cx, h - 3, w * 0.40, 2.8, ground[4])       # ground contact shadow,
+    sp.blob(cx, h - 2, w * 0.24, 1.8, ground[5])       # kept TIGHT (see below)
+    _shaft(sp, bark, cx0, 0, h - 4, top_half, bot_half, salt, lean=lean)
+    # BURLS up the whole length rather than the two `tree_trunk` puts near its
+    # foot: over 350px, two knots low down read as damage to the base instead of
+    # as the surface of a very old tree. Spaced on an irrational-ish stride so
+    # they never line up into a column, and alternating sides.
+    for i in range(7):
+        ky = h - 26 - int(i * h * 0.127) - (h2(i, 7, salt) % 11)
+        if ky < 8:
+            break
+        side = -1 if i % 2 else 1
+        r = 3.2 + (h2(i, 11, salt) % 5) * 0.42
+        kx = cx_at(ky) + side * (5.5 + i % 2)
+        sp.ball(kx, ky, r, r * 0.82, bark, sh=0.24, power=2.4)
+        sp.blob(kx, ky, r * 0.42, r * 0.34, bark[5])
+        sp.set(int(kx - r * 0.5), int(ky - r * 0.5), bark[1])
+    # HEALED BRANCH SCARS — one or two oval collars where a limb came off, on the
+    # side the burls are not. Over 350px of otherwise uniform bark these are what
+    # stop the shaft reading as a length of pipe: a burl is a lump, a scar is a
+    # piece of the tree's HISTORY, and at CT scale that difference is legible.
+    for i in range(2):
+        sy = int(h * (0.30 + 0.34 * i)) + (h2(i, 13, salt) % 13)
+        if sy < 14 or sy > h - 40:
+            continue
+        sx = cx_at(sy) + (7.0 if i % 2 else -7.0)
+        sp.ball(sx, sy, 4.6, 3.2, bark, sh=0.30, power=1.7)
+        sp.blob(sx, sy, 3.0, 1.9, bark[4])
+        sp.blob(sx, sy - 1, 2.2, 1.1, bark[5])
+        sp.set(int(sx - 2), int(sy - 2), bark[1])       # the lit upper lip
+    # BUTTRESS ROOTS, drawn AFTER the shaft (behind it they vanish into the
+    # contact shadow) so they read as fins standing in FRONT of the trunk and
+    # flaring out of it. Each is a wedge lit one step above the band it grows out
+    # of, with its own dark seat where it meets the ground — that seat is what
+    # plants it. Reach is capped so the flare stays clear of the canvas edge: a
+    # root cut off at x=0 gets an edge() outline down the column and reads as a
+    # crop rather than as a root.
+    for rx, rise, hwd, k in ((-1.00, 34, 8.0, 1), (-0.60, 24, 5.6, 0),
+                             (-0.26, 15, 4.0, 2), (1.00, 33, 8.0, 3),
+                             (0.62, 25, 5.6, 4), (0.28, 16, 4.0, 2)):
+        tipx = cx + rx * (bot_half + 9.0)
+        topy = h - 4 - rise
+        for y in range(topy, h - 3):
+            u = (y - topy) / float(max(1, h - 4 - topy))
+            xa = cx + rx * bot_half * 0.30
+            xb = xa + (tipx - xa) * (u ** 0.62)            # a splayed fin
+            hwy = 1.2 + (hwd - 1.2) * u
+            for x in range(int(round(min(xa, xb) - hwy * 0.2)),
+                           int(round(max(xa, xb) + hwy * 0.2)) + 1):
+                if abs(x - xb) <= hwy:
+                    sp.set(x, y, bark[k])
+            sp.set(int(round(xb - hwy)), y, bark[max(0, k - 1)])   # lit arris
+            sp.set(int(round(xb + hwy)), y, bark[min(5, k + 2)])
+        sp.set(int(round(tipx)), h - 4, bark[5])           # its seat
+        sp.set(int(round(tipx)) - 1, h - 4, bark[5])
+    edge(sp, h)
+    clipw(sp, w)
+    out = []
+    for c0, c1 in spans:
+        img = Img(w, (c1 - c0 + 1) * 16)
+        for y in range((c1 - c0 + 1) * 16):
+            for x in range(w):
+                p = sp.px[c0 * 16 + y][x]
+                if p:
+                    img.put(x, y, p)
+        out.append(img)
+    return out
+
+
+def great_crown(f, bark, salt=451, w=96, h=48, lean=0.0):
+    """THE CROWN a great trunk's top disappears into — the north arc of the ring
+    deck runs UNDER this, so it is the one piece of the tree a body is allowed to
+    stand inside.
+
+    Which makes PERFORATION load-bearing rather than decorative. The whole reason
+    the ring deck can pass behind the tree is that these leaves are lobes with
+    daylight between them; drawn as one solid mass this becomes the invisible-body
+    defect that `great_trunk`'s docstring is about. `_leaf_mass`' two-pass order
+    is what keeps the lobes reading separately, and the gaps at the lobe seams are
+    the gaps a body shows through.
+
+    WIDER THAN ITS CHANNEL on purpose (96px over a 4-cell footprint): the crown
+    spilling over the bays either side is most of what makes both references read
+    as villages nested in trees rather than as streets with trees on them.
+
+    FOOTPRINT: `w // 16` x `h // 16`, EVERY CELL WALKABLE — this is deck you walk
+    under leaves on.
+    ANCHOR: `emit_prop(name, chars, sprite_img(sp, w, h), top=0, base_inset=-16,
+    each=True)`. The `-16` is what pushes the sort key south of a body standing on
+    the north arc, so the leaves are in front of it. Without it the body walks
+    over its own canopy.
+    COVERAGE: ~62% of the figure hidden on the deepest cell — comfortably inside
+    the walk-behind visibility rule's 90% ceiling, and that margin IS the effect.
+    """
+    sp = S(w, h, salt)
+    r = max(9.0, h * 0.30)
+    cx = w / 2.0 + lean
+    # THE LIMBS FIRST, so the leaves close over them and the branches read as
+    # emerging THROUGH the canopy rather than lying on top of it. That ordering is
+    # the whole difference between a tree and a bush with sticks in it. Four of
+    # them at four heights and reaches, because two symmetric limbs read as a
+    # crossbar.
+    for sgn, ly, reach, rr in ((-1, 0.62, 0.42, 4.0), (1, 0.46, 0.36, 3.6),
+                               (-1, 0.34, 0.28, 3.0), (1, 0.74, 0.30, 3.2)):
+        sp.capsule(cx + sgn * 3, h * ly, cx + sgn * w * reach,
+                   h * (ly - 0.16), rr, 1.7, bark, end_sh=0.16)
+    # A DARK UNDER-RANK before the lit lobes: the leaves you see INTO. Without it
+    # a lobe cluster is a single sheet of one green and reads as bubble wrap, which
+    # is exactly what the first pass came out as. These are drawn low and wide and
+    # then mostly buried, so what survives is the daylight BETWEEN the lit lobes
+    # having something dark behind it — which is also what lets a body on the ring
+    # deck show through the gaps as a silhouette instead of a hole.
+    for i, (lx, ly, k) in enumerate(((0.30, 0.74, 0.92), (0.70, 0.78, 0.90),
+                                     (0.50, 0.66, 0.86), (0.14, 0.62, 0.72),
+                                     (0.86, 0.64, 0.74))):
+        sp.ball(w * lx, h * ly, r * k, r * k * 0.80,
+                (f[3], f[4], f[4], f[5], f[5], f[5]), sh=0.10, power=2.1)
+    # THE LIT LOBES, in three ranks. Radius keyed to the crown's HEIGHT and never
+    # stretched to fit the width — the law `_canopy_roof` states, for the same
+    # reason: a stretched lobe is an ellipse and a mass of ellipses is a bush. The
+    # sizes are deliberately UNEQUAL across a 0.72..1.34 range; equal lobes are the
+    # bubble-wrap failure however many you draw.
+    lobes = []
+    for i, (lx, ly, k, flat) in enumerate((
+            (0.48, 0.24, 1.34, 1.00), (0.24, 0.32, 0.88, 0.96),
+            (0.76, 0.30, 1.06, 0.98), (0.09, 0.54, 0.72, 0.88),
+            (0.91, 0.56, 0.80, 0.88), (0.36, 0.58, 1.14, 0.94),
+            (0.65, 0.62, 0.92, 0.92), (0.19, 0.78, 0.76, 0.80),
+            (0.82, 0.80, 0.70, 0.80), (0.52, 0.84, 0.98, 0.82))):
+        lobes.append((w * lx + (h2(i, 5, salt) % 3) - 1,
+                      h * ly + (h2(i, 3, salt) % 3) - 1,
+                      r * k, flat, 0.02 + 0.03 * (i % 4)))
+    _leaf_mass(sp, f, lobes)
+    _leaf_dabs(sp, f, 3, 3, w - 4, int(h * 0.92), salt, n=max(16, w // 3))
+    sp.blob(w * 0.32, h * 0.20, r * 0.42, r * 0.26, f[0])   # NW sun-catch
+    sp.set(int(w * 0.28), int(h * 0.14), SPEC)
+    # LEAF CLUSTERS ON THE LIMB TIPS. A limb that ends in a bare stub reads as
+    # broken; a small tuft at the end reads as a bough carrying foliage, and it is
+    # also what keeps the silhouette ragged out at the sides where the crown
+    # overhangs the bays.
+    for sgn, ly, reach in ((-1, 0.62, 0.42), (1, 0.46, 0.36), (1, 0.74, 0.30)):
+        tx, ty = cx + sgn * w * reach, h * (ly - 0.16)
+        sp.ball(tx, ty, r * 0.44, r * 0.38, f, sh=0.06, power=2.1)
+        sp.blob(tx + r * 0.05, ty + r * 0.18, r * 0.26, r * 0.11, f[4])
+        sp.blob(tx - r * 0.16, ty - r * 0.18, r * 0.14, r * 0.10, f[0])
+    sp.despeckle(2, 1)
+    edge(sp, h)
+    clipw(sp, w)
+    return sp
+
 
 def tree_trunk(bark, ground, salt=401, cells=5, base=1, w=48):
     """THE GREAT TRUNK — the structural column a canopy platform rests on, and

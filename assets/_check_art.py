@@ -344,6 +344,7 @@ for map_rel, props_rel in PROPS.items():
         detail = ""
         hframes = 1
         top = None
+        inset = 0
         each = False
         for opt in parts[4:]:
             if opt.startswith("hframes="):
@@ -352,7 +353,9 @@ for map_rel, props_rel in PROPS.items():
                 each = True
             elif opt.startswith("anchor=top:"):
                 top = int(opt.split(":", 1)[1])
-            elif not opt.startswith("base_inset="):
+            elif opt.startswith("base_inset="):
+                inset = int(opt.split("=", 1)[1])
+            else:
                 ok, detail = False, f"unknown option {opt!r}"
         chars = parts[2]
         if not any(ch in chars for row in mm.rows for ch in row):
@@ -363,7 +366,7 @@ for map_rel, props_rel in PROPS.items():
         if ok:
             T3_PROPS.setdefault(map_rel, []).append(
                 dict(name=parts[1], chars=chars, png=parts[3],
-                     top=top, hframes=hframes, each=each))
+                     top=top, inset=inset, hframes=hframes, each=each))
         check(f"assets/{props_rel}: {parts[1]}", ok, detail)
 
 
@@ -460,6 +463,96 @@ for map_rel, layers in LAYERS.items():
                                            (x, y + 1), (x, y - 1)))]
     check(f"{map_rel} no invisible walls", not bad,
           f"solid cells rendering as open ground at {sorted(bad)[:6]}")
+
+# ---- walk-behind visibility: the MIRROR of the T3 coverage rule (2026-07-29) ----------
+# A Tier-3 prop is y-sorted at its footprint's SOUTH edge (prop_spawner.gd:
+# sort_y = rect.end.y - base_inset - PLAYER_FEET; a body's key is body.y and its
+# feet draw at body.y + PLAYER_FEET). So the prop draws OVER any body whose feet
+# line is north of its base line — i.e. every WALKABLE cell inside a prop's own
+# footprint is drawn BEHIND that prop. That is the walk-behind idiom and it is
+# the whole point of it: a tree CROWN, a lamp MANTLE, a leaf mass is perforated
+# or partial art, and being partly hidden is exactly what reads as depth.
+#
+# It is a DEFECT when the art over that cell is an OPAQUE CONTINUOUS MASS,
+# because then the body doesn't read as "behind" — it is GONE. Measured in
+# town.txt: the great trunk is a ~35px shaft centred in a 48px canvas over a 3x5
+# footprint whose top two rows are the walkable `J` crown, so the footprint's
+# CENTRE column is 100% covered and a body standing there has ZERO visible
+# pixels (verified in-engine at cell (41,18)).
+#
+# THE MEASUREMENT IS THE FIGURE, NOT THE CELL, and it has to be: per-CELL
+# coverage cannot separate the two cases. Both the trunk's centre column AND the
+# bough leaves' own walkable cell measure 100% of their 16x16 square, so any
+# single-cell threshold either misses the trunk or condemns the leaves. Against
+# the 22x38 FIGURE the clusters part with 15 points of daylight — everything
+# that ships today hides <= 84.9% of a body (the trunk's own crown row at
+# (41,17) 84.9%, the bough leaves 84.1%, the library counter 75.5%, the
+# gateposts 72%, the conifer crowns <= 69.9%) and the defect hides 100.0%.
+#
+# The body is placed at MapData.cell_center — the position every anchor, spawn
+# and staged NPC actually lands one on a cell.
+PLAYER_FEET = 20        # scene/prop_spawner.gd: feet sit at node.y + 20
+T3_HIDE_MAX = 0.90      # a walkable footprint cell must leave >= 10% of a body
+                        # showing (measured ceiling of the legit walk-behinds:
+                        # 84.9%; the one true defect: 100.0%)
+
+
+def figure_px():
+    """Basil's planted idle_down silhouette as pixel offsets from his node
+    origin — the sheet's cell (0,0), the 22x38 figure inside the 48x48 cell.
+    Read rather than hard-coded so a redrawn cast re-measures itself."""
+    _, _, alpha = png_alpha("assets/basil_gen.png")
+    half = ZONE_CELL // 2
+    return [(x - half, y - half) for y in range(ZONE_CELL)
+            for x in range(ZONE_CELL) if alpha[y][x] > 0]
+
+
+def t3_hidden_cells(mm, props, figure):
+    """Walkable footprint cells where the prop's frame-0 art swallows more than
+    T3_HIDE_MAX of a body standing on them -> [(cell, prop_name, fraction)].
+    Placement math mirrors scene/prop_spawner.gd, base_inset included: it moves
+    the y-sort baseline (so it decides WHICH rows are walk-behind at all) but
+    never the art, which anchors on the footprint's south edge or anchor=top."""
+    out = []
+    for prop in props:
+        pw, ph, alpha = png_alpha(os.path.join("assets", "tilesets", prop["png"]))
+        fw = pw // prop["hframes"]
+        for comp in t3_components(mm, prop["chars"], prop["each"]):
+            x0 = min(c[0] for c in comp)
+            x1 = max(c[0] for c in comp)
+            y0 = min(c[1] for c in comp)
+            y1 = max(c[1] for c in comp)
+            ax0 = (x0 + x1 + 1) * ZONE_TILE / 2.0 - fw / 2.0
+            ay0 = y0 * ZONE_TILE + prop["top"] if prop["top"] is not None \
+                else (y1 + 1) * ZONE_TILE - ph
+            sort_y = (y1 + 1) * ZONE_TILE - prop["inset"] - PLAYER_FEET
+            for (cx, cy) in comp:
+                if mm.legend[mm.at(cx, cy)]["solid"]:
+                    continue
+                ox = cx * ZONE_TILE + ZONE_TILE / 2.0
+                oy = cy * ZONE_TILE + ZONE_TILE / 2.0
+                if oy >= sort_y:
+                    continue          # the body sorts in FRONT: nothing hidden
+                n = 0
+                for (dx, dy) in figure:
+                    sx, sy = int(ox + dx - ax0), int(oy + dy - ay0)
+                    if 0 <= sx < fw and 0 <= sy < ph and alpha[sy][sx] > 0:
+                        n += 1
+                frac = n / float(len(figure))
+                if frac > T3_HIDE_MAX:
+                    out.append(((cx, cy), prop["name"], frac))
+    return out
+
+
+print("walk-behind visibility:")
+FIGURE = figure_px()
+for map_rel in PROPS:
+    hidden = t3_hidden_cells(maps[map_rel], T3_PROPS.get(map_rel, []), FIGURE)
+    check(f"{map_rel} walk-behind cells keep a body visible", not hidden,
+          "opaque mass over walkable footprint cells "
+          + ", ".join(f"{c} {n} {f * 100:.0f}%" for c, n, f in sorted(hidden)[:6])
+          + " — retype it solid (and give it a walkable TWIN elsewhere if the "
+            "cell has to be crossed), or perforate the art")
 
 # ---- collision tileset ---------------------------------------------------------------
 print("collision tileset:")

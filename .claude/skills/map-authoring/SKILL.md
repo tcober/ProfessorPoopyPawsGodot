@@ -283,10 +283,24 @@ Fails the build on:
 6. **The INVISIBLE-WALL lint** — a pressable solid cell whose tile dedupes to open
    ground. Tier-3 manifest chars are exempt: solid map cells under y-sorted sprites are
    fine.
+7. **WALK-BEHIND VISIBILITY** — a walkable Tier-3 footprint cell whose frame-0 art hides
+   more than `T3_HIDE_MAX` of a body standing on it (see below).
 
 **The T3 coverage rule:** a prop footprint cell stays solid only if frame-0 art covers
 ≥20% of it — otherwise retype it to a walkable TWIN char with the same terrain name
 (town `O`/`U`/`L`, hall `l`). Paint stays byte-identical.
+
+**And its MIRROR — walk-behind visibility (2026-07-29):** a prop is y-sorted at its
+footprint's south edge, so *every walkable cell inside its own footprint is drawn behind
+it*. Fine for a perforated CROWN or MANTLE — being partly hidden is what reads as depth —
+but a **walkable cell under an opaque continuous mass makes the body vanish**, and lint 7
+fails it: `T3_HIDE_MAX = 0.90`, measured against the 22×38 figure at `cell_center`, not
+against the 16px cell (per-cell coverage can't tell a trunk from a leaf mass — both hit
+100%). Everything shipping hides ≤84.9%. **Fix = retype the cell solid, or perforate the
+art** — never lower the threshold. Currently FAILING on `town.txt`/`town_fest.txt` at
+`(41,18)`: the great trunk's 35px shaft erases anyone on the canopy walkway's centre `J`
+cell (100% hidden, 0 visible pixels in-engine). Known v1 defect, to be cured by the grid
+re-author.
 
 ## Sibling map grids are byte-locked
 
