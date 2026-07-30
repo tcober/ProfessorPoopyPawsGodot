@@ -29,6 +29,29 @@ const SHEET_MOUSE := preload("res://assets/npc_mouse_gen.png")
 ## stings before Basil wants to go home
 const GATE_TALKS := 3
 
+## ---- the goose theft's geometry (de-hardcoded 2026-07-29) -------------------
+## The swoop used to be four absolute pixel literals hand-tuned against this
+## grid — a start at (200,306), a snatch at (369,316), an exit at (700,292).
+## Every one of them silently depends on something the MAP owns (the square's
+## coordinates, sage_pos, the map's east/west extents), so a re-authored town
+## would have left the goose diving at empty air a tile from the ribbons and
+## teleporting in on camera. These are the same numbers expressed as offsets
+## from things the map still knows after it moves.
+##
+## Where the goose BODY must be for the cell pinned at its beak to sit on the
+## ribbon it is stealing (the carried sprite hangs at +12,+2 — see below).
+const BEAK_OFF := Vector2(-9.0, -2.0)
+## How far clear of the locked view's left/right edge the flight begins and
+## ends. A goose cell is 48px wide, so FLY_IN_CLEAR already puts the whole
+## sprite off-frame for the teleport in; the exit carries further because the
+## hidden orchard respawn happens behind it.
+const FLY_IN_CLEAR := 48.0
+const FLY_OUT_CLEAR := 68.0
+## The swoop's shape, measured UP from the snatch point: in a touch high, dip
+## through the ribbon, climb away steeper than it came.
+const FLY_IN_LIFT := 10.0
+const FLY_OUT_LIFT := 24.0
+
 var _talked := {}
 var _gate_hinted := false
 var _refusing := false
@@ -182,7 +205,13 @@ func _spawn_fountain_zone() -> void:
 	rect.size = Vector2(96.0, 96.0)       # the road ring around the basin
 	shape.shape = rect
 	zone.add_child(shape)
-	zone.position = Vector2(27.5 * 16.0, 21.5 * 16.0)   # the fountain's center
+	# The fountain's center, ASKED OF THE MAP (2026-07-29) instead of the old
+	# Vector2(27.5 * 16.0, 21.5 * 16.0). The basin is the o/O cells at rows
+	# 20-22, cols 26-28, so its bbox is (416,320,48,48) and the center is
+	# (440,344) — bit-for-bit what those two literals spelled out. The same
+	# rect _square_route already dog-legs around, so the trigger and the walk
+	# that answers it can no longer disagree about where the square is.
+	zone.position = MapData.bbox_rect(map, "oO").get_center()
 	add_child(zone)
 	zone.body_entered.connect(func(body: Node2D) -> void:
 		if body.is_in_group("player") and not Game.flag("prologue_festival_done"):
@@ -303,6 +332,13 @@ func _spawn_ribbons() -> void:
 				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		tw.tween_property(r, "offset:y", r.offset.y, 0.9 + 0.17 * i) \
 				.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+		# Stash the REST pixel of the art — origin plus the lift offset — for
+		# _goose_theft to aim at (2026-07-29). Stashed HERE, at spawn, and not
+		# read live at snatch time: the bob is mid-flight by then, so a live
+		# read would jitter the swoop by up to 5px on every playthrough. This
+		# one Vector2 is what ties the theft to sage_pos, and it is why the
+		# goose can no longer snatch thin air if the square is re-authored.
+		r.set_meta("rest", r.position + r.offset)
 		_ribbons.append(r)
 
 
@@ -322,6 +358,23 @@ func _square_route(from: Vector2, to: Vector2) -> Array:
 		pts.append(Vector2(ring_x, basin.end.y + 8.0))
 	pts.append(to)
 	return pts
+
+
+## The camera's LOCKED VIEW while a cutscene holds a body still — the window
+## anything staged off-camera has to clear. Every member's Camera2D is pinned to
+## the map rect by Party.clamp_cameras, so the visible window is the base
+## viewport (384x216, read from project settings — never a hardcoded 384) centred
+## on the parked body and slid back inside the map at the edges.
+##
+## Standing at basil_mark this returns Rect2(248, 284, 384, 216) — which is
+## exactly the "left edge ~x248, right ~x632" that _goose_theft's docstring used
+## to state as a fact about THIS grid and now derives about any grid.
+func _locked_view(at: Vector2) -> Rect2:
+	var view := MapData.view_size()
+	var span := MapData.size_px(map) - view
+	var top_left := (at - view * 0.5).clamp(
+			Vector2.ZERO, Vector2(maxf(span.x, 0.0), maxf(span.y, 0.0)))
+	return Rect2(top_left, view)
 
 
 # ---- the festival beat --------------------------------------------------------
@@ -381,28 +434,50 @@ func _festival_cutscene() -> void:
 ## snatched mid-glide — the SAME fx cell rides the beak and the orchard
 ## hide-out — and out past the east edge toward the bridge before anyone
 ## has finished blinking. Sage's reaction lands AFTER it's gone. Both
-## flight endpoints are outside the locked view (left edge ~x248, right
-## ~x632), so the teleport in and the hidden respawn are invisible.
+## flight endpoints are outside the locked view, so the teleport in and the
+## hidden respawn are invisible — and since 2026-07-29 that is TRUE BY
+## CONSTRUCTION rather than true of this grid: the endpoints are measured
+## outward from _locked_view() around the body the cutscene parked, and the
+## snatch is measured off the ribbon's own stashed rest pixel. This block was
+## the most brittle thing in the town, triple-coupled to sage_pos, to the
+## camera's window at basil_mark, and to the map's east/west extents; all
+## three of those couplings are now read at run time from the map.
 func _goose_theft() -> void:
 	var goose: NPC = _npcs["Goose"]
 	await theater.wait(0.6)               # the sulk hangs one beat
 	_goose_fly_clip(goose)
-	goose.global_position = Vector2(200.0, 306.0)
-	goose.sprite.play("fly")
-	goose.sprite.flip_h = true            # fly cells face LEFT; east = flipped
-	var rib: Sprite2D = _ribbons[0]       # the LOWEST ribbon — visual ~(378,318)
+	var rib: Sprite2D = _ribbons[0]       # the LOWEST of Sage's three
 	_ribbons.remove_at(0)                 # it's freed below — drop the dead ref
 	var cell := rib.frame
+	# THE SNATCH: the ribbon's rest pixel, backed off by where the beak carries
+	# its load. Was Vector2(369.0, 316.0), hand-matched to a ribbon that happened
+	# to hang at (378,318) because sage_pos happened to be cell (24,23) — the
+	# theft would desync the moment she moved. Reading rib's own rest instead
+	# means she can stand anywhere and the beak still crosses the ribbon.
+	var snatch: Vector2 = (rib.get_meta("rest") as Vector2) + BEAK_OFF
+	# THE FLIGHT: in from off-screen WEST, out past the east edge. Both x's are
+	# stepped outward from the locked view's own edges (was Vector2(200,306) in
+	# and Vector2(700,292) out — 48px and 68px clear of the x248/x632 this grid
+	# happens to produce); both y's hang off the snatch, so the dip stays a dip
+	# however high the ribbons float.
+	var view := _locked_view(player.global_position)
+	var from := Vector2(view.position.x - FLY_IN_CLEAR, snatch.y - FLY_IN_LIFT)
+	var to := Vector2(view.end.x + FLY_OUT_CLEAR, snatch.y - FLY_OUT_LIFT)
+	assert(from.x < view.position.x and to.x > view.end.x,
+			"the goose must enter and leave OFF-CAMERA")
+	goose.global_position = from
+	goose.sprite.play("fly")
+	goose.sprite.flip_h = true            # fly cells face LEFT; east = flipped
 	var tw := create_tween()
 	# glide in on a shallow dip so the beak crosses the ribbon's spot...
-	tw.tween_property(goose, "global_position", Vector2(369.0, 316.0), 0.75)
+	tw.tween_property(goose, "global_position", snatch, 0.75)
 	tw.tween_callback(func() -> void:
 		rib.queue_free()                  # its bob tween dies with it
 		var carried := WorldFx.sheet_sprite(FX_SHEET, cell)
 		carried.position = Vector2(12.0, 2.0)   # the flying beak height
 		goose.add_child(carried))
 	# ...and climbs out east past the frame, ribbon trailing
-	tw.tween_property(goose, "global_position", Vector2(700.0, 292.0), 1.5)
+	tw.tween_property(goose, "global_position", to, 1.5)
 	await tw.finished
 	await theater.wait(0.8)               # a beat; it is very gone
 	(_npcs["Sage"] as NPC).play_emote()

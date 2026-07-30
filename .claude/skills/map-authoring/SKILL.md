@@ -176,6 +176,65 @@ that is the proof it is shared rather than forked.
 - The bluff's north drop is the other answer: a 1-row authored cliff-LIP band (ragged
   sunlit brow + dark crevice line, three salted 16×16 variants).
 
+## STACKED WALKABLE STOREYS — the strata kit (2026-07-29)
+
+Alembic Town has **two strata in one grid**: the forest floor and the plank boardwalk
+in the boughs above it (plus the Academy's stone terrace). Full statement:
+**docs/DESIGN.md → "STACKED WALKABLE STOREYS"**. What you need at the keyboard:
+
+**There is no elevation system.** A cell is one `(x,y)` with one walk/solid bit, so a
+body is never "on-bridge-or-under-bridge" — there is no cell *under* a bridge, the deck
+IS the cell. Two storeys are unambiguous **iff disjoint in the grid**, which is exactly a
+terrace. The `stratum:<name>` legend token names the storey (default `ground`); `link` is
+the one stratum allowed to touch two others.
+
+**Author against the asserts and let them drive it — that is what they are for.** In
+`_tilekit.py`, all called from the generator's tail:
+
+- **`assert_strata`** — THE ONE THAT MATTERS. No two 4-adjacent walkable cells on
+  different strata unless one is a `link`, and every link component borders EXACTLY two
+  strata. **Every failure here is silent**: one mistyped cell fuses the canopy to the
+  floor and it renders, dedupes, lints clean and ships. `_check_art.py` re-runs the rule
+  off the shipped map txt, so a hand-edit with no regen still fails.
+- **`assert_span`** — THE SPAN LAW: a span is 2 rows deep, over a **≥2-row** solid run
+  whose top row carries fascia art, north boundary solid or its own storey, and never
+  4-adjacent to another storey's ground. **A span is a lid on a NAMED POSITIVE THING**
+  (`a` bough, `j` trunk, `r` creek, a building body) — never an absence.
+- **`assert_band_orientation(band, above, below)`** — a fascia IS the south edge of a
+  storey. Upside down or buried one row inside its own storey, it renders perfectly.
+- **`assert_stair(char, band, cells)`** — 2 wide, spans ALL the band's rows, landings
+  north and south. The band beside a flight must start at the flight's own top row, so
+  keep a ladder clear of a staircase STEP.
+- **`assert_door_approach(rows=2)`** — every door is entered from the south, on its own
+  stratum. A door in a canopy wall whose clear rows are two storeys down is a drop.
+- **`assert_lift(...)`** — clause 6 is the one that earns its keep: the top landing must
+  be reachable **with the shaft treated as impassable**.
+- **`assert_reachable(*anchors, full=True)`** — pass every anchor a body can arrive on.
+
+**THE MASK BAND IS THE RAILING.** Never add a railing char. Draw the posts and the hemp
+handline into the fascia art's **top 12px** — `mask_band()` re-emits exactly those as a
+Tier-3 strip keyed at `run_top - 8`, so a body at the deck edge is drawn behind the rail
+and a body in the notch or on the floor below is not. And on a lift band call
+`mask_band("v")`, **never `"vQ"`** — the unmasked gap at the shaft IS the lift gate.
+
+**A ONE-ROW fascia takes authored UPPER art, never a band** (`tree_span_edge`) — a 1-row
+solid strip between two walkable rows is forbidden outright above. Over water, upper-only.
+
+**The one machine is joined by CODE.** The lift's shaft is SOLID and the ride is a
+scripted tween wired in ONE scene. A walkable shaft would be a hole with no floor — the
+chasm failure verbatim.
+
+**Two rules the terrace kit gained with it:** the fascia builders are
+`_tree_props.tree_edge` / `tree_edge_return` (the timber twins of `town_cliff`), and the
+deck's plank fabric is `_px_deck` — `tree_platform`'s field, ported verbatim, 8px boards
+and TWO tones doing all the work. The first port laid four courses per tile with a dark
+gap every 4px and the whole boardwalk came out **brickwork**.
+
+**The building matters as much as the structure.** A raised boardwalk carrying
+rectangular cottages reads as a raised HIGH STREET. `tree_hut` is the treehouse building
+(Slitherbough / Ewok): a CONE over a woven BARREL on a PORCH, nested in a leaf mass,
+smaller than its footprint. See DESIGN.md for the four cues and why each is not optional.
+
 ## Walk-behind trees
 
 Conifer footprints are no longer fully solid. **The case of the char means CROWN vs

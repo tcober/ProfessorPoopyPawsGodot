@@ -4,12 +4,14 @@ prop FujiHome qQ lanternwood_fujihome.png hframes=8
 prop CabinA wW lanternwood_cabina.png hframes=8
 prop CabinB eE lanternwood_cabinb.png hframes=8
 prop CabinC zZ lanternwood_cabinc.png hframes=8
+prop MootHall vV lanternwood_moothall.png hframes=8
 prop ConiferTrunk Yy lanternwood_conifertrunk.png each
 prop ConiferCrown Yy lanternwood_conifercrown.png anchor=top:0 base_inset=-16 each
 prop BigConifer Pp lanternwood_bigconifer.png each
 prop Lamp lL lanternwood_lamp.png each
 prop GatePostW nN lanternwood_gatepostw.png each
 prop GatePostE mM lanternwood_gateposte.png each
+prop Launch b lanternwood_launch.png hframes=8
 mask lanternwood_maskC0.png 48 352 344
 mask lanternwood_maskC1.png 224 352 344
 mask lanternwood_maskC2.png 656 352 344

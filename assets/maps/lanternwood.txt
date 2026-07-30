@@ -1,4 +1,4 @@
-; LANTERNWOOD - 56x50 tiles (896x800 px): Fuji's hometown, REBUILT 2026-07-28
+; LANTERNWOOD - 56x51 tiles (896x816 px): Fuji's hometown, REBUILT 2026-07-28
 ; from a flat snow field into a NARSHE-style terraced mining town (FFVI).
 ; Verticality in this engine is AUTHORING, not a system, so all of the depth
 ; here is map structure. FIVE walkable levels, FOUR cliff bands, THREE band
@@ -12,8 +12,58 @@
 ;   rows 31-33  BAND C   - X, THREE rows. Stair s (cols 26-27)
 ;   rows 34-40  LEVEL 2  - Fuji's family home, the pond
 ;   rows 41-42  BAND D   - C, TWO rows. Stair S (cols 24-25)
-;   rows 43-47  LEVEL 1  - the gate
-;   rows 48-49  THE GATE MOUTH - two road cells cut through the pine border
+;   rows 43-48  LEVEL 1  - the gate, the MOOT HALL, and the harbour lane
+;   rows 49-50  THE GATE MOUTH - two road cells cut through the pine border
+;   cols 46-55  THE COVE (rows 41-50) - open water, the pier and the berth
+;
+; LEVEL 1 IS SIX ROWS DEEP, NOT FIVE, AND THAT IS NOT COSMETIC (2026-07-29).
+; The moot hall is FOUR rows tall on this terrace, so at five rows the harbour
+; lane past it was ONE cell of headroom at cols 33-39. An NPC is a StaticBody2D
+; with a 12x8 box in a 16px cell: anybody standing in a one-cell lane is a WALL,
+; not a squeeze. Mayor Hollis sealed the pier off completely just by walking out
+; of his own door, and the player could reach him and then have nowhere to go.
+; Six rows makes the lane two cells the whole way and there is now NO single
+; walkable cell anywhere on the map whose removal isolates the pier. If a
+; building is ever added to a terrace, check that number again: the rule is
+; footprint rows + 2, never footprint rows + 1.
+;
+; THE HARBOUR AND THE MOOT HALL (2026-07-29). Lanternwood is on an ocean-locked
+; island and its map had never once shown the ocean, which is a strange thing
+; for a town whose only way off the island is a boat. So the east end of LEVEL 1
+; is a COVE now: sea (~) from col 46 out to the map edge and from BAND D down
+; past the south border, so the water runs off-screen on two sides and reads as
+; ocean rather than as a pond. BAND D stops at col 45 and the terrace's east end
+; is a headland over the water; the sea shores against snow, which the driver
+; already draws as an ICE-SHELF LIP (_lip_band's "snow" pair) - the one shoreline
+; treatment a winter town wants and it was already written.
+;
+; Sea is SOLID, so the cove seals the map's east and south borders on its own -
+; no pine border needed out there, and the enclosure lint passes because the
+; only walkable border cells are still the two gate-mouth road cells.
+;
+; THE PIER (=) is a 7x2 WALKABLE deck of terrain class "dock" -> render class
+; `bridge`, which is in the driver's WATERC family, so no coastline forms
+; between the deck and the water it stands over. It is baked Tier-1 as ONE
+; opaque town_dock blit (the town_trestle/cliff-face idiom): a rail on a
+; walkable deck cell can never be upper-layer art, and the deck is walked along
+; its length so nothing autotiles it. Its west end butts the shore at col 45,
+; which is why LEVEL 1 now reaches col 45 and not 44.
+;
+; THE BERTH (b) is 6x2 SOLID cells of terrain class "berth" -> render class
+; `sea`, i.e. they paint as animated open water and the LAUNCH sits on them as
+; a Tier-3 y-sorted 8-frame prop. Two reasons it is sea and not more dock:
+; a boat moored on painted planks reads as a boat in a car park, and a body
+; standing on the deck's south row hangs ~11px of sprite over the cell below it
+; - which here is the launch, y-sorted SOUTH of the body, so the hull swallows
+; the overhang for free. That is the mask-band problem solved by composition.
+;
+; THE MOOT HALL (v/V) is the town council hall, on a cabin's 5x4 footprint at
+; cols 35-39 with its D cell one row south at the x-centre (col 37) - the same
+; roof/body/door arrangement as every cabin, so nothing new is needed of the
+; kit. It is on LEVEL 1 on purpose: the mayor sits between the gate and the
+; water, which is where a harbour town's clerk belongs, and it puts him exactly
+; where the player is standing when the defence of the lower street ends.
+; slime_b moved out of (36,44) because the hall now stands on it - see its anchor.
 ;
 ; THE SOUTH GATE (2026-07-29). Until now LEVEL 1 was an open snow field: the
 ; lane ran three cells past the stairs, stopped, and the exit trigger floated
@@ -106,8 +156,13 @@ legend N gatepost walk
 legend n gatepost solid
 legend M gatepost walk
 legend m gatepost solid
+legend ~ sea solid
+legend = dock walk
+legend b berth solid
+legend v mootroof solid
+legend V mootbody solid
 anchor player_start 24 44
-anchor exit_south 24 48
+anchor exit_south 24 49
 ; player_start sits TWO cells clear of exit_south, never one: $ExitSouth is a
 ; 32x16 rect centred on the anchor and a body`s collision box rides at its
 ; FEET, so a one-cell gap overlaps the trigger on spawn and the zone bounces
@@ -123,8 +178,17 @@ anchor villager_a 17 44
 anchor villager_b 29 45
 anchor villager_c 12 39
 anchor slime_a 30 39
-anchor slime_b 36 44
+; slime_b is the BIGSLIME, and a BigSlime needs a cell that is CLEAR, not merely
+; walkable: its box is wider than a slime's, so on row 48 - the terrace's last
+; row, with the pine border solid directly south - it depenetrated 7px north and
+; sat off its own anchor. One cell inboard and every neighbour open. Spawns are
+; explicit here precisely so nothing wanders; check the neighbours, not just the
+; cell, whenever one moves.
+anchor slime_b 32 47
 anchor slime_c 32 26
+anchor moot_hall 37 47
+anchor mayor_pos 41 45
+anchor dock 49 45
 map
 ########################################################
 ########################################################
@@ -167,12 +231,13 @@ map
 ######.QQQQQ.yy.pp..pp.YY.-.....oooo...yy...pp##########
 ######...D.............yy.-...................##########
 ######..................----..................##########
-###CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCCCCCCCC###
-###CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCCCCCCCC###
-#########.YY..PP........--.L.....PP......YY..###########
-#########.YY..PP....YY..--.l.....PP......YY..###########
-#########.YY..PP....YY.N--M......PP......YY..###########
-#########.yy..pp....YY.N--M......pp......yy..###########
-#########...........yy.n--m..................###########
-########################--##############################
-########################--##############################
+###CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCC~~~~~~~~~~
+###CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCC~~~~~~~~~~
+#########.YY..PP........--.L.....PPvvvvv......~~~~~~~~~~
+#########.YY..PP........--.l.....PPvvvvv......=======~~~
+#########.YY..PP....YY..--.......PPVVVVV......=======~~~
+#########.yy..pp....YY.N--M......ppVVVVV......~bbbbbb~~~
+#########...........YY.N--M..........D........~bbbbbb~~~
+#########...........yy.n--m...................~~~~~~~~~~
+########################--####################~~~~~~~~~~
+########################--####################~~~~~~~~~~

@@ -180,6 +180,19 @@ TERRAIN_CLS = {
     "cabAbody": "snow", "cabAroof": "snow",
     "cabBbody": "snow", "cabBroof": "snow",
     "cabCbody": "snow", "cabCroof": "snow",
+    "mootroof": "snow", "mootbody": "snow",
+    # THE HARBOUR (2026-07-29). Two names, and the render class each one picks
+    # is the whole design:
+    #  - `dock` renders `bridge`, which is in WATERC, so no coastline forms
+    #    between the walkable pier deck and the water it stands over — the same
+    #    reason Alembic's stream bridge is its own class. It is also NOT in
+    #    _lower_frames' animated set, so the deck stays static while the cove
+    #    around it swells.
+    #  - `berth` renders `sea`: the launch's footprint cells are SOLID but must
+    #    paint as open animated water, because a boat moored on painted planks
+    #    reads as a boat in a car park. The hull is a Tier-3 y-sorted prop over
+    #    the top of them.
+    "dock": "bridge", "berth": "sea",
     "well": "grass", "lamp": "grass", "stall": "grass",
     "town": "grass", "tree": "grass", "boulder": "grass",
     # landmark props render their region's fabric as underlay: the castle
@@ -206,6 +219,45 @@ TERRAIN_CLS = {
     # fountain on plaza paving, walk-behind trees (canopy walk / trunk solid)
     "cliff": "grass", "stairs": "road", "fountain": "grass",
     "treecanopy": "grass", "treetrunk": "grass",
+    # THE CANOPY STRATUM (2026-07-29) — a treehouse town's plank boardwalk as a
+    # second walkable STOREY in the same grid (see assets/_maps.py's `stratum:`
+    # token and TileScene.assert_strata). Which render class each name picks IS
+    # the design, exactly as it was for the harbour below:
+    #  - the walking surface and everything cut into it render `deck`, the plank
+    #    fabric: `plank` is the plain boardwalk, `trunkstair` the steps notched
+    #    around a trunk, `boughtop`/`crown` the platforms decked out over a
+    #    limb. All four are ONE fabric on purpose — a treehouse town is built
+    #    out of one carpenter's boards, and four near-identical fabrics would
+    #    quadruple the atlas for a difference nobody can see at CT zoom.
+    #  - `deckedge`/`plankedge` render `grass` and are STRUCTS: they are the
+    #    FASCIA, the solid south lip of the canopy, and like `cliff` they exist
+    #    only to give the cell a plausible underlay and a name of its own before
+    #    stamp_columns lays fully opaque face art over the top. Being a struct
+    #    is what buys the contact-shade band on the forest floor at the fascia's
+    #    foot (see _ground_overlays) for free. Only `deckedge` is a struct:
+    #    `plankedge` is its silhouette-fit TWIN (the O/U/L idiom) for a fascia
+    #    cell the art barely covers, and a twin is retyped precisely because a
+    #    body stands there — a walkable cell must not also cast a wall's shadow.
+    #  - `bough` renders `forest`: a limb thick enough to walk out on is canopy
+    #    mass, and the forest class's lobe lattice already IS a crown seen from
+    #    above — a bough that rendered planks would read as more boardwalk.
+    #  - `greattrunk` renders `grass` and is a struct: a trunk is drawn by an
+    #    opaque Tier-3 sprite, so the cell only needs an underlay and a shadow.
+    #  - `ropeladder` renders `deck` too, and NOT `road` the way the stone
+    #    `stairs` does. A stair pierces a terrace of earth and the trail
+    #    painter's ribbon should run up through it; a rope ladder hangs on
+    #    timber, and a dirt path must not run up a tree. It is not a struct: the
+    #    ladder art is fully opaque over both its cells, so there is nothing for
+    #    an underlay or a contact band to do.
+    #  - `liftdrum` renders `grass` and IS a struct, the `gatepost` / `snowlamp`
+    #    arrangement: ONE terrain name worn by a walkable crown char and a solid
+    #    works char, so the drum pinches its landing without walling it off, and
+    #    the struct band grounds the machine on the plaza south of it.
+    "deck": "deck", "plank": "deck", "trunkstair": "deck",
+    "boughtop": "deck", "crown": "deck", "ropeladder": "deck",
+    "deckedge": "grass", "plankedge": "grass",
+    "bough": "forest",
+    "greattrunk": "grass", "liftdrum": "grass",
     # the WINTER depth kit (2026-07-28): the same authored-column idiom on a
     # snow underlay, plus the chasm a trestle walkway spans. All three render
     # nothing but an underlay — TileScene.stamp_columns/place lay fully opaque
@@ -228,12 +280,38 @@ STRUCT_TERRAIN = {"well", "lamp", "stall", "fence", "town", "tree", "boulder",
                   "lanternwood", "bigmountain", "snowlamp", "gatepost",
                   "conifer", "conifer2",
                   "fujibody", "librarybody", "cabAbody", "cabBbody", "cabCbody",
-                  "snowcliff", "chasm"}
+                  "mootbody",
+                  "snowcliff", "chasm",
+                  # the canopy's fascia, the great trunks and the lift's crank
+                  # drum — the same reason `cliff` is here: a face needs a
+                  # contact shade on the ground at its foot or it floats
+                  "deckedge", "greattrunk", "liftdrum"}
+# NOTE `berth` is deliberately absent: a contact shadow is a thing the ground
+# gets, and the launch's footprint is water.
 
 WATERC = {"sea", "river", "bridge"}     # no coastline forms inside this family
 GRASSY = {"grass", "hills", "flowers"}
 ROADY = {"road"}
-PLAINC = {"snow", "desert", "basalt"}   # grassy-style pure-fabric non-owners
+PLAINC = {"snow", "desert", "basalt", "deck"}   # grassy-style pure-fabric
+#                                                 non-owners
+# `deck` joins them, and every membership that follows from it is wanted:
+#   * PLAINC — the boardwalk OWNS NO BOUNDARY. It never paints a transition band
+#     against anything: its south edge is the authored opaque fascia art and its
+#     other three edges are boughs, trunks or more deck. Same standing as
+#     `snowcliff`, whose cells are pure snow under a stamped face.
+#   * GROUND (via PLAINC) — it is ground you walk on, and two things need that.
+#     A `bough` (forest class) beside a deck cell rims against it, so the crown
+#     lobes' silhouette lands over the planks instead of stopping at the tile
+#     line; and a `greattrunk` rising THROUGH the boardwalk drops its struct
+#     contact shade onto the boards, which is the one cue that says the trunk
+#     comes up out of them rather than sitting on them.
+#   * MOUNT_OWN / LANDC (via GROUND) — both read "what a non-ground class opens
+#     onto", and a deck is something they can open onto. Water shoring against a
+#     boardwalk is not a case any map has yet, but if one authors it a plank lip
+#     is the right answer and _lip_band carries a "deck" pair for it. Note this
+#     is the OPPOSITE call from the harbour's `dock`, which renders `bridge`
+#     (inside WATERC) specifically SO no coastline forms — a pier stands OVER
+#     the water it crosses, where a canopy walk stands over dry land.
 GROUND = {"grass", "hills", "flowers", "beach", "waste", "road"} | PLAINC
 MOUNT_OWN = GROUND | {"forest", "pines"}   # what a massif rim opens onto
 LANDC = GROUND | {"forest", "mountain", "pines"}   # what a water cell shores
@@ -274,6 +352,17 @@ class OverWorld(TileScene):
                                                            # darks would kill the
                                                            # incandescence
         self.PINES = self.mat("pines", spread=1.2)         # winter blue-spruce
+        # THE BOARDWALK'S TIMBER (2026-07-29). The scene's own `timber` when it
+        # has one — Lanternwood does, and a scene that wants to colour-script
+        # its canopy adds one and this picks it up — else the module-level
+        # TIMBER, "one hardware store for the whole game". Deliberately NOT
+        # self.BRIDGE: that seed is a stone-and-plank river crossing, flattened
+        # to spread 0.85 because Alembic's deck is one cell wide, where a canopy
+        # boardwalk is the single largest fabric in its town and needs the full
+        # range to hold plank-to-plank tone steps apart.
+        self.DECK = self.mat("timber", spread=1.1) \
+            if "timber" in self.mats or "timber" in self.scene.get("ramps", {}) \
+            else list(TIMBER)
         self.road_verge = "grass"       # what a trail's shoulders render — the
                                         # Lanternwood generator sets "snow"
         self.PINK = (255, 116, 176, 255)                   # meadow flower hot-pink
@@ -542,6 +631,63 @@ class OverWorld(TileScene):
         # rows and pebbles read against it instead of drowning in grain
         return _grain_dither((d[1], d[2], d[2]), 0.5, w, z, 87,
                              grain=3, jitter=0.7)
+
+    def _px_deck(self, u, v, phase=0):
+        """The canopy boardwalk: the walkable surface of a treehouse town's
+        `deck` stratum, laid in courses of plank.
+
+        BOARDS RUN EAST-WEST, ACROSS the direction of travel, for the reason
+        town_trestle spells out at length — a walkway is crossed along its
+        length, and boards laid the way you walk read as rails, not as a floor.
+
+        THIS IS `_tree_props.tree_platform`'S PLANK FIELD, PORTED VERBATIM
+        (2026-07-29), and the first pass was not. That one laid FOUR courses per
+        tile — a lit arris, two face rows and a two-step-dark gap, every 4px —
+        plus per-course tone hashes, per-course butt joints and grain dither on
+        top. Rendered at 4x over a whole platform it came out unmistakably a
+        BRICK WALL: exactly the failure tree_platform's own docstring records
+        having already made and fixed, in prose, one module away. So take the
+        fixed version:
+
+          * EIGHT-PIXEL BOARDS, two per tile, and TWO TONES doing all the work —
+            board A on d[1], board B on d[2]. A floor seen from above is nearly
+            flat: long boards, a hard seam between them, and nothing else.
+          * ONE seam row per board and ONE lit crown, on board A only. Giving
+            every board a crown AND a turned far edge is four values across 8
+            rows, which is what built the wall.
+          * THE FIELD IS DRAWN FROM THE RAMP'S LIT END. In a top-down scene the
+            horizontal surfaces are the ones facing the light, so the floor must
+            be the lightest wood on screen; pitched at the timber's mid tones it
+            reads as a vertical wall of planks whatever the seams do.
+          * butt joints and knots stay RARE — one of each per 32x32 block, on
+            alternating board pairs, which is the running bond that says "laid"
+            without patterning.
+
+        A PURE FUNCTION OF (u, v, phase) AND NEVER OF ABSOLUTE POSITION. That is
+        the dedupe contract, and a deck is where breaking it would cost the
+        most: keyed on tx/ty, every cell of the largest fabric in the town would
+        take an atlas tile of its own. Keyed on phase, the whole boardwalk is
+        FOUR tiles.
+
+        And the phase is spent on a 64-WIDE SPACE, not the usual 32: the board
+        pattern is 16-periodic in v, so `phase >> 1` buys nothing vertically and
+        would be wasted, while tree_platform's butt joints are on a 64px stagger
+        and the first port squeezed them into 32 — twice the density, and with a
+        seam every 8px above them the deck came out brickwork again. Both phase
+        bits go into x and the joints land exactly where the kit drew them."""
+        d = self.DECK
+        w = u + 16 * (phase & 1) + 32 * (phase >> 1)   # a 64-wide plank space
+        b, r = (v % 16) // 8, v % 8            # which 8px board, and its row
+        base = d[1] if b == 0 else d[2]
+        c = (d[3] if b == 0 else d[4]) if r == 0 \
+            else d[0] if (r == 1 and b == 0) else base
+        if r == 0 and h2(w, v, 58) % 31 == 0:
+            return self.GRASS[3]               # moss creeping a seam
+        if w % 64 == b * 32 + 9:
+            return d[3]                        # this board's butt joint
+        if r in (3, 4) and w % 48 == b * 24 + 17:
+            return d[3]                        # one knot in a board's face
+        return c
 
     # 16-periodic canopy GEOMETRY: two staggered rows of chunky crowns per
     # tile (row pitch 8), painter-sorted south-over-north so each row's lit
@@ -909,6 +1055,8 @@ class OverWorld(TileScene):
             return self._px_basalt(u, v)
         if cls == "pines":
             return self._px_pines(u, v)
+        if cls == "deck":
+            return self._px_deck(u, v)
         return self._px_grass(u, v)
 
     def _lip_band(self, cls, s2, u, v):
@@ -922,7 +1070,8 @@ class OverWorld(TileScene):
                      "snow": (self.SNOW[2], self.SNOW[3]),      # ice-shelf lip
                      "desert": (self.DESERT[2], self.DESERT[3]),
                      "basalt": (self.BASALT[2], self.BASALT[3]),
-                     "pines": (self.PINES[3], self.PINES[4])}.get(
+                     "pines": (self.PINES[3], self.PINES[4]),
+                     "deck": (self.DECK[4], self.DECK[5])}.get(
                          cls, (self.GRASS[4], self.GRASS[5]))
         t = max(0.0, min(1.0, (s2 + 2) / 3.0))
         return _grain_dither((near, far), t, u, v, 92, grain=1, jitter=1.1)
@@ -1138,7 +1287,8 @@ class OverWorld(TileScene):
     def _grassy_cell(self, X, Y, cls, phase):
         px = {"grass": self._px_grass, "hills": self._px_hills,
               "flowers": self._px_flowers, "snow": self._px_snow,
-              "desert": self._px_desert, "basalt": self._px_basalt}[cls]
+              "desert": self._px_desert, "basalt": self._px_basalt,
+              "deck": self._px_deck}[cls]
         for v in range(T):                                 # pure fabric: every
             for u in range(T):                             # boundary has an owner
                 self.bg.put(X + u, Y + v, px(u, v, phase))

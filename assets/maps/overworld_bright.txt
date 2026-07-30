@@ -40,6 +40,11 @@ anchor player_start 12 38
 anchor town 8 35
 anchor meadow 14 40
 anchor lanternwood 21 17
+; THE WEST SHINGLE (2026-07-29) - where Lanternwood's steam launch beaches on
+; Forest Land, five cells west of Alembic Town's gate mouth. The Act 1 crossing
+; lands here (Game.overworld_spawn = "landing"); it is an announce-only marker
+; on the west-coast beach strip, and the boat drawn up on it is the return hook.
+anchor landing 3 35
 map
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~bbbbb~~~~~~~~~~~~~~~~~~~~~~~~

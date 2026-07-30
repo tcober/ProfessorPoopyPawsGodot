@@ -20,6 +20,17 @@ and all three are cheap because none of them is an engine feature:
      frozen_pond at 8x4 and `skated`, flanked by two lamps. It replaced a
      chasm-and-trestle that never read as a chasm; see lanternwood.txt.
 
+THE HARBOUR AND THE MOOT HALL (2026-07-29) add a fourth thing, and it is the
+first WATER this town has ever shown — which was overdue for a town whose only
+way off its island is a boat. The east end of LEVEL 1 is a cove: an opaque
+Tier-1 town_dock pier over walkable `dock` cells (render class `bridge`, so no
+coastline forms under it), the town's steam launch as an 8-frame Tier-3 prop on
+`berth` cells (render class `sea`, so the hull floats on animated water rather
+than on painted planks), and town_moot_hall on a cabin's 5x4 footprint beside
+them. Two shoreline treatments were already written and are simply used here:
+_lip_band's "snow" pair, which is an ICE SHELF, and the sea's own depth banding.
+See the long note in lanternwood.txt for why each class was chosen.
+
 The winter cabin kit is unchanged: log-walled cabins under deep snow gable
 roofs, every window fire-lit and softly PULSING (the 8-frame sheets' `windows`
 breath — the "glowing windows" were always there, they just had a white field
@@ -41,6 +52,7 @@ from _town_props import (town_cabin, town_library, town_conifer, town_lamp,
                          town_conifer_big, town_cliff, town_cliff_return,
                          town_stairs,
                          town_gatepost, frozen_pond,
+                         town_moot_hall, town_dock, town_launch,
                          WARM as WARMC)
 
 tn = OverWorld("lanternwood", "lanternwood")
@@ -114,6 +126,12 @@ tn.bake_shadow("eE", 3)
 tn.emit_prop("CabinB", "eE", town_cabin(ROOFG, SNOWCAP, salt=317), hframes=8)
 tn.bake_shadow("zZ", 3)
 tn.emit_prop("CabinC", "zZ", town_cabin(ROOFB, SNOWCAP, salt=331), hframes=8)
+# THE MOOT HALL — the council hall on LEVEL 1, beside the harbour (2026-07-29).
+# A cabin's 5x4 footprint on purpose: the whole point is that it reads CIVIC
+# without needing a bigger hole in the map. The bell-cote on its ridge is the
+# silhouette, the way the cupola is the library's.
+tn.bake_shadow("vV", 3)
+tn.emit_prop("MootHall", "vV", town_moot_hall(ROOFG, SNOWCAP, salt=361), hframes=8)
 
 # ---- spruces, lamps, the pond -------------------------------------------------------
 lo, up = town_conifer(tn.PINES, tn.TRUNK, SNOWCAP)
@@ -142,13 +160,26 @@ tn.place("o", frozen_pond(SNOWCAP))                        # baked Tier-1 ice
 # `o` region would blit ONE pond sprite across everything between the two.
 tn.place("O", frozen_pond(SNOWCAP, w=128, h=64, skated=True))
 
+# ---- the harbour: the pier baked Tier-1, the launch y-sorted on the water ----------
+# The DECK is one opaque 112x32 blit over the 7x2 run of walkable `=` cells, the
+# town_trestle/cliff-face idiom: its rope rails sit ON walkable cells, and upper-layer
+# art over a walkable cell is exactly what the z-order doctrine forbids. Nothing
+# autotiles it either — the deck is walked along its length, and its west end butts
+# the shore while its east end and both flanks are open water.
+tn.place("=", town_dock(TIMBER, SNOWCAP))
+# THE LAUNCH sits on the `b` berth cells, which paint as animated SEA. It is Tier-3
+# and y-sorted SOUTH of the deck, which is what swallows the ~11px a body pressed
+# into the deck's south row hangs over the water — the mask-band problem answered by
+# composition instead of by a mask.
+tn.emit_prop("Launch", "b", town_launch(TIMBER, SNOWCAP, salt=365), hframes=8)
+
 
 # ---- additive glow: the town of lanterns --------------------------------------------
 # Alphas are deliberately LOWER than the pre-Narshe build's: they were balanced
 # against a near-white field, and the same dab on a dark one blows out to a
 # white smear.
 def _glow(img):
-    for ch in ("qQ", "wW", "eE", "zZ"):                    # every doorway +
+    for ch in ("qQ", "wW", "eE", "zZ", "vV"):              # every doorway +
         x0, y0, x1, y1 = tn.bbox(ch)                       # window burns warm
         cx = (x0 + x1 + 1) * T // 2
         by = (y1 + 1) * T
@@ -183,6 +214,20 @@ def _glow(img):
         _blob(img, x0 * T + 8, (y1 + 1) * T, 8, WARM, 16)   # its pool on the snow
     ox0, oy0, _, _ = tn.bbox("o")                          # a cold moon-glint
     _blob(img, ox0 * T + 30, oy0 * T + 20, 8, (150, 190, 246), 20)
+    # THE HARBOUR. Same lesson as the library: the overlay renders UNDER the
+    # y-sorted World, so a dab at the launch's lantern height is simply hidden
+    # behind the hull. The boat's light has to land on the WATER, and it is worth
+    # spending — a lit boat at the end of a dark pier is the whole invitation.
+    bx0, by0, bx1, by1 = tn.bbox("b")                      # the berth
+    for dx in range(6, (bx1 - bx0 + 1) * T, 12):           # a continuous wash
+        _blob(img, bx0 * T + dx, (by1 + 1) * T - 2, 9, WARM, 13)  # down the hull
+    _blob(img, bx1 * T + 10, by0 * T + 8, 13, WARM, 34)    # the bow lantern
+    _blob(img, bx1 * T + 10, (by1 + 1) * T - 6, 9, WARM, 18)
+    dx0, dy0, dx1, dy1 = tn.bbox("=")                      # the pier: a low pool
+    _blob(img, (dx0 + dx1) * T // 2 + 8, (dy1 + 1) * T - 8, 14, WARM, 12)
+    # the cove itself, moonlit and cold — the one place in town that is not amber
+    for _cx, _cy, _r in ((52, 42, 13), (49, 49, 11), (54, 46, 9)):
+        _blob(img, _cx * T + 8, _cy * T + 8, _r, (150, 190, 246), 16)
     # CLIP: light does not spill down a rock face. Unclipped, the cabin and lamp
     # washes bleed onto the cliff below them and the terrace stops reading as a
     # terrace — the single thing this whole rebuild is for.
@@ -220,6 +265,35 @@ for _chars in ("Yy", "Pp"):
             assert tn.m.legend[tn.m.at(_cx, _cy)]["solid"] == _want_solid, (
                 f"lanternwood.txt: spruce cell ({_cx},{_cy}) should be "
                 f"{'solid trunk' if _want_solid else 'walkable crown'}")
+
+# ---- harbour + moot hall authoring guards (2026-07-29). The builders hard-code
+# their pixel sizes, and prop_spawner centres art on the footprint bbox and puts
+# its bottom on the bbox's south edge — so a footprint one cell wider silently
+# mis-centres the whole building by 8px and one cell taller floats it. Nothing
+# lints that; these do. -------------------------------------------------------------
+_MOOT = tn.bbox("vV")                                  # town_moot_hall is 80x64
+assert (_MOOT[2] - _MOOT[0], _MOOT[3] - _MOOT[1]) == (4, 3), (
+    f"lanternwood.txt: the moot hall footprint is {_MOOT}, not 5x4 — "
+    f"town_moot_hall draws 80x64 and prop_spawner will mis-centre it")
+for _cx in range(_MOOT[0], _MOOT[2] + 1):              # roof rows over body rows
+    assert (tn.m.at(_cx, _MOOT[1]), tn.m.at(_cx, _MOOT[3])) == ("v", "V"), _cx
+assert tn.m.at((_MOOT[0] + _MOOT[2]) // 2, _MOOT[3] + 1) == "D", (
+    "lanternwood.txt: the moot hall's D cell must sit one row south of the "
+    "footprint at its x-centre — the door arch is drawn there in the art")
+
+_DECK = tn.bbox("=")                                   # town_dock is 112x32
+assert (_DECK[2] - _DECK[0], _DECK[3] - _DECK[1]) == (6, 1), (
+    f"lanternwood.txt: the pier deck is {_DECK}, not 7x2 — town_dock draws 112x32")
+_BERTH = tn.bbox("b")                                  # town_launch is 96x32
+assert (_BERTH[2] - _BERTH[0], _BERTH[3] - _BERTH[1]) == (5, 1), (
+    f"lanternwood.txt: the berth is {_BERTH}, not 6x2 — town_launch draws 96x32")
+assert _BERTH[1] == _DECK[3] + 1, (
+    "lanternwood.txt: the berth must lie DIRECTLY south of the deck — that "
+    "adjacency is what makes the hull swallow a pressed body's overhang")
+for _cx, _cy in ((x, y) for y in range(_DECK[1], _DECK[3] + 1)
+                 for x in range(_DECK[0], _DECK[2] + 1)):
+    assert not tn.m.legend[tn.m.at(_cx, _cy)]["solid"], (
+        f"lanternwood.txt: pier cell ({_cx},{_cy}) must be WALKABLE")
 
 tn.assert_reachable()
 tn.finish()

@@ -250,6 +250,28 @@ SCENES = {
                      (198, 138, 108, 255), (156, 92, 96, 255), (110, 58, 78, 255)],
             "road": [(240, 206, 160, 255), (228, 184, 136, 255), (212, 158, 116, 255),
                      (184, 124, 100, 255), (146, 84, 90, 255), (104, 54, 74, 255)],
+            # THE CANOPY TOWN'S TIMBER (2026-07-29), and it has to be hand-pinned
+            # for TWO reasons, neither of them taste.
+            #
+            # 1. ramp() cannot make it. This scene's bias is TEAL, and a warm
+            #    brown seed pulled toward teal goes GREEN at the dark end —
+            #    ramp((176,120,78), "teal", 6) ends on (40,103,29), a moss
+            #    stick. The module-level TIMBER derives on VIOLET instead, which
+            #    is the right law for wood, but its tone 3 lands on (115,40,44):
+            #    a saturated brick red, and a whole town's fascia painted in it
+            #    read as MASONRY at 4x. Wood is a material, not the field — it is
+            #    allowed its honest warm brown, and this is that brown written
+            #    down.
+            # 2. THE BOARDWALK MUST SURVIVE town_thesis's TINT_NIGHT, which
+            #    multiplies by (0.42, 0.40, 0.66) — a 1.57x blue advantage over
+            #    red. So every tone a body walks on is pinned with R > 1.6*B, or
+            #    the whole canopy goes muddy violet on the one night the player
+            #    walks home across it (the plan's R19). The field tones also sit
+            #    ABOVE the night grass in luminance on purpose: the canopy is up
+            #    in what light there is and the forest floor is in its shadow, so
+            #    a deck darker than the ground below it reads as a hole.
+            "timber": [(240, 204, 144, 255), (214, 172, 120, 255), (192, 148, 98, 255),
+                       (150, 108, 76, 255), (104, 68, 66, 255), (62, 40, 56, 255)],
         },
         "mats": {
             "sea": (34, 100, 140, 255),
@@ -281,6 +303,12 @@ SCENES = {
                      (204, 146, 112, 255), (162, 98, 98, 255), (114, 62, 80, 255)],
             "road": [(246, 214, 166, 255), (236, 192, 142, 255), (222, 168, 122, 255),
                      (194, 134, 106, 255), (154, 92, 94, 255), (110, 58, 78, 255)],
+            # The canopy town's timber, festival era — see the drained town's
+            # entry for why it is hand-pinned at all. Same warm brown, sunnier:
+            # this boardwalk has had a spring morning on it and the drained one
+            # has had years of nobody sweeping it.
+            "timber": [(252, 224, 168, 255), (232, 194, 136, 255), (210, 168, 110, 255),
+                       (168, 124, 86, 255), (118, 78, 74, 255), (74, 48, 62, 255)],
         },
         # The drained "town" seeds, lifted: higher L, kept saturation, same
         # teal lean — bright but never candy (the darker-tone law still

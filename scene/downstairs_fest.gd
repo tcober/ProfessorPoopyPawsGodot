@@ -97,7 +97,9 @@ func _spawn_mom() -> void:
 	_mom = NPCScene.instantiate()
 	_mom.display_name = "Mom"
 	_mom.sheet = SHEET_MOM
-	_mom.frame_cols = 6
+	_mom.frame_cols = 10               # cols 6-9: back x2 + side x2, drawn with
+	                                   # the walk rows (2026-07-29) — without
+	                                   # this she owns the art and never turns
 	if _brewing():
 		# elbow-deep in pie and now sharing her kitchen with a chemistry set.
 		# Checked BEFORE the gate_open branch, which would otherwise hand her
@@ -130,6 +132,16 @@ func _spawn_mom() -> void:
 		])
 	# by the hearth, flour on her paws
 	_mom.position = Vector2(4.0 * 16.0 + 8.0, 5.0 * 16.0 + 8.0)
+	# ...and she WORKS the kitchen rather than standing in it (2026-07-29). The
+	# box is the hearth end only — cols 3-5, rows 5-9 — which is fifteen cells of
+	# clear floor. It stops at col 5 on purpose: east of that is the table base
+	# at (7,7)/(8,7), then the stair alcove, then the row-5 lane Kitty's brew
+	# route tweens along, and the front door sits at (184,184) a good 88px clear
+	# of anywhere she can reach. She is elbow-deep in pie; she is not leaving.
+	_mom.wander_cells = Rect2i(3, 5, 3, 5)
+	_mom.wander = true
+	_mom.wander_rest = "act"        # she goes back to the dough every time she stops
+	_mom.bind_map(map)
 	_mom.talked.connect(_on_mom_talked)
 	$World.add_child(_mom)
 	_mom.play_act()
@@ -188,13 +200,7 @@ func _brew() -> void:
 		_mom.play_act()
 		await theater.say("Mom", "...You have that face. Go on, then. Not the good pot.")
 	theater.close_dialog()
-	# she heads for the bench while he walks himself there (NPCs have no walk
-	# clip by design — scripted NPC movement glides, the project convention)
-	theater.walk_via(_kitty, [
-			Vector2(208.0, 88.0),          # x13, the clear vertical lane
-			Vector2(280.0, 88.0),          # east along row 5 to the pocket mouth
-			Vector2(280.0, 120.0),         # down onto the bench top
-			MapData.anchor_px(map, "kitty_pos")], 70.0)
+	_kitty_to_bench()                      # un-awaited: it plays out under the gate
 	theater.hint("THE WORKBENCH - THE EAST CORNER")
 	await theater.walk_gate(bench.get_center(), bench.size + Vector2(0.0, 8.0))
 	# he takes the middle of the bench: she is parked at its EAST end (the
@@ -234,6 +240,27 @@ func _brew() -> void:
 	theater.hint("THE ACADEMY - ACROSS TOWN, UP THE STAIR")
 
 
+## She heads for the bench while the walk over is his own — fired un-awaited so
+## it plays out under the walk-gate. theater.walk_via turns her along each leg
+## (2026-07-29), so the lane north reads as a back and the run east as a profile
+## instead of the old front-facing glide.
+##
+## She ARRIVES in the act pose, deliberately: the last leg is necessarily
+## EASTWARD (the pocket's only entrance is its west cell), so auto-facing would
+## leave her staring into the corner until the dialogue starts, and the whole
+## bench beat is staged front-first behind the counter anyway — Basil faces DOWN
+## there too. It also means the beat's own _kitty.play_act() can never be
+## clobbered by this coroutine landing late (the player's walk-gate can resolve
+## in a fraction of the 3s crossing, and a probe teleports).
+func _kitty_to_bench() -> void:
+	await theater.walk_via(_kitty, [
+			Vector2(208.0, 88.0),          # x13, the clear vertical lane
+			Vector2(280.0, 88.0),          # east along row 5 to the pocket mouth
+			Vector2(280.0, 120.0),         # down onto the bench top
+			MapData.anchor_px(map, "kitty_pos")], 70.0)
+	_kitty.play_act()
+
+
 ## The flask takes each reagent's colour as it goes in — green, blue, red, and
 ## the purple that only exists because the first two went in together.
 func _flask_tick(fill: float) -> void:
@@ -245,7 +272,10 @@ func _spawn_kitty() -> void:
 	_kitty = NPCScene.instantiate()
 	_kitty.display_name = "Kitty"
 	_kitty.sheet = SHEET_KITTY_KID
-	_kitty.frame_cols = 6                  # idle/act/emote only — no back, no side
+	_kitty.frame_cols = 10                 # cols 6-9: back x2 + side x2 — she
+	                                       # crosses the whole room to the bench,
+	                                       # and that walk is the one place in the
+	                                       # brew she isn't stood still
 	_kitty.position = Vector2(208.0, 152.0)
 	_kitty.lines = PackedStringArray([
 		"Your mother is TERRIFYING. I love her.",

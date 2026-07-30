@@ -24,8 +24,10 @@ probe, or a `tools/shot.gd` screenshot.
 | `tools/rpg_probe.gd` | 81 | sheets, stats, gear, satchel |
 | `tools/save_probe.gd` | 31 | save/load round-trip |
 | `tools/defence_probe.gd` | 32 | the kit→battle chain, and the south gate held during it |
+| `tools/motion_probe.gd` | 47 | **THE MOTION + THE CROSSING** — Mayor Hollis as a three-state fixture, the beat's flags and party lock, idempotence, the pier refusing then casting off, the west-shingle landing. Its most valuable check is geometric: a mayor is a solid 12×8 body, so it BFSes the walkable graph with his cell removed and proves he cannot seal the pier, then walks a body down the harbour lane for real to prove the graph isn't lying |
 | `tools/muzzle_probe.gd` | 30 | a projectile is never born inside a wall — both axes |
-| `tools/party_probe.gd` | — | brain moods, no in-view pops, settle distances |
+| `tools/lift_probe.gd` | 8 | **THE DINGHY LIFT** — Alembic's one machine, and the one place the two walkable storeys are joined by CODE rather than by authoring. Checks everything `assert_lift` cannot see: that the ride crosses strata both ways, carries the follower, does not re-fire under the body it just deposited, and REFUSES OUT LOUD when the scene is busy. Its two setup lessons are reusable: wait out `TravelScene`'s `ENTRY_LOCK` before teleporting onto any zone (an entry fired inside it is swallowed and Godot never re-fires one), and step a body OFF a landing before testing a re-entry, because the ride lands ON the destination anchor by the door convention |
+| `tools/party_probe.gd` | — | brain moods, no in-view pops, settle distances, and **phase 3: the leash ACROSS A FASCIA** — the one genuinely new systems risk in a stacked map. It checks the follower's STRATUM, not the distance: the distance passes even when the follower is stuck directly below the leader against the boardwalk |
 | `tools/overlay_probe.gd` | — | the paused-modal stack |
 | `tools/status_shot.gd` | — | poses the status tells and the mixing bench for eyeballing |
 
@@ -91,6 +93,37 @@ Eyeball any scene without launching the game. Args:
 
 12. **Stage a beat by NAME out of `scene/chapters.gd`** so a probe's flag ladder can't
     drift from the dev menu's.
+
+13. **NEVER `preload` a SCENE script in a probe — not even for its constants.** This is
+    gotcha 6's nastier twin and the symptom points nowhere near the cause. `const OW :=
+    preload("res://scene/overworld.gd")` compiles `overworld.gd` as part of the *tool's*
+    compile, before autoloads register; its `Game.` / `Party.` references fail, the
+    script is left broken, and `overworld.tscn` then instantiates its root as a
+    **scriptless `Node2D`**. What you see is `Invalid access to property 'player' on a
+    base object of type 'Node2D'` — from a scene that works perfectly in the game.
+    Read its constants at RUNTIME instead:
+    `(load("res://scene/overworld.gd") as GDScript).get_script_constant_map()`.
+
+14. **A GDScript lambda captures by VALUE, so a `watch` closure that sets a plain `bool`
+    is a check that SILENTLY PASSES FOREVER.** `var seen := false; var w := func():
+    seen = true` assigns a copy. Two `motion_probe` checks — "was the party ever free
+    mid-beat" and "did his slate come back out" — were dead this way and would never
+    have failed. Use a one-element **Array** as the reference container. Any probe that
+    asserts about frames *inside* a beat is exposed to this; grep your watches.
+
+15. **`pos:x:y` HOLDS the body there for the whole `shot.gd` run**, re-teleporting every
+    frame from frame 5. Leave a stale `pos:` on a shot of a different scene and you get a
+    confident screenshot of the chibi standing in the open ocean, and will go looking for
+    a travel bug that isn't there.
+
+16. **A BigSlime needs a CLEAR cell, not merely a walkable one.** Its box is wider than a
+    slime's, so on a terrace's last row — solid directly south — it depenetrates ~7px
+    north and sits off its own anchor, failing "every enemy sits on its map anchor". When
+    you move a spawn, check its NEIGHBOURS, not just its cell.
+
+17. **Adding one NPC to a street breaks any probe that hardcodes the headcount.** Mayor
+    Hollis made the Ebb-night street four people and `library_probe`'s `asked == 3` went
+    red. Count from the scene (`folk.size()`), not from a literal.
 
 ## The dev chapter selector
 

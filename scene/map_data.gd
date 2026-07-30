@@ -4,12 +4,20 @@ extends Object
 ## Loader for assets/maps/*.txt — the shared map source of truth. The same file
 ## drives the Python scene painters, so paint and collision can never drift.
 ## Keep this parser in sync with assets/_maps.py.
+##
+## A legend line is `legend <char> <terrain> <walk|solid> [stratum:<name>]`. The
+## optional stratum names which walkable STOREY the char belongs to — a forest
+## floor, the plank canopy over it, a stone terrace — in ONE grid, which works
+## only because the storeys are disjoint in it (see assets/_maps.py and
+## TileScene.assert_strata, which is what enforces the disjointness at build
+## time). It defaults to "ground", so every map written before it is unchanged.
 
 static func load_map(path: String) -> Dictionary:
 	var legend := {}
 	var anchors := {}
 	var lines := PackedStringArray()
 	var solid := {}
+	var strata := {}
 	var in_map := false
 	var f := FileAccess.open(path, FileAccess.READ)
 	assert(f != null, "missing map file: " + path)
@@ -25,7 +33,20 @@ static func load_map(path: String) -> Dictionary:
 		var parts := line.split(" ", false)
 		match parts[0]:
 			"legend":
-				legend[parts[1]] = {"solid": parts[3] == "solid"}
+				# trailing options; only `stratum:<name>` exists so far, and an
+				# unrecognized one is a HARD error rather than ignored — a
+				# silently-dropped `startum:canopy` typo would default the whole
+				# storey back to "ground" and fuse it to the forest floor
+				var stratum := "ground"
+				for i in range(4, parts.size()):
+					var opt := parts[i]
+					assert(opt.begins_with("stratum:"),
+							"%s: unknown legend option '%s'" % [path, opt])
+					stratum = opt.substr(8)
+					assert(not stratum.is_empty(), "%s: empty stratum name" % path)
+				legend[parts[1]] = {"solid": parts[3] == "solid", "stratum": stratum}
+				if parts[3] != "solid":
+					strata[stratum] = true
 			"anchor":
 				anchors[parts[1]] = Vector2i(int(parts[2]), int(parts[3]))
 			"map":
@@ -43,6 +64,7 @@ static func load_map(path: String) -> Dictionary:
 	return {
 		"cols": lines[0].length(), "rows": lines.size(),
 		"lines": lines, "legend": legend, "solid": solid, "anchors": anchors,
+		"strata": strata,
 	}
 
 
@@ -51,6 +73,31 @@ static func is_solid(map: Dictionary, cell: Vector2i) -> bool:
 	if cell.x < 0 or cell.y < 0 or cell.x >= int(map.cols) or cell.y >= int(map.rows):
 		return true
 	return map.solid.has(cell)
+
+
+## Which walkable STOREY a cell belongs to — "" off-map and "" on a solid cell,
+## because a wall is not a floor and every caller wants those two answers to be
+## the same answer. A single-storey map answers "ground" everywhere walkable.
+##
+## This is what a stratum-aware party leash needs: teleporting a stranded
+## follower to its leader is only ever correct WITHIN one stratum — on a stacked
+## map the shortest line from a follower on the forest floor to a leader on the
+## canopy runs straight up through the boardwalk, and warping it there drops a
+## body onto a storey it has no way down from.
+static func stratum_at(map: Dictionary, cell: Vector2i) -> String:
+	if cell.x < 0 or cell.y < 0 or cell.x >= int(map.cols) or cell.y >= int(map.rows):
+		return ""
+	var ch: String = (map.lines[cell.y] as String)[cell.x]
+	assert(map.legend.has(ch), "no legend entry for map char '%s'" % ch)
+	if map.legend[ch]["solid"]:
+		return ""
+	return map.legend[ch]["stratum"]
+
+
+## The stratum of a WORLD-PIXEL position — the form a body's global_position is
+## already in, so callers never hand-divide by the tile size.
+static func stratum_at_px(map: Dictionary, pos: Vector2) -> String:
+	return stratum_at(map, Vector2i(floori(pos.x / 16.0), floori(pos.y / 16.0)))
 
 
 static func size_px(map: Dictionary) -> Vector2:

@@ -46,6 +46,14 @@ Every scene is TILED on the shared kit. A NEW scene = a map txt + a thin config.
 - **`assets/_tiles.py`** — slices composed canvases into a real TileSet (atlas +
   `.tres` + layout in `assets/tilesets/`).
 - **`assets/_sprites.py`** — sprite/fx drawing primitives.
+- **`assets/_tree_props.py`** — the TREEHOUSE-TOWN kit (Alembic's canopy storey):
+  `tree_hut` the bough hut, `tree_edge` / `tree_edge_return` the timber fascia,
+  `tree_span_edge`, `tree_bridge`, `rope_ladder`, `tree_trunk`, `tree_canopy`, the
+  `dinghy_lift_*` trio, `understory`. Every builder takes its material RAMPS as
+  parameters — unlike `_town_props`, which closes over Alembic's own FOLIAGE/CEMENT.
+  Two hand-pinned materials live here and have to: `ROPE` and `THATCH` both come out
+  green under a teal scene bias and magenta under a violet one, so deriving them
+  obeyed the palette code and broke the palette doctrine.
 - Drivers: **`assets/_interior.py`** (+ `_interior_props.py`) for rooms;
   **`assets/_overworld_tiles.py`** (`OverWorld`) for the overworld map, Alembic Town,
   Whisker Meadow AND Lanternwood; prop libraries `_overworld_props.py`,
@@ -156,8 +164,30 @@ CanvasModulate tints ride on top.
   modulate-tints to all four compound colours), 25-31 free.
   **`WorldFx.sheet_sprite` infers vframes from sheet height, so old frame indices
   survive — but NEVER widen a row.**
-- NPC sheets are one-row 48px; `frame_cols` gates optional facings (`back`/`side` are
-  built only when `frame_cols` >= 8/10). A new villager is a PNG + exports.
+- **NPC sheets: row 0 is the POSE row, rows 1-3 are an OPTIONAL WALK CYCLE**
+  (2026-07-29). `frame_cols` gates optional facings on row 0 (`back`/`side` are built
+  only when `frame_cols` >= 8/10). A new villager is a PNG + exports.
+  - `row 0` idle_down×2 · act×2 · emote×2 · back×2 · side×2 (cols 0-9)
+  - `row 1` walk_down ×6 · `row 2` walk_up ×6 · `row 3` walk_side ×6 (faces LEFT),
+    cols 6-9 padded empty — so a walking villager is **480×192**.
+  - Direction is the ROW, the cycle is the COLUMNS — the same contract the party sheets
+    use, which is why the proven 6-frame stride tables get reused verbatim rather than
+    re-timed.
+  - `npc.gd` gates the walk clips on the sheet's real **HEIGHT**, deliberately not on
+    `frame_cols`: a sheet that grows rows starts walking with **no scene edit at all**,
+    so every staged `theater.walk` animates the moment its art lands. A 48px-tall sheet
+    stays legal and stays a statue.
+  - Walk clips run at their own `walk_fps` (~10). Sharing `idle_fps` (1.6) is what made
+    a moving villager read as a sliding statue for the whole project up to here.
+  - **`walk_down` f0 == row-0 col 0 and `walk_up` f0 == row-0 col 6** — the planted
+    neutral contract, same as Basil's sheet, so a walk closes into its idle exactly.
+  - **`walk_side` f0 does NOT match the col-8 idle-side, and cannot**: cols 8-9 were
+    drawn at `(0,0)` offsets before the walk rows existed, while `side_fF[0]`/`side_fB[0]`
+    are `(2,0)`/`(-1,0)`. Measured cost is 18-31 silhouette px — the REAR foot settling
+    2px, with body, head and foot baseline identical. On a villager hopping one cell
+    every ~3s that reads as a weight shift; on anything that stops and starts constantly
+    it would not, so a future fast-moving NPC wants its cols 8-9 redrawn to walk f0.
+  - Who has walk rows: **hare, beaver, foxkid, mayor, mom**.
 - **Never `play_emote` a back-turned head** — it flips to a front face.
 
 ## Color law (the gotchas that cost real bugs)

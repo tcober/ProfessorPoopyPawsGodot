@@ -58,6 +58,60 @@ GLOW_WARM = (255, 200, 120)                   # lamp / window / coal light
 GLOW_MINT = (150, 246, 190)                   # gauge / rose-window glow
 
 
+# ---- the strata rule, as free functions ------------------------------------------------
+# THE STRATA RULE LIVES OUT HERE, not only as a TileScene method, for one
+# reason: the stratum is declared in the MAP TXT, so the rule can be re-run
+# straight off the shipped artifact with no palette entry, no scene key, no
+# generator and no atlas. That is what lets _check_art.py enforce it on every
+# map in the game — including a HAND-EDIT of a map txt that was never
+# regenerated, which is precisely the edit most likely to fuse two storeys.
+# TileScene.assert_strata is a thin delegate so there is exactly one copy of it.
+
+def strata_of(m):
+    """(x, y) -> stratum, WALKABLE cells only. The one place the "a wall is not
+    a storey" convention is spelled out."""
+    return {(x, y): m.legend[m.at(x, y)]["stratum"]
+            for y in range(m.rows_n) for x in range(m.cols)
+            if not m.legend[m.at(x, y)]["solid"]}
+
+
+def check_strata(m, name, link="link"):
+    """The two strata rules over a MapData; raises AssertionError. See
+    TileScene.assert_strata for what each one is for and why both are silent
+    failures without it."""
+    walk = strata_of(m)
+    fused = []
+    for (x, y), a in sorted(walk.items()):
+        for n in ((x + 1, y), (x, y + 1)):             # visit each edge once
+            b = walk.get(n)
+            if b is None or b == a or link in (a, b):
+                continue
+            fused.append(f"({x},{y}) {a} | ({n[0]},{n[1]}) {b}")
+    assert not fused, (
+        f"{name}: THE STRATA FUSED at {len(fused)} edge(s) — two walkable cells "
+        f"on different storeys are 4-adjacent and neither is a {link!r}, so the "
+        f"upper one is now just a patch of the lower one: "
+        + "; ".join(fused[:6]))
+    todo = {c for c, s in walk.items() if s == link}
+    while todo:
+        comp = [todo.pop()]
+        i = 0
+        while i < len(comp):
+            cx, cy = comp[i]
+            i += 1
+            for n in ((cx + 1, cy), (cx - 1, cy), (cx, cy + 1), (cx, cy - 1)):
+                if n in todo:
+                    todo.remove(n)
+                    comp.append(n)
+        joins = {walk[n] for cx, cy in comp
+                 for n in ((cx + 1, cy), (cx - 1, cy), (cx, cy + 1), (cx, cy - 1))
+                 if walk.get(n, link) != link}
+        assert len(joins) == 2, (
+            f"{name}: the {link!r} at {sorted(comp)[0]} borders "
+            f"{sorted(joins) or 'nothing'} — a link must join EXACTLY two strata "
+            f"or it is a stair to nowhere")
+
+
 def sprite_img(sp, w, h):
     """Crop a (square, sparse) prop Sprite to its w x h footprint as an Img —
     the emit_prop() input for props authored on the _propkit canvas."""
@@ -391,17 +445,43 @@ class TileScene:
         exactly one river cell, and the river's bbox is the whole stream)."""
         self.ov.blit_cell(sprite, tx * T, ty * T)
 
-    def assert_reachable(self, from_anchor="player_start"):
-        """BFS the walkable graph from `from_anchor`; assert every anchor and
-        every door cell is reached. _check_art.py lints a great deal but NOT
-        connectivity, so before terraces a stranded region was impossible and
-        after them it is one mistyped band cell away — a town that ships,
-        renders, lints clean, and cannot be walked."""
-        start = self.m.anchors.get(from_anchor)
-        assert start, f"{self.name}.txt: no anchor {from_anchor!r} to walk from"
+    def assert_reachable(self, *from_anchors, full=True):
+        """BFS the walkable graph from every named anchor (default the single
+        `player_start`); assert every anchor, every door cell and — with
+        `full` — EVERY WALKABLE CELL OF EVERY STRATUM is reached.
+        _check_art.py lints a great deal but NOT connectivity, so before
+        terraces a stranded region was impossible and after them it is one
+        mistyped band cell away — a town that ships, renders, lints clean, and
+        cannot be walked.
+
+        `full` is the strata half of that, and it catches the two failures the
+        anchors-and-doors sweep structurally cannot. An anchor sweep only proves
+        the places something was PLACED are reachable, so a stacked map's
+        stranded platform — a canopy landing whose only ladder was mistyped, an
+        orphaned pocket of forest floor walled in by fascia — passes silently
+        precisely because nothing stands on it yet. That platform then ships,
+        and the first thing to go on it is unreachable months later with no clue
+        as to when it broke. All three shipped zone maps already satisfy it (the
+        town, town_fest and Lanternwood each reach 100% of their walkable cells
+        from `player_start`), which is what makes it safe as the default.
+
+        Several starts, because on a stacked map a storey may legitimately be
+        entered from ONE fixed place and nothing says that place is
+        `player_start`. Pass every anchor a body can arrive on.
+
+        `full=False` is for a map whose unreachable-on-foot ground is the point:
+        the five-lands OVERWORLD is ocean-separated, so 1709 of its 2289
+        walkable cells are correctly unreachable from the landing. (It does not
+        call this at all today; the knob exists so it could.)"""
+        names = from_anchors or ("player_start",)
+        seen, todo = set(), []
+        for name in names:
+            start = self.m.anchors.get(name)
+            assert start, f"{self.name}.txt: no anchor {name!r} to walk from"
+            if tuple(start) not in seen:
+                seen.add(tuple(start))
+                todo.append(tuple(start))
         solid = self.m.solid_cells()
-        seen = {tuple(start)}
-        todo = [tuple(start)]
         while todo:
             cx, cy = todo.pop()
             for n in ((cx + 1, cy), (cx - 1, cy), (cx, cy + 1), (cx, cy - 1)):
@@ -416,8 +496,435 @@ class TileScene:
                     want[f"door@{x},{y}"] = (x, y)
         bad = sorted(k for k, c in want.items() if c not in seen)
         assert not bad, (
-            f"{self.name}.txt: unreachable from {from_anchor} -> "
+            f"{self.name}.txt: unreachable from {'+'.join(names)} -> "
             + ", ".join(f"{k}{want[k]}" for k in bad))
+        if not full:
+            return
+        stranded = {}                          # stratum -> its stranded cells
+        for y in range(self.m.rows_n):
+            for x in range(self.m.cols):
+                if (x, y) in solid or (x, y) in seen:
+                    continue
+                stranded.setdefault(self.m.stratum(x, y), []).append((x, y))
+        assert not stranded, (
+            f"{self.name}.txt: walkable ground unreachable from "
+            f"{'+'.join(names)} — " + "; ".join(
+                f"{len(cs)} {st!r} cell(s) from {sorted(cs)[0]}"
+                for st, cs in sorted(stranded.items())))
+
+    # -- THE STRATA KIT (2026-07-29) ------------------------------------------------------
+    # A town with THREE walkable storeys in one 56x34 grid — a forest floor, the
+    # plank canopy over it, the Academy's stone terrace — needs no elevation
+    # feature, for the same reason the terrace kit above needs none. It needs the
+    # storeys to be DISJOINT IN THE GRID, because a cell is exactly one (x, y)
+    # with one walk/solid bit: disjoint, and two storeys are unambiguous and "a
+    # bridge over walkable ground" is unrepresentable rather than merely
+    # discouraged. The `stratum:` legend token (assets/_maps.py) declares which
+    # storey a char belongs to, and the asserts below are the whole system.
+    #
+    # THEY ARE THE SYSTEM BECAUSE EVERY FAILURE HERE IS SILENT. Fuse the canopy
+    # to the floor with one mistyped cell and the boardwalk stops being a storey
+    # and becomes a wooden patch of forest: it renders, it dedupes, every lint in
+    # _check_art.py passes it, and it ships. Nothing else in this pipeline is
+    # even looking — the invisible-wall lint reads tiles, the z-order lints read
+    # the upper layer, and assert_reachable is HAPPIER with a fused canopy than
+    # with a correct one.
+
+    def assert_strata(self, link="link"):
+        """THE ONE THAT MATTERS. Two rules over the walkable graph:
+
+          1. THE STRATA MUST NOT FUSE. No two 4-adjacent walkable cells may
+             declare different strata, unless one of them is a `link` — the rope
+             ladder or the dinghy lift, the single char whose whole job is to
+             touch two storeys at once. This is the rule the disjointness
+             argument rests on, and violating it is the failure described in the
+             section note above.
+          2. NO STAIR TO NOWHERE. Every connected component of `link` cells must
+             border walkable cells in EXACTLY TWO distinct non-link strata. ONE
+             means a ladder that climbs to nothing — and worse, a hole punched
+             through rule 1 in exchange for nothing. THREE means a junction
+             where which storey a step leads to depends on the direction you
+             leave it, which is not a thing a player can be taught.
+
+        Strata default to `ground`, so a single-storey map satisfies both rules
+        trivially and this is free to call on every map in the game.
+
+        The body is the module-level check_strata() so _check_art.py can re-run
+        the identical rule off a shipped map txt without building a scene."""
+        check_strata(self.m, self.name + ".txt", link)
+
+    def assert_band_orientation(self, band_chars, above, below):
+        """Every `band_chars` face run must carry `above`-stratum walkable
+        ground on its NORTH edge, and never on its south.
+
+        A fascia is drawn to be seen from in front and from above: the opaque
+        art lands on the run's TOP cell, the coping runs along its crest,
+        `foot_shade` darkens the ground at its foot. Flip the band north for
+        south and every one of those lands on the wrong side of it — and it
+        renders perfectly, because no part of the paint path knows which way is
+        up. Bury the same run one row INSIDE the canopy and it renders perfectly
+        too, as a wall standing on the boardwalk with more boardwalk behind it.
+
+        Both are one keystroke from correct and neither leaves a mark any other
+        lint can see, which is the argument for checking the thing you actually
+        meant: a fascia IS THE SOUTH EDGE OF A STOREY, and that sentence is
+        testable."""
+        m = self.m
+        bad = []
+        for tx, ty, h in self._col_runs(band_chars):
+            n, s = m.stratum(tx, ty - 1), m.stratum(tx, ty + h)
+            if n != above:
+                bad.append(f"({tx},{ty}) north is {n or 'solid'}, want "
+                           f"walkable {above!r} — the band is upside down")
+            elif s == above:
+                bad.append(f"({tx},{ty}) south is {above!r} as well — the band "
+                           f"is buried inside its own storey")
+            elif s is not None and s != below:
+                bad.append(f"({tx},{ty}) south is {s!r}, want solid or {below!r}")
+        assert not bad, (
+            f"{self.name}.txt: {band_chars!r} band mis-oriented: "
+            + "; ".join(bad[:6]))
+
+    def assert_span(self, deck_chars="W", fascia="e", water="r"):
+        """THE SPAN LAW. A span — a plank bridge from one platform to another
+        across open air — is a run of walkable `deck_chars` cells and it is
+        legal only when all three hold, per column:
+
+          1. ITS SOUTH BOUNDARY IS A SOLID RUN OF >= 2 ROWS whose top row is a
+             `fascia` char — or a single `water` cell, which is the shipped
+             exception: Alembic's stream bridge takes a hand-drawn
+             bridge_fascia() on the river cell south of the deck INSTEAD of a
+             mirrored mask band, because river cells animate on 4 frames and a
+             mirrored band would freeze half of every one of them.
+          2. ITS NORTH BOUNDARY IS SOLID, or walkable on the span's own stratum
+             (the platform it runs back onto).
+          3. NO SPAN CELL IS 4-ADJACENT TO A WALKABLE CELL OF ANOTHER STRATUM.
+
+        THE `>= 2` IN RULE 1 IS NOT AESTHETIC. DESIGN.md's z-order doctrine, in
+        the mask-band paragraph: "NEVER band a 1-row-deep solid strip between
+        two walkable rows — the corridor feet and the south head need the same
+        12px and one of them always wears it (this killed the town-tree
+        corridor)". A span's fascia is exactly that band. One row of solid
+        between the deck above and whatever is walkable below, and there is no
+        assignment of those twelve pixels that serves both bodies; two rows and
+        the south head cannot reach the band at all.
+
+        Rule 3 duplicates assert_strata, deliberately. assert_strata will indeed
+        catch the same cell, and it will report it as an adjacency between two
+        stratum names — true, and useless when you are staring at a bridge. This
+        one says your bridge touches the forest floor, which is the sentence
+        that tells you what to do. `link` is exempt from it for the same reason
+        it is exempt there: a rope ladder is HOW you get onto a span."""
+        m = self.m
+        walk = strata_of(m)
+        cells = [c for c, s in walk.items() if m.at(*c) in deck_chars]
+        assert cells, f"no {deck_chars!r} span cells in {self.name}.txt"
+        mine = {walk[c] for c in cells}
+        assert len(mine) == 1, (
+            f"{self.name}.txt: the {deck_chars!r} span spans strata {sorted(mine)} "
+            f"— one span is one storey")
+        mine = mine.pop()
+        for tx, ty, h in self._col_runs(deck_chars):
+            # (1) the south boundary
+            sy = ty + h
+            sch = m.at(tx, sy)
+            if sch is not None and sch in water:
+                pass                              # the bridge_fascia exception
+            else:
+                assert sch is not None and m.legend[sch]["solid"], (
+                    f"{self.name}.txt: the span at ({tx},{ty}) has no fascia "
+                    f"below it — ({tx},{sy}) is walkable, so the deck's south "
+                    f"edge is open air with nothing drawn in it")
+                assert sch in fascia, (
+                    f"{self.name}.txt: the span at ({tx},{ty}) sits on {sch!r} "
+                    f"at ({tx},{sy}), not a {fascia!r} fascia — a span's south "
+                    f"row is the only face of it the player ever sees")
+                depth = 0
+                while (m.at(tx, sy + depth) is not None
+                       and m.legend[m.at(tx, sy + depth)]["solid"]):
+                    depth += 1
+                assert depth >= 2, (
+                    f"{self.name}.txt: the span at ({tx},{ty}) has a "
+                    f"{depth}-row solid strip below it, want >= 2 — a 1-row "
+                    f"band between two walkable rows is forbidden outright by "
+                    f"the z-order doctrine (the corridor feet and the south "
+                    f"head want the same 12px and one of them always wears it)")
+            # (2) the north boundary
+            nch = m.at(tx, ty - 1)
+            assert nch is None or m.legend[nch]["solid"] \
+                or m.stratum(tx, ty - 1) == mine, (
+                f"{self.name}.txt: the span at ({tx},{ty}) runs north onto "
+                f"{m.stratum(tx, ty - 1)!r} — a span lands on its own storey "
+                f"or on solid, never on the ground below it")
+        # (3) the one that gets its own sentence
+        touch = []
+        for (x, y) in sorted(cells):
+            for n in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+                s = walk.get(n)
+                if s is not None and s not in (mine, "link"):
+                    touch.append(f"({x},{y}) touches {s} at ({n[0]},{n[1]})")
+        assert not touch, (
+            f"{self.name}.txt: YOUR BRIDGE TOUCHES THE FOREST FLOOR — a span "
+            f"cell is 4-adjacent to walkable ground on another storey, so the "
+            f"player walks off the bridge onto the level below it: "
+            + "; ".join(touch[:6]))
+
+    def assert_stair(self, stair_char, band_char, cells):
+        """Every `stair_char` flight is 2 cells wide, spans ALL `cells` rows of
+        the `band_char` run it pierces, and has walkable ground directly north
+        AND directly south of both its columns.
+
+        Lanternwood documents every clause of this in prose in its map header,
+        which is exactly as much protection as prose has ever given anything.
+        Each clause is a failure that looks completely finished:
+          * a flight one row SHORT of its band leaves a solid cell across the
+            top of the stairs — a staircase you cannot use, under face art that
+            looks entirely normal;
+          * one row LONG spills the stair art out onto the terrace;
+          * 1 cell wide is a flight a 22px-wide figure cannot enter squarely;
+          * no landing north or south is only assert_reachable's problem when
+            the storey beyond has no OTHER way in, and on a stacked map it
+            usually does — so reachability shrugs and this fails loudly.
+
+        The band run is matched by VERTICAL OVERLAP with the flight, never by
+        column alone, for the reason stamp_columns gives: ONE CHAR SERVES
+        SEVERAL BANDS (Lanternwood spends `C` on the level-4 band and the gate
+        band twenty rows apart), and a per-column match would compare a flight
+        against an unrelated wall."""
+        for comp in self.comps(stair_char):
+            x0, y0, x1, y1 = self.comp_bbox(comp)
+            assert (x1 - x0, y1 - y0, len(comp)) == (1, cells - 1, 2 * cells), (
+                f"{self.name}.txt: the {stair_char!r} flight at ({x0},{y0}) is "
+                f"{x1 - x0 + 1}x{y1 - y0 + 1} ({len(comp)} cells), want a solid "
+                f"2x{cells} block")
+            runs = [(ty, h) for tx, ty, h in self._col_runs(band_char)
+                    if tx in (x0 - 1, x1 + 1) and ty <= y1 and ty + h - 1 >= y0]
+            assert runs, (
+                f"{self.name}.txt: the {stair_char!r} flight at ({x0},{y0}) has "
+                f"no {band_char!r} band beside it to pierce")
+            bad = [r for r in runs if r != (y0, cells)]
+            assert not bad, (
+                f"{self.name}.txt: the {stair_char!r} flight at ({x0},{y0}) "
+                f"spans rows {y0}..{y1} but the {band_char!r} band beside it "
+                f"runs top={bad[0][0]} height={bad[0][1]} — a flight must span "
+                f"ALL of its band's rows or it is a staircase into a wall")
+            for cx in (x0, x1):
+                for cy, side in ((y0 - 1, "north"), (y1 + 1, "south")):
+                    ch = self.m.at(cx, cy)
+                    assert ch is not None and not self.m.legend[ch]["solid"], (
+                        f"{self.name}.txt: the {stair_char!r} flight at "
+                        f"({x0},{y0}) has no landing to the {side} — "
+                        f"({cx},{cy}) is {'off-map' if ch is None else 'solid'}")
+
+    def assert_door_approach(self, rows=2, exempt=()):
+        """Every `door`-terrain cell needs `rows` walkable cells DUE SOUTH of
+        it, on the door's OWN stratum.
+
+        Every door in this engine is approached from the south: the art is a
+        south-facing arch, the door-mouth arrival convention puts the body in
+        the mouth facing north, and several cutscenes walk to a door by adding a
+        raw pixel offset to its anchor — `home + (0,26)`, `home + (0,38)`,
+        `cottage_e + (4,14)`. Two clear rows is what all of those need, and a
+        prop parked in the second one breaks them with no lint and no error: the
+        walk simply ends early against the side of a market stall and the scene
+        waits forever for a gate that will not fire.
+
+        `on its own stratum` is the treehouse clause. A door in a canopy wall
+        whose two clear rows are the forest floor two storeys down is not an
+        approach, it is a drop.
+
+        OPT-IN, because it is NOT free on the shipped maps and adopting it is
+        per-map work: every interior room puts its exit door IN the south wall,
+        so the wall itself is row +1 there and `rows` must be 0; and Alembic
+        parks the market stall two cells south of the weapon shop's door and a
+        tree two south of cottage_w's. `exempt` takes those cells while a map is
+        being brought up to the rule."""
+        m = self.m
+        bad = []
+        for y in range(m.rows_n):
+            for x in range(m.cols):
+                if m.legend[m.at(x, y)]["terrain"] != "door" or (x, y) in exempt:
+                    continue
+                mine = m.stratum(x, y)
+                for d in range(1, rows + 1):
+                    s = m.stratum(x, y + d)
+                    if s == mine:
+                        continue
+                    bad.append(f"({x},{y}) blocked at ({x},{y + d})"
+                               + (f" — {s!r}, not the door's {mine!r}"
+                                  if s else " — solid"))
+                    break
+        assert not bad, (
+            f"{self.name}.txt: door approaches blocked. Every door is entered "
+            f"from the south and wants {rows} clear rows below it: "
+            + "; ".join(bad[:6]))
+
+    def assert_lift(self, head, shaft, drum_walk, drum_solid,
+                    down="lift_down", up="lift_up", clear=2):
+        """THE ONE MACHINE. A scripted rope hoist joining the canopy to the floor
+        in ONE 3-cell column: a walkable top landing (`head`), a SOLID shaft
+        (`shaft`) carved out of the fascia band, and a crank drum at the bottom
+        whose top row is the walkable plaza landing (`drum_walk`) over its solid
+        works (`drum_solid`).
+
+        THE SHAFT IS SOLID, AND THAT IS THE DESIGN. A cosmetic lift that is
+        mechanically just another link needs a WALKABLE shaft — a hole punched
+        through the fascia — and then you must answer what the floor of those
+        cells is. There are no treads and there is no ground. The honest answer
+        is nothing, and the player walks up a wall with a boat overhead: the
+        chasm failure verbatim, because authoring an ABSENCE is the one thing
+        this format is bad at. The mechanism IS the motion; there is nothing to
+        draw in its place. So the two landings are walkable on their own strata,
+        separated by a solid curtain, with ZERO adjacency between strata — which
+        means assert_strata is satisfied with no link at all, and THE LIFT IS THE
+        ONE PLACE THE TWO STOREYS ARE JOINED BY CODE RATHER THAN BY AUTHORING.
+        That is the same thing a door is: a scripted crossing of a wall. It is
+        right that the town's one machine is the one thing that isn't authoring.
+
+        Seven clauses, and clause 6 is the one that earns its keep:
+
+          1. all three pieces share one 3-cell column, north to south, contiguous;
+          2. `head` walkable canopy, `shaft` solid and exactly the band's run
+             rows, `drum_walk` walkable ground, `drum_solid` the bottom row only;
+          3. >= 1 walkable cell EAST OR WEST of the drum's solid row, so a body
+             can reach the crank — the lift is the only reason that landing
+             exists and a landing you cannot stand beside is furniture;
+          4. the cell due north of `head` is solid bough or trunk: the beam is
+             lashed to SOMETHING. Hanging in bare sky reads as a mistake;
+          5. the landing anchors are `clear` cells away from every other anchor,
+             because two Area2Ds on one anchor is a documented softlock in this
+             codebase (2026-07-18) and a lift is exactly where it would happen;
+          6. THE HEAD LANDING IS REACHABLE WITH THE SHAFT TREATED AS IMPASSABLE.
+             The no-softlock proof, at build time instead of by hope: if the only
+             way onto the canopy were the ride itself, a player who rode up and
+             then reloaded — or a scene that never wires the zones, which is
+             every era but the present — is stranded up a tree;
+          7. the car sheet's frame count is whole (checked by the caller)."""
+        m = self.m
+        cols = None
+        pieces = [("head", head), ("shaft", shaft),
+                  ("drum crown", drum_walk), ("drum works", drum_solid)]
+        rows = {}
+        for label, ch in pieces:
+            cs = [(x, y) for y in range(m.rows_n) for x in range(m.cols)
+                  if m.at(x, y) == ch]
+            assert cs, f"{self.name}.txt: no {ch!r} cells for the lift's {label}"
+            xs = sorted({x for x, _ in cs})
+            ys = sorted({y for _, y in cs})
+            assert len(xs) == 3 and xs[2] - xs[0] == 2, (
+                f"{self.name}.txt: the lift's {label} ({ch!r}) spans columns "
+                f"{xs}, want exactly 3 contiguous")
+            assert cols is None or xs == cols, (
+                f"{self.name}.txt: the lift's {label} ({ch!r}) is in columns "
+                f"{xs} but the pieces above it are in {cols} — the head, the car "
+                f"and the drum share ONE column or the rope misses the boat")
+            cols = xs
+            assert len(cs) == 3 * len(ys) and ys[-1] - ys[0] == len(ys) - 1, (
+                f"{self.name}.txt: the lift's {label} ({ch!r}) is not a clean "
+                f"3 x {len(ys)} block")
+            rows[label] = ys
+        # (1) north to south, contiguous
+        order = ["head", "shaft", "drum crown", "drum works"]
+        for a, b in zip(order, order[1:]):
+            assert rows[a][-1] + 1 == rows[b][0], (
+                f"{self.name}.txt: the lift's {a} ends at row {rows[a][-1]} and "
+                f"its {b} starts at row {rows[b][0]} — the column must be "
+                f"unbroken north to south")
+        # (2) the strata and the shaft's height
+        for x in cols:
+            assert m.stratum(x, rows["head"][0]) == "canopy", (
+                f"{self.name}.txt: the lift's head at ({x},{rows['head'][0]}) is "
+                f"not walkable canopy")
+            for y in rows["shaft"]:
+                assert m.legend[m.at(x, y)]["solid"], "the lift shaft must be solid"
+            assert m.stratum(x, rows["drum crown"][0]) == "ground", (
+                f"{self.name}.txt: the lift's drum crown at "
+                f"({x},{rows['drum crown'][0]}) is not walkable ground")
+        assert len(rows["drum works"]) == 1, \
+            f"{self.name}.txt: the lift drum's solid works is ONE row"
+        # (3) a body must be able to reach the crank
+        beside = [(x, y) for y in rows["drum works"]
+                  for x in (cols[0] - 1, cols[2] + 1)
+                  if m.at(x, y) is not None and not m.legend[m.at(x, y)]["solid"]]
+        assert beside, (
+            f"{self.name}.txt: nothing walkable east or west of the lift drum's "
+            f"works — nobody can reach the crank")
+        # (4) the beam is lashed to something
+        for x in cols:
+            north = m.at(x, rows["head"][0] - 1)
+            assert north is not None and m.legend[north]["terrain"] in (
+                "bough", "greattrunk", "boughtop", "crown"), (
+                f"{self.name}.txt: the lift's head beam at ({x},"
+                f"{rows['head'][0]}) hangs off {north!r} — seize it to a bough "
+                f"or a trunk or it reads as a mistake")
+        # (5) the landing anchors, clear of everything else
+        for name in (down, up):
+            assert name in m.anchors, f"{self.name}.txt: no anchor {name!r}"
+        for name in (down, up):
+            ax, ay = m.anchors[name]
+            for other, (ox, oy) in m.anchors.items():
+                if other in (down, up):
+                    continue
+                assert max(abs(ax - ox), abs(ay - oy)) >= clear, (
+                    f"{self.name}.txt: the lift anchor {name!r}({ax},{ay}) is "
+                    f"{max(abs(ax - ox), abs(ay - oy))} cells from {other!r} — "
+                    f"two zones on one anchor is a softlock, keep {clear}")
+        assert m.stratum(*m.anchors[down]) == "canopy", \
+            f"{self.name}.txt: {down!r} must stand on the canopy"
+        assert m.stratum(*m.anchors[up]) == "ground", \
+            f"{self.name}.txt: {up!r} must stand on the ground"
+        # (6) THE NO-SOFTLOCK PROOF — reachable without the machine
+        blocked = self.m.solid_cells() | {(x, y) for x in cols
+                                          for y in rows["shaft"]}
+        seen = {tuple(m.anchors["player_start"])}
+        todo = [tuple(m.anchors["player_start"])]
+        while todo:
+            cx, cy = todo.pop()
+            for n in ((cx + 1, cy), (cx - 1, cy), (cx, cy + 1), (cx, cy - 1)):
+                if n in seen or m.at(*n) is None or n in blocked:
+                    continue
+                seen.add(n)
+                todo.append(n)
+        assert tuple(m.anchors[down]) in seen, (
+            f"{self.name}.txt: the lift's top landing is reachable ONLY by the "
+            f"lift. Ride up, reload, and you are stranded up a tree — and every "
+            f"era but the present never wires the zones at all")
+
+    _NPC_ANCHOR = ("_pos", "npc_")
+
+    def assert_npc_room(self, extra=(), exempt=()):
+        """Every anchor that looks like an NPC slot — `*_pos`, `npc_*`, plus
+        anything named in `extra` — needs at least 3 walkable 4-neighbours.
+
+        An NPC is a solid StaticBody2D carrying a 12x8 box inside a 16px cell,
+        so a villager standing in a 1-cell corridor is not a squeeze, it is a
+        WALL. The doctrine has said "never park a solid NPC in a 1-cell
+        corridor" in prose ever since the goose wedged itself into the inn-nook
+        lamp cell; three free neighbours is that sentence as arithmetic. Two is
+        not enough: two lets a body past in one axis only, so a villager who
+        happens to stand in the single gap in a hedge seals off a whole quarter
+        of a town — and does it only when the mood machine walks him there, i.e.
+        never while you are testing.
+
+        `exempt` exists because a scripted NPC in a deliberately tight room is a
+        real thing (downstairs' `kitty_pos` is in a 2-neighbour nook and she
+        never moves)."""
+        m = self.m
+        bad = []
+        for name, (x, y) in sorted(m.anchors.items()):
+            if name in exempt:
+                continue
+            if not (name in extra or name.startswith(self._NPC_ANCHOR[1])
+                    or name.endswith(self._NPC_ANCHOR[0])):
+                continue
+            free = [n for n in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1))
+                    if m.at(*n) is not None and not m.legend[m.at(*n)]["solid"]]
+            if len(free) < 3:
+                bad.append(f"{name}({x},{y}) has {len(free)}")
+        assert not bad, (
+            f"{self.name}.txt: no room to move — an NPC slot needs >= 3 "
+            f"walkable neighbours or the villager standing on it is a wall: "
+            + "; ".join(bad))
 
     def place(self, chars, sprite, shadow_h=0):
         """Blit a prop Sprite at its feature bbox; bake a contact-shadow band

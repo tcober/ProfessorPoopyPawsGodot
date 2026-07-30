@@ -72,6 +72,16 @@ target_scene = "res://scene/lanternwood.tscn"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Lanternwood"]
 shape = SubResource("RectangleShape2D_door")
 
+[node name="Landing" type="Area2D" parent="Locations"]
+position = Vector2(56, 568)
+script = ExtResource("3_loc")
+id = "landing"
+display_name = "THE WEST SHINGLE"
+locked_text = "THE LAUNCH IS DRAWN UP ON THE STONES, STILL WARM."
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Landing"]
+shape = SubResource("RectangleShape2D_door")
+
 [node name="OverworldPlayer" parent="." instance=ExtResource("5_player")]
 
 [node name="TilesUpper" type="TileMapLayer" parent="."]

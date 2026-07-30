@@ -367,8 +367,11 @@ func _spawn_recital_cast() -> void:
 	var jsheets := [SHEET_STORK, SHEET_BADGER, SHEET_SHEEP]
 	for i in jsheets.size():
 		_panel.append(_npc("", jsheets[i], 6, "judge_%d" % (i + 2)))
-	# the same east-aisle cell the grown one heckles from, twenty years early
-	_schw = _npc("Schweinler", SHEET_SCHW_KID, 6, "schweinler_spot")
+	# the same east-aisle cell the grown one heckles from, twenty years early.
+	# 10 cols: the kid sheet grew back + side cells (2026-07-29), which is what
+	# lets him TURN AND WATCH when the first colour goes up (see _fireworks) —
+	# the adult sheet still has none, and the naming never needs them.
+	_schw = _npc("Schweinler", SHEET_SCHW_KID, 10, "schweinler_spot")
 	_spawn_audience()
 
 
@@ -381,7 +384,7 @@ func _recital() -> void:
 	# she comes in beside him but takes the WEST aisle column (x9) the whole
 	# way up, leaving x10-11 clear — the aisle is only three cells wide and an
 	# NPC is a solid StaticBody2D, so a shared column would block his own walk
-	_kitty = _npc("Kitty", SHEET_KITTY_KID, 6, "door")
+	_kitty = _npc("Kitty", SHEET_KITTY_KID, 10, "door")
 	_kitty.position += Vector2(-32.0, 0.0)
 	# the room is dressed and peopled — take it, and open on lamplight rather
 	# than noon: a full hall on a festival evening, waiting on the next name
@@ -393,7 +396,10 @@ func _recital() -> void:
 	await theater.say("Basil", "Kitty, there are a LOT of people in here.")
 	await theater.say("Kitty", "Up the middle. I've got the crank, you've got the flask.")
 	theater.close_dialog()
-	# she goes on ahead, straight up her own column, while the walk is his own
+	# she goes on ahead, straight up her own column, while the walk is his own.
+	# theater.walk turns her along the leg (2026-07-29), so she goes up the aisle
+	# BACK to the camera and lands facing the stage with the rest of the house —
+	# no play_back() needed here, and the sign-up-sheet pose is meant to drop
 	theater.walk(_kitty, Vector2(_kitty.position.x, floor_y), 50.0)
 	# row 6 is the ONLY row touching the apron, so a full-width band across it
 	# cannot be walked around — the gate geometry rule, the same shape as the
@@ -604,7 +610,11 @@ func _fireworks(mid_x: float, floor_y: float) -> void:
 	await theater.wait(0.55)
 	_firework(FW_TINTS[1], ground, -16.0, 62.0)
 	await theater.wait(0.2)
-	_schw.play_idle()                       # the gloat pose just... stops
+	# the gloat pose just... stops, and he TURNS ROUND to the stage — the only
+	# body in the room that was facing the house, joining the eighteen backs.
+	# The line comes off a back view on purpose: the nameplate says who it is,
+	# and we don't get to see his face for it
+	_schw.play_back()
 	await theater.say("Schweinler", "That's not - that's not magic, that's just -")
 	theater.close_dialog()
 	_firework(FW_TINTS[2], ground, 16.0, 66.0)

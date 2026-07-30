@@ -50,6 +50,14 @@ func _spawn_cast() -> void:
 			MapData.anchor_px(map, "doctor_spot"))
 
 
+## All three of this room's sheets stay at SIX columns, and none of them is a
+## sheet waiting on facings (the 2026-07-29 back/side pass deliberately skipped
+## them): kitty_bed remaps cells 2-5 to rest/vacant/polite, so cells 6-9 would
+## mean something else again on it, and the stork and Kitty's mother never move
+## further than one tween across a room they both face the camera in — the whole
+## verdict is played front-first, which is the point of it. face_dir() therefore
+## falls back to idle_down for every direction here, and the ONE profile tell in
+## the scene stays hand-rolled: the mother's flip_h below.
 func _make_npc(nm: String, sheet: Texture2D, pos: Vector2) -> NPC:
 	var npc: NPC = NPCScene.instantiate()
 	npc.display_name = nm
@@ -112,8 +120,12 @@ func _verdict_cutscene() -> void:
 	kmom.play_act()                       # hands to her cheeks
 	await theater.say("Kitty's Mother", "Oh no - Kitty! My baby, what HAPPENED to you?!")
 	await theater.say("Basil", "It was an accident. She was on the road - she was riding out to see me. It's my fault, I -")
-	kmom.sprite.flip_h = true             # rounds on him — the point aims east,
-	kmom.play_emote()                     # right at Basil beside her
+	# she rounds on him — the point has to aim EAST, right at Basil beside her.
+	# The flip goes AFTER the pose now (2026-07-29): play_emote() clears flip_h
+	# so a front-facing pose can never inherit a profile's mirror, which makes
+	# this the one deliberate mirror in the game and it has to say so last
+	kmom.play_emote()
+	kmom.sprite.flip_h = true
 	await theater.say("Kitty's Mother", "You. YOU did this. She was coming to YOU, and now she doesn't even know her own name.")
 	await theater.say("Kitty's Mother", "Get away from her. I never want you near my daughter again - not now, not ever. Do you understand me?")
 	player.sprite.play("sad")

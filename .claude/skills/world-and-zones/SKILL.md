@@ -86,14 +86,59 @@ The Kakariko-style hub, rebuilt from scratch 2026-07-11.
   magenta). The fest Academy door is OPEN (`town_academy(open_door=True)`); the sealed
   bars stay drained-only. **Keep the two grids in lockstep.**
 
-## Lanternwood (`scene/lanternwood.tscn`, 44×28)
+## Lanternwood (`scene/lanternwood.tscn`, 56×50)
 
-Fuji's snow town, on the same `TravelScene` machinery.
+Fuji's snow town, on the same `TravelScene` machinery. A **Narshe-style terraced**
+town since the 2026-07-28 rebuild: five walkable levels, four cliff bands at three
+heights, on the shipped terrace kit. **Two ways out, and they are not
+interchangeable** — the south gate walks onto the island, and **THE PIER crosses the
+ocean.**
+
+### THE HARBOUR (2026-07-29) — the class choices are the design
+
+The east end of LEVEL 1 is a cove: sea from col 46 to the map edge and from BAND D
+past the south border, so the water leaves the frame on two sides and reads as ocean
+rather than pond. Sea is solid, so **the cove seals the map border on its own** and
+the enclosure lint still sees only the two gate-mouth cells.
+
+| piece | chars | terrain → render class | why |
+| --- | --- | --- | --- |
+| the cove | `~` | `sea` → `sea` | animated, solid, shores against snow as an **ice-shelf lip** (`_lip_band`'s `"snow"` pair — already written) |
+| the pier deck | `=` | `dock` → **`bridge`** | `bridge` ∈ `WATERC`, so **no coastline forms under the deck**; not in `_lower_frames`' animated set, so the deck is static over swelling water |
+| the launch's berth | `b` | `berth` → **`sea`** | solid cells that paint as open water — a boat moored on painted planks reads as a boat in a car park |
+
+Two things worth stealing next time a walkable edge meets water:
+
+- **The pier is baked Tier-1 as ONE opaque `town_dock` blit** (the `town_trestle` /
+  cliff-face idiom). Its rope rails sit on *walkable* cells, and upper-layer art over
+  a walkable cell is exactly what the z-order doctrine forbids. Nothing autotiles it
+  either — you walk along its length, so `_bridge_cell`'s N/S rails are wrong for it.
+- **The launch moors DIRECTLY south of the deck, and that adjacency is load-bearing.**
+  A body pressed into the deck's south row hangs ~11px of sprite over the cell below
+  it; the hull, y-sorted south of the body, swallows it. **The mask-band problem
+  answered by composition instead of by a mask** — no `bridge_fascia`, no
+  `mask_band`, no upper-layer cell.
+
+`town_moot_hall` sits on a cabin's 5×4 footprint (roof `vV` + a `D` one row south at
+the x-centre), so it asks nothing new of the kit; the **bell-cote on its ridge** uses
+the same `_snow_roof(ridge=)` trick that stands the library's lantern cupola.
+
+**A SOLID NPC IN A ONE-CELL LANE IS A WALL, NOT A SQUEEZE.** Placing the moot hall
+pinched LEVEL 1's east half to a single walkable row, and Mayor Hollis's 12×8 body in
+a 16px cell sealed the pier off completely — the player could walk up to him and had
+nowhere to go. The fix was to open a forecourt (delete the spruce east of the hall)
+and move him onto it. Check every NPC anchor has room on more than one side.
+
+### The rest of the town
 
 - Log cabins as 8-frame Tier-3 sheets with softly pulsing fire-lit windows + woodsmoke,
   conifers, a frozen pond (**Tier-1 ice over WALKABLE pond cells — never sea/river, those
   animate**), `road_verge="snow"` lanes.
-- Announce-only banners on FUJI'S FAMILY HOME + three cabins.
+- Announce-only banners on FUJI'S FAMILY HOME, three cabins, and THE MOOT HALL.
+- **THE PIER is a plain `Area2D` (`$DockZone`), NOT an `OverworldLocation`** — boarding
+  is a staged beat, and `TravelScene._announce` would hold `_busy` across the whole
+  cutscene. One zone on that anchor, one owner. (The doctrine's "never share an anchor"
+  rule cuts both ways: sometimes the answer is not to use a Location at all.)
 - **THE LIBRARY is the one door in town that TRAVELS** (`target_scene` →
   `scene/library.tscn`; `lanternwood.gd::_on_travel` names the phase) and the one
   building that isn't a cabin. `town_library()`, 144×112 over a 9×7 footprint: log walls

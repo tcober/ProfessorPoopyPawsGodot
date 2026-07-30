@@ -62,13 +62,82 @@ func _scene_is(path: String) -> bool:
 ## with ATTACK, and the press that lands on the frame control comes back is a
 ## real attack — Fuji swings her tome, and the swing's forward lunge walks her
 ## straight out of the zone before the interact can fire.
-func _interact_at(pos: Vector2) -> bool:
+## THE ROAM-BOX LINT (2026-07-29). A wandering villager is a solid StaticBody2D,
+## so a villager standing in the wrong cell PLUGS a lane — this is the failure
+## the map file records in its own header, where Mayor Hollis sealed the pier off
+## just by stepping out of his door.
+##
+## THE TEST BLOCKS ONE CELL AT A TIME, and that is the whole subtlety. Blocking
+## every cell of a box at once is the tempting version and it is WRONG: it fails
+## on Alder, whose box spans all six rows of the harbour lane, for a state that
+## cannot happen — one villager is one body in one cell, and the lane is six rows
+## deep precisely so a body in it is a squeeze rather than a wall. So the real
+## invariant is per-cell: wherever any ONE villager can stand, the town's
+## load-bearing places stay reachable. Boxes sit in separate open areas, so no
+## two villagers can conspire to close something neither closes alone.
+##
+## It also re-proves each box is honest ground — inside the map, never solid.
+func _check_roam_boxes(street: Array[Node]) -> void:
+	var map: Dictionary = current_scene.map
+	var start := Vector2i(MapData.anchor_px(map, "player_start") / 16.0)
+	# The three places the town cannot afford to lose: the way out on foot, the
+	# crossing, and the door she works behind.
+	var must := ["exit_south", "dock", "library"]
+	var cells := 0
+	var solid_at := ""
+	var cut := ""
+	for c in street:
+		if not (c is NPC) or not (c as NPC).wander:
+			continue
+		var npc := c as NPC
+		var box: Rect2i = npc.wander_cells
+		for y in range(box.position.y, box.end.y):
+			for x in range(box.position.x, box.end.x):
+				var cell := Vector2i(x, y)
+				if MapData.is_solid(map, cell):
+					if solid_at == "":
+						solid_at = "%s: %s" % [npc.display_name, cell]
+					continue
+				cells += 1
+				var seen := _reach(map, start, [cell])
+				for place in must:
+					if not seen.has(Vector2i(MapData.anchor_px(map, place) / 16.0)) \
+							and cut == "":
+						cut = "%s on %s cuts %s" % [npc.display_name, cell, place]
+	_check("every roam box is walkable ground%s"
+			% ("" if solid_at == "" else " — " + solid_at), solid_at == "")
+	_check("no villager can plug the town from any of its %d roam cells%s"
+			% [cells, "" if cut == "" else " — " + cut], cut == "")
+
+
+## 4-connected flood over the walkable graph, minus an explicit blocked set.
+func _reach(map: Dictionary, start: Vector2i, blocked: Array) -> Dictionary:
+	var seen := {start: true}
+	var q: Array[Vector2i] = [start]
+	var head := 0
+	while head < q.size():
+		var c: Vector2i = q[head]
+		head += 1
+		for d in [Vector2i.RIGHT, Vector2i.LEFT, Vector2i.DOWN, Vector2i.UP]:
+			var n: Vector2i = c + d
+			if seen.has(n) or blocked.has(n) or MapData.is_solid(map, n):
+				continue
+			seen[n] = true
+			q.append(n)
+	return seen
+
+
+## `mark` is either a fixed Vector2 or a Callable returning one. Wandering NPCs
+## need the Callable form — see the caller in the ask-around gate.
+func _interact_at(mark: Variant) -> bool:
+	var at := func() -> Vector2:
+		return mark.call() if mark is Callable else mark as Vector2
 	await _wait_frames(30)
 	_player().velocity = Vector2.ZERO
-	_player().global_position = pos
+	_player().global_position = at.call()
 	await _wait_frames(8)
 	_player().velocity = Vector2.ZERO
-	_player().global_position = pos
+	_player().global_position = at.call()
 	await _wait_frames(10)
 	Input.action_press("interact")
 	await _wait_frames(4)
@@ -150,17 +219,36 @@ func _run() -> void:
 	var street: Array[Node] = current_scene.get_node("World").get_children()
 	_check("the Ebb-night street is peopled",
 			street.any(func(c: Node) -> bool: return c is NPC))
+	_check_roam_boxes(street)
 
 	# ---- the street's OWN gate: the whole neighbourhood tells her the same
 	# nothing, and the only place left to look is her own shelves
-	var asked := 0
+	# Counted from the street rather than hardcoded at 3 (2026-07-29): MAYOR
+	# HOLLIS is out on his step on the Ebb night too, so the street is FOUR
+	# people now. He is deliberately not part of the gate — he hangs off
+	# _on_mayor_talked, not _on_villager_talked, so ASK_GATE still means the
+	# three neighbours — but he is very much somebody she can talk to, and a
+	# probe that expects a fixed headcount breaks every time the street grows.
+	var folk: Array[Node] = []
 	for c in street:
 		if c is NPC:
-			# talk from a step SOUTH: the 20px TalkZone reaches, and standing
-			# on the body itself just depenetrates her back off it
-			if await _interact_at((c as NPC).global_position + Vector2(0.0, 18.0)):
-				asked += 1
-	_check("every Ebb-night neighbour answers", asked == 3)
+			folk.append(c)
+	var asked := 0
+	for c in folk:
+		# talk from a step SOUTH: the 20px TalkZone reaches, and standing
+		# on the body itself just depenetrates her back off it.
+		#
+		# The mark is a CALLABLE, not a captured Vector2 (2026-07-29): the three
+		# neighbours idle-wander now, and _interact_at burns ~48 frames settling
+		# before it presses — long enough for a villager to leave a position
+		# sampled up here. Re-reading at every re-park closes the race, and it
+		# closes it the honest way: the probe chases her exactly like a player
+		# would rather than the wander being tuned down to suit the probe.
+		if await _interact_at(func() -> Vector2:
+				return (c as NPC).global_position + Vector2(0.0, 18.0)):
+			asked += 1
+	_check("every Ebb-night neighbour answers (%d/%d)" % [asked, folk.size()],
+		folk.size() >= 3 and asked == folk.size())
 	_check("asking the whole street opens the research beat",
 			game.call("flag", "asked_around"))
 

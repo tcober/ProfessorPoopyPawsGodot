@@ -17,6 +17,7 @@ ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 from _core import ZONE_TILE, ZONE_CELL, OW_CELL, ICON
 from _maps import MapData
+from _tilekit import check_strata, strata_of
 
 FAILS = []
 
@@ -121,6 +122,53 @@ for rel in MAPS:
     bad_anchors = [(n, txy) for n, txy in m.anchors.items()
                    if m.legend[m.at(txy[0], txy[1])]["solid"]]
     check(f"{rel} anchors on walkable cells", not bad_anchors, str(bad_anchors))
+
+# ---- THE BYTE-LOCK (2026-07-29) --------------------------------------------------------
+# Some maps exist as ERA PAIRS that must stay in lockstep cell for cell: the
+# drained/bright town and the drained/bright overworld. Only the legend and the
+# anchor blocks may legitimately differ — town_fest's Academy door opens, the
+# bright overworld's markers move — so the check is on the GRID SECTIONS only.
+#
+# This invariant was prose in FOUR places (CLAUDE.md standing rule 7,
+# assets/CLAUDE.md, the map-authoring skill, both map headers) and nowhere in
+# code, which made it the single most likely way this project breaks silently:
+# edit one twin, forget the other, and the two eras diverge with no error, no
+# lint and no visible symptom until somebody walks through a wall that only
+# exists before the Ebb.
+print("byte-lock (era twins):")
+TWINS = [("maps/town.txt", "maps/town_fest.txt"),
+         ("maps/overworld.txt", "maps/overworld_bright.txt")]
+for a_rel, b_rel in TWINS:
+    ga, gb = maps[a_rel].rows, maps[b_rel].rows
+    same = ga == gb
+    where = ""
+    if not same:
+        if len(ga) != len(gb):
+            where = f"{len(ga)} rows vs {len(gb)}"
+        else:
+            diffs = [(y, [x for x in range(min(len(ra), len(rb)))
+                          if ra[x] != rb[x]])
+                     for y, (ra, rb) in enumerate(zip(ga, gb)) if ra != rb]
+            where = f"rows {[(y, cs[:4]) for y, cs in diffs[:3]]}"
+    check(f"{a_rel} <-> {b_rel} grids identical", same, where)
+
+# ---- the strata rule, RE-RUN FROM THE SHIPPED ARTIFACT ---------------------------------
+# The stratum lives in the map txt's legend, so this needs no generator, no
+# palette entry and no atlas — which is the point. A hand-edit of a map txt with
+# no regen still fails the build here, and a hand-edit is exactly the edit most
+# likely to fuse two walkable storeys into one. The rule itself is the kit's
+# check_strata(), imported rather than copied: two implementations of "the
+# storeys must be disjoint" would eventually disagree, and the one that
+# disagreed quietly would be this one.
+print("strata:")
+for rel, m in maps.items():
+    names = sorted(m.strata())
+    try:
+        check_strata(m, rel)
+        ok, detail = True, ""
+    except AssertionError as e:
+        ok, detail = False, str(e)
+    check(f"{rel} strata disjoint ({'+'.join(names)})", ok, detail)
 
 # ---- tiled scenes (atlas + layout generated from the same map file) -------------------
 TILED = {
@@ -455,12 +503,33 @@ for rel, map_rel in PLACEMENTS.items():
 SHEETS = {
     "assets/basil_gen.png": (6 * ZONE_CELL, 10 * ZONE_CELL),
     "assets/fuji_gen.png": (6 * ZONE_CELL, 10 * ZONE_CELL),
-    # the Ebb-night npc cast: a layout change here must fail the build, or
-    # scene frame_cols would slice AtlasTexture regions off the sheet edge
+    # THE VILLAGER SHEET CONTRACT IS 10 COLUMNS. Row 0 is the POSE row:
+    #   [0,1] idle_down · [2,3] act · [4,5] emote · [6,7] back · [8,9] side
+    # and the side pair is drawn facing LEFT (npc.gd flips it for east).
+    # 6-column sheets are LEGACY BUT LEGAL — npc.gd builds only the clips whose
+    # columns exist, so an old 288x48 villager simply has no back/side and never
+    # turns. A NEW villager should be 480 wide; anything that walks or is walked
+    # around MUST be, or it glides through the scene face-on.
+    #
+    # ROWS 1-3 ARE THE WALK CYCLE (2026-07-29) and they are OPTIONAL — one
+    # direction per row, six cells each, cols 6-9 padded empty:
+    #   row 1 walk_down x6 · row 2 walk_up x6 · row 3 walk_side x6 (faces LEFT)
+    # i.e. a walking villager is 480x192. That is the same contract the party
+    # sheets use (direction is the ROW), which is why the proven 6-frame stride
+    # tables are reused verbatim. npc.gd gates these on the sheet's real HEIGHT
+    # and NOT on frame_cols, so a sheet that grows rows starts walking with no
+    # scene edit — a 48px-tall sheet stays legal and stays a statue.
+    # A layout change here must fail the build either way, or scene frame_cols
+    # would slice AtlasTexture regions off the sheet edge.
     "assets/npc_fuji_gen.png": (10 * ZONE_CELL, ZONE_CELL),
-    "assets/npc_hare_gen.png": (6 * ZONE_CELL, ZONE_CELL),
-    "assets/npc_beaver_gen.png": (6 * ZONE_CELL, ZONE_CELL),
-    "assets/npc_foxkid_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    # the Lanternwood street — walk rows, so the Ebb night is not three statues
+    "assets/npc_hare_gen.png": (10 * ZONE_CELL, 4 * ZONE_CELL),
+    "assets/npc_beaver_gen.png": (10 * ZONE_CELL, 4 * ZONE_CELL),
+    "assets/npc_foxkid_gen.png": (10 * ZONE_CELL, 4 * ZONE_CELL),
+    # Mayor Hollis of Lanternwood — 10 columns from the start (2026-07-29).
+    # He does NOT wander (motion_probe pins him to his own step); the walk rows
+    # are for the one staged walk out of the moot hall door.
+    "assets/npc_mayor_gen.png": (10 * ZONE_CELL, 4 * ZONE_CELL),
     "assets/slime_gen.png": (6 * 24, 4 * 24),
     "assets/overworld_basil.png": (4 * OW_CELL, 3 * OW_CELL),
     "assets/overworld_fuji.png": (4 * OW_CELL, 3 * OW_CELL),
@@ -474,9 +543,11 @@ SHEETS = {
     "assets/placeholder/blow_dart.png": (12, 4),
     # the Prologue A cast (assets/_gen_prologue_sprites.py)
     "assets/kid_basil_gen.png": (6 * ZONE_CELL, 5 * ZONE_CELL),
-    "assets/npc_sage_gen.png": (6 * ZONE_CELL, ZONE_CELL),
-    "assets/npc_schweinler_gen.png": (6 * ZONE_CELL, ZONE_CELL),
-    "assets/npc_kitty_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    # the three CHILDREN widened to the 10-column contract (2026-07-29) so they
+    # stop gliding around the recital and the schoolyard permanently face-on
+    "assets/npc_sage_gen.png": (10 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_schweinler_gen.png": (10 * ZONE_CELL, ZONE_CELL),
+    "assets/npc_kitty_gen.png": (10 * ZONE_CELL, ZONE_CELL),
     "assets/npc_sheep_gen.png": (8 * ZONE_CELL, ZONE_CELL),
     "assets/npc_owl_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/npc_goose_gen.png": (8 * ZONE_CELL, ZONE_CELL),
@@ -486,13 +557,18 @@ SHEETS = {
     "assets/accident_atv_gen.png": (5 * ZONE_CELL, ZONE_CELL),
     "assets/accident_bike_down_gen.png": (ZONE_CELL, ZONE_CELL),
     "assets/accident_bg.png": (384, 216),
-    # thesis-day cast (Prologue B) + Mom (the A pacing pass)
-    "assets/npc_mom_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    # thesis-day cast (Prologue B) + Mom (the A pacing pass). Mom got the walk
+    # rows so she can WORK her kitchen instead of standing in it.
+    "assets/npc_mom_gen.png": (10 * ZONE_CELL, 4 * ZONE_CELL),
     "assets/npc_schweinler_adult_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/npc_badger_gen.png": (8 * ZONE_CELL, ZONE_CELL),
     "assets/npc_stork_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/npc_kitty_bed_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/npc_kittymom_gen.png": (6 * ZONE_CELL, ZONE_CELL),
+    # were never dimension-linted at all until 2026-07-29 — the gap that let a
+    # sheet change shape without the build noticing
+    "assets/npc_kitty_adult_gen.png": (10 * ZONE_CELL, ZONE_CELL),
+    "assets/bluff_kiss_gen.png": (3 * 96, 96),
 }
 
 print("sheets:")

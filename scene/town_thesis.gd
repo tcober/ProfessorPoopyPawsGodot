@@ -35,6 +35,13 @@ const FX_PRINT := 11
 ## (the doorstep lane, just south of the door arch), relative to the "home"
 ## anchor: the morning bag must sit exactly where the night phase left it.
 const BAG_OFF := Vector2(0.0, 38.0)
+## The pace of the leaving trudge, px/s. It used to be implied — a fixed 4.6s
+## tween onto a hardcoded Vector2(440, 545) — which meant the SPEED was a
+## function of where the map's south edge happened to be. Now the endpoint is
+## derived (one tile past the last row, off-map on purpose) and the duration is
+## derived from it, so a taller or shorter town changes how long he walks and
+## never how fast: 85px over 4.6s, the shipped trudge, held exactly.
+const TRUDGE_SPEED := 18.5
 
 const TINT_NIGHT := Color(0.42, 0.40, 0.66)
 const TINT_MORNING := Color(0.98, 0.93, 0.86)
@@ -136,13 +143,26 @@ func _phase_plant() -> void:
 	# holds a quiet beat, then the shape slinks the lanes on its own
 	await theater.wait(1.0)
 	# theater walks are straight no-collision tweens — creep the LANES (up
-	# the gate road, around the fountain's west ring, west down the main
-	# lane), never the diagonal through the shop blocks
+	# the gate road, west along the forest floor, then UP BASIL'S ROPE LADDER),
+	# never the diagonal through the shop blocks or the fascia. Those corners
+	# used to be absolute pixels: Vector2(440,384), (408,384), (408,312),
+	# (168,312). Read that route on a re-authored grid and it is nonsense —
+	# the same numbers, a different town, the creep cutting through whatever
+	# now stands there. So the corners are NAMED IN THE MAP (creep_gate /
+	# creep_cross / creep_lane / creep_head) and the last two hang off "home"
+	# like the doorstep gate already did. Whoever re-authors the lanes moves
+	# five anchors and the creep follows them.
+	#
+	# creep_head is the 2026-07-29 addition and it is the canopy's whole cost
+	# here: Basil lives UP A TREE now, so the bag has to be carried up a
+	# ladder to reach his doorstep, and a straight tween from the floor to the
+	# deck would walk Schweinler through the fascia band. It also makes the
+	# beat better — the sneer had to climb.
 	await theater.walk_via(schw, [
-			Vector2(440.0, 384.0),
-			Vector2(408.0, 384.0),
-			Vector2(408.0, 312.0),
-			Vector2(168.0, 312.0),
+			MapData.anchor_px(map, "creep_gate"),
+			MapData.anchor_px(map, "creep_cross"),
+			MapData.anchor_px(map, "creep_lane"),
+			MapData.anchor_px(map, "creep_head"),
 			MapData.anchor_px(map, "home") + Vector2(0.0, 26.0)], 44.0)
 	schw.play_idle()
 	# the bag — dropped at BAG_OFF, right where the morning step will land
@@ -150,10 +170,14 @@ func _phase_plant() -> void:
 	await theater.say("Schweinler", "Heh heh heh. A little CONGRATULATIONS for the no-magic wonder and his little POTIONS.")
 	schw.play_emote()
 	await theater.say("Schweinler", "Enjoy your big lecture tomorrow, Basil. Oink - hahaha!")
+	# back out the way he crept in — the SAME corners, reversed, so the two
+	# routes can never drift apart into two different opinions of where the
+	# lanes are
 	await theater.walk_via(schw, [
-			Vector2(408.0, 312.0),
-			Vector2(408.0, 384.0),
-			Vector2(440.0, 384.0),
+			MapData.anchor_px(map, "creep_head"),
+			MapData.anchor_px(map, "creep_lane"),
+			MapData.anchor_px(map, "creep_cross"),
+			MapData.anchor_px(map, "creep_gate"),
 			MapData.anchor_px(map, "exit_south")], 60.0)
 	schw.queue_free()
 	bag.queue_free()
@@ -269,8 +293,12 @@ func _phase_steps() -> void:
 	player.sprite.play("sit")             # down onto the clinic steps
 	player.sprite.flip_h = false          # profile east, where the lane runs
 	await theater.wait(1.6)
-	# Ridley comes up the lane — the witness, still carrying it
-	var badger: NPC = _npc("Ridley", SHEET_BADGER, 6, Vector2(430.0, 456.0))
+	# Ridley comes up the lane — the witness, still carrying it. He arrives from
+	# and leaves to ONE spot, the lane east of the stoop, and it is now the
+	# "lane_e" anchor rather than a bare Vector2(430, 456) written twice: two
+	# copies of a pixel are two chances for a re-author to move the lane out
+	# from under him and leave the witness walking in from inside a wall.
+	var badger: NPC = _npc("Ridley", SHEET_BADGER, 6, MapData.anchor_px(map, "lane_e"))
 	await theater.walk(badger, MapData.anchor_px(map, "cottage_e") + Vector2(38.0, 14.0), 44.0)
 	await theater.say("Ridley", "Hey. Basil, right? I was there. On the road. I saw the whole thing.")
 	await theater.say("Ridley", "The doctor won't say it plain, so: how is she?")
@@ -283,8 +311,9 @@ func _phase_steps() -> void:
 	await theater.say("Ridley", "YOU weren't the one who got run over. SHE'S the one in the bed. And you're over here feeling sorry for YOURSELF?")
 	await theater.say("Ridley", "...I'm just saying. Perspective. Anyway. Feel better!")
 	theater.close_dialog()
-	# he says his piece and walks off — nobody stops him
-	await theater.walk(badger, Vector2(430.0, 456.0), 52.0)
+	# he says his piece and walks off — nobody stops him, back down the same
+	# lane he came up (the one anchor, both directions)
+	await theater.walk(badger, MapData.anchor_px(map, "lane_e"), 52.0)
 	badger.queue_free()
 	await theater.wait(0.8)
 	await theater.say("Basil", "...")
@@ -304,7 +333,10 @@ func _phase_steps() -> void:
 ## The cut: the south gate at night. A knapsack over his shoulder, one look
 ## back at the town (2026-07-18 — restaged from the east lane), and out.
 func _leaving() -> void:
-	Party.place(Vector2(440.0, 460.0))    # the central road, just inside the gate
+	# the central road, just inside the gate — the "gate_inside" anchor, not the
+	# old Vector2(440, 460). The tableau has to read as HIM STANDING IN THE
+	# GATEWAY; a stale pixel would park him in whatever the re-author puts there
+	Party.place(MapData.anchor_px(map, "gate_inside"))
 	player.sprite.play("knapsack")
 	player.sprite.flip_h = false          # profile: the held tableau
 	await theater.clear(1.2)
@@ -325,9 +357,21 @@ func _leaving() -> void:
 	player.sprite.flip_h = false
 	await theater.wait(0.5)               # the turn: a profile flash...
 	player.sprite.play("knapsack_walk_down")   # ...then face down the road
+	# South, through the gate mouth, gone. The destination is DELIBERATELY
+	# off-map — one tile past the last row — so he is still walking when the
+	# black lands and is never seen to stop; that is why it gets no anchor
+	# (every anchor must sit on a walkable cell) and is derived from the map's
+	# own height instead of the old Vector2(440, 545). The x is the gate's own
+	# axis, exit_south — the same x _wall_gate_mouth() puts its wall on, so the
+	# trudge and the wall that stops a wander can never end up on different
+	# roads. The duration comes from the distance at TRUDGE_SPEED, because the
+	# tween is killed by the fade at 4.4s and its endpoint only ever set the
+	# PACE.
+	var out := Vector2(MapData.anchor_px(map, "exit_south").x,
+			MapData.size_px(map).y + 16.0)
 	var walk := create_tween()
-	walk.tween_property(player, "global_position",
-			Vector2(440.0, 545.0), 4.6)   # south, through the gate mouth, gone
+	walk.tween_property(player, "global_position", out,
+			player.global_position.distance_to(out) / TRUDGE_SPEED)
 	await theater.wait(2.8)
 	await theater.black(1.6)
 	if walk.is_running():

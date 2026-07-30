@@ -190,7 +190,11 @@ func _spawn_kitty_kid() -> void:
 	_kitty = NPCScene.instantiate()
 	_kitty.display_name = "Kitty"
 	_kitty.sheet = SHEET_KITTY_KID
-	_kitty.frame_cols = 6
+	_kitty.frame_cols = 10                # cols 6-9: back x2 + side x2 (2026-07-29
+	                                      # — the kid sheet grew the facings the
+	                                      # adult one has had since 07-17, so the
+	                                      # whole meet stops being played
+	                                      # front-first at the camera)
 	_kitty.lines = PackedStringArray([
 		"The gear rolled for the treeline. The spring went SPROING toward the point.",
 		"The crank? Honestly, no idea. Cranks are free spirits. Try the flowers.",
@@ -226,7 +230,9 @@ func _meet_kitty() -> void:
 	await theater.say("???", "Stupid. Stubborn. WING-NUT.")
 	await theater.say("Basil", "...Are you talking to me?")
 	await theater.say("???", "To the whirligig. It ate its crank AGAIN. And the gear rolled off. And the spring went sproing. Somewhere.")
-	_kitty.play_idle()
+	# she stops working and LOOKS at him — he's stood west of her, so the profile
+	# is her turning, not the front view she was hunched over the whirligig in
+	_kitty.play_side(false)
 	await theater.say("???", "Hey, you're the kid who can't do magic aren't you? From town?")
 	player.sprite.play("sad")
 	await theater.say("Basil", "...Yeah. That's me. Sorry. I'll go.")
@@ -276,7 +282,7 @@ func _flight_finale() -> void:
 	await theater.say("Kitty", "Gear. Spring. Crank. Perfect!")
 	_kitty.play_act()
 	await theater.wait(1.4)
-	_kitty.play_idle()
+	_kitty.play_side(false)               # up from the whirligig, round to him
 	await theater.say("Kitty", "Okay. Grab the crank and WIND!")
 	theater.close_dialog()
 	await _crank_minigame()
@@ -351,7 +357,8 @@ func _orbit_whirligig() -> void:
 ## The cards moved with it — hall.gd's recital owns "THREE SUMMERS LATER." now.
 func _the_idea() -> void:
 	theater.face(player, Vector2.RIGHT)
-	_kitty.play_idle()
+	_kitty.play_side(false)               # face to face — the meet's big line is
+	                                      # said the way the romance's are
 	await theater.say("Basil", "Kitty. It's carrying its own weight up there. Could it carry more?")
 	await theater.say("Kitty", "More like a pebble, or more like my brother?")
 	await theater.say("Basil", "More like a flask.")
@@ -587,7 +594,10 @@ func _refit_and_kiss() -> void:
 	# take over from the hidden bodies (bluff_kiss_gen: lean / KISS / after)
 	theater.face(player, Vector2.RIGHT)
 	await theater.walk(_kitty, player.global_position + Vector2(18.0, 0.0), 30.0)
-	_kitty.play_side()
+	# NOT redundant with the walk's auto-facing: she is talked to from wherever
+	# the player happens to be standing, so the last leg can run either way —
+	# this aims her at HIM, west, whichever side she closed from
+	_kitty.play_side(false)
 	await theater.wait(0.4)
 	var kiss := WorldFx.sheet_sprite(SHEET_KISS, 0, 3)
 	kiss.position = Vector2(

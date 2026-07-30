@@ -238,8 +238,11 @@ that nobody in the scene finds the animal remarkable.
   archivist")**: keeper of the little library in her snow town on the NW ice
   land, an ocean away from Basil's whole life. **A stranger to Basil's
   past** — she knows him only through the thesis she unearths after the Ebb.
-  HOW his thesis reached a Lanternwood shelf, and how she crosses the ocean
-  to find him (the boat), are open Act 1 hooks. Her first on-screen
+  HOW his thesis reached a Lanternwood shelf stays an open hook (and a
+  deliberate refusal — nobody wrote that down either). **How she crosses the
+  ocean is ANSWERED (2026-07-29): the town gives her its steam launch**, and
+  the reason a boat still runs in a drained world is the point — it burns
+  coal. Honest oil, honest fire. The Ebb never touched it. Her first on-screen
   appearance is the shipped Ebb-night library beat (`scene/library.gd` —
   the wand-made coffee, the quake, the wand that suddenly makes nothing),
   after which the story hands HER the controls: playable solo Fuji on her
@@ -251,6 +254,19 @@ that nobody in the scene finds the animal remarkable.
   running THE CRACKED FLASK item shop selling *potions* — the sister who
   teased Basil for having no magic now survives on his kind of craft.
   Reconciliation is an Act 2 thread.
+  **Her first adult appearance is Act 1 beat 4** (2026-07-29): Fuji asks after
+  "B. Basil" and Sage is the one person in town who knows the name instantly
+  and **will not say the other one.** She sends Fuji to their mother — the
+  cowardice and the kindness in one sentence. Needs a new adult sheet;
+  `npc_sage_gen.png` is the kid.
+- **Basil and Sage's mother** — the warm grey matron of Prologue A's
+  `downstairs_fest` hearth, and **old now**. Act 1 beat 4 gives her the
+  emotional floor of the act and the fewest lines in it: she is the one who
+  knows where he went, because a mother is, and what she has is not an
+  address but the last thing she heard. **She must not ask Fuji to bring him
+  home** — she asks something much smaller and worse, and Fuji says yes to it.
+  Needs an aged sheet; `npc_mom_gen.png` is twenty years younger than this
+  scene.
 - **Kitty Cool** — the maker girl. Meets kid Basil in Whisker Meadow; her
   creed: "anyone can wiggle their fingers — try *making* something."
   **She made Basil's brass wrist-watch comm** (2026-07-16 canon, the "Kitty
@@ -320,9 +336,37 @@ that nobody in the scene finds the animal remarkable.
   would need it destroyed. **The boy never had an idea in his life,
   including the one he bullied Basil with** — which is the whole reason
   the reveal must shrink him rather than promote him.
+- **Mayor Hollis** — Lanternwood's mayor, and its clerk in the same body.
+  An old elk: broad, grey-muzzled, one antler tine blunted, half-moon
+  spectacles on a cord, a brass chain of office, an ink-stained hoof.
+  **BUILT 2026-07-29 — Act 1 beat 3b, "THE MOTION".** He is the character
+  who makes Fuji's leaving something her town ASKED of her rather than
+  something she took upon herself, and he is the register in one person:
+  the machinery of a parish council applied, completely straight, to the end
+  of magic. His instrument against the apocalypse is a set of minutes. He is
+  already out on his step on the Ebb night, writing it up — *"the first entry
+  I could not put a CAUSE to"* — so by the time he sends her, the player
+  knows him.
+  The beat: she tells him about the unstamped thesis, and what frightens him
+  is not the magic, it is that **a document exists which is not in the
+  record**. So he moves that the town send somebody, gets no second because
+  there is nobody in the street, **seconds himself**, and minutes it. Then he
+  stops performing: nobody is coming, sixty-one years of letters to the
+  Capital answered *"received"*, Lanternwood is the last place anyone thinks
+  of, *"so it is one of ours or it is nobody — and you are the one holding
+  the paper."* He hands her the town launch, and his one condition is that
+  she **write down what she finds, for the minutes** — a clerk's idea of
+  immortality, asked of somebody about to cross an ocean, and he means it
+  more than he can say. He calls her "Librarian" the whole scene and uses
+  her name exactly once, at the end: *"...Fuji. Come back and read it to me."*
+  **He must never become a quest-giver.** He is a fixture with three sets of
+  lines, he gives her one object, and the game does not send him a single
+  update afterwards. The pull of coming back to read him the minutes has to
+  work on the player without ever being a task.
 - **Minor cast**: the Dean (from the old intro), the doctor, the fountain
   classmate (unnamed, one scene), the Copper Kettle innkeeper (the town's
-  memory — the one who recalls where Basil went), festival townsfolk, and
+  memory — the one who recalls where Basil went), festival townsfolk,
+  Bramble / Alder / Pip (the Ebb-night Lanternwood street), and
   Dr. Feathers the bird (kept — beloved wake-up gag).
 
 ### PROLOGUE A — "THE WHIRLIGIG" (kid Basil · Alembic Town, bright era)
@@ -660,33 +704,33 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
    six weeks becomes a supply list. A wander gate: three interactables,
    **all three required**, every one of them SHIPPED FURNITURE:
    - **Shelf THREE — husbandry.** The brass plate already says it and has
-     since 2026-07-25. A husbandry manual is where you find how to put a
-     large animal down to trim its hooves: dose by body weight, and a note
-     on how long it takes to come on. **That is the sleep dart. It is
-     pharmacology. It is science, and she reads it off a shelf.** Shelf
-     NINE, *enchantment, theory*, is now worthless, and the shelf about
-     livestock saves her life. **Never say this out loud.**
+	 since 2026-07-25. A husbandry manual is where you find how to put a
+	 large animal down to trim its hooves: dose by body weight, and a note
+	 on how long it takes to come on. **That is the sleep dart. It is
+	 pharmacology. It is science, and she reads it off a shelf.** Shelf
+	 NINE, *enchantment, theory*, is now worthless, and the shelf about
+	 livestock saves her life. **Never say this out loud.**
    - **THE WAND — the delivery problem, solved with the thing in her
-     hand.** A wand is a stick. Hers has been dead for six weeks. **She
-     bores it out.** The instrument of her lost magic becomes the barrel
-     of her science, and it costs her the last object that let her pretend
-     otherwise. Stage it slow, stop her halfway, and make the player press
-     again to finish it. (The bluff's explode → gather → refit is shipped;
+	 hand.** A wand is a stick. Hers has been dead for six weeks. **She
+	 bores it out.** The instrument of her lost magic becomes the barrel
+	 of her science, and it costs her the last object that let her pretend
+	 otherwise. Stage it slow, stop her halfway, and make the player press
+	 again to finish it. (The bluff's explode → gather → refit is shipped;
      this is its inverse — one whole thing deliberately ruined to get one
      working thing, which is the same trade Basil made with the watch.)
    - **THE BOOK — the player's choice, and her socket vessel forever**
 	 (Ladder 2, "the socket has a VESSEL"). Three or four spines in the
-     stacks; stats identical, name and flavour and cast-tint hers for the
-     whole game. The tender beat costs exactly one line: **she reaches for
-     the one she loves first, holds it, and puts it back**, because you do
-     not hit things with a book you love. Her stated criterion for the one
-     she does take is entirely about mass. The Simon & Marcy register —
-     the player braces for a meaningful choice and gets a woman weighing
-     hardbacks, and it only lands because the thing she put back mattered.
+	 stacks; stats identical, name and flavour and cast-tint hers for the
+	 whole game. The tender beat costs exactly one line: **she reaches for
+	 the one she loves first, holds it, and puts it back**, because you do
+	 not hit things with a book you love. Her stated criterion for the one
+	 she does take is entirely about mass. The Simon & Marcy register —
+	 the player braces for a meaningful choice and gets a woman weighing
+	 hardbacks, and it only lands because the thing she put back mattered.
    - **And the twelfth book can't be a weapon.** Basil's thesis is unbound
-     string-tied paper with no spine; it would come apart on the first
-     swing. She carries it in the other hand anyway, for the rest of the
-     game. **Do not comment on this either.**
+	 string-tied paper with no spine; it would come apart on the first
+	 swing. She carries it in the other hand anyway, for the rest of the
+	 game. **Do not comment on this either.**
 
    **(c) THE ROAD AGAIN** *(playable — the real combat tutorial)* — same
    gate, same pines, same slimes, and now the status system gets taught in
@@ -695,18 +739,18 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
 
    **WHY THIS BEAT EXISTS, and the rules it has to hold:**
    - **It is the recital chain, inverted.** Prologue A: *the idea → the
-     brew → the whirligig flies.* Act 1: *the ambush → the improvisation →
-     the darts fly.* Both are somebody inventing science on a domestic
-     table because the thing they were supposed to use is not available to
-     them. Basil could not cast, so he made a potion. Fuji can no longer
-     cast, so she makes a dart. **Same scene, twenty years and one ocean
-     apart, and neither of them will ever know about the other one.**
+	 brew → the whirligig flies.* Act 1: *the ambush → the improvisation →
+	 the darts fly.* Both are somebody inventing science on a domestic
+	 table because the thing they were supposed to use is not available to
+	 them. Basil could not cast, so he made a potion. Fuji can no longer
+	 cast, so she makes a dart. **Same scene, twenty years and one ocean
+	 apart, and neither of them will ever know about the other one.**
    - **This is Fuji learning SCIENCE, and it happens BEFORE she meets
-     Basil.** The thesis rule — the exchange goes both ways — stops being
-     something the romance does to her later. She is already doing it,
-     alone, on the night she read his paper. **That is why she is the one
-     who goes and gets him**: she is the only other person alive who
-     answered the drained world the way he did, and she has no idea yet.
+	 Basil.** The thesis rule — the exchange goes both ways — stops being
+	 something the romance does to her later. She is already doing it,
+	 alone, on the night she read his paper. **That is why she is the one
+	 who goes and gets him**: she is the only other person alive who
+	 answered the drained world the way he did, and she has no idea yet.
    - **Her whole kit is a librarian's.** The shelf gave her the dose, the
      wand became the pipe, the weapon is a book. Nothing is invented and
      nothing is found in a chest — it is one room she already had, used
@@ -721,13 +765,126 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
      one) → `kit_made`. `reset_story()` must clear all of it, including
      `fuji_tome`, for the same reason it blanks the gun loadout. Probe
      work extends **`tools/library_probe.gd`**, not the prologue probe.
-4. **The crossing → asking around** *(the boat, then a wander gate)*: every
-   land is ocean-separated — how Fuji gets across is the Act 1 boat hook
-   (open). Landing near Alembic Town: nobody knows a "Basil."
+3b. **THE MOTION — Mayor Hollis, the moot hall, and the launch** *(BUILT
+   2026-07-29 — `scene/lanternwood.gd::_the_motion`)*. The beat that closes
+   the boat hook and, more importantly, answers **"why does she go?"** with
+   somebody asking her to.
+
+   Until this existed, Fuji left because the player walked her out of a gate.
+   That is a plot, not a reason — and it quietly made the most sympathetic
+   character in the game self-appointed. Now the town sends her, and the town
+   sending her costs the town something to say.
+
+   The staging is deliberately domestic and deliberately small: the fight in
+   the lower street ends, and **the hall door opens and the mayor comes out
+   with a slate**. He has been writing it up since the second slime. Talk to
+   him and the beat runs where you are standing — no card, no fade, no
+   relocation, because no time passes and nobody drags her anywhere. (Same
+   shape as the library → street hand-off.) See the Mayor Hollis cast entry
+   for the beat's content and its rules; the three things it must hold:
+   - **The comedy and the wound are the same object.** The bureaucracy is
+	 funny — he seconds his own motion — and then the reason he has to is
+	 that there is nobody else in the street, and it stops being funny
+	 without a single line changing register.
+   - **Nothing is granted invisibly.** He hands her ONE object, the town
+	 launch, and the reason it can still cross a drained ocean is **that it
+	 burns coal**. That is Alder's shipped Ebb-night line paid off — *"the
+	 lanterns still burn. Honest oil, honest fire. Whatever left us didn't
+	 take THAT"* — and Fuji notices it is his, out loud.
+   - **He asks for a record, not a rescue.** "You write down what you find.
+	 All of it. For the minutes." A librarian is being asked to catalogue the
+     restoration of magic by a clerk who will probably never read it, and
+     that is the most Lanternwood sentence in the game.
+
+   Flags: `town_defended` (already set by the defence) puts him in the street
+   → `mayor_briefed` + `boat_ready`. Stepping onto the pier then casts off:
+   `left_lanternwood`, `Game.overworld_spawn = "landing"`. Map work in
+   `assets/maps/lanternwood.txt` — see "Lanternwood, walkable" below for the
+   cove, the pier and the moot hall.
+
+4. **The crossing → asking around** *(the launch, then a wander gate)*: every
+   land is ocean-separated, and **the launch is how Fuji crosses** (beat 3b —
+   the hook is closed). Boarding it at Lanternwood's pier lands her on Forest
+   Land's **west shingle** (`landing`, five cells west of Alembic Town's gate
+   mouth), with the boat drawn up on the stones behind her as the return
+   affordance. One card, "THREE DAYS LATER.", carries the sea — the crossing
+   itself is not a scene, and should not become one.
+   Then: nobody knows a "Basil."
    Everyone remembers "**Poopy Paws**" — the cruel name outlived the cat (the
    theme weaponized as a story gate: the player must ask about the *insult*
    to find the man). The Copper Kettle innkeeper: "went east, past the
    meadow, years back. Never came through again."
+
+   **THE TWO SHE ACTUALLY HAS TO ASK (2026-07-29, DESIGNED not built).** The
+   wander gate is not a crowd — it is **his sister and his mother**, and the
+   generic townsfolk exist to fail her first so that those two land.
+   - **ADULT SAGE, in THE CRACKED FLASK.** Already canon: the sister who
+     teased him for having no magic now survives selling *potions*, his kind
+     of craft, and has never once said so out loud. She is the one person in
+	 the town who knows the name "Basil" instantly — and **she will not say
+     the other one.** Play it as a shopkeeper being brisk with a customer:
+     she answers about stock, about the shelves, about anything, and the one
+     question she doesn't answer is the one Fuji asked. **The tell is that a
+     stranger with an unbound paper knows her brother's real name**, which
+     nobody has used in twenty years, and it takes Sage a moment to
+     understand what that means. She still doesn't say where he is. **She
+     sends Fuji to their mother**, which is the cowardice and the kindness in
+     the same sentence.
+   - **BASIL'S MOTHER.** Old now. The hearth she gave him a good-morning at
+     in Prologue A's `downstairs_fest` is the same room, twenty-odd years
+     colder. She is the emotional floor of the act and she gets the fewest
+     lines. **She is the one who knows where he went, because a mother is**
+     — and what she has is not an address, it is the last thing she heard.
+     The rule for her scene: **she must not ask Fuji to bring him home.**
+     She asks something much smaller and worse, and Fuji says yes to it.
+   - **THE RUMOUR, and it is the direction.** Somebody — the innkeeper, a
+     hunter, a kid — heard that he **walked into the deep wood east of the
+     meadow and did not come out.** Not a warning: a piece of gossip
+     delivered casually by someone who thinks it is a story about a lunatic.
+     That is the Simon & Marcy register and it is also the map: the deep wood
+     is on the road to the HOME TREE (beat 6), so the rumour and the route
+     are the same fact.
+   - **ASSET NOTE:** adult Sage and an aged Mom both need new sheets —
+     `npc_sage_gen.png` is the KID and `npc_mom_gen.png` is the kid-era
+     mother, twenty years younger than this scene. Draw both at 10 columns
+     (back + side), per the 2026-07-29 villager contract.
+   - **BUILD ORDER NOTE:** this beat lives inside Alembic Town, which is
+     mid-rebuild into the treehouse town. **Do not author it until those
+     grids have settled** — the whole beat is anchors and NPC placement in
+     the two files being re-authored.
+5. **The road east** *(playable)*: Fuji's overworld travel; **Whisker Meadow
+   is where the kit gets its room to breathe** — the meadow that was a
+   childhood idyll in Prologue A now crawls with curdled-magic slimes, and
+   the BigSlime's raised drowse threshold lands here, one land after the
+   pines taught the basic setup (same map, two eras, the loss made
+   playable). The tutorial proper now belongs to beat 3.
+
+5b. **THE HOLLOWAY — the wood you are told not to enter** *(2026-07-29,
+   DESIGNED not built; a new zone on the trail between Whisker Meadow and the
+   HOME TREE)*. The rumour's destination, and the beat that earns the
+   hermitage.
+
+   A sunken green lane to the SE coast, hedged over so it was always twilight
+   even at noon — and **safe for four hundred years, because the way-charms
+   burned along it.** They went out in one night. That is the whole design and
+   it does three jobs at once:
+   - **It makes the Ebb personal in geography rather than in dialogue.** The
+     forest is not evil and never was. It is dangerous because *the lights
+     went out*, and the road it used to be is still under your feet.
+   - **It is the non-overlap rule made a place** (standing rule 8: the game
+     must never be completable with either system alone). Only a spell lights
+     a room — and Fuji has no spells. So the Holloway must be crossed by
+     *science*: she has honest fire, and honest fire owes magic nothing. The
+     lesson she was handed in Lanternwood is the lesson that gets her through.
+     Hold this: **do not let the answer be a found lantern.** She should have
+     to make the light, the way she made the darts.
+   - **It is where "he walked in and never came out" resolves into a door.**
+     The far end of the Holloway is the HOME TREE's roots.
+
+   Tone: Over the Garden Wall, hard. Folkloric, funny in the wrong places,
+   nobody in the scene finding any of it remarkable. No monster with a
+   motive — the danger is that you cannot see, and that things live in a wood
+   nobody has walked in three years.
 5. **The road east** *(playable)*: Fuji's overworld travel; **Whisker Meadow
    is where the kit gets its room to breathe** — the meadow that was a
    childhood idyll in Prologue A now crawls with curdled-magic slimes, and
@@ -1237,7 +1394,9 @@ Two layers:
   mountains, rivers, lava and buildings are solid; sand, grass, roads,
   bridges, hills, snow, desert dunes and basalt crust are walkable; bridges
   and roads open the routes — and **every landmass is OCEAN-SEPARATED**: no
-  walkable crossing between lands exists at all (the boat is future story).
+  walkable crossing between lands exists at all — **the LAUNCH is the crossing**
+  (Act 1 beat 3b, 2026-07-29: Lanternwood's pier -> the `landing` marker on
+  Forest Land's west shingle), and travel between lands stays story progression.
   The magic-drained premise is carried by the **summit crystal**: the big
   mountain's crystallized peak burns violet on the glow overlay at the
   center of the map. **Two-era overworld** on the fest byte-copy pattern:
@@ -1292,7 +1451,9 @@ zoom the soft dark ovals read as smudges, not weather.)
 - **NW ICE/SNOW LAND** — a heavily pine-forested winter island (`i` snow,
   `P` pines) carrying **LANTERNWOOD** (`L` cluster icon, its `d` gate →
   `scene/lanternwood.tscn`) — **Fuji's hometown**, visible from the start
-  but ocean-locked: unreachable on foot by design until the boat.
+  but ocean-locked: unreachable on foot by design. Its own east cove carries the
+  pier and the steam launch that make the crossing (see "THE HARBOUR AND THE
+  MOOT HALL" below).
 - **NE PURPLE DESERT + E/SE LAVA LAND** — one eastern landmass split by a
   volcanic ridge: the pale ripple-dune desert pan (`b`) north, the basalt
   crust (`a`) with **ANIMATED molten lava pools** (`l`) south — the
@@ -1309,8 +1470,14 @@ Markers in the live build:
   playable combat zone today. A flower ring marks its road entrance.
 - **LANTERNWOOD** (`lanternwood` → `lanternwood.tscn`) — the snow town's
   gate mouth on the NW island; wired and walkable as a zone, but the island
-  itself is ocean-locked from the playable core (the boat is the future
+  itself is ocean-locked from the playable core on FOOT (the launch is the
   unlock).
+- **THE WEST SHINGLE** (`landing`, announce-only, 2026-07-29) — the beach cell
+  on Forest Land's west coast, five cells west of Alembic Town's gate mouth,
+  where the Lanternwood launch beaches. `Game.overworld_spawn = "landing"` is
+  what Act 1 beat 4 arrives on; its banner says the launch is drawn up on the
+  stones, which is the return affordance. Present in both era twins' anchors;
+  the marker node lives only in `overworld.tscn`.
 - The old **Burrows** cave, **waste pocket** and **obelisk monument**
   geography is GONE from the map (cut 2026-07-19 with the five lands); the
   obelisk network survives as lore — one dark obelisk per landmass, the
@@ -1345,8 +1512,9 @@ town icon. Spawns route through `Game.town_spawn` (read-and-clear; "" = the
 south gate, `home` = below Basil's door — the downstairs front door now
 opens HERE, not onto the overworld).
 
-**Lanternwood, walkable** (`scene/lanternwood.tscn`, 44×28 tiles, shipped
-2026-07-19) — Fuji's winter pine-forest town at zone scale, riding the same
+**Lanternwood, walkable** (`scene/lanternwood.tscn`, **56×50 tiles** since the
+2026-07-28 Narshe rebuild; shipped 2026-07-19) — Fuji's winter pine-forest town
+at zone scale, riding the same
 OverWorld tile driver (pines border, packed-snow lanes via
 `road_verge="snow"`, the frozen pond as walkable cells under a baked
 Tier-1 ice prop): quaint log cabins as Tier-3 y-sorted 8-frame sheets with
@@ -1364,6 +1532,50 @@ Asking all three sets **`asked_around`**, the street's own wander gate: the
 whole neighbourhood tells her the same nothing, so the only place left to
 look is her own shelves, and the library door starts opening onto the
 research beat.
+
+**THE HARBOUR AND THE MOOT HALL (2026-07-29)** — the town's second way out,
+and the first water this map has ever shown. Lanternwood is ocean-locked by
+design and its only route off the island is a boat, so a Lanternwood that
+never showed the sea was quietly withholding its own premise.
+
+- **THE COVE** takes the east end of LEVEL 1 (cols 46-55, from BAND D down
+  past the south border) so the water runs off-screen on two sides and reads
+  as ocean rather than as a pond. BAND D stops at col 45 and the terrace's
+  east end is a headland over the water. Two shoreline treatments were
+  already written and are simply used: `_lip_band`'s `"snow"` pair, which is
+  an **ice shelf**, and the sea's own depth banding. Sea is solid, so the
+  cove seals the map's east and south borders on its own.
+- **THE PIER** (`town_dock`, 112×32 over a 7×2 walkable run) is terrain class
+  `dock` → render class `bridge`, which is in the driver's WATERC family, so
+  **no coastline forms under the deck**. It is baked Tier-1 as one opaque
+  blit, the `town_trestle`/cliff-face idiom: its rope rails sit on walkable
+  cells, and upper-layer art over a walkable cell is exactly what the z-order
+  doctrine forbids. On the deck: mooring bollards, a coil of rope, and a
+  **coal bunker** — the detail that says why this boat still works.
+- **THE LAUNCH** (`town_launch`, 96×32, an 8-frame Tier-3 prop) sits on a 6×2
+  run of `berth` cells → render class `sea`, so the hull floats on animated
+  water instead of on painted planks. Clinker hull, a riveted brass boiler
+  and a stubby funnel breathing woodsmoke, a lantern at the bow on the hearth
+  breath. It moors **directly south of the deck**, and that adjacency is
+  load-bearing: a body pressed into the deck's south row hangs ~11px of
+  sprite over the cell below it, and the hull — y-sorted south of the body —
+  swallows it. **The mask-band problem answered by composition rather than by
+  a mask**, and worth remembering the next time a walkable edge meets water.
+- **THE MOOT HALL** (`town_moot_hall`, 80×64 on a cabin's 5×4 footprint) is
+  Mayor Hollis's council hall, announce-only, on LEVEL 1 between the gate and
+  the water — where a harbour town's clerk belongs, and exactly where the
+  player is standing when the defence of the lower street ends. Same
+  roof/body/door char arrangement as every cabin, so it asks nothing new of
+  the kit; what makes it civic is a **bell-cote on the ridge** (the same
+  `_snow_roof(ridge=)` trick that stands the library's lantern cupola), a
+  coursed fieldstone plinth, a covered porch, and a **notice board** by the
+  door. It reads as a public building on a cabin's footprint.
+- Anchors added: `moot_hall`, `mayor_pos`, `dock`. `slime_b` moved from
+  (36,44) to (30,46) — the hall now stands where the BigSlime used to spawn.
+- **The pier is a plain `Area2D` (`$DockZone`), not an `OverworldLocation`**,
+  because boarding is a staged beat and not a banner-and-fade: `_announce`
+  would hold `_busy` across the whole cutscene, and the doctrine forbids a
+  second zone on an anchor that already has one. One zone, one owner.
 
 **THE LANTERNWOOD LIBRARY** (2026-07-25) is the town's one civic building
 and the **only door in Lanternwood that travels** — Fuji works there, so
@@ -2126,7 +2338,7 @@ Basil's home door in town travels down into the downstairs.
   Structure"). Three markers: the town icon's gate mouth (`town`, into the
   walkable town at its south gate), Whisker Meadow (enters the combat
   zone), and Lanternwood's gate (`lanternwood`, into the snow town —
-  ocean-locked from the playable core until the boat).
+  ocean-locked from the playable core on foot; the launch crosses).
 - **Alembic Town, walkable** (`alembic_town.tscn`) — the Kakariko-style hub
   (see "World Structure" for the full composition): terrace Academy over the
   cliff-and-stair band, fountain square, the two shops + inn (announce-only
@@ -2592,6 +2804,129 @@ driven by its `assets/maps/*.txt` file.
   legitimately sit under y-sorted sprites).
   Generator-side, `place_upper` asserts a non-empty upper sprite (no dead
   splits).
+- **STACKED WALKABLE STOREYS — the strata doctrine (2026-07-29, assert-enforced).**
+  Alembic Town is a **two-strata canopy town**: a forest floor, a plank boardwalk
+  in the boughs above it, and the Academy's stone terrace above that, all in ONE
+  56x34 grid. **There is no elevation system and there does not need to be one.**
+  The reason is not thrift, it is expressiveness: a cell is exactly one `(x, y)`
+  with one legend char and one walk/solid bit, so a body is never
+  "on-bridge-or-under-bridge" — there IS no cell under a bridge, the deck **is**
+  the cell. Two storeys are therefore unambiguous **iff they are disjoint in the
+  grid**, which is precisely the shape of a terrace: two flat walkable regions
+  separated by a band of solid cells wearing opaque face art, pierced by a
+  walkable stair. "A bridge over walkable ground" stops being discouraged and
+  becomes *unrepresentable*.
+  - **The `stratum:` legend token** (`assets/_maps.py`, `scene/map_data.gd`, kept
+    in sync as always) names which storey a walkable char belongs to; it defaults
+    to `ground`, so every map written before it means what it always meant.
+  - **`TileScene.assert_strata` IS the system, and it is ~25 lines.** Every failure
+    here is otherwise SILENT: fuse the canopy to the floor with ONE mistyped cell
+    and the boardwalk stops being a storey and becomes a wooden patch of forest —
+    it renders, it dedupes, every lint above passes it, and `assert_reachable` is
+    *happier* with a fused canopy than a correct one. Two rules: no two 4-adjacent
+    walkable cells may declare different strata unless one is a `link` (a rope
+    ladder), and every `link` component must border **exactly two** distinct
+    strata — one is a ladder to nothing, three is a junction no player can be
+    taught. `_check_art.py` re-runs the identical rule straight off the shipped map
+    txt, so a hand-edit with no regen still fails the build.
+  - **THE SPAN LAW.** "Bridges only span ground that is not walkable" permits
+    authoring an ABSENCE, which is the shipped chasm failure verbatim (below). So
+    state it positively: **a span is a lid on a NAMED POSITIVE THING, and that
+	thing's own art is what you see** — a bough, a great trunk, a creek, a
+	building. `assert_span`: a span is two rows deep (the rails live in the second
+	row; a 1-cell span would put a rail on the walking line), the row below it
+	begins a **≥2-row** solid run whose top row carries fascia art, its north
+	boundary is solid or its own storey, and no span cell is 4-adjacent to walkable
+	ground on another storey. The `≥2` is the mask-band rule above, not taste: one
+	row of solid between two walkable rows has no assignment of those twelve pixels
+	that serves both bodies.
+  - **THE MASK BAND IS THE RAILING.** Do not add a railing char. A rail on a
+	walkable deck cell fails two z-order lints by construction; baked on the lower
+	layer it reads as *standing on the rail* (the 2026-07-19 fence lesson); as a
+	Tier-3 prop it is a whole new manifest family. Instead **draw the posts and the
+	lashed hemp handline into the fascia art's top 12px**, which `mask_band()`
+    already re-emits as a Tier-3 y-sorted strip keyed at `run_top - 8`. A body on
+    the deck pressed south is then drawn BEHIND the rail, a body in the notch
+    beside a step is not, and a body on the floor below is not — the three answers
+    the three bodies want, for free, from shipped code.
+  - **A ONE-ROW FASCIA GETS AUTHORED UPPER ART, NEVER A BAND** — a span's south row
+	is exactly the 1-row strip the mask-band rule forbids, so it takes
+	`_tree_props.tree_span_edge` on the upper layer (laid on the lower canvas too,
+	same pixels same coordinates, so it cannot seam). Over WATER it is upper-only:
+	`_lower_frames` repaints river cells per frame and asserts frame 0 is
+	byte-identical.
+  - **THE ONE MACHINE IS JOINED BY CODE, NOT BY AUTHORING.** The dinghy lift's
+    shaft is SOLID and its ride is a scripted ~1.1s tween (`alembic_town.gd`, and
+    only there — the bright era wires no zones, so the Prologue takes no new risk).
+    A *cosmetic* lift that is mechanically one more link would need a walkable
+    shaft, and then you must answer what the floor of those cells is: there are no
+    treads and no ground, the honest art is nothing, and the player walks up a wall
+    with a boat overhead. The mechanism IS the motion. So the two landings are
+    walkable on their own strata behind a solid curtain with ZERO adjacency,
+    `assert_strata` is satisfied with no link at all, and the lift is the same
+    thing a door is — a scripted crossing of a wall. `assert_lift` proves at BUILD
+    TIME that the top landing is reachable with the shaft treated as impassable, so
+    riding up and reloading cannot strand you.
+  - **REJECTED: a two-scene split** (ground town / canopy town linked like
+    interiors). It doubles the byte-lock invariant from 2 grids to 4, and several
+    shipped Prologue beats span both halves in one unbroken playable stretch — so a
+    scene boundary mid-beat means a fade to black, and **a fade to black to climb a
+    ladder inside one town destroys the sense of place**, which is the entire reason
+    to build a treehouse town.
+  - **REJECTED: a real per-body elevation system.** Per-cell level field, per-level
+    collision layers, per-body level state, a third static tile layer (so
+    `_tiles.py`, `write_layout`, `tiled_map.gd` and the layout format all change), a
+    3-D `assert_reachable`, level-awareness in both brains, in the leash teleport
+	and in `theater.walk`, and a redo of `mask_band`'s `run_top - 8` derivation —
+	which is a **2-D y-sort result** with no per-level meaning. A rewrite of the
+	z-order doctrine, the tile pipeline, the collision builder, the party AI and the
+	narrative kit, to buy what the terrace idiom already delivers.
+  - **The leash across a fascia** is the only genuinely new *systems* risk, and it
+	resolves itself: a follower walks with collision so it cannot cross a fascia,
+	but `AIBrain._teleport_home` lands it a step behind the LEADER, so it inherits
+	whichever storey the leader is on. `tools/party_probe.gd` phase 3 checks the
+	STRATUM, not the distance — the distance passes even when the follower is stuck
+	directly below the leader against the boardwalk.
+- **THE TREEHOUSE VILLAGE READS FROM ITS SILHOUETTE AND NOTHING ELSE
+  (2026-07-29).** The first pass put Alembic's own buildings — plaster walls, leaf
+  canopy roofs, copper plumbing, stone footings — up on the new boardwalk, and it
+  read as a **raised high street**, because the silhouette was still a rectangular
+  cottage. The structure was right and the building was wrong. The references are
+  **FFXIV Shadowbringers' Slitherbough** and **Endor's Ewok village**, and they
+  agree on four cues, in order of how much each carries
+  (`_tree_props.tree_hut`):
+  1. **THE CONE.** A round thatch roof with a ragged eave fringe and a lashed
+	 crown. Nothing else in this game's vocabulary is round-and-radial, so it
+	 reads instantly at any zoom. It must be a CONE and not a dome: an ellipse
+	 shaded from a point is a mushroom cap, a clamshell or a parasol — round things
+	 with no apex are all the same silhouette. Draw the convex hull of an apex and
+	 a rim ellipse, and lay the reed RADIALLY from the peak (horizontal courses on
+	 a round roof read as a coil of rope). **The radius is solved backwards from
+	 the vertical room**, never chosen: a cone's proportions are fixed by its
+     height, and scaling it off the footprint width is exactly how the parasol
+     happened.
+  2. **THE BARREL.** The body curves in at both flanks, so the silhouette carries
+     no vertical edge anywhere — the precise opposite of a cottage.
+  3. **WOVEN, NOT BUILT.** Vertical withy staves between lashed hemp hoops. A hut
+     is made of the forest; a cottage is made of quarried and milled things. The
+	 stave tone is a function of x ALONE — keyed on the barrel's curvature per row
+	 as well, it put a horizontal band across every course and the hut came out a
+	 barrel lying on its side.
+  4. **A PORCH ON JOISTS, NEVER A PLINTH.** The one detail that says a building is
+	 standing in the AIR. A stone footing up here reads as a hut in a hedge.
+  Two structural consequences worth keeping: **the hut is deliberately smaller
+  than its footprint** (that size relationship is most of what makes both
+  references read as villages rather than as streets) and is therefore **nested in
+  a leaf mass** that fills the flanks — which is both the Slitherbough half of the
+  reference and what keeps the outer footprint cells off the invisible-wall lint,
+  since widening the hut to cover them would flatten the cone. And **`rise`**: a
+  cone needs vertical room, a map row is 16px, and `emit_prop` bottom-anchors a
+  sheet without caring how tall it is (the SMOKE_PAD mechanism), so the sheet is
+  drawn taller than its footprint and the roof stands up over the cells north of
+  it. Cap it at whatever keeps the crown out of the nearest WALKABLE row above.
+  The **GROUND** buildings keep Alembic's plaster-and-cement language on purpose:
+  the old town on the forest floor, the woven canopy above it, and the two do not
+  have to be the same town.
 - **`assets/_sprites.py`** — the sprite construction kit: `Sprite` canvas with
   steer-lit `ball`/`capsule`/`panel` volumes, cluster-jittered tone selection,
   `cluster_shade`/`despeckle`/`outline`/`crease` finishing passes, and `Rig`
@@ -3525,7 +3860,7 @@ sprite is authored new on the current pipelines. Build order (user call:
    `scene/ebb.tscn`, the library dead-wand beat, and the playable Ebb-night
    street in Lanternwood, the build's current resting point; see Current
    Milestone) — still to build: the library research phase (reusing
-   `scene/library.tscn` via `library_phase`), the boat crossing (open
+   `scene/library.tscn` via `library_phase`), the launch crossing (BUILT
    hook), drained-town wander gates, the meadow as Fuji's combat tutorial,
    the **HOME TREE hermitage** zone (the giant tree's interior at zone
    scale — a den among the roots, corkboard research, the brass gun), the

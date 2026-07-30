@@ -7,7 +7,8 @@ extends CanvasLayer
 ## "theater" group. Fade is the full-screen black, Card the centered
 ## time-skip/title text over it, DialogBox the typewriter box. The actor
 ## helpers (walk/face/hop) drive any Node2D exposing an AnimatedSprite2D
-## `sprite` with walk_/idle_ clips — PartyMember and NPC both qualify.
+## `sprite` with walk_/idle_ clips — PartyMember qualifies; an NPC has none of
+## those clips and is routed to NPC.face_dir instead (see _face_anim).
 
 const FONT = preload("res://assets/font/pixel_font.fnt")
 
@@ -118,25 +119,63 @@ func close_dialog() -> void:
 
 ## Tween an actor to a point at walking pace, playing its directional walk,
 ## then settle into the matching idle.
-func walk(actor: Node2D, to: Vector2, speed := 55.0) -> void:
+##
+## AUTO-FACING (2026-07-29). An NPC is turned along its own travel direction —
+## when the leg starts and again where it lands — so a villager tweened north
+## stops keeping its face to the camera. Before this, every staged NPC walk was
+## a front-first glide unless the scene hand-choreographed a play_back() /
+## play_side() around it, and half of those calls were on 6-column sheets where
+## they were silent no-ops.
+##
+## THE POSE CONFLICT is resolved by an OPT-OUT, not by inference: pass
+## `turn = false` to carry a pose ACROSS the move (a held prop, a bowed head, a
+## point that must keep aiming). The tempting alternative — "don't re-face while
+## act/emote is playing" — breaks the common case, because a scene that poses an
+## NPC and THEN sends it somewhere is the norm, not the exception (the recital's
+## Kitty talks with her scratched-out sign-up sheet up, then walks the aisle, and
+## she must turn to do it). Travel direction is the only facing information a
+## walk HAS and it is right nearly always; a pose that must survive a move is an
+## authored exception, so it says so at the call site.
+##
+## Non-NPC bodies are untouched. PartyMember owns its own directional walk_/idle_
+## clips and the player has its own facing logic, so `turn` applies to NPCs only
+## — theater.face() stays the explicit control for everything else. (Named `turn`
+## rather than `face` so it doesn't shadow face() below.)
+func walk(actor: Node2D, to: Vector2, speed := 55.0, turn := true) -> void:
 	var d := to - actor.global_position
 	if d.length() < 1.0:
 		return
-	_face_anim(actor, d, "walk")
+	var keep_pose: bool = actor is NPC and not turn
+	if not keep_pose:
+		_face_anim(actor, d, "walk")
+	# A staged walk OWNS global_position for its duration. An idle-wandering
+	# villager moves itself every frame, and the two writers would fight — so
+	# the tween claims the body and hands it back at the end.
+	var npc := actor as NPC
+	if npc != null:
+		npc.set_staged(true)
 	var tw := create_tween()
 	tw.tween_property(actor, "global_position", to, d.length() / speed)
 	await tw.finished
-	_face_anim(actor, d, "idle")
+	if npc != null:
+		npc.set_staged(false)
+	if not keep_pose:
+		_face_anim(actor, d, "idle")
 
 
-## Walk an actor through waypoints in order. walk() tweens straight lines
-## with physics off (no collision), so any scripted approach that could
-## cross a solid prop must dog-leg around it — callers pick the clear path.
-func walk_via(actor: Node2D, points: Array, speed := 55.0) -> void:
+## Walk an actor through waypoints in order, re-facing an NPC at every leg (see
+## walk() for the `turn` opt-out). walk() tweens straight lines with physics off
+## (no collision), so any scripted approach that could cross a solid prop must
+## dog-leg around it — callers pick the clear path.
+func walk_via(actor: Node2D, points: Array, speed := 55.0, turn := true) -> void:
 	for p in points:
-		await walk(actor, p, speed)
+		await walk(actor, p, speed, turn)
 
 
+## Point an actor at something without moving it — the explicit control, and
+## the only one the player ever gets (its own walk clips are driven by its own
+## input). For an NPC it lands on NPC.face_dir, so `face(npc, Vector2.UP)` now
+## really does turn a villager's back to the camera.
 func face(actor: Node2D, dir: Vector2) -> void:
 	_face_anim(actor, dir, "idle")
 
@@ -154,7 +193,21 @@ func hop(actor: Node2D, height := 6.0, dur := 0.26) -> void:
 	await tw.finished
 
 
+## The ONE facing dispatcher — walk/walk_via/face all land here.
+##
+## An NPC is handed straight to NPC.face_dir, PREFIX AND ALL (2026-07-29): its
+## sheet may now carry walk rows, so "walk" really does mean walk. Villager
+## sheets that are still one row have no walk clips and face_dir falls straight
+## back to the pose ladder — which is exactly what this line did before, so
+## nothing that has not grown art changes behaviour. The fallback ladder itself
+## — back and side only when the cells exist — stays in npc.gd rather than being
+## re-derived here.
+## Referring to the NPC class is safe: it is a `class_name`, not an autoload, so
+## a --script probe can still compile this kit.
 func _face_anim(actor: Node2D, dir: Vector2, prefix: String) -> void:
+	if actor is NPC:
+		(actor as NPC).face_dir(dir, prefix == "walk")
+		return
 	var suffix := "down"
 	if absf(dir.x) > absf(dir.y):
 		suffix = "side"

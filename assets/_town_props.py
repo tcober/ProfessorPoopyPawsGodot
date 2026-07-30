@@ -1936,3 +1936,567 @@ def frozen_pond(snow, salt=331, w=64, h=48, skated=False):
         sp.set(*_p(x, y), SPEC)                            # swept glints
     edge(sp, h)
     return sp
+
+
+# ---- Lanternwood, the LOWER TERRACE: the moot hall + the harbour ---------------------
+# Everything below is the bottom of the town, where the snow runs out into water: the
+# council hall the mayor clerks in, the pier the town keeps clear of ice, and the little
+# coal-fired launch tied alongside it. All three are handed `snow` = SNOWCAP (settled
+# near-white snow), never the dark ground field.
+
+# Coal, hand-pinned for the same reason lava is: ramp() hue-shifts darks toward violet,
+# and there is no seed whose derived ladder reaches a believable near-black WITHOUT
+# stating the whole ladder. Violet-shifted, never neutral grey — a grey heap in a snowy
+# bin is the "mud field" failure the palette doctrine bans.
+COAL = ((96, 92, 118, 255), (60, 54, 84, 255), (38, 32, 58, 255), (23, 18, 40, 255))
+
+# The bell's warm-metal ladder, composed rather than derived. BRASS runs out after
+# index 1 (2-3 are the violet law gone hot magenta — see _bracket_lamp), so the two
+# shade steps come off COPPER's warm mid and IRON's dark. Four hard bands, no dither:
+# a cast bell is a smooth form, and at 14px across a gradient just reads as noise.
+BELLM = (BRASS[0], BRASS[1], COPPER[1], IRON[2])
+
+
+def _bell_cote(up, cx, y1, snow):
+    """THE BELL-COTE — an open timber bell frame standing on the front slope of
+    the moot hall's roof under a small snow-capped cap, with the town's BRASS
+    BELL hanging in it.
+
+    This is the hall's entire silhouette, and the reason it can share a cabin's
+    5x4 footprint without being mistaken for one: a cabin can grow a chimney,
+    never a belfry. `_lantern_cupola` is the shipped precedent and its rule
+    holds here — drawn DOWN from the canvas top, because the pad rows above an
+    animated prop sheet belong to the smoke and a finial at negative y clips.
+
+    Call it AFTER _snow_roof: the blanket recolours every non-empty upper pixel
+    above fy-3, and a cote drawn first would come out white on white.
+
+    `y1` is the row where its base flashing meets the roof; the frame occupies
+    rows 0..y1+1 and x cx-14 .. cx+14."""
+    hw = 12
+    up.rect(cx - 1, 0, cx, 1, BRASS[1])                    # the brass finial
+    up.set(cx - 1, 0, BRASS[0])
+    up.tri((cx, 2), 8, cx - hw - 2, cx + hw + 2, snow)     # the snow-capped cap
+    up.rect(cx - hw - 2, 9, cx + hw + 2, 9, TIMBER[2])     # its fascia board
+    up.rect(cx - hw - 2, 10, cx + hw + 2, 10, TIMBER[5])
+    up.rect(cx - hw, 11, cx + hw, 11, TIMBER[1])           # the head lintel,
+    up.rect(cx - hw, 12, cx + hw, 12, TIMBER[4])           # lit along its top
+    # The chamber. Nominally OPEN — but the inside of a belfry is the one place
+    # on a snowbound building that is never white, so it is painted as the
+    # shadow it is. That dark rectangle is what the bell reads AGAINST; left as
+    # bare sky the frame sat on a white roof and the bell vanished into it.
+    up.rect(cx - hw + 3, 13, cx + hw - 3, y1 - 3, TIMBER[5])
+    up.rect(cx - hw + 3, 13, cx + hw - 3, 13, IRON[3])
+    up.rect(cx - 3, 12, cx + 2, 13, IRON[2])               # the headstock
+    up.set(cx - 1, 11, IRON[1])                            # and its gudgeon pin
+    for y, hb in ((14, 3), (15, 4), (16, 4), (17, 5), (18, 5), (19, 6)):
+        up.rect(cx - hb, y, cx + hb - 1, y, BELLM[1])      # the bell: a waisted
+        up.rect(cx - hb, y, cx - hb + 1, y, BELLM[0])      # shoulder flaring to
+        up.set(cx + hb - 1, y, BELLM[3])                   # the lip, lit west,
+        up.set(cx + hb - 2, y, BELLM[2])                   # dark east arris
+    up.rect(cx - 7, 20, cx + 6, 20, BELLM[1])              # the flared lip
+    up.set(cx - 7, 20, BELLM[0]); up.set(cx - 6, 20, BELLM[0])
+    up.rect(cx + 4, 20, cx + 6, 20, BELLM[3])
+    up.rect(cx - 5, 21, cx + 4, 21, IRON[3])               # the mouth's shadow
+    up.set(cx - 1, 21, BELLM[2])                           # the clapper in it
+    for px_, lit in ((cx - hw, TIMBER[1]), (cx + hw - 2, TIMBER[4])):
+        up.rect(px_, 11, px_ + 2, y1 - 1, TIMBER[3])       # the two posts
+        up.rect(px_, 11, px_, y1 - 1, lit)
+        for ny in range(14, y1 - 2, 5):
+            up.set(px_ + 1, ny, TIMBER[4])                 # adze marks
+    up.rect(cx - hw - 1, y1 - 2, cx + hw + 1, y1 - 1, TIMBER[2])   # the deck it
+    up.rect(cx - hw - 1, y1, cx + hw + 1, y1, TIMBER[5])           # stands on
+    up.rect(cx - hw - 2, y1 + 1, cx + hw + 2, y1 + 1, snow[1])     # snow banked
+    up.rect(cx - hw - 2, y1 + 1, cx - hw - 2, y1 + 1, snow[2])     # against it
+
+
+def _notice_board(lo, x0, y0, x1, y1, snow):
+    """THE NOTICE BOARD beside the hall door: a framed board under a little
+    snow-loaded weather ledge, with pale papers pinned to it — one curling at
+    the corner, because nobody has taken it down.
+
+    The most characterful thing on the building and the cheapest. The mayor of
+    Lanternwood is a clerk before he is anything else, and the town's news is
+    nailed to a board by the door where you have to walk past it.
+
+    Draws in x0..x1 / y0..y1 inclusive; the ledge takes the top three rows."""
+    lo.rect(x0, y0 + 2, x1, y0 + 2, TIMBER[3])             # the weather ledge
+    lo.rect(x0, y0, x1, y0 + 1, snow[1])                   # under settled snow
+    lo.rect(x0 + 1, y0, x1 - 1, y0, snow[0])
+    lo.set(x0, y0, snow[3]); lo.set(x1, y0, snow[3])
+    lo.rect(x0 + 1, y0 + 3, x1 - 1, y1, TIMBER[2])         # the frame
+    lo.rect(x0 + 1, y0 + 3, x1 - 1, y0 + 3, TIMBER[1])
+    lo.rect(x0 + 1, y1, x1 - 1, y1, TIMBER[5])
+    lo.rect(x0 + 2, y0 + 4, x1 - 2, y1 - 1, TIMBER[5])     # the dark board
+    bx = x0 + 2
+    for px0, py0, pw, ph in ((bx, y0 + 4, 4, 7),           # a long standing
+                             (bx + 5, y0 + 4, 4, 5),       # notice, a smaller
+                             (bx + 5, y0 + 10, 5, 3)):     # one, and a slip
+        lo.rect(px0, py0, px0 + pw - 1, py0 + ph - 1, PAPER)
+        lo.rect(px0 + pw - 1, py0, px0 + pw - 1, py0 + ph - 1, PAPERD)
+        lo.rect(px0, py0 + ph - 1, px0 + pw - 1, py0 + ph - 1, PAPERD)
+        lo.set(px0 + pw // 2, py0, IRON[2])                # its pin
+        for ly in range(py0 + 2, py0 + ph - 1, 2):
+            lo.rect(px0 + 1, ly, px0 + pw - 2, ly, PAPERD)  # ruled writing
+    cx0, cy0 = bx + 5 + 3, y0 + 8                          # the curling corner
+    lo.set(cx0, cy0, PAPERD); lo.set(cx0 - 1, cy0, PAPERD)
+    lo.set(cx0, cy0 - 1, PAPER)
+    lo.set(cx0 + 1, cy0, TIMBER[5]); lo.set(cx0 + 1, cy0 - 1, TIMBER[5])
+
+
+def _civic_door(lo, cx, y0, y1, r):
+    """The hall's public door: a dressed-stone doorcase standing through the log
+    wall AND its plinth (public buildings are built of different stuff than
+    cabins, all the way down), a voussoired round arch over a lit fanlight, and
+    double plank doors with brass rings.
+
+    `cx` MUST be the footprint's x-centre — prop_spawner centres the art on the
+    footprint bbox and the map's D cell sits one row south of it, so an arch
+    drawn anywhere else has the player walking into a wall.
+
+    Returns [fanlight rect, threshold rect] for the hearth-breath list."""
+    rows = list(_arch_rows(cx, y0, y1, r))
+    door_top = y0 + r - 1                                  # the arch's springing
+    lo.rect(cx - r - 3, y0, cx + r + 3, y1, STONER[3])     # the doorcase
+    lo.rect(cx - r - 3, y0, cx - r - 3, y1, STONER[1])
+    lo.rect(cx + r + 3, y0, cx + r + 3, y1, STONER[4])
+    for y, xl, xr in rows:
+        lo.rect(xl - 2, y, xr + 2, y, STONER[0])           # the voussoir ring
+        if y < door_top:
+            lo.rect(xl, y, xr, y, WARMD)                   # the lit fanlight
+    for y, xl, xr in rows[:3]:
+        lo.rect(xl, y, xr, y, WARM)                        # pooled in the head
+    lo.rect(cx - r, door_top, cx + r, door_top + 1, TIMBER[4])     # the transom
+    lo.rect(cx - r, door_top + 2, cx + r, y1, TIMBER[2])           # the doors
+    for gx in range(cx - r + 2, cx + r, 4):
+        lo.rect(gx, door_top + 3, gx, y1 - 1, TIMBER[4])           # plank seams
+    lo.rect(cx - 1, door_top + 2, cx, y1, TIMBER[4])               # meeting stile
+    for hy in (door_top + 8, door_top + 9):                        # brass rings
+        lo.rect(cx - 5, hy, cx - 4, hy, BRASS[1])
+        lo.rect(cx + 3, hy, cx + 4, hy, BRASS[1])
+    lo.rect(cx - r + 1, y1 - 1, cx + r - 1, y1, WARMD)             # the light
+    lo.rect(cx - 4, y1 - 1, cx + 3, y1, WARM)                      # under it
+    return [(cx - r - 1, y0, 2 * r + 3, door_top - y0),
+            (cx - r + 1, y1 - 1, 2 * r - 1, 2)]
+
+
+def town_moot_hall(roof, snow, salt=361, composite=True, frames=8):
+    """THE MOOT HALL — Lanternwood's council hall, where the mayor keeps his
+    ledgers and the town bell hangs. 80x64 over a 5x4 footprint, an 8-frame
+    sheet: the SAME footprint as a cabin, on the lowest terrace beside the
+    harbour, so every single thing that makes it civic has to be drawn rather
+    than measured.
+
+    Four of them, in order of how far down the street they read:
+      1. THE BELL-COTE on the ridge (_bell_cote) — the silhouette. `ridge=6`
+         frees the sky above the roofline for it.
+      2. A coursed fieldstone PLINTH under the log walls (_stone_courses), the
+         library's move at cabin scale.
+      3. A covered PORCH over the door — two posts, a beam, its own little
+         snow-loaded hip. Somewhere to stand and be spoken to.
+      4. The NOTICE BOARD beside the door (_notice_board).
+    Plus a lit doorway, two fire-lit windows on the one hearth breath, a
+    snow-capped stone chimney breathing grey woodsmoke, and the town's firewood
+    stacked under it.
+
+    WHY `ridge` STAYS SMALL. _check_art.py's invisible-wall lint wants every
+    solid footprint cell >= T3_COVER_MIN (20%) covered by frame-0 art, and the
+    hall's five cells all render plain snow fabric underneath. Drop the ridge
+    far enough to float the bell-cote in clear sky and the roof-row corner
+    cells hold nothing but sky and the lint fails. So the cote stands ON the
+    front slope (a belfry, not a floating frame) and the roof keeps its
+    full-width `ridge_half`: the corner cells measure ~32% / ~28%.
+
+    EIGHT frames for the same arithmetic as town_cabin's: WIN_PULSE spans the
+    whole sheet for one slow hearth breath while the woodsmoke stays periodic
+    in 4 and loops twice."""
+    assert frames < 2 or frames % len(WIN_PULSE) == 0, \
+        "an animated hall sheet must hold whole window-breath cycles"
+    w, h, fy = 80, 64, 36
+    cx = w // 2                                            # = cell 2 of 5
+    RIDGE = 6
+    lo, up = S(w, h, salt), S(w, h, salt + 1)
+    # ---- upper: the snow roof, a tall stack, the porch, the bell-cote
+    _snow_roof(up, w, fy, roof, snow, ridge=RIDGE)
+    # The stack, laid up in TWO overlapping courses of _stone_chimney so it is
+    # SEVEN pixels wide, not five. A hall's stack has to be taller than a
+    # cabin's squat one to clear this roof, and a 5x21 pale column with a white
+    # cap on it reads as an ice obelisk, not as fieldstone — width is what
+    # turns it back into masonry.
+    mx = 60                                                # clear of the cote
+    for _c in (mx, mx + 2):
+        _stone_chimney(up, _c, 6, 26, snow)
+    for _y in range(7, 27):                                # its shadow down the
+        for _x in (mx + 7, mx + 8):                        # slope, so the stack
+            if up.get(_x, _y) is not None:                 # stands ON the roof
+                up.set(_x, _y, snow[2] if _x == mx + 7 else snow[1])
+    # the porch: a small hip slung off the main slope over the door, its rake
+    # drawn one pixel proud all round so it never dissolves into the white roof
+    PX0, PX1, PY0, PY1 = cx - 14, cx + 13, 27, 35
+    for y in range(PY0, PY1 + 3):
+        hlf = 8.0 + 6.0 * min(1.0, (y - PY0) / float(PY1 - PY0))
+        up.rect(int(round(cx - hlf - 1.5)), y, int(round(cx + hlf + 0.5)), y,
+                TIMBER[5])
+    _hip_roof(up, PX0, PX1, PY0, PY1, 8, roof)
+    # Its own snow load, BRIGHTER than the main roof's (which is white too) and
+    # keyed to the hip's own pixels — recolouring the whole band instead put a
+    # white rectangle on a trapezoid and the porch read as a shelf.
+    for y in range(PY0, PY0 + 4):
+        for x in range(PX0 - 2, PX1 + 3):
+            if up.get(x, y) in roof:
+                up.set(x, y, up.tone(snow, 0.04 + 0.14 * (y - PY0), x, y,
+                                     jitter=0.4))
+    up.rect(cx - 10, PY1 + 1, cx + 9, PY1 + 1, roof[4])    # the porch eave
+    up.rect(cx - 11, PY0 - 1, cx + 10, PY0 - 1, TIMBER[5])  # its valley shadow
+    _bell_cote(up, cx, 24, snow)
+    edge(up, fy + 2)                                       # keep the icicles
+    # ---- lower: log walls on a stone plinth
+    _log_wall(lo, w, h, fy, snow)
+    _stone_courses(lo, 0, h - 12, w - 1, h - 3, STONER)    # the plinth
+    lo.rect(0, h - 13, w - 1, h - 12, STONER[1])           # its water table
+    wins = [_lit_window(lo, 4, 40, 10, 8),                 # the two hearth-lit
+            _lit_window(lo, w - 14, 40, 10, 8)]            # windows, symmetric
+    wins += _civic_door(lo, cx, 40, h - 1, 7)
+    _notice_board(lo, 16, 37, 30, 50, snow)
+    # the firewood rick under the stack — a hall that burns wood keeps its own
+    # cord by the door. The PALE END GRAIN is the whole read: without a light
+    # centre in each round the pile is a dark panel with strokes on it.
+    lo.rect(52, 44, 64, 50, TIMBER[5])
+    lo.rect(52, 43, 64, 43, snow[2])
+    lo.rect(52, 42, 64, 42, snow[0])
+    for ry, xs in ((45, (54, 58, 62)), (49, (53, 57, 61))):
+        for lx in xs:
+            lo.rect(lx - 1, ry - 1, lx + 1, ry + 1, TIMBER[2])
+            lo.rect(lx - 1, ry + 1, lx + 1, ry + 1, TIMBER[4])
+            lo.set(lx, ry, TIMBER[0])                      # the sawn end
+            lo.set(lx - 1, ry - 1, TIMBER[3])
+    for ex in (52, 64):
+        lo.rect(ex, 43, ex, 50, TIMBER[4])                 # its end stakes
+    for px_ in (cx - 10, cx + 8):                          # the porch posts,
+        lo.rect(px_, 40, px_ + 2, h - 2, TIMBER[3])        # standing proud of
+        lo.rect(px_, 40, px_, h - 2, TIMBER[1])            # the plinth
+        lo.rect(px_ + 2, 40, px_ + 2, h - 2, TIMBER[5])
+    lo.rect(cx - 12, 38, cx + 11, 39, TIMBER[3])           # the porch beam
+    lo.rect(cx - 12, 38, cx + 11, 38, TIMBER[1])
+    edge(lo, h)
+    anim = (lambda fa, ca, f2, dy=0: _anim_building(
+        fa, ca, f2, wood_flues=((mx + 2, 6),), windows=tuple(wins), dy=dy))
+    return _finish(lo, up, w, fy, h, composite, frames, anim, pad=18)
+
+
+def town_dock(timber, snow, salt=363, cells_w=7, gap=(48, 79)):
+    """THE PIER — a timber jetty running EAST out over the harbour, 16*`cells_w`
+    x 32 over a `cells_w` x 2 footprint (112x32 over 7x2 by default), walked
+    along its LENGTH.
+
+    So the deck boards run north-south, ACROSS the walking direction, for the
+    same reason town_trestle's run across its: boards you walk along read as a
+    ladder, boards you walk across read as a floor.
+
+    TIER-1, baked into the lower tile layer by place(), which makes two things
+    non-negotiable and both are the same rule the cliff faces live under:
+    the art is FULLY OPAQUE across all 112x32 (a transparent pixel bakes a
+    see-through tile into the map) and it carries NO edge() outline (an outlined
+    ground tile reads as a hole).
+
+    Nothing autotiles it, either — so the ends are drawn as ends: the west butts
+    into a snowdrift banked over the boards, the east closes with a rail across
+    the pier head, and both long edges carry rope-and-post handrails with
+    settled snow on the caps.
+
+    `gap` is the GANGWAY, a local pixel x-range with no south rail, where the
+    launch is boarded. Two snow-capped mooring bollards flank it. The
+    generator must keep `gap` inside 0..16*cells_w-1 and clear of the ends.
+
+    And the COAL BUNKER, which is the point of the whole harbour: the town's
+    launch burns fire, not magic, and that is the only reason it still runs
+    after the Ebb. A plank bin heaped with black coal, on the north side where
+    you cannot miss it walking out."""
+    w, h = 16 * cells_w, 32
+    g0, g1 = gap
+    sp = S(w, h, salt)
+    # ---- the deck: north-south boards, 5px wide, opaque everywhere first.
+    # The per-board tone is hashed on the BOARD ONLY, never on y: keyed on
+    # (x, y) too it banded across the boards every few rows and the deck read
+    # as brickwork instead of as timbers running the whole width of the pier.
+    for y in range(h):
+        for x in range(w):
+            c = timber[1] if x % 5 < 2 else timber[2]
+            if h2(x // 5, 0, salt) % 4 == 0:                    # board-to-board
+                c = timber[2] if x % 5 < 2 else timber[3]        # tone
+            sp.set(x, y, c)
+    for x in range(0, w, 5):                                    # board seams
+        sp.rect(x, 0, x, h - 1, timber[3])
+    for y in range(13, 20):                                     # the worn line
+        for x in range(w):                                      # down the middle
+            if x % 5 and h2(x // 2, 0, salt) % 4:
+                sp.set(x, y, timber[0] if 14 < y < 18 else timber[1])
+    for k in range(6):                                          # drifted snow: a
+        dx = 8 + (k * 19) % (w - 22)                            # bright crest, a
+        dy = 9 + (k * 5) % 11                                   # body, a dark
+        sp.rect(dx + 1, dy, dx + 4, dy, snow[0])                # under-edge. Three
+        sp.rect(dx, dy + 1, dx + 5, dy + 1, snow[1])            # pale rows read as
+        sp.rect(dx + 1, dy + 2, dx + 4, dy + 2, snow[3])        # a slab, a round
+                                                                # blob as a cloud
+    # ---- the handrails: a capped rail with a rope slung between its posts.
+    # `d` is the direction the band runs INBOARD from its cap row, so one
+    # function serves both edges and the cap always faces off the pier while
+    # the shadow always falls onto the deck. (Writing it as a mirrored row list
+    # instead put rect() calls in with y0 > y1, which silently draw nothing —
+    # and on a Tier-1 prop a row that draws nothing is a transparent tile.)
+    # THE SNOW IS THE SEPARATOR. Every tone in the timber ramp's lit half sits
+    # within a few values of every other, so a rail built out of them alone —
+    # tried twice — simply reads as more decking, and with it goes the gangway
+    # (the gap only reads if the rail either side of it does). A CONTINUOUS
+    # settled-snow line along each cap gives both long edges a hard white
+    # boundary, which is also just what a rail in this town looks like.
+    def _rail(cap, d):
+        for i, c in ((0, snow[1]), (1, timber[0]), (2, timber[5]),
+                     (3, timber[5]), (4, timber[2]), (5, timber[4])):
+            sp.rect(0, cap + d * i, w - 1, cap + d * i, c)
+        for x in range(0, w, 2):
+            sp.set(x, cap, snow[0])                              # its crest
+        for x in range(5, w, 13):
+            sp.set(x, cap, snow[3])                              # scoured thin
+        for x in range(w):                                       # the rope,
+            sag = 1 if (x % 13) in (5, 6, 7) else 0              # slung between
+            sp.set(x, cap + d * (2 + sag), timber[0])            # the posts
+            sp.set(x, cap + d * (3 + sag), timber[3])
+        for x in range(3, w - 7, 13):                            # and its posts
+            if d < 0 and g0 - 2 <= x <= g1:
+                continue
+            for i in range(1, 6):
+                sp.rect(x, cap + d * i, x + 2, cap + d * i, timber[4])
+            sp.rect(x, cap + d, x, cap + d * 5, timber[2])
+            sp.rect(x + 2, cap + d, x + 2, cap + d * 5, timber[5])
+            sp.rect(x, cap, x + 2, cap, snow[0])                 # heaped on top
+    _rail(0, 1)
+    _deck = _clone(sp)                                           # the un-railed
+    _rail(h - 1, -1)                                             # south edge,
+    for x in range(g0, g1 + 1):                                  # kept for the
+        for y in range(h - 6, h):                                # GANGWAY
+            sp.set(x, y, _deck.get(x, y))
+    sp.rect(g0, h - 2, g1, h - 2, timber[4])                     # whose deck ends
+    sp.rect(g0, h - 1, g1, h - 1, timber[5])                     # in open plank
+    for x in range(g0 + 3, g1, 11):                              # butts over the
+        sp.set(x, h - 2, snow[1]); sp.set(x + 1, h - 1, snow[2])  # water
+    for x in range(w - 6, w):                                    # the pier head:
+        for y in range(h):                                       # a rail across
+            sp.set(x, y, timber[3])                              # the east end
+    sp.rect(w - 5, 0, w - 5, h - 1, timber[2])
+    sp.rect(w - 1, 0, w - 1, h - 1, timber[5])
+    sp.rect(w - 6, 0, w - 6, h - 1, timber[4])
+    for y in range(2, h, 9):
+        sp.rect(w - 5, y, w - 3, min(y + 2, h - 1), snow[1])
+    # ---- the two mooring bollards, flanking the gangway: a stout dark post
+    # under a snow-capped mushroom head, with a bight of rope LYING ON THE DECK
+    # beside it. Turns drawn across the post's face instead read as ladder
+    # rungs, which is what killed the first two passes at these.
+    for bx, side in ((g0 - 9, -1), (g1 + 2, 1)):
+        sp.rect(bx, 20, bx + 6, h - 1, timber[4])
+        sp.rect(bx, 20, bx + 1, h - 1, timber[2])
+        sp.rect(bx + 6, 20, bx + 6, h - 1, timber[5])
+        for ay in range(21, h, 4):
+            sp.rect(bx + 2, ay, bx + 5, ay, timber[5])           # adze marks
+        sp.rect(bx - 1, 18, bx + 7, 19, timber[0])               # the head,
+        sp.rect(bx - 1, 19, bx + 7, 19, timber[3])               # overhanging
+        sp.rect(bx - 1, 17, bx + 7, 17, snow[0])                 # under snow
+        sp.set(bx - 1, 18, snow[3]); sp.set(bx + 7, 18, snow[3])
+        ln(sp, bx + (1 if side > 0 else 5), 20,                   # its rope led
+           bx + (-3 if side > 0 else 9), h - 3, timber[0])        # off toward the
+                                                                 # gangway. A turn
+                                                                 # drawn ACROSS the
+                                                                 # post's face just
+                                                                 # adds a second
+                                                                 # crossbar and the
+                                                                 # bollard becomes a
+                                                                 # signpost
+    # ---- the coal bunker: a plank bin heaped with black coal
+    BX0, BX1, BY0, BY1 = 7, 31, 7, 20
+    sp.rect(BX0, BY0, BX1, BY1, timber[4])                       # the bin
+    sp.rect(BX0, BY0, BX1, BY0, timber[2])
+    sp.rect(BX0, BY0 - 1, BX1, BY0 - 1, snow[1])                 # snow on its lip
+    sp.rect(BX0, BY1 - 3, BX1, BY1, timber[2])                   # its front boards
+    for gx in range(BX0 + 2, BX1, 5):
+        sp.rect(gx, BY1 - 3, gx, BY1, timber[4])
+    sp.rect(BX0, BY1 - 4, BX1, BY1 - 4, timber[1])               # the top rail
+    sp.rect(BX0, BY1, BX1, BY1, timber[5])
+    for x in range(BX0 + 1, BX1):                                # the heap
+        top = BY0 + 1 + int(round(2.6 * abs(x - (BX0 + BX1) / 2.0)
+                                  / ((BX1 - BX0) / 2.0)))
+        for y in range(top, BY1 - 4):
+            i = 1 if y < top + 2 else 2 if y < BY1 - 6 else 3
+            if h2(x // 2, y // 2, salt) % 5 == 0:
+                i = max(0, i - 1)                                # a lit facet
+            sp.set(x, y, COAL[i])
+    for fx, fy_ in ((11, 11), (17, 10), (23, 12), (27, 14), (14, 15)):
+        sp.rect(fx, fy_, fx + 1, fy_ + 1, COAL[0])               # broken faces
+        sp.set(fx + 1, fy_ + 1, COAL[2])
+    for k in range(5):                                           # anthracite
+        sp.set(BX0 + 3 + (k * 7) % (BX1 - BX0 - 5),              # glints
+               BY0 + 3 + (k * 5) % 8, IRON[0])
+    # ---- a coil of rope on the boards, and the west butt-end in a drift
+    for rr, cc in ((5.8, timber[5]), (5.0, timber[0]), (1.8, timber[5])):
+        sp.blob(93, 13, rr, rr * 0.72, cc)                       # one pale turn,
+    ln(sp, 97, 14, 102, 17, timber[0])                           # a dark eye, a
+    sp.set(93, 10, snow[1])                                      # loose end —
+    sp.set(95, 16, snow[2])                                      # more rings than
+                                                                 # that = basketwork
+    for y in range(h):                                           # the drift the
+        xe = 1 + h2(y, 3, salt) % 3                              # pier walks out
+        sp.rect(0, y, xe, y, snow[1])                            # of
+        sp.set(xe, y, snow[0] if y % 3 else snow[1])
+        sp.set(xe + 1, y, snow[3])
+    return sp
+
+
+def town_launch(timber, snow, salt=365, composite=True, frames=8):
+    """THE STEAM LAUNCH — the town's little coal-fired boat, moored alongside
+    the pier's south side. 96x32 over a 6x2 footprint, bottom-anchored, an
+    8-frame sheet. BOW EAST, out to sea.
+
+    A clinker-planked hull — dark timber outside, a lighter gunwale cap with
+    settled snow along it, a paler interior deck — with a riveted BRASS BOILER
+    amidships and a stubby iron funnel breathing grey woodsmoke, a tiller and a
+    thwart at the rounded stern, a coil of rope on the foredeck, a mooring line
+    running north to the pier, and a warm LANTERN on a pole at the bow.
+
+    The boiler and the lantern are the whole reason this thing is in the game:
+    Lanternwood is named for honest flame, and the launch is the one vehicle in
+    the world that never needed a spell to move. The firebox glow and the bow
+    lantern therefore ride the same hearth breath (`windows`) as every lit pane
+    in town, and the funnel's smoke is `wood_flues`, not Alembic's copper-flue
+    steam.
+
+    Every frame-dependent term is periodic in 4 (smoke, water-lap) or spans the
+    sheet once (WIN_PULSE, period 8), so an 8-frame sheet loops seamlessly —
+    see town_cabin's docstring for the arithmetic. The water-lap segments are
+    cut to 16px so `basins`' `(f*4 + k*5) % span` closes after four frames; a
+    span that does not divide 16 makes the lap stutter on the loop seam.
+
+    `pad` gives the plume clear sky above the funnel — without it the puffs
+    clip flat at y=0 (see SMOKE_PAD)."""
+    assert frames < 2 or frames % len(WIN_PULSE) == 0, \
+        "an animated launch sheet must hold whole window-breath cycles"
+    w, h, fy = 96, 32, 6
+    lo, up = S(w, h, salt), S(w, h, salt + 1)
+    X0, X1, YC, WL = 3, 92, 15, 26
+    # ---- the hull: a lens plan, rounded stern west, fine point east. The
+    # visible (camera-side) planking is 4px deep but CLIPPED to a horizontal
+    # waterline at WL, which is what makes the boat sit IN the water rather
+    # than hover over it — and gives the lap flicker a constant row to run on.
+    sheer = []
+    for x in range(X0, X1 + 1):
+        u = (x - X0) / float(X1 - X0)
+        f = ((0.42 + 0.58 * u / 0.16) ** 0.5 if u < 0.16
+             else (1.0 - (u - 0.16) / 0.84) ** 0.45)
+        hh = 8.6 * f
+        yt, yb = int(round(YC - hh)), int(round(YC + hh))
+        sheer.append((x, yt, yb, min(yb + max(1, int(round(4.4 * f))), WL)))
+    # The tone ladder matters more than the geometry: SNOW cap / pale gunwale /
+    # a dark inner face / mid deck / a dark face / pale gunwale / dark planking.
+    # Drawn with the cap DARKER than the deck (timber[2] over timber[1]) the
+    # whole boat read as a hollowed log.
+    for x, yt, yb, bot in sheer:
+        for y in range(yb + 1, bot + 1):                   # clinker planking,
+            lo.set(x, y, timber[4] if (bot - y) % 3 else timber[5])
+        lo.set(x, bot, timber[5])                          # the waterline strake
+        lo.rect(x, yt + 3, x, yb - 3, timber[1])           # the paler deck
+        for dy in range(yt + 3, yb - 2, 4):
+            lo.set(x, dy, timber[3])                       # fore-and-aft seams
+        lo.rect(x, yt + 2, x, yt + 2, timber[4])           # inner face shadow
+        lo.rect(x, yb - 2, x, yb - 2, timber[4])
+        lo.rect(x, yt, x, yt, timber[0])                   # the gunwale caps
+        lo.rect(x, yt + 1, x, yt + 1, timber[2])
+        lo.rect(x, yb - 1, x, yb - 1, timber[0])
+        lo.rect(x, yb, x, yb, timber[2])
+        if h2(x, 1, salt) % 5:
+            lo.set(x, yt, snow[1])                         # settled snow along
+            if x % 3 == 0:                                 # the weather cap
+                lo.set(x, yt + 1, snow[2])
+        if x % 4 == 0:
+            lo.set(x, yb - 1, snow[3])
+    # the cold water-lap under her: a shadow hugging the hull, and a flat lap
+    # line wherever the planking has met the waterline
+    for x, yt, yb, bot in sheer:
+        lo.set(x, bot + 1, snow[5])
+        if bot >= WL:
+            lo.set(x, bot + 1, snow[4])
+        lo.set(x, bot + 2, snow[5])
+    flat = [x for x, _yt, _yb, bot in sheer if bot >= WL]
+    lap = tuple((flat[i], flat[i] + 16, WL + 1)
+                for i in range(0, len(flat) - 16, 16))
+    # ---- the stern (west): a rudder head, the tiller, a thwart across
+    lo.rect(4, 13, 5, 17, IRON[2])                         # the rudder head
+    lo.set(4, 13, IRON[1])
+    lo.rect(6, 14, 20, 14, timber[1])                      # the tiller, laid
+    lo.rect(6, 15, 20, 15, timber[3])                      # fore-and-aft
+    lo.blob(21, 14, 1.6, 1.6, timber[2])                   # its worn knob
+    lo.rect(15, 9, 18, 21, timber[2])                      # the stern thwart
+    lo.rect(15, 9, 15, 21, timber[1])
+    lo.rect(18, 9, 18, 21, timber[4])
+    lo.rect(15, 21, 18, 21, timber[5])
+    # ---- amidships: the riveted brass boiler. BRASS is tones 0/1 only (2-3 are
+    # the violet law gone magenta), so every shade step is COPPER's warm mid and
+    # every dark is IRON — the BELLM ladder.
+    # ONE hoop, not two: a pair of dark full-width bands sliced the drum into
+    # three and it read as a bench. A cylinder is four VERTICAL bands.
+    # A DRUM, not a box: the half-width steps in at head and foot so the
+    # silhouette is a barrel, and each row runs a five-band cylinder ladder —
+    # dark arris, specular, lit body, rolling shade, dark arris. Drawn as flat
+    # rects it read as a brass cabinet however the bands were arranged.
+    BX = 45
+    for y, hb in ([(8, 3), (9, 5)] + [(y_, 6) for y_ in range(10, 20)]
+                  + [(20, 5), (21, 4)]):
+        n = 2 * hb
+        for d in range(n + 1):
+            c = (BELLM[2] if d == 0 else BELLM[0] if d <= 2 else
+                 BELLM[1] if d <= n - 4 else BELLM[2] if d <= n - 2
+                 else BELLM[3])
+            lo.set(BX - hb + d, y, c)
+    lo.rect(43, 8, 45, 8, BRASS[0])                        # the drum head's shine
+    lo.rect(39, 14, 51, 14, IRON[2])                       # the iron hoop,
+    for rx in range(40, 51, 3):                            # rivets along it
+        lo.set(rx, 14, BRASS[0])
+    for rx in range(41, 50, 4):
+        lo.set(rx, 11, BRASS[0])                           # and up the shoulder
+    firebox = (43, 17, 5, 2)                               # the firedoor's glow
+    lo.rect(41, 16, 49, 19, IRON[3])
+    lo.rect(43, 17, 47, 18, WARMD)
+    lo.rect(44, 17, 46, 17, WARM)
+    # ---- the funnel, stubby and iron, breathing woodsmoke into the pad
+    lo.rect(42, 3, 48, 10, IRON[2])
+    lo.rect(42, 3, 43, 10, IRON[1])
+    lo.rect(47, 3, 48, 10, IRON[3])
+    lo.rect(42, 2, 48, 2, BRASS[1])                        # its brass rim
+    lo.set(42, 2, BRASS[0])
+    lo.rect(43, 3, 47, 3, IRON[3])                         # the sooty throat
+    # ---- the foredeck: a coil of rope, and the bow lantern on its pole
+    for rr, cc in ((5.6, timber[4]), (4.6, timber[0]), (2.2, timber[4])):
+        lo.blob(66, 15, rr, rr * 0.62, cc)                 # ONE pale turn round
+    ln(lo, 70, 16, 75, 18, timber[0])                      # a dark eye, plus the
+    lo.set(66, 12, snow[2])                                # loose end. Five rings
+    lo.set(69, 17, snow[2])                                # on a 10px oval read
+                                                           # as basketwork
+    lo.rect(84, 11, 84, 16, IRON[2])                       # the pole
+    lo.set(83, 16, IRON[3]); lo.set(85, 16, IRON[3])
+    lo.rect(82, 10, 86, 10, IRON[2])                       # the pan
+    lo.rect(83, 6, 85, 9, WARMD)                           # the little flame
+    lo.rect(83, 7, 85, 8, WARM)
+    lo.rect(82, 5, 86, 5, BRASS[1])                        # the snow hood
+    lo.set(82, 5, IRON[2]); lo.set(86, 5, IRON[2])
+    lo.set(84, 4, snow[1])
+    lantern = (83, 6, 3, 4)
+    # ---- the mooring line, running north to the pier
+    lo.rect(29, 6, 31, 7, IRON[2])                         # the cleat
+    lo.set(30, 6, IRON[1])
+    edge(lo, h)
+    # ...and the mooring line LAST, after the outline: one pale pixel wide, run
+    # before edge() it picked up a dark edge on each side and read as an oar.
+    ln(lo, 30, 5, 26, 2, timber[0])
+    ln(lo, 26, 2, 22, 0, timber[0])
+    lo.set(28, 4, snow[1]); lo.set(24, 1, snow[1])
+    anim = (lambda fa, ca, f2, dy=0: _anim_building(
+        fa, ca, f2, wood_flues=((43, 2),), basins=lap,
+        windows=(lantern, firebox), dy=dy))
+    return _finish(lo, up, w, fy, h, composite, frames, anim, pad=18)

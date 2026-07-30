@@ -19,13 +19,18 @@ Sheets written (all 48px cells, feet baseline y=44 = _core.ZONE_FEET):
   [idle0, idle1, act0, act1, emote0, emote1] — ALL cast sheets carry the
   emote pair since 2026-07-17, so the hall gallery can laugh; spawn them
   with frame_cols = 6):
-      npc_sage_gen.png        (288x48) — Basil's little sister: slate-lavender
+      npc_sage_gen.png        (480x48) — Basil's little sister: slate-lavender
           kitten, white socks, sage-green hair bow; act = ribbon-CAST (arms
-          up), emote = smug giggle
-      npc_schweinler_gen.png  (288x48) — the pig, kid-sized: stout pink,
-          red neckerchief; act = POINT, emote = belly laugh
-      npc_kitty_gen.png       (288x48) — Kitty Cool: ginger-cream maker girl,
-          teal bandana, grease smudge; act = TINKER crouch, emote = beaming
+          up), emote = smug giggle; cols 6-9 = BACK x2 + SIDE x2 (the bow
+          between the ear backs; the crown loop breaks the profile)
+      npc_schweinler_gen.png  (480x48) — the pig, kid-sized: stout pink,
+          red neckerchief; act = POINT, emote = belly laugh; cols 6-9 =
+          BACK x2 (flop-ear backs + the curly tail coiled on the rump) +
+          SIDE x2 (the snout is the read)
+      npc_kitty_gen.png       (480x48) — Kitty Cool: ginger-cream maker girl,
+          teal bandana, grease smudge; act = TINKER crouch, emote = beaming;
+          cols 6-9 = BACK x2 (the bandana knot at the nape) + SIDE x2
+          (kerchief at the throat + the smudge on the cheek she IS showing)
       npc_kitty_adult_gen.png (480x48) — college-age Kitty (the bluff
           romance + her fountain-rim stall): same fur/bandana/smudge grown
           to the adult body, waxed-canvas work apron; act = TINKER (paws up
@@ -45,17 +50,47 @@ Sheets written (all 48px cells, feet baseline y=44 = _core.ZONE_FEET):
           emote = STARTLED (ears pinned, shoulders up); cols 6-7 = BACK x2,
           cols 8-9 = SIDE x2 (left profile — play_side(true) faces her east);
           spawn with frame_cols = 10
-      npc_hare_gen.png        (288x48) — Bramble, the flustered snow hare
+  FIVE WALKING NPC sheets (480x192, 10 cols x 4 rows) — the 2026-07-29 pass.
+  Row 0 is the ordinary 10-cell pose row above; rows 1-3 are the WALK:
+      row 1  walk_down x6   row 2  walk_up x6   row 3  walk_side x6 (LEFT)
+  each padded out to 10 cells (write_cells wants a square grid). Frame 0 of the
+  down and up rows is the planted neutral pose, so it is byte-identical to row-0
+  cells 0 and 6; the stride tables are kid Basil's, verbatim — a SHUFFLE, not a
+  churn (the stepping paw lifts 1px, both paw tips stay visible under the hem),
+  no hem sway in the down/up views, and a flat ~8px scissor in the side:
+      npc_hare_gen.png        (480x192) — Bramble, the flustered snow hare
           (Lanternwood, the Ebb night): blue-white fur, long upright ears,
           russet knit scarf; act = the dead warming-wand held up to one long
-          ear, emote = paws thrown up, ears crossed back
-      npc_beaver_gen.png      (288x48) — Alder, the elderly beaver
+          ear, emote = paws thrown up, ears crossed back; cols 6-9 = BACK x2
+          (ear backs + THE COTTONTAIL, which is the whole read from behind) +
+          SIDE x2 (a short rounded snout — run long it read as a duck's bill)
+      npc_beaver_gen.png      (480x192) — Alder, the elderly beaver
           woodworker: quilted steel-blue coat, amber knit cap, paddle tail;
           act = peering at the dead charm-stone at arm's length, emote =
-          scratching under the cap, tail pressed flat
-      npc_foxkid_gen.png      (288x48) — Pip, the fox kid: rust fur, cream
+          scratching under the cap, tail pressed flat; cols 6-9 = BACK x2 (the
+          paddle DRAGGED out past the coat's edge — hung straight down it sat
+          inside the silhouette and read as dirt) + SIDE x2 (the ear rides
+          below the cap brim and behind the skull, or the knit eats it)
+      npc_mom_gen.png         (480x192) — Basil's mother: rosewood-brown
+          matron, white flour-dusted apron, sage headscarf; act = dusting
+          flour off her paws, emote = the warm look; cols 6-9 = BACK x2 (the
+          scarf knot on the nape and the apron straps CROSSING her back to the
+          waist bow) + SIDE x2 (the apron as a tapered panel — a flat
+          rectangle down the profile read as a sheet of paper pinned to her)
+      npc_foxkid_gen.png      (480x192) — Pip, the fox kid: rust fur, cream
           muzzle/tail-tip, frost-blue bobble hat + mittens; act = shaking
-          the dark glow-marble, emote = thrilled-AND-scared, tail bristled
+          the dark glow-marble, emote = thrilled-AND-scared, tail bristled;
+          cols 6-9 = BACK x2 (the brush drawn OVER his back, cream tip up) +
+          SIDE x2. The brush also sways fore/aft across the walk — it is his
+          silhouette, and a still brush on a moving kit reads as a prop.
+      npc_mayor_gen.png       (480x192) — MAYOR HOLLIS, the old elk who is
+          Lanternwood's mayor and its clerk: broad asymmetric antlers with one
+          tine snapped blunt, a brass CHAIN OF OFFICE, half-moon spectacles on
+          a cord, an ink-stained hoof; act = WRITING (the ledger up, pencil at
+          it, head bowed), emote = the civic hoof raised as if calling a
+          motion; cols 6-9 = BACK x2 (the rack unobstructed, the asymmetry
+          mirrored, the pale rump tuft in the coat vent) + SIDE x2 (the chain
+          survives the profile). Spawn with frame_cols = 10.
 
   prologue_fx.png (256x32, TWO 16-cell rows of 16px cells) — row 0 FROZEN
       [ribbon_magenta, ribbon_gold, sparkle_small, sparkle_big, gear, spring,
@@ -269,6 +304,96 @@ def whiskers_kid_down(s, dy=0):
         s.set(x, y + dy, WHISK)
 
 
+def whiskers_kid_side(s, dy=0):
+    """Profile whiskers off the muzzle — drawn AFTER the finishing passes
+    (despeckle eats lone specks; the sage sparkle rule)."""
+    for (x, y) in ((31, 27), (32, 29)):
+        s.set(x, y + dy, WHISK)
+
+
+def _mirror_cell(s):
+    """Flip a FINISHED cell horizontally: side cells are authored on the
+    canonical RIGHT-facing geometry, the npc kit stores LEFT-facing cells
+    (play_side(true) flips back east). Runtime-flipped profiles already
+    forfeit the global light direction, so the mirrored shade bands are
+    exactly as legal as npc.gd's own flip_h."""
+    for row in s.px:
+        row.reverse()
+
+
+# ---- the kid cat's BACK and SIDE views -------------------------------------------------
+# The npc kit's optional facings (cols 6-9) need a back and a left profile for
+# every child in the cast. kid Basil's playable sheet already solved both for a
+# kid cat, so those two cells ARE the shared cores (2026-07-29): kb_up / kb_side
+# delegate here unchanged, and Kitty and Sage call the same geometry and hang
+# their own accessory off the returned head anchor. Draw-only — the caller runs
+# despeckle / outline / whiskers, because each character owns its own outline
+# dict.
+
+
+def kid_back(s, fur, paw, bob=0, liftL=0, liftR=0, tail_sway=0):
+    """The kid cat from BEHIND. Ear BACKS (no inner pink), hanging arms drawn
+    under the skull so the nape reads, tail swishing up past the tummy, the
+    neck part creased into the shoulders. Returns the head y."""
+    kid_legs_down(s, fur, paw, liftL, liftR, bob)
+    by = 36 + bob
+    s.ball(CX, by, 5.8, 5.0, fur, power=2.2, wrap=0.30, curve=0.24)
+    s.capsule(CX - 5.5, by - 3, CX - 6.5, by + 1, 1.7, 1.5, fur, sh=0.06)
+    s.capsule(CX + 5.5, by - 3, CX + 6.5, by + 1, 1.7, 1.5, fur, sh=0.16)
+    # tail swishes up past the tummy, seen from behind
+    s.capsule(CX + 5, by + 1, CX + 8, by - 4, 1.5, 1.2, fur, sh=0.10)
+    s.set(CX + 8 + tail_sway, by - 5, fur[0])
+    hy = 25 + bob
+    kid_ears(s, fur, hy, inner=False)
+    s.tri((CX - 5, hy - 8), hy - 5, CX - 6, CX - 4, fur, sh=0.40)
+    s.tri((CX + 5, hy - 8), hy - 5, CX + 4, CX + 6, fur, sh=0.46)
+    s.ball(CX, hy, 7.2, 6.4, fur, power=2.4, wrap=0.34, curve=0.30)
+    s.line([(CX - 2, hy + 5), (CX - 1, hy + 6), (CX, hy + 6),
+            (CX + 1, hy + 6), (CX + 2, hy + 5)], fur[3])       # neck part
+    return hy
+
+
+def kid_side(s, fur, belly, iris, iris_l, bob=0, fF=(0, 0), fB=(0, 0),
+             tail_dy=0, eyes="open", tail_raised=False, earin=EARIN):
+    """The kid cat in PROFILE, facing RIGHT. Tail off the rump behind, the
+    front/back leg scissor pair planted on the feet line, the white bib and
+    muzzle toward the front, near ear tall with the far ear peeking. Returns
+    (hx, hy) so a caller can hang a bow or a kerchief off the head."""
+    hx, hy = 23, 25 + bob
+    # tail behind, off the rump
+    if tail_raised:
+        s.capsule(16, 36, 14, 30 + tail_dy, 1.5, 1.2, fur, sh=0.10)
+    else:
+        s.capsule(16, 37, 13, 34 + tail_dy, 1.5, 1.2, fur, sh=0.10)
+    # legs: front/back scissor pair, paws on the feet line
+    for (base_x, (dx, lift), sh) in (((20), fB, 0.14), ((26), fF, 0.0)):
+        lx = base_x + dx
+        s.capsule(lx, 38 + bob, lx, 42 - lift, 2.0, 1.7, fur, sh=sh)
+        s.ball(lx + 0.5, 42.8 - lift, 2.1, 1.6, belly, power=2.2, sh=sh * 0.4,
+               wrap=0.10, curve=0.10)
+    # round tummy + white bib toward the front
+    s.ball(23, 36 + bob, 5.4, 4.8, fur, power=2.2, wrap=0.30, curve=0.24)
+    s.ball(25.5, 37 + bob, 2.8, 2.8, belly, power=2.2, wrap=0.10, curve=0.10)
+    s.capsule(23, 33 + bob, 24, 37 + bob, 1.7, 1.5, fur, sh=0.10)   # near arm
+    # head: near ear tall, far ear peeking
+    s.tri((hx + 4, hy - 9), hy - 4, hx + 2, hx + 6, fur, sh=0.26)
+    s.tri((hx - 1, hy - 10), hy - 4, hx - 3, hx + 1, fur)
+    s.tri((hx - 1, hy - 8), hy - 5, hx - 2, hx, earin)
+    s.ball(hx, hy, 6.8, 6.0, fur, power=2.4, wrap=0.34, curve=0.30)
+    s.ball(hx + 4.5, hy + 3.4, 4.0, 2.5, belly, power=2.0, wrap=0.10, curve=0.10)
+    s.rect(hx + 7, hy + 2, hx + 8, hy + 2, NOSE)
+    if eyes == "open":
+        _eye(s, hx + 2, hy - 3, iris, iris_l)
+        s.line([(hx + 6, hy + 4), (hx + 7, hy + 4)], MOUTH)
+    elif eyes == "blink":
+        _closed(s, hx + 2, hy - 3, happy=False)
+        s.line([(hx + 6, hy + 4), (hx + 7, hy + 4)], MOUTH)
+    else:
+        _wince(s, hx + 2, hy - 3)
+        s.rect(hx + 6, hy + 4, hx + 7, hy + 5, MOUTH)
+    return hx, hy
+
+
 # ---- kid Basil: full playable sheet ----------------------------------------------------
 
 BASIL_OUTS = outs_for((FUR, OUT_DARK), (WHITE, OUT_LIGHT))
@@ -290,62 +415,17 @@ def kb_down(s, bob=0, liftL=0, liftR=0, tail_sway=0, tail_droop=0,
 
 
 def kb_up(s, bob=0, liftL=0, liftR=0, tail_sway=0):
-    kid_legs_down(s, FUR, WHITE, liftL, liftR, bob)
-    by = 36 + bob
-    s.ball(CX, by, 5.8, 5.0, FUR, power=2.2, wrap=0.30, curve=0.24)
-    s.capsule(CX - 5.5, by - 3, CX - 6.5, by + 1, 1.7, 1.5, FUR, sh=0.06)
-    s.capsule(CX + 5.5, by - 3, CX + 6.5, by + 1, 1.7, 1.5, FUR, sh=0.16)
-    # tail swishes up past the tummy, seen from behind
-    s.capsule(CX + 5, by + 1, CX + 8, by - 4, 1.5, 1.2, FUR, sh=0.10)
-    s.set(CX + 8 + tail_sway, by - 5, FUR[0])
-    hy = 25 + bob
-    kid_ears(s, FUR, hy, inner=False)
-    s.tri((CX - 5, hy - 8), hy - 5, CX - 6, CX - 4, FUR, sh=0.40)
-    s.tri((CX + 5, hy - 8), hy - 5, CX + 4, CX + 6, FUR, sh=0.46)
-    s.ball(CX, hy, 7.2, 6.4, FUR, power=2.4, wrap=0.34, curve=0.30)
-    s.line([(CX - 2, hy + 5), (CX - 1, hy + 6), (CX, hy + 6),
-            (CX + 1, hy + 6), (CX + 2, hy + 5)], FUR[3])       # neck part
+    kid_back(s, FUR, WHITE, bob, liftL, liftR, tail_sway)
     kb_finish(s)
 
 
 def kb_side(s, bob=0, fF=(0, 0), fB=(0, 0), tail_dy=0, eyes="open",
             tail_raised=False):
     """Side view, faces RIGHT (flip_h in code for left)."""
-    hx, hy = 23, 25 + bob
-    # tail behind, off the rump
-    if tail_raised:
-        s.capsule(16, 36, 14, 30 + tail_dy, 1.5, 1.2, FUR, sh=0.10)
-    else:
-        s.capsule(16, 37, 13, 34 + tail_dy, 1.5, 1.2, FUR, sh=0.10)
-    # legs: front/back scissor pair, paws on the feet line
-    for (base_x, (dx, lift), sh) in (((20), fB, 0.14), ((26), fF, 0.0)):
-        lx = base_x + dx
-        s.capsule(lx, 38 + bob, lx, 42 - lift, 2.0, 1.7, FUR, sh=sh)
-        s.ball(lx + 0.5, 42.8 - lift, 2.1, 1.6, WHITE, power=2.2, sh=sh * 0.4,
-               wrap=0.10, curve=0.10)
-    # round tummy + white bib toward the front
-    s.ball(23, 36 + bob, 5.4, 4.8, FUR, power=2.2, wrap=0.30, curve=0.24)
-    s.ball(25.5, 37 + bob, 2.8, 2.8, WHITE, power=2.2, wrap=0.10, curve=0.10)
-    s.capsule(23, 33 + bob, 24, 37 + bob, 1.7, 1.5, FUR, sh=0.10)   # near arm
-    # head: near ear tall, far ear peeking
-    s.tri((hx + 4, hy - 9), hy - 4, hx + 2, hx + 6, FUR, sh=0.26)
-    s.tri((hx - 1, hy - 10), hy - 4, hx - 3, hx + 1, FUR)
-    s.tri((hx - 1, hy - 8), hy - 5, hx - 2, hx, EARIN)
-    s.ball(hx, hy, 6.8, 6.0, FUR, power=2.4, wrap=0.34, curve=0.30)
-    s.ball(hx + 4.5, hy + 3.4, 4.0, 2.5, WHITE, power=2.0, wrap=0.10, curve=0.10)
-    s.rect(hx + 7, hy + 2, hx + 8, hy + 2, NOSE)
-    if eyes == "open":
-        _eye(s, hx + 2, hy - 3, EYE_Y, EYE_YL)
-        s.line([(hx + 6, hy + 4), (hx + 7, hy + 4)], MOUTH)
-    elif eyes == "blink":
-        _closed(s, hx + 2, hy - 3, happy=False)
-        s.line([(hx + 6, hy + 4), (hx + 7, hy + 4)], MOUTH)
-    else:
-        _wince(s, hx + 2, hy - 3)
-        s.rect(hx + 6, hy + 4, hx + 7, hy + 5, MOUTH)
+    kid_side(s, FUR, WHITE, EYE_Y, EYE_YL, bob, fF, fB, tail_dy, eyes,
+             tail_raised)
     kb_finish(s)
-    for (x, y) in ((31, 27), (32, 29)):
-        s.set(x, y + bob, WHISK)
+    whiskers_kid_side(s, bob)
 
 
 # ---- Sage --------------------------------------------------------------------------------
@@ -374,6 +454,46 @@ def sage(s, eyes="open", ears="up", arms="down", bob=0, sway=0, sparkle=False):
             s.set(x, y, SPARK)
         s.set(14, 22, SPARK_D)
         s.set(34, 21, SPARK_D)
+
+
+def sage_back(s, bob=0, sway=0):
+    """Sage from behind (2026-07-29). The bow is a GIFT from this angle — it is
+    tied over her west ear, so from the back it sits between the ear backs
+    where nothing occludes it, and the two ribbon tails fall down the nape.
+    The front cell's knot/loop mirrored, one tone brighter so the sage green
+    still separates from the slate-lavender crown."""
+    hy = kid_back(s, SAGE_FUR, WHITE, bob, tail_sway=sway)
+    # BETWEEN the ears, and only between them: at CX +- 4 the bow starts eating
+    # the ear backs and the whole crown reads as a blank blob with a green bar.
+    s.rect(CX - 3, hy - 7, CX + 3, hy - 6, SAGE_BOW[1])     # band across the crown
+    s.rect(CX - 3, hy - 8, CX - 1, hy - 5, SAGE_BOW[0])     # west loop
+    s.rect(CX + 1, hy - 8, CX + 3, hy - 5, SAGE_BOW[1])     # east loop
+    s.set(CX - 2, hy - 7, SAGE_BOW[2])                      # loop hollows
+    s.set(CX + 2, hy - 7, SAGE_BOW[2])
+    s.rect(CX, hy - 8, CX, hy - 5, SAGE_BOW[2])             # the knot pinch
+    s.set(CX - 1, hy - 4, SAGE_BOW[2])                      # tails down the nape
+    s.set(CX + 1, hy - 4, SAGE_BOW[2])
+    s.despeckle(passes=1)
+    s.outline(SAGE_OUTS, OUT_DARK)
+    s.crease([(CX + 4, hy + 10), (CX + 5, hy + 9)], SAGE_FUR[3])   # tail root
+
+
+def sage_side(s, bob=0):
+    """Sage in profile. The bow perches on the crown behind the near ear and
+    breaks the top silhouette, so the profile is unmistakably hers; ribbon
+    tails trail off the back of the skull."""
+    hx, hy = kid_side(s, SAGE_FUR, WHITE, SAGE_EYE, SAGE_EYEL, bob)
+    # the bow perched on the BACK of the crown, its loop poking past the skull
+    # so it breaks the silhouette — on top of the head it hides behind the ears
+    s.rect(hx - 4, hy - 6, hx - 2, hy - 4, SAGE_BOW[1])     # the knot
+    s.rect(hx - 8, hy - 7, hx - 5, hy - 3, SAGE_BOW[0])     # the loop, swept back
+    s.rect(hx - 7, hy - 6, hx - 6, hy - 5, SAGE_BOW[2])     # loop hollow
+    s.set(hx - 5, hy - 2, SAGE_BOW[2])                      # trailing tails
+    s.set(hx - 6, hy - 1, SAGE_BOW[2])
+    s.despeckle(passes=1)
+    s.outline(SAGE_OUTS, OUT_DARK)
+    whiskers_kid_side(s, bob)
+    _mirror_cell(s)
 
 
 # ---- Kitty Cool ---------------------------------------------------------------------------
@@ -418,9 +538,67 @@ def kitty(s, eyes="open", pose="stand", bob=0, sway=0):
     whiskers_kid_down(s, bob)
 
 
+def kitty_back(s, bob=0, sway=0):
+    """Kid Kitty from behind (2026-07-29 — she is staged turning and walking
+    all over Prologue A). The kerchief hangs at her throat, so from this side
+    the teal band and its KNOT at the nape carry the whole read; the grease
+    smudge is on the cheek she is not showing. Same trade the adult back cell
+    makes."""
+    hy = kid_back(s, KIT_FUR, WHITE, bob, tail_sway=sway)
+    s.rect(CX - 4, hy + 7, CX + 4, hy + 8, KIT_BAND[1])     # band at the nape
+    s.rect(CX - 4, hy + 8, CX - 2, hy + 8, KIT_BAND[2])
+    s.rect(CX + 2, hy + 8, CX + 4, hy + 8, KIT_BAND[2])
+    s.rect(CX - 1, hy + 7, CX + 1, hy + 9, KIT_BAND[0])     # the knot
+    s.set(CX, hy + 8, KIT_BAND[2])                          # its pinch
+    s.set(CX - 2, hy + 10, KIT_BAND[2])                     # knot tails
+    s.set(CX + 2, hy + 10, KIT_BAND[2])
+    s.despeckle(passes=1)
+    s.outline(KIT_OUTS, OUT_DARK)
+    s.crease([(CX + 4, hy + 10), (CX + 5, hy + 9)], KIT_FUR[3])    # tail root
+
+
+def kitty_side(s, bob=0):
+    """Kid Kitty in profile: the teal band round the throat with the kerchief
+    triangle hanging down her front, and the grease smudge on the cheek she IS
+    showing. (The kerchief hangs by explicit shrinking rows — Sprite.tri only
+    draws apex-up, which is why the down cells' downward triangle never
+    rendered.)"""
+    hx, hy = kid_side(s, KIT_FUR, WHITE, KIT_EYE, KIT_EYEL, bob)
+    s.set(hx - 2, hy + 1, SMUDGE)                   # some things do not wash off
+    s.set(hx - 3, hy + 2, SMUDGE)                   # (on the LIT cheek band —
+    s.set(hx - 2, hy + 2, SMUDGE)                   # against KIT_FUR[3] it went
+    #                                                 invisible)
+    s.rect(hx - 4, hy + 7, hx + 3, hy + 8, KIT_BAND[1])     # the band
+    s.rect(hx - 4, hy + 8, hx - 2, hy + 8, KIT_BAND[2])
+    s.rect(hx + 1, hy + 9, hx + 4, hy + 9, KIT_BAND[1])     # kerchief, hanging
+    s.rect(hx + 2, hy + 10, hx + 4, hy + 10, KIT_BAND[2])
+    s.set(hx + 3, hy + 11, KIT_BAND[2])
+    s.despeckle(passes=1)
+    s.outline(KIT_OUTS, OUT_DARK)
+    whiskers_kid_side(s, bob)
+    _mirror_cell(s)
+
+
 # ---- kid Schweinler -------------------------------------------------------------------------
 
 PIG_OUTS = outs_for((PIG, OUT_DARK), (SNOUT, OUT_DARK), (KERCH, OUT_DARK))
+
+
+def _pig_curl(s, ox, oy, d=-1):
+    """The curly tail as an explicit POST-outline squiggle carrying its own dark
+    edge. A 1px zigzag is the only shape that reads as a corkscrew at 48px, and
+    drawn before the finishing passes it is eaten — despeckle drops anything
+    with fewer than two filled 4-neighbours and the path is diagonal. Coils of
+    fat capsules don't work either: at r>1 they close up into a lump with no
+    hole, which reads as a button on the rump. Same post-outline idiom as the
+    hare's inert wand and Kitty's pinched gear. `d` = -1 west / +1 east."""
+    squig = ((0, 0), (1, -1), (2, 0), (3, 1), (4, 0), (5, -1))
+    for (sx, sy) in squig:
+        for (ex, ey) in ((0, -1), (0, 1), (1, 0), (-1, 0)):
+            if s.get(ox + (sx + ex) * d, oy + sy + ey) is None:
+                s.set(ox + (sx + ex) * d, oy + sy + ey, OUT_DARK)
+    for i, (sx, sy) in enumerate(squig):
+        s.set(ox + sx * d, oy + sy, PIG[0] if i % 2 else PIG[1])
 
 
 def schweinler(s, mood="idle", bob=0):
@@ -469,6 +647,80 @@ def schweinler(s, mood="idle", bob=0):
         s.rect(CX + 2, hy - 6, CX + 5, hy - 6, PIG[3])
     s.despeckle(passes=1)
     s.outline(PIG_OUTS, OUT_DARK)
+
+
+def schweinler_back(s, bob=0):
+    """Kid Schweinler from behind (2026-07-29). A pig, so none of the kid-cat
+    cores apply: the read is the two flop-ear BACKS hanging wider than the
+    skull and the CURLY TAIL coiled on the rump, lit a tone up with a hard
+    shadow under it so the coil reads as raised. No snout, no face, and only
+    the kerchief's tie band and knot — the triangle hangs at his chest."""
+    hy = 26 + bob
+    # flop ears from behind: the outer faces, wider and flatter than the front
+    s.tri((CX - 8, hy - 7), hy - 2, CX - 10, CX - 4, PIG, sh=0.30)
+    s.tri((CX + 8, hy - 7), hy - 2, CX + 4, CX + 10, PIG, sh=0.38)
+    s.ball(CX, hy, 7.6, 6.4, PIG, power=2.4, wrap=0.32, curve=0.28)
+    s.ball(CX, 37 + bob, 7.0, 5.4, PIG, power=2.2, wrap=0.28, curve=0.22)
+    s.capsule(CX - 6.5, 34 + bob, CX - 7.5, 38 + bob, 1.8, 1.5, PIG, sh=0.06)
+    s.capsule(CX + 6.5, 34 + bob, CX + 7.5, 38 + bob, 1.8, 1.5, PIG, sh=0.16)
+    for lx in (CX - 3, CX + 3):
+        s.capsule(lx, 40 + bob, lx, 42, 2.0, 1.8, PIG, sh=0.08)
+        s.rect(lx - 1, 43, lx + 1, 44, PIG[3])      # cloven trotter
+    # the spine crease, so the back is not a blank pink oval
+    for sy in range(hy + 9, 38 + bob):
+        s.set(CX, sy, PIG[2])
+    # the kerchief's tie band + knot at the nape. The knot reads by its DARK
+    # pinch, not by being lighter: KERCH[0] is a pale pink and washes straight
+    # into the pig
+    s.rect(CX - 4, hy + 6, CX + 4, hy + 6, KERCH[1])
+    s.rect(CX - 4, hy + 7, CX + 4, hy + 7, KERCH[2])
+    s.rect(CX - 1, hy + 6, CX + 1, hy + 8, KERCH[1])            # the knot
+    s.set(CX - 2, hy + 7, KERCH[3])                             # its pinch
+    s.set(CX + 2, hy + 7, KERCH[3])
+    s.set(CX, hy + 8, KERCH[3])
+    s.despeckle(passes=1)
+    s.outline(PIG_OUTS, OUT_DARK)
+    _pig_curl(s, CX - 8, 36 + bob)                  # THE CURLY TAIL, west hip
+
+
+def schweinler_side(s, bob=0):
+    """Kid Schweinler in profile, facing RIGHT before the mirror. The SNOUT is
+    the read — a blunt cylinder out past the cheek with its disc end and one
+    nostril — under a flop ear draped forward over the eye. The curly tail
+    coils off the rump behind him."""
+    hy, by = 26 + bob, 37 + bob
+    # -- trotters / the stout body --------------------------------------
+    for (lx, sh) in ((20, 0.16), (26, 0.0)):
+        s.capsule(lx, 39 + bob, lx, 42, 2.0, 1.8, PIG, sh=sh)
+        s.rect(lx - 1, 43, lx + 1, 44, PIG[3])
+    s.ball(23, by, 7.0, 5.4, PIG, power=2.2, wrap=0.28, curve=0.22)
+    s.capsule(24, 34 + bob, 26, 38 + bob, 1.8, 1.5, PIG, sh=0.10)   # near arm
+    # -- the far flop ear behind the skull ------------------------------
+    s.tri((20, hy - 7), hy - 1, 16, 21, PIG, sh=0.36)
+    # -- skull, then THE SNOUT ------------------------------------------
+    s.ball(22, hy, 7.2, 6.2, PIG, power=2.4, wrap=0.32, curve=0.28)
+    s.capsule(27, hy + 3, 31, hy + 3, 2.7, 2.4, SNOUT, sh=0.06)
+    s.rect(32, hy + 1, 32, hy + 5, SNOUT[2])                # the disc end
+    s.set(32, hy + 3, PIG_EYE)                              # one nostril
+    s.set(31, hy + 5, SNOUT[3])
+    # -- the near flop ear draped forward over the cheek ----------------
+    s.tri((21, hy - 8), hy + 2, 24, 29, PIG, sh=0.16)
+    s.rect(26, hy + 2, 28, hy + 3, PIG[2])                  # its heavy tip
+    # -- eye under the ear + the smug brow ------------------------------
+    s.rect(24, hy - 2, 25, hy - 1, PIG_EYE)
+    s.set(24, hy - 2, GLINT)
+    s.rect(23, hy - 4, 26, hy - 4, PIG[3])
+    s.line([(29, hy + 6), (30, hy + 6)], MOUTH)             # the mouth line
+    # -- the neckerchief: band round the throat, triangle hanging front --
+    s.rect(19, hy + 7, 27, hy + 8, KERCH[1])
+    s.rect(19, hy + 8, 21, hy + 8, KERCH[2])
+    s.rect(25, hy + 9, 28, hy + 9, KERCH[1])
+    s.rect(26, hy + 10, 28, hy + 10, KERCH[2])
+    s.set(27, hy + 11, KERCH[2])
+    s.despeckle(passes=1)
+    s.outline(PIG_OUTS, OUT_DARK)
+    _pig_curl(s, 17, 36 + bob)                      # the curly tail, behind him
+    _mirror_cell(s)
 
 
 # ---- the villager menagerie -----------------------------------------------------------------
@@ -598,12 +850,18 @@ def goose(s, mood="idle", bob=0, step=0):
 
 # ---- Mom (Prologue A pacing pass, 2026-07-12) -------------------------------------------
 
-MOM_FUR = ramp((178, 162, 152), "violet", 4)       # warm gray matron
-MOM_SCARF = ramp((132, 188, 116), "violet", 4)     # the family sage-green
+# 2026-07-29 less-kiddy pass (the overworld darker-pass recipe, _palette.py:177
+# — lower L, keep or RAISE S, hold the hue lean, keep the violet darks). Her old
+# (178,162,152) "warm gray" was S=0.14: a beige/gray MUD field, the ban in the
+# palette doctrine, and it read like a plush toy. Committed to the hue instead —
+# a rosewood-brown matron, S=0.24 at L=0.49 — with the spread up so the flat
+# apron-and-fur silhouette gets real internal contrast.
+MOM_FUR = ramp((156, 102, 94), "violet", 4, spread=1.1)     # rosewood matron
+MOM_SCARF = ramp((88, 158, 78), "violet", 4, spread=1.1)    # the family sage-green
 MOM_OUTS = outs_for((MOM_FUR, OUT_DARK), (WHITE, OUT_LIGHT), (MOM_SCARF, OUT_DARK))
 
 
-def mom(s, mood="idle", bob=0):
+def mom(s, mood="idle", bob=0, liftL=0, liftR=0):
     """Basil's mother: soft warm-gray cat, white flour-dusted apron, sage
     headscarf. Adult-sized (~30px) next to the kids."""
     hy = 22 + bob
@@ -650,13 +908,96 @@ def mom(s, mood="idle", bob=0):
         s.capsule(CX + 7, by - 4, CX + 8, by + 1, 1.8, 1.6, MOM_FUR, sh=0.16)
         s.ball(CX - 8, by + 2, 1.7, 1.5, WHITE, power=2.2, wrap=0.10, curve=0.10)
         s.ball(CX + 8, by + 2, 1.7, 1.5, WHITE, power=2.2, sh=0.10, wrap=0.10, curve=0.10)
-    for lx in (CX - 3, CX + 3):                     # paws under the hem
-        s.ball(lx, 43, 2.1, 1.6, MOM_FUR, power=2.2, wrap=0.10, curve=0.10)
+    for (lx, lift) in ((CX - 3, liftL), (CX + 3, liftR)):   # paws under the hem
+        s.ball(lx, 43 - lift, 2.1, 1.6, MOM_FUR, power=2.2, wrap=0.10,
+               curve=0.10)
     # tail curled around her feet
     s.capsule(CX + 7, 41 + bob, CX + 10, 42 + bob, 1.5, 1.2, MOM_FUR, sh=0.10)
     s.despeckle(passes=1)
     s.outline(MOM_OUTS, OUT_DARK)
     whiskers_kid_down(s, bob - 6)
+
+
+def mom_back(s, bob=0, liftL=0, liftR=0):
+    """Basil's mother from BEHIND (2026-07-29). The headscarf is the whole
+    read: the band round the crown, its KNOT and two tied ends sitting on the
+    nape. The apron is on the far side of her, so what shows is the pair of
+    straps crossing her back down to the waist tie. Adult cat proportions —
+    small skull on a heavy pear, not the kid dome."""
+    hy, by = 22 + bob, 35 + bob
+    s.tri((CX - 6, hy - 9), hy - 4, CX - 8, CX - 3, MOM_FUR, sh=0.28)
+    s.tri((CX + 6, hy - 9), hy - 4, CX + 3, CX + 8, MOM_FUR, sh=0.36)
+    for (lx, lift) in ((CX - 3, liftL), (CX + 3, liftR)):
+        s.ball(lx, 43 - lift, 2.1, 1.6, MOM_FUR, power=2.2, sh=0.20, wrap=0.10,
+               curve=0.10)
+    s.capsule(CX + 7, 41 + bob, CX + 10, 42 + bob, 1.5, 1.2, MOM_FUR, sh=0.10)
+    s.ball(CX, by, 7.4, 7.0, MOM_FUR, power=2.2, wrap=0.28, curve=0.22)
+    # the apron STRAPS crossing her back, down to the waist tie and its bow —
+    # 2px wide, because at 1px they read as scratches next to the chunky tie
+    ln(s, CX - 4, by - 6, CX + 3, by + 1, WHITE[1])
+    ln(s, CX - 3, by - 6, CX + 4, by + 1, WHITE[2])
+    ln(s, CX + 4, by - 6, CX - 3, by + 1, WHITE[1])
+    ln(s, CX + 3, by - 6, CX - 4, by + 1, WHITE[2])
+    s.rect(CX - 5, by + 2, CX + 5, by + 2, WHITE[1])            # the waist tie
+    s.rect(CX - 5, by + 3, CX + 5, by + 3, WHITE[2])
+    s.rect(CX - 3, by + 4, CX - 2, by + 5, WHITE[0])            # the bow loops
+    s.rect(CX + 2, by + 4, CX + 3, by + 5, WHITE[2])
+    s.capsule(CX - 7, by - 4, CX - 8, by + 1, 1.8, 1.6, MOM_FUR, sh=0.16)
+    s.capsule(CX + 7, by - 4, CX + 8, by + 1, 1.8, 1.6, MOM_FUR, sh=0.26)
+    s.ball(CX - 8, by + 2, 1.7, 1.5, WHITE, power=2.2, sh=0.26, wrap=0.10,
+           curve=0.10)
+    s.ball(CX + 8, by + 2, 1.7, 1.5, WHITE, power=2.2, sh=0.36, wrap=0.10,
+           curve=0.10)
+    s.ball(CX, hy, 7.0, 6.2, MOM_FUR, power=2.4, wrap=0.34, curve=0.30)
+    s.line([(CX - 2, hy + 5), (CX - 1, hy + 6), (CX, hy + 6),
+            (CX + 1, hy + 6), (CX + 2, hy + 5)], MOM_FUR[3])    # nape part
+    # the scarf: the band all the way round, the knot and its ends on the nape
+    s.rect(CX - 6, hy - 6, CX + 6, hy - 4, MOM_SCARF[1])
+    s.rect(CX - 6, hy - 4, CX + 6, hy - 4, MOM_SCARF[2])
+    s.rect(CX + 5, hy - 5, CX + 7, hy - 2, MOM_SCARF[0])        # the knot
+    s.rect(CX + 6, hy - 2, CX + 8, hy + 2, MOM_SCARF[1])        # the tied ends
+    s.rect(CX + 8, hy - 2, CX + 8, hy + 2, MOM_SCARF[2])
+    s.despeckle(passes=1)
+    s.outline(MOM_OUTS, OUT_DARK)
+
+
+def mom_side(s, bob=0, fF=(0, 0), fB=(0, 0)):
+    """Basil's mother in PROFILE, drawn facing RIGHT and mirrored last. The
+    scarf's knot rides the back of the crown, the apron panel hangs down the
+    front of the pear, and the tail trails behind her."""
+    hx, hy, by = 22, 22 + bob, 35 + bob
+    s.tri((hx + 4, hy - 8), hy - 4, hx + 2, hx + 6, MOM_FUR, sh=0.26)
+    s.tri((hx - 1, hy - 9), hy - 4, hx - 3, hx + 1, MOM_FUR)
+    s.capsule(15, 41 + bob, 10, 42 + bob, 1.5, 1.2, MOM_FUR, sh=0.10)  # tail
+    for (base_x, (dx, lift), sh) in ((19, fB, 0.22), (26, fF, 0.0)):
+        lx = base_x + dx
+        s.ball(lx + 0.5, 43 - lift, 2.1, 1.6, MOM_FUR, power=2.2, sh=sh,
+               wrap=0.10, curve=0.10)
+    s.ball(22, by, 7.0, 7.0, MOM_FUR, power=2.2, wrap=0.28, curve=0.22)
+    # the apron as a tapered PANEL, not a slab: a flat rectangle down the
+    # profile read as a sheet of paper pinned to her
+    s.panel(24.5, by - 6, by + 4, 2.6, 3.8, WHITE, hem_curve=1, round_top=1,
+            hem_band=1, sh=0.04)
+    s.rect(23, by - 7, 24, by - 6, WHITE[2])                    # the strap
+    s.rect(23, by + 1, 26, by + 3, WHITE[2])                    # the pocket
+    s.capsule(23, by - 4, 25, by + 1, 1.8, 1.6, MOM_FUR, sh=0.14)   # near arm
+    s.ball(25, by + 2, 1.7, 1.5, WHITE, power=2.2, sh=0.24, wrap=0.10,
+           curve=0.10)
+    s.ball(hx, hy, 6.8, 6.0, MOM_FUR, power=2.4, wrap=0.34, curve=0.30)
+    s.ball(hx + 4.5, hy + 3.4, 4.0, 2.5, WHITE, power=2.0, wrap=0.10,
+           curve=0.10)
+    s.rect(hx + 7, hy + 2, hx + 8, hy + 2, NOSE)
+    _eye(s, hx + 2, hy - 2, EYE_Y, EYE_YL)
+    s.line([(hx + 6, hy + 5), (hx + 7, hy + 5)], MOUTH)
+    s.rect(hx - 6, hy - 6, hx + 5, hy - 4, MOM_SCARF[1])        # the band
+    s.rect(hx - 6, hy - 4, hx + 5, hy - 4, MOM_SCARF[2])
+    s.rect(hx - 8, hy - 5, hx - 6, hy - 2, MOM_SCARF[0])        # the knot, back
+    s.rect(hx - 9, hy - 2, hx - 7, hy + 2, MOM_SCARF[1])
+    s.despeckle(passes=1)
+    s.outline(MOM_OUTS, OUT_DARK)
+    for (x, y) in ((hx + 9, hy + 1), (hx + 10, hy + 3)):
+        s.set(x, y, WHISK)                          # post-outline specks
+    _mirror_cell(s)
 
 
 # ---- Kitty's mother (2026-07-18 sickroom banishment beat) ------------------------------
@@ -1649,13 +1990,9 @@ def fuji_npc_back(s, bob=0):
 
 
 def _fuji_mirror(s):
-    """Flip a FINISHED cell horizontally: the side cells are authored on the
-    canonical right-facing geometry, the npc kit stores LEFT-facing cells
-    (play_side(true) flips back east). Runtime-flipped profiles already
-    forfeit the global light direction, so the mirrored shade bands are
-    exactly as legal as npc.gd's own flip_h."""
-    for row in s.px:
-        row.reverse()
+    """Her side cells are authored right-facing; the kit stores left-facing
+    (see _mirror_cell)."""
+    _mirror_cell(s)
 
 
 def fuji_robe_side(s, dy=0):
@@ -1759,15 +2096,24 @@ def fuji_npc_side(s, bob=0):
 # knit cap, Pip's own rust fur. Every held charm is DEAD on purpose: honest
 # wood, cold stone, dark glass — no glow pixels anywhere on these sheets.
 
-HARE_FUR = ramp((228, 232, 250), "violet", 4)      # snow-hare white, blue-leaning
-HARE_IN = ramp((186, 168, 208), "violet", 4)       # cool violet inner ear
-HARE_SCARF = ramp((202, 108, 58), "violet", 4)     # chunky russet knit — HER accent
+# 2026-07-29 less-kiddy pass. The old seed (228,232,250) sat at L=0.94, where
+# the ramp's lit tone clamps to pure white and tones 0-1 collapse into each
+# other: a flat cotton-wool rabbit with no form, and the pale end of the whole
+# Lanternwood cast. HARE_FUR is now HAND-PINNED, because the derived version of
+# a near-white blue seed comes back with a (104,74,228) core — a hot candy
+# blue-violet, the same trap that makes BRASS[2..3] unusable. This walk is a
+# cool blue-white ramp with real internal contrast and violet-slate darks:
+# lower L, hue held, no beige/gray mud in it anywhere.
+HARE_FUR = [(238, 244, 252, 255), (194, 206, 240, 255),
+            (140, 148, 212, 255), (92, 92, 168, 255)]
+HARE_IN = ramp((158, 138, 190), "violet", 4)       # cool violet inner ear
+HARE_SCARF = ramp((184, 86, 46), "violet", 4)      # chunky russet knit — HER accent
 HARE_EYE, HARE_EYEL = (146, 200, 236, 255), (198, 228, 248, 255)
 HARE_OUTS = outs_for((HARE_FUR, OUT_LIGHT), (WHITE, OUT_LIGHT),
                      (HARE_IN, OUT_LIGHT), (HARE_SCARF, OUT_DARK))
 
 
-def hare(s, mood="idle", bob=0):
+def hare(s, mood="idle", bob=0, liftL=0, liftR=0):
     """Bramble, the flustered snow hare: pale blue-white fur, LONG upright
     ears running toward the cell top (art crests y=3 so the outline keeps
     1px inside), chunky russet scarf, big split feet. act = the dead
@@ -1792,9 +2138,9 @@ def hare(s, mood="idle", bob=0):
             s.capsule(CX + 3.5, hy - 9, CX + 4, hy - 15, 0.9, 0.7, HARE_IN,
                       sh=0.30)
     # -- feet / body / tail ---------------------------------------------
-    for (fx_, sh) in ((CX - 3, 0.0), (CX + 3, 0.10)):   # big hare feet
-        s.ball(fx_, 43, 2.7, 1.6, HARE_FUR, power=2.2, sh=sh, wrap=0.10,
-               curve=0.10)
+    for (fx_, lift, sh) in ((CX - 3, liftL, 0.0), (CX + 3, liftR, 0.10)):
+        s.ball(fx_, 43 - lift, 2.7, 1.6, HARE_FUR, power=2.2, sh=sh, wrap=0.10,
+               curve=0.10)                             # big hare feet
     s.ball(CX, by, 6.8, 6.4, HARE_FUR, power=2.2, wrap=0.28, curve=0.22)
     s.ball(CX, by + 1, 3.8, 3.4, WHITE, power=2.2, wrap=0.10, curve=0.10)
     s.ball(CX + 7.5, by + 3, 1.8, 1.6, WHITE, power=2.2, sh=0.10,
@@ -1862,19 +2208,120 @@ def hare(s, mood="idle", bob=0):
         s.set(CX + 8, hy - 12, WOODF[3])            # the paw) — dead dark tip
 
 
-BEAV_FUR = ramp((150, 106, 88), "violet", 4)       # riverbank brown (honest wood-kin)
-BEAV_COAT = ramp((96, 112, 160), "violet", 4)      # steel-indigo quilted coat
-BEAV_CAP = ramp((232, 158, 74), "violet", 4)       # amber knit cap — HIS accent
+def hare_back(s, bob=0, liftL=0, liftR=0):
+    """Bramble from BEHIND (2026-07-29). Two reads and nothing else: the long
+    ear BACKS (no violet inner — that lining only exists on the front of an
+    ear) and the COTTONTAIL, a pale puff sitting low on the rump. She is an
+    ADULT hare, so the skull stays small against a long trunk rather than the
+    kid-cat's half-figure head. Her paws are WHITE on a near-white flank, so
+    every one of them carries a shadow tint or it disappears."""
+    hy, by = 21 + bob, 35 + bob
+    s.capsule(CX - 3, hy - 4, CX - 4, hy - 17, 1.9, 1.4, HARE_FUR, sh=0.30)
+    s.capsule(CX + 3, hy - 4, CX + 4, hy - 17, 1.9, 1.4, HARE_FUR, sh=0.38)
+    for (fx_, lift, sh) in ((CX - 3, liftL, 0.16), (CX + 3, liftR, 0.26)):
+        s.ball(fx_, 43 - lift, 2.7, 1.6, HARE_FUR, power=2.2, sh=sh, wrap=0.10,
+               curve=0.10)
+    s.ball(CX, by, 6.8, 6.4, HARE_FUR, power=2.2, wrap=0.28, curve=0.22)
+    s.capsule(CX - 6.5, by - 4, CX - 7.5, by + 1, 1.7, 1.5, HARE_FUR, sh=0.16)
+    s.capsule(CX + 6.5, by - 4, CX + 7.5, by + 1, 1.7, 1.5, HARE_FUR, sh=0.26)
+    s.ball(CX - 7.5, by + 2, 1.6, 1.4, WHITE, power=2.2, sh=0.34, wrap=0.10,
+           curve=0.10)                              # tinted, or it vanishes
+    s.ball(CX + 7.5, by + 2, 1.6, 1.4, WHITE, power=2.2, sh=0.46, wrap=0.10,
+           curve=0.10)
+    s.ball(CX, by + 5, 2.8, 2.2, WHITE, power=2.0, sh=0.30, wrap=0.16,
+           curve=0.12)                              # THE COTTONTAIL, low on
+                                                    # the rump — mid-back it
+                                                    # just read as a belly
+    # the scarf from the nape: the band round, the end still hanging east
+    sy = hy + 7
+    s.rect(CX - 5, sy, CX + 5, sy, HARE_SCARF[1])
+    s.rect(CX - 5, sy + 1, CX + 5, sy + 1, HARE_SCARF[2])
+    s.rect(CX - 5, sy + 2, CX + 5, sy + 2, HARE_SCARF[3])
+    for rx in range(CX - 4, CX + 5, 2):
+        s.set(rx, sy + 1, HARE_SCARF[3])            # knit ribs
+    s.rect(CX + 2, sy + 3, CX + 4, sy + 8, HARE_SCARF[2])
+    s.rect(CX + 4, sy + 3, CX + 4, sy + 8, HARE_SCARF[3])
+    for fx_ in (CX + 2, CX + 4):
+        s.set(fx_, sy + 9, HARE_SCARF[3])
+    s.ball(CX, hy, 6.8, 6.0, HARE_FUR, power=2.4, wrap=0.34, curve=0.30)
+    s.line([(CX - 2, hy + 5), (CX - 1, hy + 6), (CX, hy + 6),
+            (CX + 1, hy + 6), (CX + 2, hy + 5)], HARE_FUR[3])   # nape part
+    s.despeckle(passes=1)
+    s.outline(HARE_OUTS, OUT_LIGHT)
+
+
+def hare_side(s, bob=0, fF=(0, 0), fB=(0, 0)):
+    """Bramble in PROFILE, drawn facing RIGHT and mirrored last (the npc kit
+    stores left-facing side cells). The near ear runs full height with its
+    violet lining showing, the far one hangs back shaded; the long hare muzzle
+    and the scarf's hanging end are the front read, the cottontail the rear."""
+    hx, hy, by = 22, 21 + bob, 35 + bob
+    s.capsule(hx + 2, hy - 4, hx + 4, hy - 16, 1.8, 1.3, HARE_FUR, sh=0.36)
+    s.capsule(hx - 1, hy - 4, hx - 1, hy - 17, 1.9, 1.4, HARE_FUR, sh=0.04)
+    s.capsule(hx - 1, hy - 9, hx - 1, hy - 15, 0.9, 0.7, HARE_IN)
+    s.ball(15, by + 3, 2.6, 2.2, WHITE, power=2.0, sh=0.32, wrap=0.16,
+           curve=0.12)                              # the cottontail, west
+    for (base_x, (dx, lift), sh) in ((19, fB, 0.24), (26, fF, 0.0)):
+        lx = base_x + dx
+        s.capsule(lx, 39 + bob, lx, 42 - lift, 2.0, 1.7, HARE_FUR, sh=sh)
+        s.ball(lx + 0.5, 43 - lift, 2.7, 1.6, HARE_FUR, power=2.2, sh=sh,
+               wrap=0.10, curve=0.10)
+    s.ball(22, by, 6.4, 6.2, HARE_FUR, power=2.2, wrap=0.28, curve=0.22)
+    s.ball(25, by + 1, 3.0, 3.0, WHITE, power=2.2, sh=0.12, wrap=0.10,
+           curve=0.10)                              # the bib, toward the front
+    s.capsule(23, by - 4, 24.5, by + 1, 1.7, 1.5, HARE_FUR, sh=0.14)  # near arm
+    s.ball(24.5, by + 2, 1.6, 1.4, WHITE, power=2.2, sh=0.30, wrap=0.10,
+           curve=0.10)
+    # the NECK — without it the scarf floated in the gap between skull and
+    # trunk and came out an outlined box hanging in mid air
+    s.capsule(22, hy + 3, 22, by - 4, 3.4, 3.8, HARE_FUR, sh=0.22)
+    sy = hy + 6
+    s.rect(hx - 4, sy, hx + 5, sy, HARE_SCARF[0])
+    s.rect(hx - 4, sy + 1, hx + 5, sy + 1, HARE_SCARF[1])
+    s.rect(hx - 4, sy + 2, hx + 5, sy + 2, HARE_SCARF[2])
+    for rx in range(hx - 3, hx + 5, 2):
+        s.set(rx, sy + 1, HARE_SCARF[2])
+    s.rect(hx + 3, sy + 3, hx + 5, sy + 8, HARE_SCARF[1])
+    s.rect(hx + 5, sy + 3, hx + 5, sy + 8, HARE_SCARF[2])
+    for fx_ in (hx + 3, hx + 5):
+        s.set(fx_, sy + 9, HARE_SCARF[2])
+    s.ball(hx, hy, 6.4, 5.8, HARE_FUR, power=2.4, wrap=0.34, curve=0.30)
+    # a SHORT rounded snout: run out as a long tapered capsule it read as a
+    # duck's bill, which is the wrong animal and the wrong register
+    s.ball(hx + 4.5, hy + 3.2, 3.6, 2.4, WHITE, power=2.0, wrap=0.12,
+           curve=0.10)
+    s.rect(hx + 8, hy + 2, hx + 8, hy + 3, NOSE)
+    _eye(s, hx + 1, hy - 2, HARE_EYE, HARE_EYEL)
+    s.line([(hx + 6, hy + 5), (hx + 7, hy + 5)], MOUTH)
+    s.despeckle(passes=1)
+    s.outline(HARE_OUTS, OUT_LIGHT)
+    for (x, y) in ((hx + 9, hy + 1), (hx + 10, hy + 3)):
+        s.set(x, y, WHISK)                  # post-outline: despeckle eats specks
+    _mirror_cell(s)
+
+
+# 2026-07-29 less-kiddy pass: fur and coat drop L and gain S with the spread
+# up, so an old woodworker in a heavy winter coat has weight in him. BEAV_CAP is
+# now HAND-PINNED — an amber seed's derived darks came back (225,15,28) and
+# (179,4,101), fire-engine red and magenta, which is exactly the violet law's
+# BRASS[2..3] trap and exactly the "very kiddy" failure mode. His muzzle drops
+# off near-white (it was L=0.82, S=0.11 — mud) to a violet-grey with the flecks
+# re-tuned darker, since the old flecks now matched the muzzle and vanished.
+BEAV_FUR = ramp((138, 92, 74), "violet", 4, spread=1.1)     # riverbank brown
+BEAV_COAT = ramp((74, 94, 152), "violet", 4, spread=1.15)   # steel-indigo coat
+BEAV_CAP = [(238, 190, 120, 255), (222, 146, 54, 255),      # amber knit cap —
+            (156, 86, 46, 255), (92, 50, 58, 255)]          # HIS accent
 BEAV_TAIL = ramp((110, 80, 104), "violet", 4)      # violet-brown paddle tail
-BEAV_MUZ = ramp((214, 204, 214), "violet", 4)      # grey-flecked old muzzle
+BEAV_MUZ = [(214, 208, 212, 255), (180, 172, 180, 255),     # old grey muzzle,
+            (140, 128, 146, 255), (98, 86, 108, 255)]        # HAND-PINNED
 BEAV_EYE = (58, 40, 48, 255)
-GREYF = (172, 166, 186, 255)                       # the age flecks
+GREYF = (110, 98, 132, 255)                        # the age flecks
 BEAV_OUTS = outs_for((BEAV_FUR, OUT_DARK), (BEAV_COAT, OUT_DARK),
                      (BEAV_CAP, OUT_DARK), (BEAV_MUZ, OUT_LIGHT),
                      (BEAV_TAIL, OUT_DARK), (WHITE, OUT_LIGHT))
 
 
-def beaver(s, mood="idle", bob=0):
+def beaver(s, mood="idle", bob=0, liftL=0, liftR=0):
     """Alder, the elderly beaver woodworker: heavy-set in a quilted steel-blue
     coat, small amber knit cap, grey-flecked muzzle, the broad flat tail
     poking out at the base. act = the dead charm-stone held out at arm's
@@ -1888,8 +2335,8 @@ def beaver(s, mood="idle", bob=0):
     else:
         s.capsule(CX + 6, 40 + bob, CX + 12, 42, 2.6, 2.2, BEAV_TAIL, sh=0.10)
     # -- feet / the heavy quilted body ----------------------------------
-    for (fx_, sh) in ((CX - 3, 0.0), (CX + 3, 0.10)):
-        s.ball(fx_, 43, 2.2, 1.6, BEAV_FUR, power=2.2, sh=0.30 + sh,
+    for (fx_, lift, sh) in ((CX - 3, liftL, 0.0), (CX + 3, liftR, 0.10)):
+        s.ball(fx_, 43 - lift, 2.2, 1.6, BEAV_FUR, power=2.2, sh=0.30 + sh,
                wrap=0.10, curve=0.10)
     s.ball(CX, by, 8.4, 7.4, BEAV_COAT, power=2.2, wrap=0.26, curve=0.20)
     # -- arms per mood --------------------------------------------------
@@ -1964,9 +2411,109 @@ def beaver(s, mood="idle", bob=0):
         s.set(CX - 16, by - 7, STEELF[1])           # one cold light catch
 
 
-FOX_FUR = ramp((224, 120, 54), "violet", 4)        # rust — the kit's own warmth
-FOX_CREAM = ramp((248, 232, 204), "violet", 4)     # muzzle / chest / tail-tip
-FOX_KNIT = ramp((92, 148, 192), "violet", 4)       # frost-blue bobble hat + mittens
+def beaver_back(s, bob=0, liftL=0, liftR=0):
+    """Alder from BEHIND (2026-07-29): the PADDLE hangs straight down between
+    his heels — side-on it points east, but a beaver walking away drags it, and
+    it is the only silhouette that says beaver from this angle. The coat gets
+    its centre seam and the knit cap's brim runs all the way round. Old bull of
+    a body: the skull is small and set low on heavy shoulders, no kid dome."""
+    hy, by = 21 + bob, 34 + bob
+    # the paddle DRAGGED out east past the coat's edge — hung straight down it
+    # sat entirely inside the coat's silhouette and read as a smudge of dirt
+    s.capsule(CX + 3, 40 + bob, CX + 11, 43, 2.4, 2.4, BEAV_TAIL, sh=-0.06)
+    for (fx_, lift, sh) in ((CX - 6, liftL, 0.30), (CX + 6, liftR, 0.40)):
+        s.ball(fx_, 43 - lift, 2.2, 1.6, BEAV_FUR, power=2.2, sh=sh,
+               wrap=0.10, curve=0.10)
+    s.ball(CX, by, 8.4, 7.4, BEAV_COAT, power=2.2, wrap=0.26, curve=0.20)
+    for y in range(by - 8, by + 8):
+        s.set(CX, y, BEAV_COAT[3])                  # the centre seam
+    s.rect(CX - 8, by + 5, CX + 8, by + 6, BEAV_COAT[3])        # the hem band
+    s.capsule(CX - 7.5, by - 4, CX - 8.5, by + 2, 2.0, 1.7, BEAV_COAT, sh=0.16)
+    s.capsule(CX + 7.5, by - 4, CX + 8.5, by + 2, 2.0, 1.7, BEAV_COAT, sh=0.26)
+    s.ball(CX - 8.5, by + 3, 1.7, 1.5, BEAV_FUR, power=2.2, sh=0.16, wrap=0.10,
+           curve=0.10)
+    s.ball(CX + 8.5, by + 3, 1.7, 1.5, BEAV_FUR, power=2.2, sh=0.26, wrap=0.10,
+           curve=0.10)
+    for (ex, sh) in ((CX - 6, 0.26), (CX + 6, 0.34)):
+        s.ball(ex, hy - 5, 1.8, 1.7, BEAV_FUR, power=2.0, sh=sh, wrap=0.20,
+               curve=0.16)                          # small round ear backs
+    s.ball(CX, hy, 6.6, 5.8, BEAV_FUR, power=2.4, wrap=0.32, curve=0.28)
+    s.line([(CX - 2, hy + 4), (CX - 1, hy + 5), (CX, hy + 5),
+            (CX + 1, hy + 5), (CX + 2, hy + 4)], BEAV_FUR[3])   # nape
+    s.ball(CX, hy - 6, 5.2, 2.6, BEAV_CAP, power=2.0, wrap=0.16, curve=0.10)
+    s.rect(CX - 5, hy - 5, CX + 5, hy - 4, BEAV_CAP[2])
+    for rx in range(CX - 4, CX + 5, 2):
+        s.set(rx, hy - 4, BEAV_CAP[3])              # knit rib ticks
+    s.despeckle(passes=1)
+    s.outline(BEAV_OUTS, OUT_DARK)
+    s.crease([(CX + 6, 41), (CX + 8, 41), (CX + 10, 42), (CX + 6, 43),
+              (CX + 8, 43)], BEAV_TAIL[3])          # the paddle crosshatch
+    s.crease([(CX - 4, by - 3), (CX - 4, by), (CX - 4, by + 3),
+              (CX + 4, by - 3), (CX + 4, by), (CX + 4, by + 3)],
+             BEAV_COAT[3])                          # quilt seams
+
+
+def beaver_side(s, bob=0, fF=(0, 0), fB=(0, 0)):
+    """Alder in PROFILE, drawn facing RIGHT and mirrored last. The paddle
+    sweeps back west at full width (side-on is the only view where it reads as
+    a paddle and not a lump), the grey muzzle and the two honest teeth carry
+    the front, and the amber cap sits over the brow."""
+    hx, hy, by = 26, 21 + bob, 34 + bob
+    s.capsule(18, 40 + bob, 9, 42, 2.2, 3.4, BEAV_TAIL, sh=0.14)
+    for (base_x, (dx, lift), sh) in ((19, fB, 0.44), (26, fF, 0.30)):
+        lx = base_x + dx
+        s.ball(lx, 43 - lift, 2.2, 1.6, BEAV_FUR, power=2.2, sh=sh, wrap=0.10,
+               curve=0.10)
+    s.ball(23, by, 7.6, 7.4, BEAV_COAT, power=2.2, wrap=0.26, curve=0.20)
+    s.rect(16, by + 5, 30, by + 6, BEAV_COAT[3])                # the hem band
+    for y in range(by - 5, by + 5):                             # the front edge
+        s.set(30, y, BEAV_COAT[3])
+        s.set(29, y, BEAV_COAT[2])
+    s.capsule(25, by - 4, 27, by + 2, 2.0, 1.7, BEAV_COAT, sh=0.10)  # near arm
+    s.ball(27, by + 3, 1.7, 1.5, BEAV_FUR, power=2.2, wrap=0.10, curve=0.10)
+    s.ball(hx, hy, 6.2, 5.6, BEAV_FUR, power=2.4, wrap=0.32, curve=0.28)
+    # the ear rides BELOW the cap brim and BEHIND the skull line: tucked in at
+    # hy-4 the knit swallowed it whole and the profile lost its only ear
+    s.ball(hx - 7, hy - 1, 1.9, 1.8, BEAV_FUR, power=2.0, sh=0.28, wrap=0.20,
+           curve=0.16)
+    # a SHORT blunt muzzle — run out long and pale it read as an anteater
+    s.capsule(hx + 1, hy + 3, hx + 5, hy + 4, 2.7, 2.1, BEAV_MUZ, sh=0.24)
+    s.rect(hx + 7, hy + 2, hx + 7, hy + 3, NOSE)
+    s.line([(hx + 3, hy + 5), (hx + 4, hy + 5), (hx + 5, hy + 5)], MOUTH)
+    s.rect(hx + 4, hy + 6, hx + 4, hy + 7, WHITE[0])    # the two honest teeth
+    s.rect(hx + 5, hy + 6, hx + 5, hy + 7, WHITE[2])
+    for (gx, gy) in ((hx + 1, hy + 5), (hx + 3, hy + 3)):
+        s.set(gx, gy, GREYF)                        # the age flecks
+    s.ball(hx - 1, hy - 6, 5.2, 2.6, BEAV_CAP, power=2.0, wrap=0.16, curve=0.10)
+    s.rect(hx - 6, hy - 5, hx + 4, hy - 4, BEAV_CAP[2])
+    for rx in range(hx - 5, hx + 4, 2):
+        s.set(rx, hy - 4, BEAV_CAP[3])
+    s.rect(hx + 2, hy - 1, hx + 3, hy, BEAV_EYE)
+    s.set(hx + 3, hy - 1, GLINT)
+    s.despeckle(passes=1)
+    s.outline(BEAV_OUTS, OUT_DARK)
+    s.crease([(15, 40 + bob), (12, 41 + bob), (15, 43), (12, 43)],
+             BEAV_TAIL[3])                          # the paddle crosshatch
+    s.crease([(20, by - 3), (20, by), (20, by + 3),
+              (25, by - 3), (25, by), (25, by + 3)], BEAV_COAT[3])
+    for (x, y) in ((hx + 8, hy + 1), (hx + 9, hy + 4)):
+        s.set(x, y, WHISK)                          # post-outline specks
+    _mirror_cell(s)
+
+
+# 2026-07-29 less-kiddy pass. BOTH of Pip's fur ramps are now HAND-PINNED, and
+# they have to be: derived, FOX_CREAM's darks came back (246,141,139) and
+# (249,80,166) — a warm pale seed taken the short way round to violet goes
+# straight through HOT MAGENTA — and FOX_FUR's came back (194,18,46)/(149,7,94),
+# which is what made his dark socks and the shadow side of his brush glow
+# fire-engine red at sh=0.55. That is the exact "very kiddy" failure mode
+# arrived at by obeying the palette code instead of the palette doctrine.
+# Both walk to violet-BROWN instead: lower L, warmth held, no candy.
+FOX_FUR = [(232, 158, 106, 255), (208, 102, 40, 255),       # rust — the kit's
+           (146, 58, 44, 255), (86, 34, 58, 255)]           # own warmth
+FOX_CREAM = [(248, 238, 214, 255), (226, 202, 158, 255),    # muzzle / chest /
+             (170, 142, 126, 255), (112, 88, 102, 255)]     # tail-tip
+FOX_KNIT = ramp((72, 128, 180), "violet", 4, spread=1.1)    # frost-blue knit
 FOX_EYE, FOX_EYEL = (246, 204, 116, 255), (252, 232, 168, 255)
 GLASSM = (214, 232, 242, 255)                      # the marble's cold glass
 GLASSM_D = (36, 28, 52, 255)                       # ...and its DEAD dark heart
@@ -1974,7 +2521,7 @@ FOX_OUTS = outs_for((FOX_FUR, OUT_DARK), (FOX_CREAM, OUT_LIGHT),
                     (FOX_KNIT, OUT_DARK))
 
 
-def foxkid(s, mood="idle", bob=0):
+def foxkid(s, mood="idle", bob=0, liftL=0, liftR=0, tail_sway=0):
     """Pip, the fox kid — child proportions (shorter, bigger head, the mouse
     kid register): rust fur, cream muzzle and tail-tip, frost-blue bobble hat
     and mittens. act = shaking the little glow-marble up in both mittens (the
@@ -1991,15 +2538,15 @@ def foxkid(s, mood="idle", bob=0):
         s.ball(CX + 10, 27 + bob, 2.2, 2.0, FOX_CREAM, power=2.2, wrap=0.10,
                curve=0.10)
     else:
-        s.capsule(CX + 5, 39 + bob, CX + 9, 31 + bob, 2.6, 2.2, FOX_FUR,
-                  sh=0.10)
-        s.ball(CX + 9, 29.5 + bob, 2.0, 1.8, FOX_CREAM, power=2.2, wrap=0.10,
-               curve=0.10)
+        s.capsule(CX + 5, 39 + bob, CX + 9 + tail_sway, 31 + bob, 2.6, 2.2,
+                  FOX_FUR, sh=0.10)
+        s.ball(CX + 9 + tail_sway, 29.5 + bob, 2.0, 1.8, FOX_CREAM, power=2.2,
+               wrap=0.10, curve=0.10)
     # -- legs (dark socks) / small body ---------------------------------
-    for (lx, sh) in ((CX - 3, 0.0), (CX + 3, 0.10)):
-        s.capsule(lx, 39 + bob, lx, 42, 1.8, 1.5, FOX_FUR, sh=0.15 + sh)
-        s.ball(lx, 42.8, 1.9, 1.4, FOX_FUR, power=2.2, sh=0.55, wrap=0.10,
-               curve=0.10)
+    for (lx, lift, sh) in ((CX - 3, liftL, 0.0), (CX + 3, liftR, 0.10)):
+        s.capsule(lx, 39 + bob, lx, 42 - lift, 1.8, 1.5, FOX_FUR, sh=0.15 + sh)
+        s.ball(lx, 42.8 - lift, 1.9, 1.4, FOX_FUR, power=2.2, sh=0.55,
+               wrap=0.10, curve=0.10)
     s.ball(CX, by, 5.2, 4.6, FOX_FUR, power=2.2, wrap=0.30, curve=0.24)
     s.ball(CX, by + 1, 3.0, 2.6, FOX_CREAM, power=2.2, wrap=0.10, curve=0.10)
     # -- arms per mood (mittens are the paws) ---------------------------
@@ -2076,6 +2623,420 @@ def foxkid(s, mood="idle", bob=0):
         for (px_, py_) in ((CX - 9, hy - 9), (CX, hy - 14),
                            (CX + 9, hy - 9)):
             s.set(px_, py_, SPARK_D)                # thrilled-scared ticks
+
+
+def foxkid_back(s, bob=0, liftL=0, liftR=0, tail_sway=0):
+    """Pip from behind (2026-07-29): the bobble hat and the big cream-tipped
+    TAIL are the whole silhouette, so the tail is drawn OVER his back — from
+    behind it is the nearest thing to camera — sweeping up west with the cream
+    tip clear of the shoulder line. Ear backs keep their dark tips; the hat's
+    knit brim runs all the way round."""
+    hy, by = 27 + bob, 37 + bob
+    # -- legs (dark socks) / small body ---------------------------------
+    for (lx, lift, sh) in ((CX - 3, liftL, 0.0), (CX + 3, liftR, 0.10)):
+        s.capsule(lx, 39 + bob, lx, 42 - lift, 1.8, 1.5, FOX_FUR, sh=0.15 + sh)
+        s.ball(lx, 42.8 - lift, 1.9, 1.4, FOX_FUR, power=2.2, sh=0.55,
+               wrap=0.10, curve=0.10)
+    s.ball(CX, by, 5.2, 4.6, FOX_FUR, power=2.2, wrap=0.30, curve=0.24)
+    s.capsule(CX - 4.5, by - 3, CX - 5.5, by, 1.5, 1.3, FOX_FUR, sh=0.06)
+    s.capsule(CX + 4.5, by - 3, CX + 5.5, by, 1.5, 1.3, FOX_FUR, sh=0.16)
+    s.ball(CX - 5.5, by + 1.5, 1.6, 1.4, FOX_KNIT, power=2.2, wrap=0.10,
+           curve=0.10)                              # mittens
+    s.ball(CX + 5.5, by + 1.5, 1.6, 1.4, FOX_KNIT, power=2.2, sh=0.12,
+           wrap=0.10, curve=0.10)
+    # -- ear backs (dark tips, no inner) + the head ---------------------
+    s.tri((CX - 6, hy - 12), hy - 4, CX - 9, CX - 3, FOX_FUR, sh=0.26)
+    s.tri((CX + 6, hy - 12), hy - 4, CX + 3, CX + 9, FOX_FUR, sh=0.34)
+    s.rect(CX - 7, hy - 11, CX - 6, hy - 10, FOX_FUR[3])
+    s.rect(CX + 6, hy - 11, CX + 7, hy - 10, FOX_FUR[3])
+    s.ball(CX, hy, 6.2, 5.4, FOX_FUR, power=2.4, wrap=0.34, curve=0.30)
+    s.line([(CX - 2, hy + 4), (CX - 1, hy + 5), (CX, hy + 5),
+            (CX + 1, hy + 5), (CX + 2, hy + 4)], FOX_FUR[3])    # nape part
+    # -- the hat, brim all the way round --------------------------------
+    s.ball(CX, hy - 6, 5.6, 3.0, FOX_KNIT, power=2.0, wrap=0.16, curve=0.10)
+    s.rect(CX - 5, hy - 4, CX + 5, hy - 3, FOX_KNIT[2])
+    for rx in range(CX - 4, CX + 5, 2):
+        s.set(rx, hy - 3, FOX_KNIT[3])              # rib ticks
+    s.ball(CX, hy - 10, 1.9, 1.7, FOX_CREAM, power=2.2, wrap=0.10,
+           curve=0.10)                              # the bobble
+    # -- THE TAIL, up the west flank, cream tip clear of the shoulder ----
+    # (drawn over the body, since from behind the brush is the nearest thing to
+    # camera — but only across the FLANK: a tail swept over the whole back left
+    # him a red mass with a hat on it, no nape, no mittens, no read)
+    s.capsule(CX - 3, 40 + bob, CX - 9 - tail_sway, 31 + bob, 2.7, 2.2,
+              FOX_FUR, sh=0.10)
+    s.ball(CX - 10 - tail_sway, 29 + bob, 2.2, 2.0, FOX_CREAM, power=2.2,
+           wrap=0.10, curve=0.10)
+    s.despeckle(passes=1)
+    s.outline(FOX_OUTS, OUT_DARK)
+    s.crease([(CX - 5, 37 + bob), (CX - 6, 35 + bob), (CX - 7, 33 + bob)],
+             FOX_FUR[3])                            # fur ticks along the brush
+
+
+def foxkid_side(s, bob=0, fF=(0, 0), fB=(0, 0), tail_sway=0):
+    """Pip in profile, facing RIGHT before the mirror: the pointed fox muzzle
+    out front under the bobble hat's brim, the brush swept back west with its
+    cream tip, one mitten hanging."""
+    hy, by = 27 + bob, 37 + bob
+    # -- the brush swept back behind him. It has to TAPER hard: at an even
+    # radius it read as a stick with a ball on the end, not a brush ------
+    s.capsule(20, 40 + bob, 11 - tail_sway, 34 + bob, 3.4, 2.0, FOX_FUR,
+              sh=0.10)
+    s.ball(9.5 - tail_sway, 32.5 + bob, 2.1, 1.9, FOX_CREAM, power=2.2,
+           wrap=0.10, curve=0.10)
+    # -- legs / body ----------------------------------------------------
+    for (base_x, (dx, lift), sh) in ((20, fB, 0.14), (26, fF, 0.0)):
+        lx = base_x + dx
+        s.capsule(lx, 39 + bob, lx, 42 - lift, 1.8, 1.5, FOX_FUR, sh=0.15 + sh)
+        s.ball(lx + 0.5, 42.8 - lift, 1.9, 1.4, FOX_FUR, power=2.2, sh=0.55,
+               wrap=0.10, curve=0.10)
+    s.ball(23, by, 5.0, 4.6, FOX_FUR, power=2.2, wrap=0.30, curve=0.24)
+    s.ball(25.5, by + 1, 2.4, 2.4, FOX_CREAM, power=2.2, wrap=0.10, curve=0.10)
+    s.capsule(24, by - 3, 25.5, by, 1.5, 1.3, FOX_FUR, sh=0.10)   # near arm
+    s.ball(25.5, by + 1.5, 1.6, 1.4, FOX_KNIT, power=2.2, wrap=0.10,
+           curve=0.10)                              # the mitten
+    # -- head: far ear peeking, near ear tall ---------------------------
+    s.tri((26, hy - 11), hy - 4, 24, 29, FOX_FUR, sh=0.28)
+    s.rect(27, hy - 10, 28, hy - 9, FOX_FUR[3])
+    s.tri((21, hy - 12), hy - 4, 18, 23, FOX_FUR)
+    s.rect(19, hy - 11, 20, hy - 10, FOX_FUR[3])
+    s.ball(22, hy, 6.0, 5.2, FOX_FUR, power=2.4, wrap=0.34, curve=0.30)
+    # the pointed muzzle: a taper out east, cream underside
+    s.capsule(25, hy + 2, 30, hy + 3, 2.6, 1.5, FOX_FUR, sh=0.04)
+    s.capsule(25, hy + 3.4, 29.5, hy + 3.8, 1.9, 1.1, FOX_CREAM, sh=-0.10)
+    s.rect(30, hy + 2, 31, hy + 2, NOSE)
+    s.ball(19.5, hy + 3, 2.2, 1.8, FOX_CREAM, power=2.0, wrap=0.10,
+           curve=0.10)                              # the cheek ruff
+    # -- the hat + bobble, brim riding the brow -------------------------
+    s.ball(22, hy - 6, 5.4, 3.0, FOX_KNIT, power=2.0, wrap=0.16, curve=0.10)
+    s.rect(17, hy - 4, 27, hy - 3, FOX_KNIT[2])
+    for rx in range(18, 27, 2):
+        s.set(rx, hy - 3, FOX_KNIT[3])
+    s.ball(21, hy - 10, 1.9, 1.7, FOX_CREAM, power=2.2, wrap=0.10, curve=0.10)
+    _eye(s, 24, hy - 2, FOX_EYE, FOX_EYEL)
+    s.line([(28, hy + 4), (29, hy + 4)], MOUTH)
+    s.despeckle(passes=1)
+    s.outline(FOX_OUTS, OUT_DARK)
+    s.crease([(17, 38 + bob), (15, 37 + bob), (13, 35 + bob)], FOX_FUR[3])
+    for (x, y) in ((32, hy - 1), (33, hy), (32, hy + 5)):
+        s.set(x, y, WHISK)                          # profile whiskers
+    _mirror_cell(s)
+
+
+# ---- MAYOR HOLLIS of Lanternwood (2026-07-29) ----------------------------------------------
+# The town's mayor AND its clerk — an old elk, the biggest animal in Lanternwood,
+# and the only one who answers the Ebb with paperwork. The design is three
+# things and nothing else: the ANTLERS (broad, asymmetric, one tine snapped
+# blunt), the CHAIN OF OFFICE (brass links to a flat pendant — it says mayor
+# faster than any pose), and the half-moon SPECTACLES on their cord. Played
+# completely straight: dignity, not whimsy. Cool browns under a heavy winter
+# coat, one warm accent (the brass) per the Lanternwood cast law.
+
+# 2026-07-29 less-kiddy pass: hide, coat and waistcoat all sat at S≈0.12-0.22 —
+# naturalistic mud, the exact thing the palette doctrine bans as a field — so
+# each drops L and commits to its hue with the spread up. ELK_MUZ and ELK_RUMP
+# join ANTLER and LEDGER as HAND-PINNED, for the same reason those two already
+# were: a pale warm seed's derived darks came back (214,139,136) and
+# (208,86,146) — a PINK tuft on the back of a mayor — and dropping the muzzle's
+# L far enough to lose the mud put the hue pull somewhere worse still, a
+# saturated purple bruise across the face of the only adult in the scene who is
+# supposed to read as dignity. Both walk cool-violet-GREY by hand instead.
+ELK_FUR = ramp((140, 100, 82), "violet", 4, spread=1.1)     # cool elk hide
+ELK_MUZ = [(208, 202, 202, 255), (176, 168, 172, 255),      # old bull's muzzle
+           (138, 126, 138, 255), (96, 84, 100, 255)]         # (see below)
+ELK_COAT = ramp((102, 70, 80), "violet", 4)        # thick cool-brown winter coat
+ELK_VEST = ramp((70, 114, 88), "violet", 4, spread=1.15)    # pine-green waistcoat
+ELK_RUMP = [(236, 228, 204, 255), (210, 196, 164, 255),     # the pale cervid
+            (158, 144, 140, 255), (106, 94, 110, 255)]      # rump tuft
+HOOF = ramp((92, 80, 100), "violet", 4)            # dark keratin
+# BONE and PAPER are HAND-PINNED: ramp() takes a pale warm seed's darks the
+# short way round the wheel toward violet, i.e. straight through RED (the same
+# law that makes BRASS[2..3] unusable), and rust-red antlers on a rust-brown
+# elk lose the whole silhouette. These go cool-violet instead, the honest way.
+ANTLER = [(232, 218, 190, 255), (198, 178, 150, 255),
+          (150, 130, 134, 255), (102, 86, 104, 255)]
+LEDGER = [(240, 232, 210, 255), (220, 210, 190, 255),
+          (166, 158, 166, 255), (114, 106, 126, 255)]
+ELK_EYE = (48, 38, 52, 255)
+ELK_NOSE = (74, 62, 82, 255)
+CORD = (58, 50, 70, 255)                           # the spectacle cord
+INK = (58, 48, 112, 255)                           # iron-gall ink, on the hoof
+MAYOR_OUTS = outs_for((ELK_FUR, OUT_DARK), (ELK_COAT, OUT_DARK),
+                      (ELK_MUZ, OUT_DARK), (ELK_VEST, OUT_DARK),
+                      (ELK_RUMP, OUT_LIGHT), (ANTLER, OUT_DARK),
+                      (HOOF, OUT_DARK), (LEDGER, OUT_DARK),
+                      (BRASSF, OUT_DARK))
+
+
+def _antler_rack(s, bx, by, d, broken=False):
+    """One half-rack sweeping up and OUT from (bx, by). `d` = -1 west / +1 east.
+    Beam plus a low brow tine and two risers — the candelabra read, which is
+    the only antler that survives 48px. `broken` snaps the middle riser short
+    and caps it with a pale break scar (the same tine every time, so the rack
+    is reliably asymmetric).
+
+    The rack is BROAD rather than tall on purpose — wapiti sweep back, and 10
+    rows above the base is the ceiling: any taller and the fill reaches y=0 on
+    a bob=-1 frame, where the outline pass has nowhere to put its edge. The
+    callers pin `by` to an ABSOLUTE row for the same reason, so a chin-up or
+    head-bowed pose moves the skull without dragging the rack off the cell."""
+    # The beam sweeps OUT along a shallow diagonal and the tines rise VERTICALLY
+    # off it, well apart — a riser running parallel to the beam merges with it
+    # into one pale slab and the rack stops reading as tines at all.
+    s.capsule(bx, by, bx + 10 * d, by - 5, 1.9, 1.2, ANTLER,
+              sh=0.0 if d < 0 else 0.16)
+    s.capsule(bx + d, by - 1, bx + 5 * d, by + 1, 1.4, 0.9, ANTLER,
+              sh=0.10 if d < 0 else 0.24)                       # brow tine
+    if broken:
+        s.capsule(bx + 4 * d, by - 3, bx + 4 * d, by - 6, 1.3, 1.3, ANTLER,
+                  sh=0.26)
+        s.rect(bx + 4 * d - 1, by - 7, bx + 4 * d + 1, by - 7, ANTLER[3])
+    else:
+        s.capsule(bx + 4 * d, by - 3, bx + 4 * d, by - 9, 1.3, 0.9, ANTLER,
+                  sh=0.06 if d < 0 else 0.22)
+    s.capsule(bx + 10 * d, by - 5, bx + 10 * d, by - 10, 1.2, 0.9, ANTLER,
+              sh=0.12 if d < 0 else 0.28)                       # the outer tine
+
+
+def _mayor_chain(s, cy):
+    """The chain of office: brass links down both shoulders to a flat pendant
+    centred at (CX, cy). Alternating tones read as links at 1px; BRASSF[2..3]
+    are unusable (the violet law turns brass darks to iron), so the shading is
+    tones 0/1 only with a steel engraving on the plate."""
+    for d in (-1, 1):
+        for i, (lx, ly) in enumerate(((6, -8), (6, -7), (5, -6), (5, -5),
+                                      (4, -4), (3, -3), (2, -2))):
+            s.set(CX + lx * d, cy + ly, BRASSF[i % 2])
+    s.rect(CX - 2, cy - 1, CX + 2, cy + 2, BRASSF[1])       # the pendant plate
+    s.rect(CX - 2, cy - 1, CX + 2, cy - 1, BRASSF[0])
+    s.set(CX, cy, STEELF[3])                                # engraved mark
+    s.set(CX - 1, cy + 1, STEELF[3])
+    s.set(CX + 1, cy + 1, STEELF[3])
+
+
+def _mayor_specs(s, hy):
+    """Half-moon spectacles low on the long muzzle — a straight top edge with a
+    shallow arc under it, twice, bridged at the centre — and the cord looping
+    back past the cheeks. Reuses the stork's RIMLESS glass."""
+    s.rect(CX - 6, hy + 1, CX - 3, hy + 1, RIMLESS)         # straight top edges
+    s.rect(CX + 2, hy + 1, CX + 5, hy + 1, RIMLESS)
+    s.rect(CX - 1, hy + 1, CX, hy + 1, RIMLESS)             # the bridge
+    for (lx, ly) in ((-6, 2), (-5, 3), (-4, 3), (-3, 2),
+                     (2, 2), (3, 3), (4, 3), (5, 2)):       # the half-moon arcs
+        s.set(CX + lx, hy + ly, RIMLESS)
+    for (lx, ly) in ((-7, 1), (-8, 2), (-8, 4), (7, 1), (8, 2), (8, 4)):
+        s.set(CX + lx, hy + ly, CORD)                       # the cord
+
+
+def mayor(s, mood="idle", bob=0, liftL=0, liftR=0):
+    """MAYOR HOLLIS, down view. mood: idle (hooves down, the ink-stained one
+    east), act = WRITING (the ledger up in the off hoof, pencil at it, head
+    bowed), emote = the civic gesture (one hoof raised as if calling a motion,
+    chin up, eyes shut)."""
+    write = mood == "act"
+    call = mood == "emote"
+    hy = 18 + bob + (2 if write else 0) - (2 if call else 0)
+    by = 33 + bob
+    ay = 14 + bob                                   # the rack's ABSOLUTE base row
+    # -- the rack, drawn first so the skull sits over its bases ---------
+    _antler_rack(s, CX - 4, ay, -1)
+    _antler_rack(s, CX + 4, ay, 1, broken=True)
+    # -- big leaf ears out to the sides --------------------------------
+    s.capsule(CX - 6, hy - 2, CX - 11, hy, 2.3, 1.6, ELK_FUR, sh=0.06)
+    s.capsule(CX + 6, hy - 2, CX + 11, hy, 2.3, 1.6, ELK_FUR, sh=0.22)
+    # -- hooves under the coat hem ------------------------------------
+    for (lx, lift) in ((CX - 4, liftL), (CX + 4, liftR)):
+        s.ball(lx, 43 - lift, 2.3, 1.7, HOOF, power=2.2, wrap=0.10, curve=0.10)
+    # -- the heavy coat -----------------------------------------------
+    s.ball(CX, by, 9.0, 8.0, ELK_COAT, power=2.2, wrap=0.26, curve=0.20)
+    for y in range(by - 9, by + 3):                 # the waistcoat, coat open
+        for x in range(CX - 4, CX + 5):
+            s.set(x, y, ELK_VEST[0] if x < CX else ELK_VEST[1])
+    ln(s, CX - 7, by - 9, CX - 5, by + 2, ELK_COAT[3])      # lapels
+    ln(s, CX + 7, by - 9, CX + 5, by + 2, ELK_COAT[3])
+    s.rect(CX - 8, by + 6, CX + 8, by + 7, ELK_COAT[3])     # the hem band
+    # -- forelegs per mood --------------------------------------------
+    if write:
+        # the ledger held against the chest in the off hoof, the pencil hoof
+        # brought across to the page, the head bowed to the line
+        s.capsule(CX - 8, by - 4, CX - 12, by - 1, 2.1, 1.7, ELK_COAT, sh=0.06)
+        s.capsule(CX + 8, by - 5, CX + 2, by - 2, 2.1, 1.6, ELK_COAT, sh=0.16)
+        s.rect(CX - 16, by - 8, CX - 5, by + 2, LEDGER[1])          # the page
+        s.rect(CX - 16, by - 8, CX - 5, by - 8, LEDGER[0])
+        s.rect(CX - 17, by - 8, CX - 16, by + 2, HOOF[1])           # board spine
+        for ly in range(by - 6, by + 2, 2):
+            s.rect(CX - 15, ly, CX - 8, ly, LEDGER[2])              # ruled lines
+        s.ball(CX - 12, by - 1, 2.0, 1.7, ELK_FUR, power=2.2, wrap=0.10,
+               curve=0.10)                          # the gripping hoof, OVER it
+        s.ball(CX + 1, by - 2, 2.0, 1.7, ELK_FUR, power=2.2, sh=0.10,
+               wrap=0.10, curve=0.10)               # the writing hoof
+        s.set(CX, by - 2, INK)
+        s.set(CX + 1, by - 1, INK)
+    elif call:
+        s.capsule(CX - 8, by - 5, CX - 9.5, by + 3, 2.1, 1.7, ELK_COAT, sh=0.06)
+        s.ball(CX - 9.5, by + 4.5, 2.0, 1.7, ELK_FUR, power=2.2, wrap=0.10,
+               curve=0.10)
+        # the hoof thrown up and OUT east — the rack owns everything above the
+        # shoulders, so the gesture travels sideways to clear it, and it stops
+        # BELOW the ear line or it just reads as a third antler
+        s.capsule(CX + 7, by - 5, CX + 13, by - 10, 2.1, 1.5, ELK_COAT, sh=0.16)
+        s.ball(CX + 14.5, by - 12, 2.1, 1.8, ELK_FUR, power=2.2, sh=0.10,
+               wrap=0.10, curve=0.10)               # the raised hoof
+        s.set(CX + 14, by - 12, INK)
+        s.set(CX + 15, by - 11, INK)
+    else:
+        s.capsule(CX - 8, by - 5, CX - 9.5, by + 3, 2.1, 1.7, ELK_COAT, sh=0.06)
+        s.capsule(CX + 8, by - 5, CX + 9.5, by + 3, 2.1, 1.7, ELK_COAT, sh=0.16)
+        s.ball(CX - 9.5, by + 4.5, 2.0, 1.7, ELK_FUR, power=2.2, wrap=0.10,
+               curve=0.10)
+        s.ball(CX + 9.5, by + 4.5, 2.0, 1.7, ELK_FUR, power=2.2, sh=0.10,
+               wrap=0.10, curve=0.10)
+        s.set(CX + 9, by + 4, INK)                  # the ink-stained hoof
+        s.set(CX + 10, by + 5, INK)
+    # -- the long grey-muzzled head -----------------------------------
+    s.ball(CX, hy, 6.0, 5.6, ELK_FUR, power=2.4, wrap=0.32, curve=0.28)
+    s.ball(CX, hy + 5.5, 4.2, 3.6, ELK_MUZ, power=2.2, sh=0.10, wrap=0.12,
+           curve=0.10)
+    s.rect(CX - 2, hy + 7, CX + 1, hy + 8, ELK_NOSE)
+    for (gx, gy) in ((CX - 5, hy + 3), (CX + 4, hy + 4), (CX + 5, hy + 2)):
+        s.set(gx, gy, ELK_MUZ[0])                   # grey creeping up the cheeks
+    ey = hy - 3
+    if call:                                        # eyes shut, mouth calling
+        _closed(s, CX - 7, ey, happy=False)
+        _closed(s, CX + 4, ey, happy=False)
+        s.rect(CX - 1, hy + 9, CX + 1, hy + 10, MAW)
+    elif write:                                     # downcast, reading his line
+        s.rect(CX - 7, ey + 2, CX - 5, ey + 2, ELK_EYE)
+        s.rect(CX + 5, ey + 2, CX + 7, ey + 2, ELK_EYE)
+        s.rect(CX - 7, ey + 1, CX - 5, ey + 1, ELK_FUR[3])
+        s.rect(CX + 5, ey + 1, CX + 7, ey + 1, ELK_FUR[3])
+        s.line([(CX - 1, hy + 9), (CX, hy + 9)], MOUTH)
+    else:
+        for ex in (CX - 7, CX + 5):
+            s.rect(ex, ey, ex + 2, ey + 2, ELK_EYE)
+            s.set(ex + 2, ey, GLINT)
+        s.line([(CX - 1, hy + 9), (CX, hy + 9)], MOUTH)
+    if not write:                                   # heavy old-bull brows (ONE
+        s.rect(CX - 8, ey - 1, CX - 5, ey - 1, ELK_FUR[3])      # row — two read
+        s.rect(CX + 5, ey - 1, CX + 8, ey - 1, ELK_FUR[3])      # as a mask)
+    _mayor_specs(s, hy)
+    _mayor_chain(s, by - 1)
+    s.despeckle(passes=1)
+    s.outline(MAYOR_OUTS, OUT_DARK)
+    s.crease([(CX - 6, by - 3), (CX - 6, by), (CX - 6, by + 3),
+              (CX + 6, by - 3), (CX + 6, by), (CX + 6, by + 3)],
+             ELK_COAT[3])                           # coat folds
+    if write:                                       # the pencil, post-outline
+        for i, (px_, py_) in enumerate(((CX - 1, by - 2), (CX - 2, by - 2),
+                                        (CX - 3, by - 1), (CX - 4, by - 1),
+                                        (CX - 5, by))):
+            s.set(px_, py_, WOODF[1] if i % 2 else WOODF[2])
+        s.set(CX - 6, by, OUT_DARK)                 # the graphite point
+
+
+def mayor_back(s, bob=0, liftL=0, liftR=0):
+    """From behind — the angle an antler rack is most legible, with nothing in
+    front of it. The asymmetry mirrors (the snapped tine falls WEST here), the
+    coat shows its centre seam and standing collar, the chain's back runs
+    across the nape, and the pale cervid rump tuft pokes out of the vent."""
+    hy, by = 18 + bob, 33 + bob
+    _antler_rack(s, CX - 4, 14 + bob, -1, broken=True)
+    _antler_rack(s, CX + 4, 14 + bob, 1)
+    s.capsule(CX - 6, hy - 2, CX - 11, hy, 2.3, 1.6, ELK_FUR, sh=0.24)
+    s.capsule(CX + 6, hy - 2, CX + 11, hy, 2.3, 1.6, ELK_FUR, sh=0.32)
+    for (lx, lift) in ((CX - 4, liftL), (CX + 4, liftR)):
+        s.ball(lx, 43 - lift, 2.3, 1.7, HOOF, power=2.2, wrap=0.10, curve=0.10)
+    s.ball(CX, by, 9.0, 8.0, ELK_COAT, power=2.2, wrap=0.26, curve=0.20)
+    for y in range(by - 8, by + 8):                 # the centre seam
+        s.set(CX, y, ELK_COAT[3])
+    s.rect(CX - 8, by + 6, CX + 8, by + 7, ELK_COAT[3])         # the hem band
+    s.ball(CX, by - 9, 6.0, 2.0, ELK_COAT, power=2.0, wrap=0.16,
+           curve=0.10)                              # the standing collar
+    s.rect(CX - 6, by - 8, CX + 6, by - 8, ELK_COAT[3])
+    s.capsule(CX - 8, by - 5, CX - 9.5, by + 3, 2.1, 1.7, ELK_COAT, sh=0.06)
+    s.capsule(CX + 8, by - 5, CX + 9.5, by + 3, 2.1, 1.7, ELK_COAT, sh=0.16)
+    s.ball(CX - 9.5, by + 4.5, 2.0, 1.7, ELK_FUR, power=2.2, wrap=0.10,
+           curve=0.10)
+    s.ball(CX + 9.5, by + 4.5, 2.0, 1.7, ELK_FUR, power=2.2, sh=0.10,
+           wrap=0.10, curve=0.10)
+    # the pale cervid rump tuft, sitting ON the coat over the vent slit
+    s.rect(CX - 1, by + 3, CX + 1, by + 8, ELK_COAT[3])         # the vent
+    s.ball(CX, by + 5, 2.5, 2.1, ELK_RUMP, power=2.0, wrap=0.14, curve=0.10)
+    # the skull from behind, then the chain across the nape
+    s.ball(CX, hy, 6.0, 5.6, ELK_FUR, power=2.4, wrap=0.32, curve=0.28)
+    s.line([(CX - 2, hy + 5), (CX - 1, hy + 6), (CX, hy + 6),
+            (CX + 1, hy + 6), (CX + 2, hy + 5)], ELK_FUR[3])    # nape part
+    for i, lx in enumerate(range(CX - 5, CX + 6)):
+        s.set(lx, by - 9, BRASSF[i % 2])
+    s.set(CX - 7, hy + 3, CORD)                     # the spectacle cord, behind
+    s.set(CX + 7, hy + 3, CORD)
+    s.despeckle(passes=1)
+    s.outline(MAYOR_OUTS, OUT_DARK)
+    s.crease([(CX - 6, by - 3), (CX - 6, by), (CX - 6, by + 3),
+              (CX + 6, by - 3), (CX + 6, by), (CX + 6, by + 3)],
+             ELK_COAT[3])                           # coat folds
+
+
+def mayor_side(s, bob=0, fF=(0, 0), fB=(0, 0)):
+    """Profile, facing RIGHT before the mirror. The near rack sweeps back over
+    the shoulders with the far rack shaded behind it, the long muzzle carries
+    the half-moon specs, and the CHAIN survives the profile: links over the
+    near shoulder to the pendant hanging clear on the chest's front edge."""
+    hy, by = 21 + bob, 33 + bob
+    hx = 26                                         # the head rides forward
+    ay = 16 + bob                                   # the rack's absolute base row
+    # -- the far rack, shaded right down, behind everything -------------
+    s.capsule(hx - 4, ay + 1, hx - 13, ay - 3, 1.8, 1.1, ANTLER, sh=0.44)
+    s.capsule(hx - 11, ay - 2, hx - 11, ay - 8, 1.2, 0.9, ANTLER, sh=0.48)
+    # -- hooves, the coat, the near foreleg ----------------------------
+    for (base_x, (dx, lift)) in ((21, fB), (27, fF)):
+        s.ball(base_x + dx, 43 - lift, 2.3, 1.7, HOOF, power=2.2, wrap=0.10,
+               curve=0.10)
+    s.ball(23, by, 8.0, 8.0, ELK_COAT, power=2.2, wrap=0.26, curve=0.20)
+    s.rect(16, by + 6, 30, by + 7, ELK_COAT[3])                 # the hem band
+    for y in range(by - 6, by + 6):                             # the front edge
+        s.set(30, y, ELK_COAT[3])
+        s.set(29, y, ELK_COAT[2])
+    s.ball(23, by - 8, 5.4, 2.0, ELK_COAT, power=2.0, wrap=0.16,
+           curve=0.10)                              # the standing collar
+    s.capsule(26, by - 4, 28, by + 3, 2.1, 1.7, ELK_COAT, sh=0.10)   # near leg
+    s.ball(28, by + 4.5, 2.0, 1.7, ELK_FUR, power=2.2, wrap=0.10, curve=0.10)
+    s.set(28, by + 4, INK)                          # the ink-stained hoof
+    s.set(29, by + 5, INK)
+    # -- the chain: over the near shoulder to the pendant on the chest --
+    for i, (lx, ly) in enumerate(((21, -8), (23, -8), (25, -7), (26, -6),
+                                  (27, -5), (28, -4), (29, -3))):
+        s.set(lx, by + ly, BRASSF[i % 2])
+    s.rect(27, by - 2, 30, by + 1, BRASSF[1])                   # the pendant
+    s.rect(27, by - 2, 30, by - 2, BRASSF[0])
+    s.set(28, by - 1, STEELF[3])
+    s.set(29, by, STEELF[3])
+    # -- the ear, swept back far enough to break the skull's silhouette
+    # (tucked against the head it vanished into the fur entirely) -------
+    s.capsule(hx - 3, hy, hx - 10, hy + 3, 2.2, 1.5, ELK_FUR, sh=0.30)
+    s.ball(hx, hy, 5.8, 5.4, ELK_FUR, power=2.4, wrap=0.32, curve=0.28)
+    s.capsule(hx + 2, hy + 3, hx + 8, hy + 4, 2.7, 2.1, ELK_MUZ, sh=0.20)
+    s.rect(hx + 10, hy + 3, hx + 10, hy + 5, ELK_NOSE)
+    s.set(hx + 9, hy + 6, ELK_MUZ[3])
+    s.line([(hx + 6, hy + 6), (hx + 7, hy + 6)], MOUTH)
+    # -- the near rack, full, sweeping BACK over the shoulders, tines up
+    s.capsule(hx - 2, ay, hx - 12, ay - 5, 1.9, 1.2, ANTLER, sh=0.04)
+    s.capsule(hx - 1, ay - 1, hx + 4, ay - 2, 1.4, 0.9, ANTLER, sh=0.14)
+    s.capsule(hx - 7, ay - 3, hx - 7, ay - 10, 1.3, 0.9, ANTLER, sh=0.10)
+    s.capsule(hx - 12, ay - 5, hx - 12, ay - 11, 1.2, 0.9, ANTLER, sh=0.18)
+    # -- eye, brow, the half-moon low on the muzzle, the cord back -----
+    s.rect(hx + 1, hy - 3, hx + 3, hy - 1, ELK_EYE)
+    s.set(hx + 3, hy - 3, GLINT)
+    s.rect(hx, hy - 5, hx + 4, hy - 5, ELK_FUR[3])
+    s.rect(hx + 2, hy + 1, hx + 8, hy + 1, RIMLESS)             # half-moon lens
+    for (lx, ly) in ((8, 2), (7, 3), (5, 3), (3, 3), (2, 2)):
+        s.set(hx + lx, hy + ly, RIMLESS)
+    for (lx, ly) in ((0, 0), (-2, 0), (-4, 1), (-6, 3)):
+        s.set(hx + lx, hy + ly, CORD)
+    s.despeckle(passes=1)
+    s.outline(MAYOR_OUTS, OUT_DARK)
+    s.crease([(19, by - 3), (19, by), (19, by + 3)], ELK_COAT[3])
+    _mirror_cell(s)
 
 
 # ---- fx strip -----------------------------------------------------------------------------
@@ -2707,34 +3668,75 @@ for (bx, by) in ((CX + 9, 28), (CX + 11, 26), (CX + 12, 24)):
     kb[4][2].set(bx, by, WHISK)                        # the exhaled breath drifting off
 write_cells(os.path.join(HERE, "kid_basil_gen.png"), kb, CELL)
 
-# Sage: [idle, blink, cast x2, giggle x2]
-sg = [[new() for _ in range(6)]]
+
+def walk_rows(row_down, row_up, row_side):
+    """Rows 1-3 of a WALKING villager sheet: walk_down / walk_up / walk_side,
+    6 frames each, each row padded out to 10 cells (write_cells wants a square
+    [rows][cols] grid, and row 0 is the 10-cell pose row).
+
+    Every character drives the SAME proven stride tables kid Basil's playable
+    sheet is cut from — a shuffle, not a churn: the stepping paw lifts 1px, a
+    heel-up tap, and both paw tips stay visible under the hem for the whole
+    cycle. f0 of the down and up rows is the planted neutral pose, so it comes
+    out byte-identical to row-0 cells 0 and 6. NO hem sway in down/up — it is
+    perpendicular to travel there and wags; the side row keeps its fore/aft
+    scissor, which lies along the motion."""
+    rows = []
+    for fn in (row_down, row_up, row_side):
+        cells = [new() for _ in range(10)]
+        for i in range(6):
+            fn(cells[i], i)
+        rows.append(cells)
+    return rows
+
+
+# The CHILDREN grew cols 6-9 on 2026-07-29 — BACK x2 + SIDE x2 (npc.gd builds
+# `back` at frame_cols >= 8 and `side` at >= 10; every existing 6-col spawn is
+# untouched, and cells 0-5 of all four sheets are byte-identical to the shipped
+# bytes). Before this they slid around front-facing: play_back()/play_side()
+# were silent no-ops on a 6-col sheet, and Kitty in particular is staged
+# turning and walking all over Prologue A.
+
+# Sage: [idle, blink, cast x2, giggle x2, BACK x2, SIDE x2]
+sg = [[new() for _ in range(10)]]
 sage(sg[0][0])
 sage(sg[0][1], eyes="blink")
 sage(sg[0][2], arms="up", sparkle=True)
 sage(sg[0][3], arms="up", bob=-1, sparkle=True)
 sage(sg[0][4], eyes="happy", sway=2)
 sage(sg[0][5], eyes="happy", bob=-1, sway=-2)
+sage_back(sg[0][6])
+sage_back(sg[0][7], bob=-1, sway=1)
+sage_side(sg[0][8])
+sage_side(sg[0][9], bob=-1)
 write_cells(os.path.join(HERE, "npc_sage_gen.png"), sg, CELL)
 
-# Schweinler: [idle x2, point x2, laugh x2]
-sw = [[new() for _ in range(6)]]
+# Schweinler: [idle x2, point x2, laugh x2, BACK x2, SIDE x2]
+sw = [[new() for _ in range(10)]]
 schweinler(sw[0][0])
 schweinler(sw[0][1], bob=-1)
 schweinler(sw[0][2], mood="point")
 schweinler(sw[0][3], mood="point", bob=-1)
 schweinler(sw[0][4], mood="laugh")
 schweinler(sw[0][5], mood="laugh", bob=-2)
+schweinler_back(sw[0][6])
+schweinler_back(sw[0][7], bob=-1)
+schweinler_side(sw[0][8])
+schweinler_side(sw[0][9], bob=-1)
 write_cells(os.path.join(HERE, "npc_schweinler_gen.png"), sw, CELL)
 
-# Kitty: [idle, blink, tinker x2, beam x2]
-kt = [[new() for _ in range(6)]]
+# Kitty: [idle, blink, tinker x2, beam x2, BACK x2, SIDE x2]
+kt = [[new() for _ in range(10)]]
 kitty(kt[0][0])
 kitty(kt[0][1], eyes="blink")
 kitty(kt[0][2], pose="tinker")
 kitty(kt[0][3], pose="tinker", bob=-1)
 kitty(kt[0][4], eyes="happy", pose="cheer", sway=2)
 kitty(kt[0][5], eyes="happy", pose="cheer", bob=-1, sway=-2)
+kitty_back(kt[0][6])
+kitty_back(kt[0][7], bob=-1, sway=1)
+kitty_side(kt[0][8])
+kitty_side(kt[0][9], bob=-1)
 write_cells(os.path.join(HERE, "npc_kitty_gen.png"), kt, CELL)
 
 # villagers: [idle x2, act x2, laugh-emote x2] — 6 cols since 2026-07-17:
@@ -2779,14 +3781,23 @@ goose(gg[0][6], mood="fly", step=0)
 goose(gg[0][7], mood="fly", step=1)
 write_cells(os.path.join(HERE, "npc_goose_gen.png"), gg, CELL)
 
-# Mom: [idle x2, flour-dust act x2, warm emote x2]
-mm = [[new() for _ in range(6)]]
+# Mom: [idle x2, flour-dust act x2, warm emote x2, BACK x2, SIDE x2] + the
+# three walk rows (2026-07-29)
+mm = [[new() for _ in range(10)]]
 mom(mm[0][0])
 mom(mm[0][1], bob=-1)
 mom(mm[0][2], mood="act")
 mom(mm[0][3], mood="act", bob=-1)
 mom(mm[0][4], mood="emote")
 mom(mm[0][5], mood="emote", bob=-1)
+mom_back(mm[0][6])
+mom_back(mm[0][7], bob=-1)
+mom_side(mm[0][8])
+mom_side(mm[0][9], bob=-1)
+mm += walk_rows(
+    lambda c, i: mom(c, bob=walk_bob[i], liftL=walk_liftl[i], liftR=walk_liftr[i]),
+    lambda c, i: mom_back(c, walk_bob[i], walk_liftl[i], walk_liftr[i]),
+    lambda c, i: mom_side(c, walk_bob[i], side_fF[i], side_fB[i]))
 write_cells(os.path.join(HERE, "npc_mom_gen.png"), mm, CELL)
 
 # Kitty's mother: [idle x2, hands-to-cheeks gasp x2, accusing emote x2]
@@ -2870,34 +3881,83 @@ fuji_npc_side(fj[0][8])
 fuji_npc_side(fj[0][9], bob=-1)
 write_cells(os.path.join(HERE, "npc_fuji_gen.png"), fj, CELL)
 
-# the Lanternwood Ebb-night trio (scene/lanternwood.gd spawns all three at
-# frame_cols = 6): [idle x2, act x2, emote x2] each
-hr = [[new() for _ in range(6)]]
+# the Lanternwood Ebb-night trio — all three grew to the full WALKING sheet on
+# 2026-07-29 (row 0 the 10-cell pose row, rows 1-3 the walk): Lanternwood is
+# where the game rests on solo Fuji, and villagers who slide face-on through a
+# night everyone is out in the street read as furniture.
+hr = [[new() for _ in range(10)]]
 hare(hr[0][0])
 hare(hr[0][1], bob=-1)
 hare(hr[0][2], mood="act")
 hare(hr[0][3], mood="act", bob=-1)
 hare(hr[0][4], mood="emote")
 hare(hr[0][5], mood="emote", bob=-1)
+hare_back(hr[0][6])
+hare_back(hr[0][7], bob=-1)
+hare_side(hr[0][8])
+hare_side(hr[0][9], bob=-1)
+hr += walk_rows(
+    lambda c, i: hare(c, bob=walk_bob[i], liftL=walk_liftl[i], liftR=walk_liftr[i]),
+    lambda c, i: hare_back(c, walk_bob[i], walk_liftl[i], walk_liftr[i]),
+    lambda c, i: hare_side(c, walk_bob[i], side_fF[i], side_fB[i]))
 write_cells(os.path.join(HERE, "npc_hare_gen.png"), hr, CELL)
 
-bv = [[new() for _ in range(6)]]
+bv = [[new() for _ in range(10)]]
 beaver(bv[0][0])
 beaver(bv[0][1], bob=-1)
 beaver(bv[0][2], mood="act")
 beaver(bv[0][3], mood="act", bob=-1)
 beaver(bv[0][4], mood="emote")
 beaver(bv[0][5], mood="emote", bob=-1)
+beaver_back(bv[0][6])
+beaver_back(bv[0][7], bob=-1)
+beaver_side(bv[0][8])
+beaver_side(bv[0][9], bob=-1)
+bv += walk_rows(
+    lambda c, i: beaver(c, bob=walk_bob[i], liftL=walk_liftl[i], liftR=walk_liftr[i]),
+    lambda c, i: beaver_back(c, walk_bob[i], walk_liftl[i], walk_liftr[i]),
+    lambda c, i: beaver_side(c, walk_bob[i], side_fF[i], side_fB[i]))
 write_cells(os.path.join(HERE, "npc_beaver_gen.png"), bv, CELL)
 
-fk = [[new() for _ in range(6)]]
+# Pip is a CHILD, so he grew the same cols 6-9 as the Prologue A kids
+fk = [[new() for _ in range(10)]]
 foxkid(fk[0][0])
 foxkid(fk[0][1], bob=-1)
 foxkid(fk[0][2], mood="act")
 foxkid(fk[0][3], mood="act", bob=-1)
 foxkid(fk[0][4], mood="emote")
 foxkid(fk[0][5], mood="emote", bob=-1)
+foxkid_back(fk[0][6])
+foxkid_back(fk[0][7], bob=-1)
+foxkid_side(fk[0][8])
+foxkid_side(fk[0][9], bob=-1)
+fk += walk_rows(
+    lambda c, i: foxkid(c, bob=walk_bob[i], liftL=walk_liftl[i],
+                        liftR=walk_liftr[i], tail_sway=walk_tail[i]),
+    lambda c, i: foxkid_back(c, walk_bob[i], walk_liftl[i], walk_liftr[i],
+                             walk_tail[i]),
+    lambda c, i: foxkid_side(c, walk_bob[i], side_fF[i], side_fB[i],
+                             walk_tail[i]))
 write_cells(os.path.join(HERE, "npc_foxkid_gen.png"), fk, CELL)
+
+# MAYOR HOLLIS of Lanternwood, 10 cols: [idle x2, WRITING act x2, the civic
+# hoof emote x2, BACK x2 (the rack, unobstructed), SIDE x2]
+my = [[new() for _ in range(10)]]
+mayor(my[0][0])
+mayor(my[0][1], bob=-1)
+mayor(my[0][2], mood="act")
+mayor(my[0][3], mood="act", bob=-1)
+mayor(my[0][4], mood="emote")
+mayor(my[0][5], mood="emote", bob=-1)
+mayor_back(my[0][6])
+mayor_back(my[0][7], bob=-1)
+mayor_side(my[0][8])
+mayor_side(my[0][9], bob=-1)
+my += walk_rows(
+    lambda c, i: mayor(c, bob=walk_bob[i], liftL=walk_liftl[i], liftR=walk_liftr[i]),
+    lambda c, i: mayor_back(c, walk_bob[i], walk_liftl[i], walk_liftr[i]),
+    lambda c, i: mayor_side(c, walk_bob[i], side_fF[i], side_fB[i]))
+write_cells(os.path.join(HERE, "npc_mayor_gen.png"), my, CELL)
 
 # the bluff kiss composition: three 96px frames (lean / KISS / the after)
 kc = [[Sprite(96, grain=1, salt=13, jitter=0.0) for _ in range(3)]]
@@ -2965,5 +4025,5 @@ write_cells(os.path.join(HERE, "accident_bike_down_gen.png"), bdn, CELL)
 
 accident_bg()
 
-print("prologue cast written: kid_basil (6x5) + 18 NPC sheets + fx strip 16x2"
+print("prologue cast written: kid_basil (6x5) + 19 NPC sheets + fx strip 16x2"
       " + the accident set + the bluff kiss (96px x3)")

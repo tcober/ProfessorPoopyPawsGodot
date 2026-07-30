@@ -46,7 +46,7 @@ register. Every line in the fest square stings.
 | --- | --- |
 | `scene/theater.gd/.tscn` | awaitable `card` / `fade` / `say` / `walk` / `walk_via` / `face` / `hop`, `lock_party` via the `party` GROUP, and **`walk_gate`** |
 | `scene/dialog_box.gd/.tscn` | typewriter box, brass bevel, name plate, ▼ arrow, **POLLED** input, mixed-case text |
-| `entities/npcs/npc.gd/.tscn` | interact-to-talk; one-row 48px sheets; SpriteFrames built at RUNTIME — a new villager is a PNG + exports |
+| `entities/npcs/npc.gd/.tscn` | interact-to-talk; one-row 48px sheets; SpriteFrames built at RUNTIME — a new villager is a PNG + exports; **`face_dir(v)`** turns it from a movement/look vector |
 | `scene/world_fx.gd` | depth-sorted runtime FX |
 | `Game.flags` | story flags (`set_flag` is **one-way**) |
 | `Party.set_roster()` | typed `Array[StringName]` |
@@ -72,6 +72,66 @@ then stage the last steps with `walk_via` waypoints.
 
 **Theater walks are straight NO-COLLISION tweens.** Any scripted approach near the
 fountain must dog-leg the ring — `_square_route` / `_post_route` in the town scenes.
+
+### NPC facings — sheets are 10 columns now, and walks auto-face (2026-07-29)
+
+A villager sheet's **row 0** is the pose row, ten 48px cells:
+`[0,1] idle_down · [2,3] act · [4,5] emote · [6,7] back · [8,9] side (drawn facing LEFT)`.
+`npc.gd` builds `back` at `frame_cols >= 8` and `side` at `>= 10`; `play_side(true)`
+flips it east. **Sheets that stay at 6 columns keep working** — the `play_*` helpers and
+`face_dir` degrade to `idle_down` rather than erroring, which is why raising a
+`frame_cols` before its art lands is safe.
+
+**Rows 1-3 are an OPTIONAL walk cycle** (`walk_down` / `walk_up` / `walk_side`, six cells
+each, side drawn LEFT). They are gated on the sheet's **height**, never on `frame_cols`,
+so growing a sheet to 480×192 makes every staged `theater.walk` on that villager animate
+with no scene edit. `face_dir(v, moving)` carries the distinction and `Theater._face_anim`
+passes its `walk`/`idle` prefix straight through. A one-row sheet has no walk clips and
+falls back to the pose ladder — exactly what it did before the rows existed.
+
+- **`theater.walk` / `walk_via` now face a moving NPC along its own travel direction**,
+  at the start of each leg and again where it lands. Before this, every staged NPC walk
+  was a front-first glide unless the scene hand-choreographed it — and half of those
+  hand-written `play_back()` calls were on 6-column sheets, where they were **silent
+  no-ops** (kid Kitty's whole bluff `meet` staging).
+- **The pose conflict is an OPT-OUT, not inference:** pass `turn = false` to carry a
+  pose across a move (a held prop, a bowed head, a point that must keep aiming). The
+  tempting rule — "don't re-face while act/emote is playing" — breaks the common case,
+  because posing an NPC and *then* sending it somewhere is the norm.
+- **Non-NPC bodies are untouched.** `PartyMember` owns its own directional clips and the
+  player has its own facing logic; `theater.face()` stays the explicit control.
+- The kids who got cols 6-9: **Kitty, Sage, Schweinler, Pip**. New villagers should be
+  drawn at 10 from the start (Mayor Hollis was).
+
+### NPC wander — idle life, and why it is so timid (2026-07-29)
+
+`wander` is **off by default** and bounded by an **authored cell rect** (`wander_cells`),
+never a radius. A villager is a `StaticBody2D` on the world layer: it is a wall to the
+party and has no collision response of its own, so a step must be proven walkable
+*before* it is taken. `bind_map(map)` hands it the scene's parsed map; without that it
+stays a statue.
+
+A candidate cell is refused unless it is inside the rect, not `MapData.is_solid`, **not a
+walk-behind crown**, and clear of every party body. That third test is the one that is
+easy to miss — conifer crowns, lamp mantles, gatepost caps and counter/bench tops are all
+*walkable* cells whose art would swallow a villager whole (`NPC.WALK_BEHIND`).
+
+It freezes on all four of: `_busy` (mid-conversation), a staged `theater.walk` tween
+(which claims the body via `set_staged`), `_cutscene()` (party physics-frozen), and the
+player standing in the `TalkZone` — where it also turns to face them, so it never walks
+out from under its own prompt. `wander_rest` names the clip it settles into between hops;
+empty means the directional idle, `"act"` sends it back to its business (Basil's mother
+returns to the dough).
+
+**`hold()` parks a villager back on its spawn mark and stops the wander** — call it
+before any beat that faces a villager or assumes where one stands.
+
+Two standing constraints, both learned the hard way and both written into
+`assets/maps/lanternwood.txt`: **the mayor must never wander** (`tools/motion_probe.gd`
+pins him within 2px of `mayor_pos`, and he once sealed the pier off entirely just by
+stepping out of his own door), and any roam box must be **≥2 cells wide** — *"an NPC is a
+StaticBody2D with a 12x8 box in a 16px cell: anybody standing in a one-cell lane is a
+WALL, not a squeeze."*
 
 ### Awaiting handlers
 
@@ -199,7 +259,9 @@ Then "YEARS LATER." → the Ebb.
 | `scene/lanternwood.tscn` | `_ebb_night_town()` — three villagers comparing charms that all died at once (Bramble / Alder / Pip). Talking to all three sets the gate | `asked_around` |
 | `scene/library.tscn` phase `research` | **THE RESEARCH GATE** = Act 1 beat 2. The card "SOME WEEKS LATER.", then control straight back — a GATE, not a cutscene. The accession LEDGER vs the THREE STACKS; the twelfth spine is Basil's unbound, unstamped thesis | `ledger_read`, `thesis_found` |
 | `scene/library.tscn` phase `kit` | **THE KIT** = Act 1 beat 3, the deliberate inverse of the recital chain (*idea → brew → it flies* becomes *ambush → improvise → the darts fly*). A 3-part wander gate on furniture that already exists: `_kit_dose` (shelf THREE, husbandry — how to put a large animal down to trim its hooves), `_kit_wand` (the dead wand bored out into the pipe), `_kit_book` (the book the player picks — stats identical, and it is her VESTIGE SOCKET VESSEL for the whole game). `_kit_check` sets the composite | `fuji_dose_found`, `fuji_darts_made`, `fuji_tome_taken` → `fuji_kit_made` |
-| `scene/lanternwood.tscn` | **THE DEFENCE OF LANTERNWOOD** — the first real fight in the game, and Fuji's alone. Teaches the drowse setup properly: dart → dart → it drops → tome it | — |
+| `scene/lanternwood.tscn` | **THE DEFENCE OF LANTERNWOOD** — the first real fight in the game, and Fuji's alone. Teaches the drowse setup properly: dart → dart → it drops → tome it | `town_defended` |
+| `scene/lanternwood.tscn` | **THE MOTION** = Act 1 beat 3b. `_the_motion()`. The lanes go clear, the hall door opens, and **Mayor Hollis** — an old elk who is the town's mayor and its clerk in one body — comes out with a slate. She tells him about the unstamped thesis; what frightens him is not the magic, it is *a document that is not in the record*. He moves that the town send somebody, gets no second because there is nobody in the street, **seconds himself**, minutes it, and hands her the launch (it burns coal — Alder's shipped "honest oil, honest fire" line, paid off). His one condition is that she write down what she finds, **for the minutes**. He calls her "Librarian" all scene and uses her name once, at the end | `mayor_briefed`, `boat_ready` |
+| `scene/lanternwood.tscn` | **THE CROSSING** — `$DockZone` on the pier. She walks out to the launch, one line, then "THREE DAYS LATER." and the overworld's `landing` marker | `left_lanternwood` |
 
 **`ebb.tscn` needs no edit for the 2026-07-28 authorship revision** — it is staged from
 the world's point of view, and the world is simply wrong about what it watched. The

@@ -77,6 +77,16 @@ locked_text = "STACKED CORDWOOD BARS THE LATCH. NOBODY ANSWERS."
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/CabinB"]
 shape = SubResource("RectangleShape2D_door")
 
+[node name="MootHall" type="Area2D" parent="Locations"]
+position = Vector2(600, 760)
+script = ExtResource("2_loc")
+id = "moot_hall"
+display_name = "THE MOOT HALL"
+locked_text = "THE DOOR IS SHUT. THE MAYOR CONDUCTS HIS BUSINESS IN THE STREET."
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/MootHall"]
+shape = SubResource("RectangleShape2D_door")
+
 [node name="CabinC" type="Area2D" parent="Locations"]
 position = Vector2(248, 360)
 script = ExtResource("2_loc")
@@ -93,6 +103,14 @@ collision_layer = 0
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ExitSouth"]
+shape = SubResource("RectangleShape2D_exit")
+
+[node name="DockZone" type="Area2D" parent="."]
+position = Vector2(792, 728)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DockZone"]
 shape = SubResource("RectangleShape2D_exit")
 
 [node name="World" type="Node2D" parent="."]

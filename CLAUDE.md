@@ -107,17 +107,66 @@ Built: Prologue A "The Whirligig" (incl. the recital chain) · Prologue B "Profe
 Poopy Paws" · the Ebb night · the library research gate (Act 1 beat 2) · **Act 1 beat 3
 "THE KIT"** (`library_phase = "kit"` — `_kit_dose` / `_kit_wand` / `_kit_book`, gated in
 `fuji.gd` on the real flags `fuji_dose_found` / `fuji_darts_made` / `fuji_tome_taken` →
-`fuji_kit_made`, which is `Chapters.KIT_ARMED`) · the combat core (compounds, status
+`fuji_kit_made`, which is `Chapters.KIT_ARMED`) · THE DEFENCE OF LANTERNWOOD · **Act 1
+beat 3b "THE MOTION"** and **the crossing** (below) · the combat core (compounds, status
 ailments, the 2-member party) · the RPG layer (levels, gear, satchel, save/load) · the
 five-lands overworld, Alembic Town, Lanternwood, Whisker Meadow.
 
-In progress: **THE DEFENCE OF LANTERNWOOD** — Act 1 beat 3's fight, the first real one,
-and Fuji's alone (`scene/lanternwood.gd`).
+**NPCs WALK NOW (2026-07-29).** A villager sheet's row 0 is unchanged, but **rows 1-3
+are an optional walk cycle** — one direction per row, six cells each, side drawn LEFT,
+so a walking villager is 480×192. The clips gate on the sheet's **height**, never on
+`frame_cols`, so growing a sheet makes every staged `theater.walk` on that character
+animate with no scene edit; `Theater._face_anim` now passes its `walk`/`idle` prefix
+through to `NPC.face_dir(v, moving)`. `NPC` also gained an opt-in **wander** bounded by
+an authored cell rect (`bind_map` + `wander_cells`), which freezes for dialogue, staged
+tweens, cutscenes and anyone standing in the TalkZone, and refuses solid cells, cells
+outside the box, walk-behind crowns and any cell a party body is on. Live on **Bramble /
+Alder / Pip** in Ebb-night Lanternwood and on **Basil's mother**, who works the hearth
+end of the kitchen and drops back into her `act` pose (`wander_rest`) every time she
+stops. **Mayor Hollis got the walk art but does NOT wander** — `motion_probe` pins him
+to his own step, and a body in the one-cell harbour lane is a wall. The same pass pulled
+those five characters' seeds off the pastel register (lower L, saturation kept or
+raised, five ramps hand-pinned where `ramp()`'s violet law was turning them candy).
+`library_probe` carries the **roam-box lint**: block each roam cell in turn, and the
+gate, the pier and the library must all stay reachable.
+
+**THE MOTION + THE CROSSING (2026-07-29)** answer "why does she leave?" and close the
+Act 1 boat hook. Lanternwood grew a **cove** on the east end of LEVEL 1 — a pier
+(`dock` cells → render class `bridge`), the town's **steam launch** on `berth` cells
+(→ render class `sea`, so the hull floats on animated water), and **THE MOOT HALL** on
+a cabin's 5×4 footprint. **Mayor Hollis**, an old elk who is the town's clerk in the
+same body, minutes the fight, moves that the town send somebody, **seconds himself**,
+and gives her the launch — which still runs because it burns coal, paying off Alder's
+shipped "honest oil, honest fire" line. Flags `mayor_briefed` / `boat_ready` →
+stepping onto the pier casts off (`left_lanternwood`) and lands her on the overworld's
+new `landing` marker, Forest Land's west shingle, five cells from Alembic Town.
+
+**THE TREEHOUSE ALEMBIC (2026-07-29) — DONE.** Basil's origin town is a **two-strata
+canopy town**: the forest floor, the plank boardwalk in the boughs above it, four rope
+ladders, two rope spans and one scripted **dinghy lift**, all in the same 56×34 grid.
+There is no elevation system — a storey is a flat walkable region *disjoint in the
+grid*, and the whole "system" is the `stratum:` legend token plus the assert block at
+the tail of each town generator. The doctrine (why the two alternatives were rejected,
+the SPAN LAW, "the mask band IS the railing", the lift's solid shaft, and why a
+treehouse village reads from `tree_hut`'s silhouette and nothing else) is in
+**DESIGN.md → "STACKED WALKABLE STOREYS"** and the `map-authoring` skill.
+Basil's house is UP: his door → the lab in the hollow → the bedroom in the fork, and
+the hermit is the one cat in town who stopped coming down. The doctor's clinic and the
+neighbour's cottage stay on the ground — you do not carry a cat who has been run over
+up a rope ladder — and they keep Alembic's plaster-and-cement language, so the town
+reads as an old ground village with a woven canopy grown over it.
+
+Designed but NOT built — both live in Alembic Town, and the grids they were waiting on
+have now settled: **Act 1 beat 4 — ASKING AROUND**, where the wander gate is not a crowd
+but **adult Sage and Basil's mother**, and the rumour that he walked into the deep wood
+is the direction as well as the dread; and **beat 5b — THE HOLLOWAY**, the sunken green
+lane to the SE coast that was safe for four hundred years because the way-charms burned
+along it, and is not any more. See DESIGN.md beats 4 / 5b.
 
 Next, per DESIGN.md "Build order": **KO + FOCUS** → vestiges (gated to Act 2's first
 obelisk) → the Return.
 
-**Press `0` anywhere in a debug build** for the dev chapter selector — all 39 beats,
+**Press `0` anywhere in a debug build** for the dev chapter selector — all 42 beats,
 staged with roster/phase/spawn/flags. Adding a beat is one row in `scene/chapters.gd`.
 
 ## Commands

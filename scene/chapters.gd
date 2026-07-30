@@ -274,6 +274,37 @@ static var BEATS: Array[Dictionary] = [
 		roster = FUJI, lead = &"fuji",
 		state = {}, flags = ["ebb_done", "asked_around", "thesis_found"] + KIT_ARMED,
 	},
+	{
+		# Act 1 beat 3b: THE MOTION. The lanes are clear, so Mayor Hollis is out
+		# on his step with a slate. She tells him about the thesis; he minutes it,
+		# moves that the town send somebody, seconds himself, and hands her the
+		# launch. town_defended is what puts him in the street — without it
+		# _spawn_mayor gives him his Ebb-night lines and the beat never arms.
+		name = "THE MOTION (MAYOR HOLLIS)",
+		scene = "res://scene/lanternwood.tscn",
+		roster = FUJI, lead = &"fuji",
+		state = {}, flags = ["ebb_done", "asked_around", "thesis_found",
+				"town_defended"] + KIT_ARMED,
+	},
+	{
+		# Act 1 beat 4 opens: the pier is armed, so stepping onto it casts off and
+		# lands her on Forest Land's west shingle, five cells from Alembic Town.
+		name = "THE CROSSING (THE PIER)",
+		scene = "res://scene/lanternwood.tscn",
+		roster = FUJI, lead = &"fuji",
+		state = {}, flags = ["ebb_done", "asked_around", "thesis_found",
+				"town_defended", "mayor_briefed", "boat_ready"] + KIT_ARMED,
+	},
+	{
+		# ...and where it puts her. Solo Fuji on the travel map for the first
+		# time (overworld.gd repoints the chibi's SpriteFrames off Party.leader_id).
+		name = "THE WEST SHINGLE (LANDED)",
+		scene = "res://scene/overworld.tscn",
+		roster = FUJI, lead = &"fuji",
+		state = {overworld_spawn = "landing"},
+		flags = ["ebb_done", "asked_around", "thesis_found", "town_defended",
+				"mayor_briefed", "boat_ready", "left_lanternwood"] + KIT_ARMED,
+	},
 
 	{group = "SANDBOX"},
 	{

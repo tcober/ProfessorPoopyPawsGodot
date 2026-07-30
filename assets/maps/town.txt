@@ -1,38 +1,68 @@
-; Alembic Town — 56x34 tiles (896x544 px), the walkable Kakariko-style village
-; the overworld's town icon opens into. Shared source of truth: tiled by
-; assets/_gen_tileset_town.py on the shared OverWorld driver (hedge border =
-; forest class, lanes = the trail painter, pond = sea+beach, stream = river
-; with a bridge cell), collision/markers by scene/alembic_town.gd. Buildings,
-; trees, AND street furniture (well, lamps, stall, fountain) are all Tier-3
-; y-sorted World sprites from town_props.txt (scene/prop_spawner.gd) — the
-; upper tile layer is EMPTY. Each building still spans THREE chars (solid
-; facade `H..N` + walkable roof `h..n` + solid body-top digit `3..9`) but only
-; for collision and the sprite's footprint bbox; native y-sort sorts the whole
-; facade against the player, so there is no upper-layer roof, ridge cap, or
-; mask band. Trees span ^/T/t (fully solid) as an opaque trunk sprite plus an
-; overhanging crown sprite whose y-sort baseline reaches a tile south, so a
-; body tucks behind the crown and in front of the trunk at once. Geography, depth-first: the barred
-; ACADEMY crowns a
-; north cliff terrace on the town's central axis, a grand stone stair (S)
-; descends through the cliff band (C) to the lamp-flanked stair plaza; the
-; fountain SQUARE sits at the lane crossing with the stall on its west rim;
-; the weapons shop (xX) and item shop (pP) face the market cross-lane W/E of
-; the axis; the INN (nN) fronts the square SE, its lane crossing the stream
-; bridge (=) to the fenced NE orchard; Basil's home (hH, open door ->
-; downstairs) in its fenced NW yard; the two locked cottages staggered SW
-; around the well and the fenced garden; the stream (r) drops from the cliff
-; foot to the SE pond (~ with s beach lip); the lane runs out the lamp-and-
-; fence-flanked south gate to the overworld. Silhouette-fit retypes
-; (2026-07-12): street-furniture footprint cells whose y-sorted art is
-; transparent (the fountain's top corners) or a thin walk-behind head (lamp
-; tops O/L/U-style) are WALKABLE twins of their solid char — same terrain
-; name, so the paint is identical and only collision changes; the T3
-; coverage lint in _check_art.py keeps the pairing honest.
+; Alembic Town — 56x34 tiles (896x544 px), Basil's origin village, and since
+; 2026-07-29 a TWO-STRATA CANOPY TOWN: houses up in the boughs on plank
+; platforms, rope bridges between them, the forest floor walkable below, and
+; rope ladders plus one rope DINGHY LIFT joining the two. Shared source of
+; truth: tiled by assets/_gen_tileset_town.py on the shared OverWorld driver,
+; collision/markers by scene/alembic_town.gd.
+;
+; THERE IS NO ELEVATION SYSTEM AND THERE DOES NOT NEED TO BE ONE. A cell is
+; exactly one (x, y) with one legend char and one walk/solid bit, so a body is
+; never "on-bridge-or-under-bridge": there IS no cell under a bridge, the deck IS
+; the cell. Two storeys are therefore unambiguous IFF THEY ARE DISJOINT IN THE
+; GRID, which is exactly the shape of a terrace — two flat walkable regions
+; separated by a band of solid cells wearing opaque face art. The `stratum:`
+; token below declares which storey a char belongs to and TileScene.assert_strata
+; is the whole system: fuse the canopy to the floor with ONE mistyped cell and
+; the boardwalk silently stops being a storey and becomes a wooden patch of
+; forest, which renders, dedupes, lints clean and ships.
+;
+; THE CENTRAL AXIS IS GROUND, FLOOR TO GATE, AND THAT IS FORCED. The ground must
+; reach both the south gate and the Academy stair, so it cuts the map
+; north-south, so THE CANOPY IS PERMANENTLY TWO NETWORKS — west and east — and
+; you cross between them on the ground, through the square. Cols 25 and 30 are
+; the `a` bough curtains that keep the two strata from touching across it.
+;
+; THE HOME PLATFORM IS SEVEN ROWS DEEP (13-19) AND THAT IS ARITHMETIC, NOT TASTE.
+; scene/town_thesis.gd's `plant` beat walk-gates to `home + (0,26)` and drops
+; Schweinler's bag at `home + BAG_OFF (0,38)`, and its `dash` beat walks to
+; `home + (0,22)`. With the door at (10,17) — anchor pixel (168,280) — those land
+; on rows 19, 19 and 18. Shave a deck row off this platform and three shipped
+; cutscenes end early against a wall with no lint and no error.
+; TileScene.assert_door_approach enforces two clear rows under EVERY door here.
+;
+; Geography, depth-first: the barred ACADEMY still crowns the north stone
+; terrace on the central axis (rows 0-12 are untouched — the establishment is
+; built of cut stone on a cliff; the town is GROWN, and built of wood), and the
+; grand stone stair (S) descends through the cliff band (C) to the lamp-flanked
+; stair plaza. West canopy: BASIL'S HOUSE (hH3) on its own platform, the rope
+; span W1 over a bough mass, then THE BRASS FANG (xX7) — the whole west
+; boardwalk, reached by Basil's own ladder (z, cols 8-9) or the square's (Z,
+; cols 22-23). East canopy: the DINGHY LIFT's top landing (M) over its shaft
+; (Q) and crank drum (I/i) in the square's NE nook, the boardwalk east to THE
+; CRACKED FLASK (pP8), a GREAT TREE (j trunk / J decked crown) rising through
+; the boards, the HERO SPAN over the creek, and THE LOOKOUT with its bough mass
+; (A) where the goose hides. Forest floor: the fountain SQUARE cell-for-cell
+; where it always was, the two ground cottages (a neighbour's, and THE DOCTOR'S
+; OFFICE — you do not carry a cat who has been run over up a rope ladder), the
+; well, THE COPPER KETTLE (nN9) tucked under the east boardwalk at the great
+; tree's foot, the creek (r) with its footbridge (=), the fenced orchard, the SE
+; pond, and the lamp-and-fence-flanked south gate out to the overworld.
+;
+; Buildings, trees AND street furniture are Tier-3 y-sorted World sprites from
+; town_props.txt (scene/prop_spawner.gd); each building spans THREE chars (solid
+; facade + walkable roof + solid body-top digit) only for collision and the
+; sprite's footprint bbox. The upper tile layer carries ONLY mask-band depth
+; strips and the spans' near rails. Silhouette-fit retypes: a footprint cell
+; whose y-sorted art is transparent or a thin walk-behind head is a WALKABLE
+; TWIN of its solid char (O/L/U, and the case pairs below) — same terrain name,
+; so the paint is identical and only collision changes; the T3 coverage lint in
+; _check_art.py keeps the pairing honest.
 legend # forest solid
 legend . grass walk
 legend , flowers walk
 legend - road walk
 legend D door walk
+legend d door walk stratum:canopy
 legend F fence solid
 legend G fence solid
 legend C cliff solid
@@ -72,23 +102,57 @@ legend 7 weaponbody solid
 legend 8 itembody solid
 legend 9 innbody solid
 legend ^ treecanopy solid
-; ^ was `ridge` until 2026-07-28. Ridge is the pre-Tier-3 idiom: a solid crest
-; cell that sat UNDER a walk-behind prop's top rows on the upper tile layer.
-; These trees became Tier-3 y-sorted sprites in 2026-07-12 and the upper layer
-; went empty, so the name was vestigial - and harmless only while the map had NO
-; upper art at all, because `_check_art.py`'s "ridge cells under upper art" scans
-; the WHOLE map the moment one upper cell exists. The cliff band's mask band is
-; that first upper cell. Retyped to treecanopy (same render class, `grass`;
-; neither is a struct), which is byte-identical output and what these cells
-; actually are.
+; ---- THE CANOPY STOREY (2026-07-29) ------------------------------------------
+; Every one of these is a CASE PAIR whose case means walkable-vs-solid, which is
+; both the shipped conifer/lamp idiom and, by construction, the walkable twin the
+; invisible-wall and T3-coverage lints demand.
+legend B deck walk stratum:canopy
+legend b deckedge solid
+legend V deck walk stratum:canopy
+legend v deckedge solid
+legend W plank walk stratum:canopy
+legend e plankedge solid
+legend A boughtop walk stratum:canopy
+legend a bough solid
+legend J crown walk stratum:canopy
+legend j greattrunk solid
+legend Z ropeladder walk stratum:link
+legend z ropeladder walk stratum:link
+legend M deck walk stratum:canopy
+legend Q deckedge solid
+legend I liftdrum walk stratum:ground
+legend i liftdrum solid
+; `d` is the CANOPY door: the same `door` TERRAIN as D — so every door lint, the
+; door-approach assert and the reachability sweep see it — and a different CHAR
+; only because a legend char carries exactly one stratum, and three of this
+; town's six doors are now up in the boughs.
+; B/V and b/v are the same paint; the case pair records the FASCIA HEIGHT, which
+; is the one thing about a deck a reader needs and cannot see: a `V` deck sits
+; over a 3-row `v` band (a HIGH platform), a `B` deck over a 2-row `b` band.
+; stamp_columns asserts those heights, and it is the assert that matters — the
+; art is T*run tall and lands on the run's TOP cell, so a short run paints a
+; timber wall over the walkable cell below it and nothing else lints that.
+; W spans are TWO ROWS DEEP because the rails live in the second row; a 1-cell
+; span would put a rail on the walking line. `e` is a span's 1-row fascia, whose
+; art goes to the UPPER layer (the shipped bridge_fascia idiom) — the plan below
+; a span is always a NAMED POSITIVE THING (`a` bough, `j` trunk, `r` creek),
+; never an absence: authoring an absence is the one thing this format is bad at.
+; z/Z are `link`, the only stratum allowed to touch two storeys at once, and
+; assert_strata requires every link component to border EXACTLY TWO.
+; Q is the lift SHAFT: a paint twin of `v` so the boat hangs in front of finished
+; fascia art, SOLID because the ride is scripted, and EXCLUDED from mask_band —
+; that unmasked 3-cell gap in the railing IS the gate you step through onto the
+; boat.
 anchor player_start 27 30
-anchor home 10 18
-anchor cottage_w 9 25
-anchor cottage_e 17 27
+anchor home 10 17
+anchor cottage_w 7 27
+anchor cottage_e 16 29
 anchor school 27 9
-anchor weapons 20 18
-anchor items 36 18
-anchor inn 38 25
+anchor weapons 22 16
+anchor items 38 16
+anchor inn 38 27
+anchor lift_down 32 17
+anchor lift_up 32 22
 anchor exit_south 27 32
 map
 #####################66kk66kk66kk66#####################
@@ -104,24 +168,24 @@ map
 ########..,,...............-................,,..########
 ######CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCC######
 ######CCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCC######
-#####.......,,.........,,L.-..L,,.......^^...r.,,,,#####
-#####...3333.............l.-..l.........TT...r.GGGGG####
-#####..hhhhhh....x7777x....-.....p8888p.tt...r,,^^,,####
-#####..hhhhhh....xxxxxx.,,.-..,,.pppppp......r,,TT,,####
-#####..HHHHHH....XXXXXX....-.....PPPPPP......r..tt..####
-#####..HHHDHH....XXXDXX....-.....PPPDPP......=,,..,,####
-#####.---------------------------------------=--....####
-####..,,............mmm..-OoO-.........,,....=.,,..#####
-####^^..............mmm..-ooo-.,,..999999n...r.,,...####
-####TT.q444q..,,....,,,..-ooo-....9nnnnnnn9..r......####
-####tt.qqqqq.............-----....NNNNNNNNN..r..,,..####
-#####..11111...w555w..L....-......NNNNNNNNNl.r......####
-####...11D11...wwwww..l....-......NNNNDNNNNl.r......####
-####...........22222...,,..-..,,.L.........ss~~~~ss.####
-####,,,.^^..UU.22D22.......-.....l...,,..ss~~~~~~~~s####
-####....TT..uu.......,,....-.....^^......ss~~~~~~~~~####
-####..,,tt..,,..,,..^^..#..-.....TT.......ss~~~~~~~s####
-####....,,......,,..TT...L.-..L..tt...,,....sssssss.####
-####....,,..........ttFFFl.-..lFFF,,......,,.......#####
+#####aVV3333VVaaaaBx7777xaL-.Laaaaap8888pBBaaraAAAB#####
+#####aVhhhhhhVWWWWBxxxxxxal-.laaaaappppppBBWWWWAAAB#####
+#####aVhhhhhhVWWWWBXXXXXXa.-..aaaaaPPPPPPBBWWWWAAAB#####
+#####aVHHHHHHVeeeeBXXXdXXa.-..aMMMBPPPdPPBBeereBBBB#####
+#####aVHHHdHHVaaaaBBBBBBBa.-..aMMMBBBBBBJJJaarabZZb#####
+#####aVVVVVVVVaaaaBBBBBBBa.-..aMMMBBBBBBJJJaarabZZb#####
+#####aVVVVVVVVaaaaBBbbZZb..-...QQQbbbbbbjjj,.r.....#####
+#####avvzzvvvv....bbbbZZb-OoO-.QQQbbbbbbjjj,.r.,,..#####
+#####avvzzvvvv....bb.....-ooo-.QQQ......jjj..r.....#####
+#####avvzzvvvv.....mmm...-ooo-.III...........r.....#####
+#####.,,..L....,,..mmm...-----.iii9nnnnnnn9..=.....#####
+#####q444ql.......,........-......nnnnnnnnn..=...,,#####
+#####qqqqq........,........-......NNNNNNNNN..=.....#####
+#####11111.^^.w555w........-......NNNNNNNNN..r.....#####
+#####11D11.TT.wwwww....^^..-......NNNNDNNNN..rGGGGG#####
+#####......tt.22222....TT..-.....^^.........s~~~~~s#####
+#####......UU.22D22....tt..-.....TT.........s~~~~~s#####
+#####......uu............L,-,.L..tt.,,......s~~~~~s#####
+#####.......,,........FFFl.-..lFFF.......,,.sssssss#####
 ###########################--###########################
 ###########################--###########################
