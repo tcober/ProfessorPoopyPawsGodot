@@ -141,31 +141,82 @@ shipped "honest oil, honest fire" line. Flags `mayor_briefed` / `boat_ready` →
 stepping onto the pier casts off (`left_lanternwood`) and lands her on the overworld's
 new `landing` marker, Forest Land's west shingle, five cells from Alembic Town.
 
-**THE CANOPY ALEMBIC (2026-07-30) — DONE, and rebuilt once.** Basil's origin town is a
-**four-storey canopy village** in one 72×48 grid: the Academy's cut-stone terrace, the
-HOMES in the crowns (`canopy_hi`), the PUBLIC TOWN on the low boardwalk (`canopy_lo`),
-and the forest floor — joined by a grand stone stair (now a `link`), four rope ladders,
-two rope spans and one scripted **dinghy lift**. There is no elevation system — a storey
-is a flat walkable region *disjoint in the grid*, and the whole "system" is the
-`stratum:` legend token plus `_alembic.assert_all`.
+**ALEMBIC TOWN — A FOREST-FLOOR VILLAGE WITH FOUR GREAT TREES (2026-07-30, rebuilt
+twice).** One **80×56** grid. The town — the lane, the market square, three shops, the
+clinic, the neighbour's cottage, the well, the stall, the fountain — is on the **forest
+floor**. Four great trees stand along the clearing's north edge; each carries a round
+**RING DECK** near its crown, a **door and a lit window cut into its trunk**, and a rope
+ladder down. There is no elevation system: a storey is a flat walkable region *disjoint
+in the grid*, and the whole "system" is the `stratum:` legend token plus
+`_alembic.assert_all`.
 
-**THE TRUNKS ARE THE ARMATURE.** Five great trees, each a 5-column channel whose solid
-footprint is only the middle 3 — so the deck closes on all four sides and **you walk the
-full circle around every tree, passing behind it**, on every storey. Author trunks
-first and hang the town in the bays; the previous pass authored a boardwalk and
-sprinkled trunks into it, which is exactly how it came out a raised HIGH STREET. A trunk
-is FIVE sprites, one per storey, because one sprite cannot depth-sort against bodies on
-two storeys at once. The doctrine — the ring, the insets, the SPAN LAW, "the mask band
-IS the railing", the lift's solid shaft, why a vertical face must be darker than the
-surface it hangs off, and why walk-behind is only legal under perforated art — is in
-**DESIGN.md → "STACKED WALKABLE STOREYS"** and the `map-authoring` skill.
+**THE CANOPY IS NOT A FLOOR, IT IS FOUR ISLANDS — and that is the lesson, twice paid
+for.** The version before this one made both canopy storeys continuous boardwalk from
+edge to edge, and a town that is 100% floor renders as horizontal stripes of plank and
+fascia: a lumber yard, or a fence. What makes Slitherbough and Endor read is the **VOID
+between the platforms**. So each ring is a disc of decking with solid leaf all round it,
+and the part that already looked like somewhere — the ground — is the town.
 
-Basil's house is UP in the crowns: his door → the lab in the hollow → the bedroom in the
-fork, and the hermit is the one cat in town who stopped coming down. The doctor's clinic
-and the neighbour's cottage stay on the forest floor — you do not carry a cat who has
-been run over up a rope ladder — and they keep Alembic's plaster-and-cement language, so
-the town reads as an old ground village with a woven canopy grown over it. A second gate
-mouth leaves east at rows 42-43, authored for beat 5b and wired by nothing yet.
+**A RING'S WALKABLE CELLS ARE THE ELLIPSE'S, DERIVED (2026-07-30).** `ring_cells`
+rasterizes the same numbers `tree_ring` draws from and `_alembic.assert_all` checks the
+grid against them. The hand-guessed mask before it made the disc's *widest* rows the
+*narrowest* you could walk — a circle walked as a rectangle, with an invisible wall
+following the rim. The test is the **body's 12×8 box at all four corners** against the
+**rim board**, never a point and never a radius: the overhang is directional, so a cell
+at `o=0.65` on the south rim has a foot off the platform while one at `o=0.88` on the
+north arc is fine. A rim cell must render leaf, not deck, or the corners the curve
+misses square the circle back off. **The rail is not decking** — its near arc is a
+Tier-3 prop so you stand behind the handline; the far arc stays baked, behind you.
+
+**THE TRUNK IS BLITTED BEFORE THE RING, AND THE SHOPS ARE NOT HUTS (2026-07-30).** Two
+things the ring rebuild left behind, both fixed the same day it was reported. Tier-1 has
+no sort key, so on the baked layer **draw order IS depth**: the shaft went down after the
+ring and its dead-straight `edge()` top landed two px under the fascia, so every tree
+visibly BEGAN at a horizontal cut — a post nailed to a saucer. Blitted first, the only
+line crossing the trunk is the fascia's hem, which is an arc, and `_shade_under` lays the
+deck's shadow on the bark below it. And the three shops were still `tree_hut`s: a cone of
+thatch over a barrel of withy staves is right in a BOUGH and is a **tiki hut** on a
+forest floor. They are `_town_props.town_shop` now — the cottage's own 80×64 envelope
+over a 5×4 footprint, plus a striped **awning**, a warm **display window** with the
+trade's goods silhouetted in it, and a **hanging device** on a dark board. **A building
+belongs to the storey it stands on.**
+
+**THE RING READS AS A CIRCLE FROM THREE THINGS, and it needs all three:** radial
+planking (boards running out from the trunk like spokes — with normal east-west boards it
+is a rectangular deck with rounded corners), a concentric rim board, and a fascia that is
+a **crescent** (the vertical face hangs below the southern arc only, deepest at due
+south, thinning to nothing at the poles; constant depth all round is a barrel). The
+tree block is 12 cols × 9 rows and **its outer column each side is always solid** — a
+ring's deck 4-adjacent to the forest floor fuses the two strata, silently. The ladder
+runs down **inside** the trunk's four columns, or you can step sideways off rung eight
+onto ground thirty feet below. Full doctrine in **DESIGN.md → "STACKED WALKABLE
+STOREYS"** and the `map-authoring` skill.
+
+Basil's house is UP one of those trees — his door → the lab → the bedroom — and the
+hermit is the one cat in town who stopped coming down. The **north** mouth now goes
+somewhere (below); the **east** one is authored for beat 5b and still walled.
+
+**THE FOREST FLOOR IS DRESSED (2026-07-30).** The understory pass used to fire only
+where a trunk stood within three rows north of a cell, which is a band round each tree
+and nothing else — the rest of an 80×56 clearing was a flat green LAWN with four trees
+on it. Density is now a **gradient**: every cell is scored by its distance to the
+nearest wild thing (forest wall, great tree, town tree) and the odds fall off with it,
+so litter banks at the edges and wears away down the lane. What it is dressed WITH
+matters more than how much — ferns, roots and saplings are all drawn from the leaf ramp,
+so a floor dressed only in those is green dressing on green ground. `understory` gained
+**`drift`** (warm fallen leaves out of the timber ramp), the only piece that changes the
+field's HUE, and it is the common case at every distance. Several **salted variants per
+kind**, because one litter cell is one opaque atlas tile and one variant repeated three
+hundred times is wallpaper, not texture.
+
+**THE ALEMBIC ACADEMY IS ITS OWN SCENE (2026-07-30)** — `scene/academy.tscn`, 64×48,
+up the north lane, and back down again into the town's own lane
+(`Game.town_spawn = "north"`). Composed depth-first on one axis: causeway → the beck and
+its bridge → outer ward → the crenellated RAMPART and its two-tower gatehouse → the
+inner court with the GREAT ORRERY standing in the middle of it → the grand stair → THE
+KEEP, flanked by **two great trees standing where a castle would put corner towers**.
+Full statement in DESIGN.md → "THE ALEMBIC ACADEMY, walkable"; the art kit is
+`assets/_academy_props.py` and the walk is covered by `tools/academy_probe.gd`.
 
 Designed but NOT built — both live in Alembic Town, and the grids they were waiting on
 have now settled: **Act 1 beat 4 — ASKING AROUND**, where the wander gate is not a crowd

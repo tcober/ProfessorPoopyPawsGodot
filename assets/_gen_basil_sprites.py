@@ -7,6 +7,7 @@ Writes assets/basil_gen.png (288x480, 48x48 cells, 6x10) matching
 entities/player/player_frames.tres (FROZEN region contract — rows only ever
 APPEND, never reorder or widen):
 
+  row10 climb(4, back view — the rope-ladder cycle)
   row0 walk_down(6)   row1 walk_up(6)   row2 walk_side(6, faces RIGHT — player.gd
                                               sets flip_h only when facing LEFT)
   row3 shoot_down(4)  row4 shoot_up(4)  row5 shoot_side(4)
@@ -46,7 +47,7 @@ from _core import write_cells, ZONE_CELL, ZONE_FEET
 from _sprites import Sprite, Rig
 from _palette import BASIL, ramp
 
-CELL, COLS, ROWS = ZONE_CELL, 6, 10
+CELL, COLS, ROWS = ZONE_CELL, 6, 11
 FEET = ZONE_FEET          # 44 — bottom row of the paw FILL (outline sits at 45)
 CX = 24
 HEM = 40                  # near-floor lab-coat hem — only paw TIPS peek below it,
@@ -425,6 +426,59 @@ def cat_up(s, bobY=0, liftL=0, liftR=0, swing=0, tail_sway=0, gun=None,
     if gun in ("aim", "settle"):
         s.set(23, 8, GUNE)          # tip kisses y=8 — the muzzle contract; set
         s.set(24, 8, GUNE)          # post-outline so despeckle can't eat it
+
+
+# ---- side view (faces RIGHT) ----------------------------------------------------------
+
+def arms_climb(s, p, reach_l, reach_r):
+    """Both sleeves raised to the rungs, each hand at its own height. `reach_*`
+    is how far above the shoulder that paw has got (px, positive = higher).
+
+    The sleeve is drawn from the shoulder UP and slightly IN, because a climber's
+    forearms converge on a ladder that is narrower than his shoulders — splayed
+    straight up they read as a surrender pose, which is the first thing this came
+    out as."""
+    for (sh_a, hand, reach, dx, sh) in (("shL", "handL", reach_l, 2, 0.18),
+                                        ("shR", "handR", reach_r, -2, 0.32)):
+        sx, sy = p[sh_a]
+        hx = sx + dx
+        hy = sy - reach
+        s.capsule(sx, sy, hx, hy, 1.9, 1.6, COATR, sh=sh)
+        s.ball(hx, hy - 1.4, 1.8, 1.5, WHITE, power=2.2, sh=sh * 0.5,
+               wrap=0.10, curve=0.10)
+
+
+def climb_up(s, step):
+    """THE LADDER CLIMB — back view, four frames, opposite limbs together.
+
+    A body on a rope ladder played `walk_up` before this existed and read as a cat
+    SLIDING up the rungs: the walk cycle's arms hang at the sides, and nothing in
+    frame was holding on. What sells a climb at 33px is not the leg action — the
+    coat hides most of it — but the ARMS being up and ALTERNATING, so the reach
+    that follows the reach you just watched lands higher.
+
+    Contralateral, like every real climb and like the walk cycle already is: left
+    hand high with right foot high. Frames 0 and 2 are the two reaches, 1 and 3 the
+    passing positions, so the cycle reads at 8fps without a hitch frame.
+
+    Cell 0 is deliberately NOT the planted neutral the walk rows use — there is no
+    neutral on a ladder, and the clip only ever plays while moving."""
+    hi = (7, 4, 7, 4)[step]                 # the high hand's reach
+    lo = (2, 4, 2, 4)[step]                 # ...and the low one's
+    left_high = step in (0, 1)
+    rl, rr = (hi, lo) if left_high else (lo, hi)
+    # the feet mirror the hands — the paw on the same side as the LOW hand is the
+    # one bearing weight, so it sits low and the other is lifted to the next rung
+    liftL, liftR = (5, 0) if not left_high else (0, 5)
+    bob = -1 if step in (0, 2) else 0
+    p = RIG.pose(coat=(0, bob), shL=(0, bob), shR=(0, bob),
+                 handL=(0, bob), handR=(0, bob))
+    legs_down(s, p, liftL, liftR, heels=True)
+    coat_down(s, bob, back=True, sway=(1 if left_high else -1))
+    arms_climb(s, p, rl, rr)
+    tail_up(s, 2 if left_high else -2)      # the tail counterweights the sway
+    head_up(s, bob)
+    finish(s)
 
 
 # ---- side view (faces RIGHT) ----------------------------------------------------------
@@ -952,5 +1006,12 @@ for i in (1, 2):
     defeat_side(cells[9][i], i)
 for i in range(3):
     knapsack_down(cells[9][3 + i], i)
+
+# row 10 (2026-07-30): THE LADDER CLIMB. Alembic's great trees are reached by rope
+# ladder and a body on one used to play walk_up — a cat sliding up the rungs with
+# its arms at its sides. Four frames, contralateral, back view only: there is no
+# side or front climb because you always face the ladder.
+for i in range(4):
+    climb_up(cells[10][i], i)
 
 write_cells(os.path.join(HERE, "basil_gen.png"), cells, CELL)

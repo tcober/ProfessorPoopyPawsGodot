@@ -1,0 +1,127 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scene/academy.gd" id="1_academy"]
+[ext_resource type="Script" path="res://scene/overworld_location.gd" id="2_loc"]
+[ext_resource type="FontFile" path="res://assets/font/pixel_font.fnt" id="4_font"]
+[ext_resource type="TileSet" path="res://assets/collision_tileset.tres" id="5_collision"]
+[ext_resource type="TileSet" path="res://assets/tilesets/academy_tiles.tres" id="6_tiles"]
+[ext_resource type="Texture2D" path="res://assets/tilesets/academy_glow.png" id="7_glow"]
+[ext_resource type="PackedScene" path="res://scene/theater.tscn" id="8_theater"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
+size = Vector2(16, 12)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
+size = Vector2(32, 16)
+
+[sub_resource type="CanvasItemMaterial" id="mat_add"]
+blend_mode = 1
+
+[node name="Academy" type="Node2D"]
+script = ExtResource("1_academy")
+
+[node name="Tiles" type="TileMapLayer" parent="."]
+texture_filter = 1
+tile_set = ExtResource("6_tiles")
+
+[node name="Glow" type="Sprite2D" parent="."]
+material = SubResource("mat_add")
+texture = ExtResource("7_glow")
+centered = false
+texture_filter = 1
+
+[node name="Collision" type="TileMapLayer" parent="."]
+tile_set = ExtResource("5_collision")
+
+[node name="Locations" type="Node2D" parent="."]
+
+[node name="Hall" type="Area2D" parent="Locations"]
+position = Vector2(520, 184)
+script = ExtResource("2_loc")
+id = "hall"
+display_name = "THE GREAT HALL"
+locked_text = "IRON ACROSS THE DOOR, AND A SEAM OF OLD LIGHT STILL IN IT."
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Hall"]
+shape = SubResource("RectangleShape2D_door")
+
+[node name="Gate" type="Area2D" parent="Locations"]
+position = Vector2(488, 456)
+script = ExtResource("2_loc")
+id = "gate"
+display_name = "THE ACADEMY GATE"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Gate"]
+shape = SubResource("RectangleShape2D_door")
+
+[node name="Orrery" type="Area2D" parent="Locations"]
+position = Vector2(488, 376)
+script = ExtResource("2_loc")
+id = "orrery"
+display_name = "THE GREAT ORRERY"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Orrery"]
+shape = SubResource("RectangleShape2D_door")
+
+[node name="Observatory" type="Area2D" parent="Locations"]
+position = Vector2(184, 392)
+script = ExtResource("2_loc")
+id = "observatory"
+display_name = "THE OBSERVATORY"
+locked_text = "THE DOME IS CRANKED HALF OPEN. IT HAS BEEN HALF OPEN A LONG TIME."
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Observatory"]
+shape = SubResource("RectangleShape2D_door")
+
+[node name="Stillhouse" type="Area2D" parent="Locations"]
+position = Vector2(840, 392)
+script = ExtResource("2_loc")
+id = "stillhouse"
+display_name = "THE STILL-HOUSE"
+locked_text = "COAL SMOKE. SOMETHING IN THERE IS STILL BEING KEPT WARM."
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Stillhouse"]
+shape = SubResource("RectangleShape2D_door")
+
+[node name="ExitSouth" type="Area2D" parent="."]
+position = Vector2(488, 744)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitSouth"]
+shape = SubResource("RectangleShape2D_exit")
+
+[node name="World" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="TilesUpper" type="TileMapLayer" parent="."]
+texture_filter = 1
+tile_set = ExtResource("6_tiles")
+
+[node name="Theater" parent="." instance=ExtResource("8_theater")]
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="Banner" type="Label" parent="UI"]
+modulate = Color(1, 1, 1, 0)
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -27.0
+offset_right = -10.0
+offset_bottom = -8.0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 8
+horizontal_alignment = 1
+
+[node name="Fade" type="ColorRect" parent="UI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)

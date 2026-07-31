@@ -61,35 +61,76 @@ author it as one.)
 never sharing an anchor between travel and announce zones, flipping `target_scene` rather
 than adding a second zone — are in the `story-scenes` skill.**
 
-## Alembic Town (`scene/alembic_town.tscn`, 72×48)
+## Alembic Town (`scene/alembic_town.tscn`, 80×56)
 
 The Kakariko-style hub, rebuilt from scratch 2026-07-11 and again 2026-07-30 as a
-**four-storey canopy village**: the Academy's terrace, the homes in the crowns
-(`canopy_hi`), the public town on the low boardwalk (`canopy_lo`), and the forest
-floor. Five great trees are the armature and you can walk a full circle around each
+**forest-floor village with four great trees**: the town — lane, market square,
+three shops, clinic, cottage, well, stall, fountain — is on the ground, and each
+tree carries a round RING DECK near its crown with a door and a lit window in its
+trunk, reached by a rope ladder. The canopy is four ISLANDS, not a floor: a town
+that is 100% deck renders as stripes of plank and fascia. You walk a full circle
+around each
 one. Load **map-authoring** before touching the grid; the doctrine is in DESIGN.md
 → "STACKED WALKABLE STOREYS".
 
-- The barred **Academy** crowns a north cliff **terrace** on the central axis (authored
-  16×32 cliff-face columns, 3 salted variants per column; a grand stone stair descends to
-  a lamp-flanked plaza). See the **map-authoring** skill for the terrace kit.
+- **The Academy has LEFT this grid** (2026-07-30) — it is its own scene now, and what
+  stays here is the way there: the **north lane** (`exit_north` → `academy.tscn`).
+  Coming back sets `Game.town_spawn = "north"`, which lands you in this town's own lane
+  rather than at the south gate.
 - A **fountain square** at the lane crossing — trail ring forks around the basin + brass
   alembic finial; a flask stall on the rim. (The stall is generic scenery — the Kitty
   stall canon was CUT 2026-07-18; her wheel workshop is off-screen and never seen.)
 - Weapons shop **"THE BRASS FANG"**, item shop **"THE CRACKED FLASK"** (adult Sage's,
-  where Act 1 beat 4 happens) and the inn **"THE COPPER KETTLE"** — all three on
-  `canopy_lo`, **ONE shared `tree_hut` builder** with only the salt and the hanging
-  trade sign differing, so the facades dedupe. A trade is announced by its OBJECT
-  painted on a swinging board, never by lettering: there is no font at 16px.
+  where Act 1 beat 4 happens) and the inn **"THE COPPER KETTLE"** — all three on the
+  forest floor, 5×4 each, **ONE shared `_town_props.town_shop` builder** on the
+  cottage's own envelope, with a `trade` (arms / tonics / inn) picking the awning's
+  cloth colour, the wares in the display window and the device on the hanging board
+  together. A trade is announced by its OBJECT painted on a swinging board, never by
+  lettering: there is no font at 16px. (They were `tree_hut`s until 2026-07-30 and read
+  as tiki huts — see the art-pipeline skill; a hut is a BOUGH building.)
 - Locked cottages around the well + a fenced garden, a fenced NE orchard, six
   walk-behind trees.
-- All shop / inn / cottage / school doors are **announce-only banners (caps-only font)**.
+- All shop / inn / cottage doors are **announce-only banners (caps-only font)**.
 - Basil's `home` door → `downstairs` (`interior_spawn="front_door"`).
 - The south gate (`exit_south`) → the tiled overworld.
+- **The two era maps share a byte-locked GRID and NOT a byte-locked ANCHOR BLOCK.**
+  `town_fest.txt` carries fifteen anchors `town.txt` does not — the festival square,
+  the five NPCs, the goose and its hiding place, Sage's ribbons, Schweinler's
+  four-corner creep route, Ridley's lane, the south-gate tableau. Emitting town.txt's
+  anchors into both is what killed chapters A1-A13 and B3/B5/B11 in the 2026-07-30
+  rebuild: every one of those scenes asserts on an unknown anchor before its first
+  frame, so the break is total and invisible until you load the scene.
 - The bright-era twin is `scene/town_fest.tscn` / `maps/town_fest.txt` — a **BYTE COPY**
   of `town.txt` in the `town_fest` palette (spring grass, cream plaster, festival
-  magenta). The fest Academy door is OPEN (`town_academy(open_door=True)`); the sealed
-  bars stay drained-only. **Keep the two grids in lockstep.**
+  magenta). **Keep the two grids in lockstep.** `town_fest.gd`'s own `School` marker
+  still travels straight to `hall.tscn` for the recital — the prologue never comes out
+  to the Academy precinct, so that shipped chapter is untouched by the new scene.
+
+## The Alembic Academy (`scene/academy.tscn`, 64×48) — NEW 2026-07-30
+
+The college, one lane north of the town. It used to be a 14×9 landmark on a cliff
+terrace at the top of the town grid; given its own map it can be a **precinct you
+approach along an axis, gate by gate**, which is the whole reason it moved. Full
+composition in DESIGN.md → "THE ALEMBIC ACADEMY, walkable".
+
+South to north: causeway → **the beck** (a stream on animated water — NOT a chasm) and
+its four-cell bridge → outer ward → **THE RAMPART**, a crenellated curtain wall clear
+across the map pierced by a gatehouse of two drum towers → **the inner court** with the
+GREAT ORRERY standing on the axis (it blocks the straight line from gate to stair on
+purpose) flanked by the observatory and the still-house → **the grand stair** → **THE
+KEEP** (`town_academy`, rose window burning mint), with **two great trees flanking it
+where a castle would put corner towers**.
+
+- Everything is announce-only in the drained present. The great door is barred.
+- **Paving only where the procession walks, lawn either side.** Paved edge to edge the
+  court was 52×9 cells of one flat fabric — the "100% floor" failure the canopy town
+  already taught, in a different material.
+- Every piece standing on the paving carries its own terrain name rendering `road`
+  (`courtlamp`, `rampart`, `gate`, `towerbody`, `orrery`, `orrerybase`) — see
+  **map-authoring**: a terrain names the UNDERLAY, and reusing `lamp` here would punch
+  grass squares through the court.
+- `tools/academy_probe.gd` covers the round trip both ways, the gate's clearance for a
+  real body, and the spawn not sitting inside its own exit trigger.
 
 ## Lanternwood (`scene/lanternwood.tscn`, 56×50)
 

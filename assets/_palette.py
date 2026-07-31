@@ -333,6 +333,61 @@ SCENES = {
             "plaster": (236, 210, 182, 255),
         },
     },
+    "academy": {        # THE ALEMBIC ACADEMY, its own scene since 2026-07-30 —
+        "shadow": "violet",                 # the same forest the town stands in,
+        "accent": (168, 232, 214, 255),     # seen from a COLDER place.
+        # THE PRECINCT IS ALEMBIC'S PALETTE PULLED ONE STEP TOWARD THE INSTITUTION
+        # IT IS, and the two moves are deliberate:
+        #
+        # 1. THE SHADOW BIAS FLIPS TEAL -> VIOLET. Alembic Town is teal-shadowed:
+        #    mossy, walked-in, alive. A college that has been shut since the Ebb
+        #    is not, and violet darks are what the palette registry already uses
+        #    for every cold place in this game (Lanternwood, the library, the
+        #    hall). It costs nothing — the greens stay Alembic's greens, and only
+        #    the darks move — and it does the whole job of saying you have left
+        #    the village.
+        # 2. THE ACCENT IS MINT, NOT CANDLE AMBER. Alembic's accent is the warm
+        #    (255, 190, 96) of a lit window. Here the one thing still burning is
+        #    the rose window, and DESIGN.md has always said it burns MINT on the
+        #    glow. The lamps are warm and few; the magic light is cold and there
+        #    is exactly one of it.
+        #
+        # `rock` carries this whole scene — the rampart, the towers, the keep's
+        # coursed courses, the plinth — so it is seeded a full step lighter and
+        # less saturated than the town's, because a mass that big at the town's
+        # value comes out as one violet slab.
+        "ramps": {
+            "sand": [(248, 224, 178, 255), (240, 200, 148, 255), (226, 176, 128, 255),
+                     (198, 138, 108, 255), (156, 92, 96, 255), (110, 58, 78, 255)],
+            # THE PROCESSIONAL WAY IS FLAGSTONE, NOT A TRAIL. Seeded warm the
+            # first time (Alembic's own packed-earth road, lightened) it came out
+            # a huge flat pink-beige field that read as SAND with a violet castle
+            # standing in it. Cool grey-violet puts the paving in the same family
+            # as the walls it runs between, two full steps lighter, so the way
+            # reads as the lit thing and the masonry as the mass.
+            "road": [(206, 200, 214, 255), (186, 178, 198, 255), (162, 152, 178, 255),
+                     (128, 118, 150, 255), (92, 82, 116, 255), (62, 52, 80, 255)],
+        },
+        "mats": {
+            "sea": (46, 112, 158, 255),
+            "grass": (66, 150, 100, 255),
+            "grass2": (94, 158, 88, 255),
+            "forest": (40, 128, 100, 255),
+            "rock": (150, 142, 186, 255),       # THE PRECINCT'S OWN STONE
+            "sand": (238, 202, 152, 255),
+            "waste": (176, 100, 168, 255),      # ride-alongs, unused
+            "snow": (228, 236, 250, 255),
+            "bridge": (156, 92, 114, 255),
+            "trunk": (58, 68, 126, 255),
+            "desert": (170, 142, 200, 255),
+            "basalt": (68, 56, 86, 255),
+            "pines": (26, 82, 96, 255),
+            "lava": (240, 116, 48, 255),
+            "roof_blue": (78, 134, 188, 255),
+            "roof_green": (70, 148, 116, 255),
+            "plaster": (228, 202, 176, 255),
+        },
+    },
     "lanternwood": {    # Fuji's hometown at zone scale — RE-SEEDED 2026-07-28
         "shadow": "violet",                 # to the NARSHE read (FFVI): a dark
         "accent": (255, 190, 96, 255),      # slate-violet mining town of stacked

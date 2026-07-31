@@ -1,0 +1,115 @@
+; THE ALEMBIC ACADEMY — 64x48 tiles (1024x768 px), its own scene since 2026-07-30.
+; Reached by the north lane out of Alembic Town; its great door opens into the
+; lecture hall (scene/hall.tscn), which is where Prologue B names him.
+;
+; COMPOSED DEPTH-FIRST ON ONE AXIS, south to north, because that is what makes a
+; building epic rather than merely large: the causeway, the beck and its bridge,
+; the outer ward, THE RAMPART and its barred gatehouse, the inner court with the
+; orrery standing in the middle of it, the grand stair, and THE KEEP on the back
+; rank with the rose window over its sealed door. You arrive at the bottom of a
+; sequence and the thing you came to see is at the top of it.
+;
+; THE BECK IS WATER, NOT A CHASM. Verticality here is authoring, and authoring an
+; ABSENCE is the one thing this kit is bad at — see the map-authoring skill:
+; Lanternwood's rift was attempted twice and read as a wall both times. A stream
+; is a POSITIVE thing, it animates on four frames for free, and a bridge over it
+; is one more gate on the way in.
+;
+; THE ORRERY STANDS ON THE AXIS, blocking the straight line from the gate to the
+; stair deliberately. You walk round a monument; being made to go round it is what
+; makes the court read as the middle of a place rather than as a corridor.
+;
+; EVERY PROP STANDING ON PAVING HAS ITS OWN TERRAIN NAME. A cell paints its
+; terrain's render class as underlay, so `lamp` (which renders grass, because
+; Alembic's lamps stand on grass) would punch a grass square through the court.
+; Hence courtlamp / rampart / gate / towerbody / orrery / orrerybase, all of
+; which render `road`.
+;
+; Tiled by assets/_gen_tileset_academy.py on the shared OverWorld driver;
+; collision and markers by scene/academy.gd.
+
+legend # forest solid
+legend . grass walk
+legend , flowers walk
+legend - road walk
+legend b bridge walk
+legend r river solid
+legend D door walk
+legend C cliff solid
+legend S stairs walk
+legend W rampart solid
+legend G gate walk
+legend u towerbody solid
+legend Q orrery walk
+legend q orrerybase solid
+legend A academyroof solid
+legend a academybody solid
+legend B wingroof solid
+legend e wingbody solid
+legend N wingroof solid
+legend n wingbody solid
+legend K greatcrown solid
+legend k courttrunk solid
+legend T treecanopy solid
+legend t treetrunk solid
+legend L courtlamp walk
+legend m courtlamp solid
+
+anchor player_start 30 42
+anchor exit_south 30 46
+anchor hall 32 11
+anchor gate 30 28
+anchor orrery 30 23
+anchor observatory 12 24
+anchor stillhouse 51 24
+anchor bridge 30 37
+
+map
+################################################################
+################################################################
+################################################################
+###.......KKKKKKKKKKKKKK.AAAAAAAAAAAAAA.KKKKKKKKKKKKKK.......###
+###.,,,,,.KKKKKKKKKKKKKK.AAAAAAAAAAAAAA.KKKKKKKKKKKKKK.,,,,,.###
+###.,,,,,.KKKKKKKKKKKKKK.AAAAAAAAAAAAAA.KKKKKKKKKKKKKK.,,,,,.###
+###.,,,,,.KKKKKKKKKKKKKK.AAAAAAAAAAAAAA.KKKKKKKKKKKKKK.,,,,,.###
+###.,,,,,......kkkk......AAAAAAAAAAAAAA......kkkk......,,,,,.###
+###............kkkk......aaaaaaaaaaaaaa......kkkk............###
+###..TT........kkkk......aaaaaaaaaaaaaa......kkkk........TT..###
+###..tt........kkkk......aaaaaaaaaaaaaa......kkkk........tt..###
+###............kkkk......aaaaaaaDaaaaaa......kkkk............###
+###.--------------------------------------------------------.###
+###.--------L---------L------------------L---------L--------.###
+###.--------m---------m------------------m---------m--------.###
+###CCCCCCCCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCCCCCCCCCC###
+###CCCCCCCCCCCCCCCCCCCCCCCCCCCSSCCCCCCCCCCCCCCCCCCCCCCCCCCCCC###
+###..,,...........TT..--------------------..TT...........,,..###
+###..,,.BBBBBBBBB.tt..-L----------------L-..tt.NNNNNNNNN.,,..###
+###..,,.BBBBBBBBB.....-m----QQQQQQ------m-.....NNNNNNNNN.,,..###
+###.....BBBBBBBBB.....------QQQQQQ--------.....NNNNNNNNN.....###
+###.....eeeeeeeee.....------QQQQQQ--------.....nnnnnnnnn.....###
+###.....eeeeeeeee.....------qqqqqq--------.....nnnnnnnnn.....###
+###..,,.eeeeeeeee.....-L----------------L-.....nnnnnnnnn.,,..###
+###..,,...........TT..-m----------------m-..TT...........,,..###
+###..,,...........tt..------uu--uu--------..tt...........,,..###
+###WWWWWWWWWWWWWWWWWWWWWWWWWuuGGuuWWWWWWWWWWWWWWWWWWWWWWWWWWW###
+###WWWWWWWWWWWWWWWWWWWWWWWWWuuGGuuWWWWWWWWWWWWWWWWWWWWWWWWWWW###
+###..,,,................----------------...............,,,...###
+###..,,,............TT..-L------------L-..TT...........,,,...###
+###..,,,TT..........tt..-m------------m-..tt.........TT,,,...###
+###.....tt..............----------------.............tt......###
+###.......,,,...........----------------........,,,..........###
+###.......,,,.......TT..-L------------L-..TT....,,,..........###
+###.......,,,.......tt..-m------------m-..tt....,,,..........###
+###rrrrrrrrrrrrrrrrrrrrrrrrrrbbbbrrrrrrrrrrrrrrrrrrrrrrrrrrrr###
+###rrrrrrrrrrrrrrrrrrrrrrrrrrbbbbrrrrrrrrrrrrrrrrrrrrrrrrrrrr###
+###..........................----............................###
+###..........................----............................###
+###...........................--................,,,..........###
+###..TT.......................--................,,,..........###
+###..tt.......................--................,,,..........###
+###......,,,..................--........................TT...###
+###......,,,..................--........................tt...###
+###......,,,................TT--TT...........................###
+###.........................tt--tt...........................###
+###...........................--.............................###
+###...........................--.............................###

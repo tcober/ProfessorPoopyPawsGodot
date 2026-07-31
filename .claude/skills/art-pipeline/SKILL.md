@@ -46,6 +46,15 @@ Every scene is TILED on the shared kit. A NEW scene = a map txt + a thin config.
 - **`assets/_tiles.py`** — slices composed canvases into a real TileSet (atlas +
   `.tres` + layout in `assets/tilesets/`).
 - **`assets/_sprites.py`** — sprite/fx drawing primitives.
+- `understory` carries six kinds — `roots` / `fern` / `shroom` / `log` / **`drift`** /
+  **`sapling`**. `drift` is the important one and the common case: ferns, roots and
+  saplings all come out of the leaf ramp, so a forest floor dressed only in those is
+  green dressing on green ground, and warm fallen leaves are the only cheap thing that
+  changes the field's HUE. Draw a leaf as a small SOLID patch with a lit edge, never as
+  a sloping LINE — a line has direction and no area, and a floor of them reads as dead
+  twigs. Stamp SEVERAL SALTED VARIANTS per kind: one litter cell is exactly one opaque
+  atlas tile, so variants are nearly free, and one variant repeated three hundred times
+  is wallpaper with a visible period.
 - **`assets/_tree_props.py`** — the TREEHOUSE-TOWN kit (Alembic's canopy storey):
   `tree_hut` the bough hut, `tree_edge` / `tree_edge_return` the timber fascia,
   `tree_span_edge`, `tree_bridge`, `rope_ladder`, `tree_trunk`, `tree_canopy`, the
@@ -54,6 +63,17 @@ Every scene is TILED on the shared kit. A NEW scene = a map txt + a thin config.
   Two hand-pinned materials live here and have to: `ROPE` and `THATCH` both come out
   green under a teal scene bias and magenta under a violet one, so deriving them
   obeyed the palette code and broke the palette doctrine.
+- **`assets/_academy_props.py`** — the ALEMBIC ACADEMY's own four pieces: the
+  crenellated `academy_rampart` (a `stamp_columns` band whose merlons are phase-locked
+  to the column's own x so a 50-cell wall is one continuous battlement and still dedupes
+  to `len(sprites)` tiles), `academy_tower` (a drum tower whose ashlar courses BOW —
+  drawn straight they flatten a cylinder into a panel with a curved outline),
+  `academy_orrery` (three rings of DIFFERENT eccentricity; three concentric circles read
+  as a target painted on a wall) and `academy_wing` (one builder, one salt, two crowns —
+  observatory and still-house, so their facades dedupe). Everything else the precinct is
+  built from is reused: the keep is `town_academy`, the terrace `town_cliff(wall=True)`,
+  the flight `town_stairs`, and the two great trees flanking the keep are Alembic's own
+  `great_trunk` / `great_crown`.
 - Drivers: **`assets/_interior.py`** (+ `_interior_props.py`) for rooms;
   **`assets/_overworld_tiles.py`** (`OverWorld`) for the overworld map, Alembic Town,
   Whisker Meadow AND Lanternwood; prop libraries `_overworld_props.py`,
@@ -143,12 +163,35 @@ CanvasModulate tints ride on top.
   every scene that indexes them.
 - **Sheet rows are a SpriteFrames contract** — the dev-menu beat table and every probe
   depend on them (see the **probes-and-shots** skill):
-  - **kid Basil, 6×5** — row 4 is `sleep` / `wake` / `sigh`. Kid-only.
-  - **adult Basil, 6×10** — row 8 is `look_watch` / `sit` / `bow_head` / `knapsack` + a
+  - **kid Basil, 6×6** — row 4 is `sleep` / `wake` / `sigh` (kid-only); row 5 is the
+    4-frame `climb_up`.
+  - **adult Basil, 6×11** — row 8 is `look_watch` / `sit` / `bow_head` / `knapsack` + a
     2-frame trudge; row 9 is `knapsack_back` (the south-gate look-back), cols 1-2
     `defeat_walk` (the head-down hall walk of shame), cols 3-5 `knapsack_down` + the
     2-frame `knapsack_walk_down` (the gate exit walking INTO the camera — the old
-    side-profile walk tweened south read as a sideways glide). Adult-only.
+    side-profile walk tweened south read as a sideways glide). Adult-only. Row 10 is
+    the 4-frame `climb_up`. **Fuji's sheet is 6×11 with the same row 10.**
+- **EVERY PLAYABLE SHEET OWES A `climb_up` ROW, and the missing one is silent.**
+  Alembic's great trees are reached by rope ladder; `PartyMember` plays the clip by NAME
+  (never through `_play_directional`) and forces the facing UP, gated on
+  `sprite_frames.has_animation("climb_up")` — so a body without the row falls back to
+  `walk_up` and reads as a cat SLIDING up the rungs, arms at its sides, with nothing in
+  the log. Four frames, 8fps, back view ONLY (you always face a ladder — there is no
+  side or down variant), contralateral: high paw with the opposite foot lifted, frames
+  0/2 the reaches and 1/3 the passing positions. Cell 0 is deliberately not a planted
+  neutral — there is no neutral on a ladder.
+  - The row can be present in the PNG and still be dead: **`fuji_frames.tres` carried the
+    four `atlas_climb_*` sub-resources with no animation entry referencing them** and
+    nobody noticed, because the fallback is a plausible-looking walk. `_check_art.py`
+    validates region geometry, not that a clip exists — if you add a row, add the clip
+    and load the resource once to prove it.
+  - **A KID'S ARMS SPLAY OUT WHERE AN ADULT'S CONVERGE.** The adult's forearms angle IN
+    toward rungs narrower than his shoulders (splayed straight up reads as surrender).
+    Copy that onto the chibi rig and the arms vanish: a kid's head is nearly as wide as
+    his shoulders and swallows them. The kid's paws go to `CX ± 8`, just clear of the
+    skull silhouette — the same place `kid_body_down(arms="up")` puts them. Foot lift is
+    2px, not the adult's 5: the round tummy hangs lower than a coat hem and eats
+    anything higher.
   - NPC cast sheets live in `_gen_prologue_sprites.py`: Mom, adult Schweinler, badger,
     stork, Kitty-in-bed, and Kitty's mother (`npc_kittymom_gen.png`). `npc_fuji_gen.png`
     is a 480×48 10-col sheet: idle / act (wand-cast) / emote (startled) / back / side.
@@ -190,11 +233,134 @@ CanvasModulate tints ride on top.
   - Who has walk rows: **hare, beaver, foxkid, mayor, mom**.
 - **Never `play_emote` a back-turned head** — it flips to a front face.
 
+## A PROP'S UNDERLAY IS THE GROUND IT MOVED TO (2026-07-30)
+
+**This has now bitten twice in one day, both times when something CHANGED STOREY OR
+SQUARE and its `TERRAIN_CLS` entry stayed where it was.** When you move a prop, move its
+render class — the check is one line and the symptom never points at it.
+
+- The **shops** kept `deck` after coming down off the canopy boardwalk, painting a
+  five-cell **plank raft** on the forest floor (below).
+- The **fountain** kept `grass` after moving into the paved festival square, punching a
+  three-cell **green lawn** through the middle of the court.
+
+**And a gap in Tier-1 art shows up as AUTOTILE, which reads as clipping.** The great
+trees' shafts were blitted one row below the ring's whole 9-row block, so the block's
+last two rows had no trunk art on them at all — the ring stops drawing after its fascia.
+What filled the hole was the underlay doing its job: `ringedge` renders leaf, the ladder
+beside it renders deck, so the pair drew a leaf-to-plank **transition** — a pale
+hard-edged wedge either side of the rungs that looks exactly like a clipping bug. Three
+fixes: start the shaft two rows up under the fascia that is meant to hide its top edge,
+type the trunk's flanking cells as trunk so there is no class boundary there at all, and
+widen the shaft to actually FILL its footprint (it was ~35px of bark in 64px, so the
+outer third of each flanking cell showed underlay however you typed it).
+
+## BAKED ORDER IS DEPTH — a trunk through a deck (2026-07-30)
+
+The fix above filled those rows, and then the tree read as **CHOPPED OFF** instead: the
+shaft was blitted *after* the ring, so 64px of bark with a dead-straight `edge()` outline
+along its top landed two px below the fascia's hem. A trunk that visibly BEGINS at a
+horizontal cut just under a platform is a post nailed to a saucer.
+
+**Tier-1 has no sort key — the later blit wins — so on the baked layer the DRAW ORDER
+*is* the depth order, and you have to choose it on purpose.** Shaft first, ring over it:
+the straight edge is buried under opaque decking and the only line crossing the trunk is
+the fascia's own hem, which is an **arc**. An arc crossing a cylinder is an overlap; a
+straight line across it is a cut.
+
+Order alone was not sufficient, and the reason is worth keeping: **bark under a platform
+and bark in the open are the same six colours**, so the hem read as a change of material
+rather than as something in front. `_alembic._shade_under` pulls the bark two ramp steps
+down for 9px below the hem and one for the next 11, with the band's lower edge following
+the fascia's own `sqrt(1 - t²)` — so what emerges is emerging out of shade. Two hard
+bands, never a dither: bark is banded (`_BARK_BANDS`).
+
+## A BUILDING'S UNDERLAY IS THE GROUND IT MOVED TO (2026-07-30)
+
+Alembic's three shops read as *a flat tan box with a cone sitting on the middle of it*,
+and the hut art was innocent. `tree_hut` is deliberately narrower than its footprint, and
+`shoproof`/`shopbody` still rendered **`deck`** from the era when the shops stood on the
+canopy boardwalk. On the forest floor that painted a five-cell **plank raft** under every
+shop. **When a building moves storeys, its terrain's render class moves with it** — check
+`RENDER_CLASS` in `_overworld_tiles.py`, not just the map.
+
+**The raft was also silencing a lint.** The invisible-wall check only looks at solid cells
+rendering as *open ground*; a `deck` underlay is "built", so it skipped them. The moment
+the ground was honest, the check fired — the footprint was 5 cells for a 3-cell building.
+**Match the footprint to the art**, in whichever direction is right: the shops were shrunk
+to 3 first, and then the art was rebuilt and they went back to 5 (below).
+
+## A BUILDING BELONGS TO ITS TOWN, NOT TO ITS PREVIOUS ADDRESS (2026-07-30)
+
+The shops kept reading badly after the raft came out, and the answer was that the
+BUILDING was wrong, not its ground. `tree_hut` — a cone of thatch over a barrel of withy
+staves — is right in a bough and is a **tiki hut** on a forest floor: one flat tan value
+from finial to porch, no wall material, gaps you see daylight through, and three cells
+wide beside a five-cell cottage. It got called out twice before I stopped defending it.
+
+`_town_props.town_shop` is now the town's own envelope (80×64 over 5×4 — the cottage's
+exact footprint: leaf canopy, greeny cement, copper header and rain-barrel, vines) plus
+the three things a house does not have. In order of weight:
+
+1. **THE AWNING** (`_awning`) — the strongest "this is a shop" cue at 16px, because it is
+   the only **cloth** on any building in the town; everything else is plaster, leaf,
+   timber, copper. **Cream and one colour in 4px stripes** — a band in one colour is a
+   banner whatever you do to its edge. The **scallops** are cut on the same 8px period as
+   a stripe pair so each arc hangs off one cream and one coloured stripe. Then two rows
+   of shade on the wall under it, which is what actually says the cloth stands PROUD;
+   the first pass spent that budget on little iron stays and at this scale they read as
+   violet scratches.
+2. **THE DISPLAY WINDOW**, warm-lit and on the breath cycle, with the trade's goods in
+   it — see the silhouette rule below.
+3. **THE HANGING SIGN**: a **dark painted field in a timber frame**, never a bare plank.
+   Drawn as bare `TIMBER` the board was a big mid-brown rectangle on a light cement wall
+   — the loudest thing on the building — and the device, the only part that carries
+   meaning, was a pale mark lost in the middle of it. Dark ground, one bright object.
+   And the device is **never lettering**: there is no font at 16px.
+
+`trade` (arms / tonics / inn) picks cloth colour, goods and device together, so three
+shops off one builder are three shops and not three copies. `CLOTH` is hand-pinned
+lit/mid/shade per trade — the `BRASSD` precedent, and for the same reason: `ramp()`'s
+violet law would take the inn's amber straight to red.
+
+### Small objects in a lit window are SILHOUETTES
+
+Objects drawn in their own colours against warm glass came out as mud: a ten-pixel helm
+in `IRON` is a grey blob and a ten-pixel flask in `MINT` is a green one, and neither
+survives a 3× screenshot. **Backlit things are dark** — the same argument
+`_hearth_window` already makes for keeping its mullions dark — so wares are `DOORDARK`
+masses with one lit rim, and they read at native res because a silhouette is all shape
+and has no detail to lose. Corollaries, both paid for:
+
+- **Light the RIM, not the middle.** A dark disc with a lighter interior is a donut, not
+  a shield. One lit arc on the upper-left edge and a small dark boss.
+- **Mullions must not cross the goods.** Three mullions across 25px of glass sliced every
+  object into two or three pieces — physically correct, visually a tangle. **One mullion,
+  two panes, one object each**: the pane is the frame the silhouette needs.
+- A **10px device** is a table, not a formula. The two things that make the Brass Fang a
+  tooth and not a pennant are both local: the crown is widest **two rows down** and
+  pinches back in above it, and the last three rows **curve**, so the point is offset
+  from the root. A smooth `(1-u)^k` taper from the top row is a pennant, which is exactly
+  what it shipped as first.
+
 ## Color law (the gotchas that cost real bugs)
 
 - `ramp()` hue-shifts darks toward violet. That law turns an orange seed RED, so:
   **`BRASS[2..3]` are unusable** — brass is tones 0/1 only, darks are IRON. Anything
   incandescent (lava, fire) needs a hand-pinned ramp.
+  - The exact values, so you stop re-deriving them: `BRASS` is `[(242,223,167),
+    (240,188,98), (246,28,26), (216,0,109)]`. Tones 2 and 3 are **pure red** and
+    **magenta**. `COPPER` is the same story from tone 3 down.
+  - **Anything ROUND needs more than two tones, so use `BRASSD`** (`_tilekit.py`,
+    hand-pinned warm darks — the SACKR precedent). Two tones are fine for a hinge or a
+    stud; a shaded ball is not. Alembic's fountain finial is an alembic bulb and it
+    spent its life as a **magenta blob on a stone plinth** for exactly this reason,
+    in the middle of the square.
+  - **The rule is broken in ~20 places in `_interior_props.py` and ~12 in
+    `_town_props.py`** (found 2026-07-30; only the fountain fixed, since nothing else
+    had been reported): lamp poles, lantern cages, hooks, valve wheels, spouts and screw
+    heads in `BRASS[2..3]` / `COPPER[3..5]` are all drawing red and magenta. Worth a
+    sweep of its own — and check it before copying any brass idiom out of those files.
 - Hand-pin anything the ramp would ruin (the bindle's warm burlap `SACKR` and wood
   `STICKR`).
 - **A white paw on a white cheek vanishes** without a shadow tint.

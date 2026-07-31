@@ -145,13 +145,20 @@ func _phase3_across_a_fascia() -> bool:
 	for m in party.members:
 		if m != leader:
 			follower = m
-	# the leader on Basil's canopy deck, the follower on the forest floor below.
-	# +256 clears BOTH fascias and both boardwalks — Basil's door is on canopy_hi
-	# now, so the old +190 only fell as far as canopy_lo and the test quietly became
-	# "one storey down" instead of "all the way down", which is a strictly easier
-	# case for the teleport to get right.
-	leader.global_position = MapData.anchor_px(map, "home") + Vector2(0.0, 26.0)
-	follower.global_position = MapData.anchor_px(map, "home") + Vector2(0.0, 256.0)
+	# THE LEADER ON BASIL'S RING DECK, THE FOLLOWER ON THE FOREST FLOOR BELOW.
+	# No southward offset on the leader any more: the `home` anchor sits on the ring's
+	# south deck row, and the deck is only two rows deep below the door, so the old
+	# +26 pushed him 1.6 cells south onto the LADDER — a `link` cell, whose stratum is
+	# "link" and not "canopy", so the probe compared the follower's storey against the
+	# wrong answer and failed for a reason that had nothing to do with the leash.
+	# ONE ROW SOUTH OF THE ANCHOR, and both halves of that matter. `home` IS Basil's
+	# door marker, so parking a body on it fires the travel zone and change_scene
+	# frees every member mid-probe ("Invalid access ... on a base object of type
+	# 'previously freed'"). And it can only be ONE row: the ring's south deck is two
+	# rows deep, so +26 lands on the ladder, whose stratum is "link", not the canopy
+	# the follower is supposed to be compared against.
+	leader.global_position = MapData.anchor_px(map, "home") + Vector2(0.0, 16.0)
+	follower.global_position = MapData.anchor_px(map, "home") + Vector2(0.0, 400.0)
 	for c in leader.get_children():
 		if c is Camera2D:
 			(c as Camera2D).reset_smoothing()

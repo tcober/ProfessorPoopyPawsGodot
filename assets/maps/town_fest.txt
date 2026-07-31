@@ -1,29 +1,142 @@
-; Alembic Town, FESTIVAL ERA (Prologue A "The Whirligig") — the same 72x48 village
-; grid as maps/town.txt, decades younger and ALIVE: tiled by
-; assets/_gen_tileset_town_fest.py in the bright town_fest palette, collision,
-; markers and NPCs by scene/town_fest.gd.
+; Alembic Town, BRIGHT ERA — 80x56 tiles (1280x896 px), Basil's origin village: a forest-floor
+; clearing with FOUR GREAT TREES standing along its north edge, each carrying a
+; round RING DECK near its crown, a door in its trunk, and a rope ladder down.
+; Tiled by assets/_gen_tileset_town.py on the shared OverWorld driver;
+; collision/markers by scene/alembic_town.gd.
 ;
-; THE GRID IS A BYTE COPY of town.txt on purpose — the player must recognise every
-; lane, every ladder, every ring deck and every plank when the drained present
-; arrives — and `_check_art.py` ENFORCES it rather than asking nicely. Only the
-; ANCHOR block may differ. Read town.txt's header for the geometry, the trunk
-; armature and why the row budget is arithmetic.
+; THERE IS NO ELEVATION SYSTEM AND THERE DOES NOT NEED TO BE ONE. A cell is exactly
+; one (x, y) with one legend char and one walk/solid bit, so storeys are unambiguous
+; IFF THEY ARE DISJOINT IN THE GRID. `stratum:` names the storey; TileScene's
+; assert_strata is the whole system, and every failure in it is SILENT.
+;
+; THE CANOPY IS NOT A FLOOR. It is four ISLANDS. The previous build made both canopy
+; storeys continuous deck from edge to edge, and a town that is 100% floor renders as
+; horizontal stripes of plank and fascia — a lumber yard, or a fence. What makes both
+; references (FFXIV's Slitherbough, Endor) read is the VOID between the platforms.
+; So: each ring is a disc of decking with solid leaf all round it, and the town —
+; the lane, the shops, the well, the stall, the cottages — is on the FOREST FLOOR,
+; which is the part that already read as somewhere.
+;
+; THE TREE BLOCK is 12 cols x 9 rows, and ITS WALKABLE CELLS ARE NOT AUTHORED BY HAND.
+; They are the rasterization of the very ellipse tree_ring draws — `_tree_props.ring_cells`
+; makes the mask, `_alembic.assert_all` checks this grid against it, and a cell is
+; walkable iff its CENTRE is on decking. Do not "tidy" these rows: they are derived.
+;
+; The build before this one guessed them, and guessed a tight blob INSIDE the disc. At
+; the east and west poles two whole columns of drawn decking were solid and the south
+; rim was two cells too generous, so a round platform was walked as a RECTANGLE with an
+; invisible wall following its rim the whole way round — and the widest rows of the disc
+; were the NARROWEST rows you could walk, which is the inverse of a circle. Nothing
+; complained: a cell that looks like deck and stops you looks exactly like a cell you
+; have not reached yet.
+; THE MASK IS THE BODY'S BOX, NOT A POINT, because the overhang is DIRECTIONAL and no
+; single radius can express it. (row 4, col 2) sits at o = 0.65 — comfortably inside
+; anything you would call the rim — and a body standing there has its west foot off the
+; platform, because its feet are ten pixels south of its centre and the arc has already
+; curved away. (row 1, col 1) sits at o = 0.88, far worse by radius, and is fine, because
+; on the top half of an ellipse those same ten pixels point further IN. So the 12x8
+; collision box is placed at each cell centre and all four corners must clear the RIM
+; BOARD (o <= 0.90) — not the outer edge: the rim is the deck's finished lip, the
+; handrail stands just outside it, and walking to the edge put a body at the poles
+; standing ON the rim with the rail between its ankles.
+;   row 0      leaf bed               solid         — the disc IS drawn here, and it is
+;                                                     under the crown's 96-100% opaque
+;                                                     heart. A body there is invisible;
+;                                                     _check_art's walk-behind lint says
+;                                                     so in numbers. Exception 1.
+;   row 1      the north arc          WALK canopy   — you pass BEHIND the tree here
+;   row 2-3    the shaft (cols 4-7)   solid         — the DOOR is drawn on row 3; these
+;                                                     are the widest walkable rows,
+;                                                     which is the widest part of the
+;                                                     ellipse: a circle, not a rectangle
+;   row 4      the south deck         WALK canopy   — 6 cells, the row under the door
+;   row 5      the south rim          solid, EXCEPT the ladder's two columns. The arc is
+;                                                     at y=92, so a body centred on this
+;                                                     row has its feet past it wherever
+;                                                     you put it. The LANDING is
+;                                                     exception 2 and it is named off the
+;                                                     ladder, not typed as a row: it is
+;                                                     the one place you are meant to
+;                                                     stand on the lip, because standing
+;                                                     there IS stepping onto the rungs
+;   row 6      the fascia crescent    solid         — the ladder head cuts through it.
+;                                                     THERE ARE NO BAND CELLS HERE. The
+;                                                     ring's fascia is a crescent painted
+;                                                     inside one sprite, not a run of
+;                                                     face cells, so it gets no `v` and
+;                                                     no mask_band. It had both, and the
+;                                                     mask shipped as a 16x12 SLAB OF
+;                                                     DECK PLANKING drawn over anything
+;                                                     standing on the row above — a body
+;                                                     cropped to the head, one either
+;                                                     side of the ladder. A terrace's
+;                                                     walkable row ENDS at its face, so
+;                                                     its crest must come back over your
+;                                                     sunk feet; the ring's deck stops a
+;                                                     WHOLE ROW north of the arc, so a
+;                                                     body pressed south there overhangs
+;                                                     onto more deck and there is nothing
+;                                                     to swallow
+;   row 7-8    the trunk's flanks     `j`           — greattrunk, NOT `y`. Typed `y` the
+;                                                     flanks render leaf against the
+;                                                     ladder's plank class and the
+;                                                     autotile draws a pale transition
+;                                                     wedge either side of the rungs,
+;                                                     which reads as a clipping bug
+;                                                     because it is one
+;
+; THE SHAFT GOES DOWN FIRST AND THE RING GOES DOWN ON TOP OF IT. Order is the whole
+; difference between a trunk that FEEDS THROUGH the platform and one CHOPPED OFF under
+; it. Blitted last, the shaft's own `edge()` top — dead straight, 64px wide — lands two
+; px under the crescent and the tree visibly BEGINS at a horizontal cut: a post nailed
+; to a saucer. Blitted first from block row 6, that straight edge is buried under opaque
+; decking and the only line crossing the trunk is the fascia's hem, which is an ARC — and
+; an arc crossing a cylinder is an overlap. `_alembic._shade_under` then lays the deck's
+; own shadow on the bark for the 20px below that hem, because bark under a platform and
+; bark in the open are otherwise the same six colours.
+; THE RAIL IS NOT DECKING AND YOU DO NOT WALK ON IT. Its near arc is a Tier-3 prop
+; (`RingRail`) keyed at the block's south edge, so every body on the ring draws BEHIND
+; the handline; the far arc stays baked with the deck, because it is behind you.
+; `R` is the walkable RIM twin — same terrain as `y` (ringedge, which renders LEAF), so
+; the part of a rim cell the disc's curve does not cover shows canopy rather than plank
+; fabric. Give those cells a deck underlay and the leftover corners square the circle
+; straight back off.
+; The ladder (cols 5-6) runs down INSIDE the trunk's 4 columns, so it has solid timber
+; on both sides for its whole length — otherwise you could step sideways off it onto
+; ground that is meant to be thirty feet below. It runs THROUGH the foot to the floor,
+; because a link whose last cell butts into solid timber joins the ring to nothing.
+;
+; THE FEET SIT AT THE CLEARING'S NORTH EDGE. A trunk is 4 solid columns; a tree with
+; its foot halfway down the map cuts the floor into strips you must walk around. The
+; first draft did that with four of them and the clearing came out as five corridors.
+;
+; THE SCHOOL IS ITS OWN SCENE. What stays here is the way there — the north lane at
+; cols 35-36 — and the `school` anchor sits in its mouth, so town_thesis's dash ends
+; at a place you walk into rather than at a building that is no longer in this grid.
+;
+; THE THREE SHOPS ARE 5x4, THE SAME ENVELOPE AS A COTTAGE, and that is deliberate. They
+; were `tree_hut`s at 3x4 — a cone of thatch over a barrel of withy staves, which is the
+; right building for a BOUGH and a tiki hut on a forest floor: one tan value throughout,
+; no wall material, and three cells wide next to a five-cell cottage. `_town_props.town_shop`
+; is the town's own envelope (leaf canopy, greeny cement, copper, vines) plus an awning, a
+; lit display window and a hanging device. Roof rows are `x`/`p`/`i`, body rows `X`/`P`/`I`,
+; the `D` centred on the bottom row; the anchors sit one row SOUTH of it.
+
 legend # forest solid
 legend . grass walk
 legend , flowers walk
 legend - road walk
 legend D door walk
-legend F fence solid
-legend G fence solid
-legend C cliff solid
-legend S stairs walk stratum:link
-legend ^ treecanopy solid
 legend T treecanopy solid
 legend t treetrunk solid
-legend r river solid
-legend = bridge walk
-legend ~ sea solid
-legend s beach walk
+legend G crown solid
+legend Y deck walk stratum:canopy
+legend y ringedge solid
+legend R ringedge walk stratum:canopy
+legend J greattrunk solid
+legend j greattrunk solid
+legend ! greattrunk solid
+legend z ropeladder walk stratum:link
 legend o fountain solid
 legend O fountain walk
 legend u well solid
@@ -33,127 +146,96 @@ legend L lamp walk
 legend m stall solid
 legend q cotWroof solid
 legend 1 cotWbody solid
-legend 4 cotWbody solid
 legend w cotEroof solid
 legend 2 cotEbody solid
-legend 5 cotEbody solid
-legend k academyroof solid
-legend K academybody solid
-legend 6 academybody solid
-legend Y deck walk stratum:canopy_hi
-legend y deckedge solid
-legend f door walk stratum:canopy_hi
-legend g crown walk stratum:canopy_hi
-legend c boughtop walk stratum:canopy_hi
-legend * notice solid
-legend R plank walk stratum:canopy_hi
-legend E plankedge solid
-legend z ropeladder walk stratum:link
-legend h hutroof solid
-legend H hutbody solid
-legend 3 hutbody solid
-legend n hutroof solid
-legend N hutbody solid
-legend 0 hutbody solid
-legend B deck walk stratum:canopy_lo
-legend v deckedge solid
-legend d door walk stratum:canopy_lo
-legend A boughtop walk stratum:canopy_lo
-legend W plank walk stratum:canopy_lo
-legend e plankedge solid
-legend Z ropeladder walk stratum:link
 legend x shoproof solid
 legend X shopbody solid
-legend 7 shopbody solid
 legend p shoproof solid
 legend P shopbody solid
-legend 8 shopbody solid
 legend i shoproof solid
 legend I shopbody solid
-legend 9 shopbody solid
-legend a bough solid
-legend J greattrunk solid
-legend j greattrunk solid
-legend ! greattrunk solid
-legend % deckedge solid
-legend & deckedge solid
-legend M deck walk stratum:canopy_lo
-legend Q deckedge solid
-legend : liftdrum walk stratum:ground
-legend + liftdrum solid
-anchor player_start 34 44
-anchor home 11 18
-anchor cottage_w 10 42
-anchor cottage_e 23 42
-anchor school 35 9
-anchor weapons 24 27
-anchor items 37 27
-anchor inn 50 27
-anchor lift_down 63 29
-anchor lift_up 63 34
-anchor exit_south 34 46
-anchor exit_se 69 42
-anchor festival 32 44
-anchor basil_mark 35 40
-anchor sage_pos 32 41
-anchor schw_pos 38 40
-anchor npc_sheep 12 44
-anchor npc_owl 39 19
-anchor npc_mouse 29 43
-anchor npc_goose 44 44
-anchor goose_hide 48 41
-anchor creep_gate 34 44
-anchor creep_cross 10 44
-anchor creep_lane 10 34
-anchor creep_head 10 20
-anchor lane_e 30 42
-anchor gate_inside 34 45
+
+anchor player_start 35 52
+anchor home 9 10
+anchor cottage_w 11 42
+anchor cottage_e 64 42
+anchor exit_north 35 0
+anchor school 35 4
+anchor weapons 19 32
+anchor items 46 31
+anchor inn 52 51
+anchor exit_south 35 54
+anchor exit_se 78 44
+anchor festival 34 44
+anchor basil_mark 35 42
+anchor sage_pos 32 42
+anchor schw_pos 40 42
+anchor npc_sheep 17 44
+anchor npc_owl 50 44
+anchor npc_mouse 28 45
+anchor npc_goose 45 46
+anchor goose_hide 53 40
+anchor creep_gate 35 50
+anchor creep_cross 22 47
+anchor creep_lane 22 40
+anchor creep_head 14 36
+anchor lane_e 46 44
+anchor gate_inside 35 52
+
 map
-#############################66kk66kk66kk66#############################
-#############################kkkkkkkkkkkkkk#############################
-#############################kkkkkkkkkkkkkk#############################
-#############################kkkkkkkkkkkkkk#############################
-#############################kkkkkkkkkkkkkk#############################
-#############################KKKKKKKKKKKKKK#############################
-#############################KKKKKKKKKKKKKK#############################
-#############################KKKKKKKKKKKKKK#############################
-#############################KKKKKKKKKKKKKK#############################
-########################.L.,,,,,,,,,,--,,,,,,.L.########################
-########################.l...........--.......l.########################
-########################..,,,,,,,,,,,--,,,,,,,..########################
-########################CCCCCCCCCCCCCSSCCCCCCCCC########################
-########################CCCCCCCCCCCCCSSCCCCCCCCC########################
-###gggggYY3333YYgggggYYRRRRYYgggggcccYYcccgggggYY0000YYgggggYY0000YY####
-###gggggYhhhhhhYgggggYYRRRRYYgggggcccYYcccgggggYnnnnnnYgggggYnnnnnnY####
-###gggggYhhhhhhYgggggYYEEEEYYgggggcccYYcccgggggYnnnnnnYgggggYnnnnnnY####
-###YJJJYYHHHHHHYYJJJYYYaaaaYYYJJJY***YYYYYYJJJYYNNNNNNYYJJJYYNNNNNNY####
-###YJJJYYHHfHHHYYJJJYYYaaaaYYYJJJY***YYYYYYJJJYYNNfNNNYYJJJYYNNfNNNY####
-###YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY####
-###YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY####
-###%%%%%yzzyyyyy%%%%%yyyyyyyy%%%%%yyyyyyyy%%%%%yyyyyyyy%%%%%yyyyyzzy####
-###%%%%%yzzyyyyy%%%%%yyyyyyyy%%%%%yyyyyyyy%%%%%yyyyyyyy%%%%%yyyyyzzy####
-###%%%%%yzzyyyyy%%%%%yyyyyyyy%%%%%yyyyyyyy%%%%%yyyyyyyy%%%%%yyyyyzzy####
-###BBBBBBBBWWWWBBBBBBBB7777BBBBBBBBB8888BBBBBBBBB9999BBBBBBBBBBBBAAA####
-###BBBBBBBBWWWWBBBBBBBxxxxxxBBBBBBBppppppBBBBBBBiiiiiiBBBBBBBBBBBAAA####
-###BjjjBBBBeeeeBBjjjBBXXXXXXBBjjjBBPPPPPPBBjjjBBIIIIIIBBjjjBBBaaaAAA####
-###BjjjBBBBaaaaBBjjjBBXXdXXXBBjjjBBPPdPPPBBjjjBBIIdIIIBBjjjBBBaaaBBB####
-###BBBBBBBBaaaaBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBMMMBBB####
-###BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBMMMBBB####
-###BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBMMMBBB####
-###&&&&&vZZvvvvv&&&&&vvvvvvvv&&&&&vvvvvvvv&&&&&vvvvvZZv&&&&&vvQQQvvv####
-###&&&&&vZZvvvvv&&&&&vvvvvvvv&&&&&vvvvvvvv&&&&&vvvvvZZv&&&&&vvQQQvvv####
-###&&&&&vZZvvvvv&&&&&vvvvvvvv&&&&&vvvvvvvv&&&&&vvvvvZZv&&&&&vvQQQvvv####
-###.!!!..........!!!..........!!!........r.!!!..........!!!...:::...####
-###.!!!..........!!!..........!!!........r.!!!..........!!!...+++...####
-###.!!!.......^^.!!!.......^^.!!!...^^...r.!!!....^^....!!!......^^.####
-###...........TT...........TT.......TT...r........TT.............TT.####
-###...........tt...........tt.......tt...r........tt.............tt.####
-###.....q444q........w555w........--.....r..........................####
-###.....qqqqq........wwwww.^^.....--.....r.......^^.^^.......^^.....####
-###.....11111........22222.TT..,,,--.OOO.=.......TT.TT.......TT.....####
-###.....11D11........22D22.tt..,,,--.ooo.=.......tt.tt.......tt.....----
-###.^^........^^...............,,,--.ooo.r.....FFFGGGGG..^^.ssssssss----
-###.TT........TT.UU.........mmm,,L--L....r...............TT.~~~~~~~s####
-###.tt........tt.uu.........mmm..l--l....r...............tt.~~~~~~~s####
-##################################--####################################
-##################################--####################################
+###GGGGGGGGGGGGGG##################--###########################################
+###GGGGGGGGGGGGGG##################--#####GGGGGGGGGGGGGG########################
+###GGGGGGGGGGGGGG##GGGGGGGGGGGGGG##--#####GGGGGGGGGGGGGG########################
+###GGGGGGGGGGGGGG##GGGGGGGGGGGGGG##--#####GGGGGGGGGGGGGG####GGGGGGGGGGGGGG######
+###GGGGGGGGGGGGGG##GGGGGGGGGGGGGG##--#####GGGGGGGGGGGGGG####GGGGGGGGGGGGGG######
+###GGGGGGGGGGGGGG##GGGGGGGGGGGGGG##--#####GGGGGGGGGGGGGG####GGGGGGGGGGGGGG######
+####yyyyyyyyyyyy###GGGGGGGGGGGGGG##--#####GGGGGGGGGGGGGG####GGGGGGGGGGGGGG######
+####yyYYYYYYYYyy###GGGGGGGGGGGGGG##--######yyyyyyyyyyyy#####GGGGGGGGGGGGGG######
+####yYYYJJJJYYYy####yyyyyyyyyyyy###--######yyYYYYYYYYyy#####GGGGGGGGGGGGGG######
+####yYYYJJJJYYYy####yyYYYYYYYYyy###--######yYYYJJJJYYYy######yyyyyyyyyyyy#######
+####yyyYYYYYYyyy####yYYYJJJJYYYy###--######yYYYJJJJYYYy######yyYYYYYYYYyy#######
+####yyyyyRRyyyyy####yYYYJJJJYYYy###--######yyyYYYYYYyyy######yYYYJJJJYYYy#######
+####yyyyyzzyyyyy####yyyYYYYYYyyy###--######yyyyyRRyyyyy######yYYYJJJJYYYy#######
+####yyyyjzzjyyyy####yyyyyRRyyyyy###--######yyyyyzzyyyyy######yyyYYYYYYyyy#######
+####yyyyjzzjyyyy####yyyyyzzyyyyy###--######yyyyjzzjyyyy######yyyyyRRyyyyy#######
+########jzzj########yyyyjzzjyyyy###--######yyyyjzzjyyyy######yyyyyzzyyyyy#######
+########jzzj########yyyyjzzjyyyy###--##########jzzj##########yyyyjzzjyyyy#######
+########jzzj############jzzj#######--##########jzzj##########yyyyjzzjyyyy#######
+##......jzzj............jzzj.......--..........jzzj..............jzzj.........##
+##......jzzj............jzzj.......--..........jzzj..............jzzj.........##
+##......!zz!............jzzj.......--..........jzzj..............jzzj.........##
+##......!zz!............jzzj.......--..........!zz!..............jzzj.........##
+##......!zz!............jzzj.......--..........!zz!..............jzzj.........##
+##......................!zz!.......--..........!zz!..............jzzj.........##
+##......................!zz!.......--............................jzzj.........##
+##......................!zz!.......--............................!zz!.........##
+##.................................--............................!zz!.........##
+##.................................--.......ppppp................!zz!.........##
+##...............xxxxx.............--.......ppppp.............................##
+##...............xxxxx.............--.......PPPPP.............................##
+##...............XXXXX............----......PPDPP......................TT.....##
+##...............XXDXX..,,,.......----.................................tt.....##
+##......................,,,........--.........................................##
+##.................................--...........,,,...........................##
+##........................TT.......--...........,,,...........................##
+##........................tt.......--.........................................##
+##.............,,,.................--................................,,,......##
+##.............,,,..........UU.....--.........TT.....................,,,......##
+##.......qqqqq..............uu.....--.........tt..............wwwww...........##
+##.......qqqqq..............uL.....--.........................wwwww...........##
+##.......11111...............l.....--.......L.................22222...........##
+##.......11D11................-------------.l...........L.....22D22...........##
+##............................------OOO----.............l.....................##
+##...................---------------ooo-----------------------------------------
+##...................---------------ooo--------L--------------------------------
+##................L..--...L...-------------....l..............................##
+##................l..--...l........--.......................TT................##
+##..........-----------............--.mmm.........iiiii.....tt................##
+##..........-----------............--.............iiiii.,,,...................##
+##......TT.....TT..........,,,.....--.............IIIII.,,,...................##
+##......tt.....tt..........,,,.....--.............IIDII.......................##
+##.................................--.........................................##
+##.................................--.........................................##
+##.................................--.........................................##
+###################################--###########################################
+###################################--###########################################

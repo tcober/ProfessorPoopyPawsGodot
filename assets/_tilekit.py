@@ -35,6 +35,15 @@ OUTDIR = os.path.join(HERE, "tilesets")
 # ---- shared materials: one house, one hardware store -------------------------------
 TIMBER = ramp((146, 94, 62), "violet", 6)     # furniture wood
 BRASS = ramp((240, 188, 98), "violet", 4)
+# BRASS WITH HONEST DARKS, hand-pinned — the SACKR precedent. `ramp()`'s violet
+# shadow law swings a warm seed straight past brown, and on this one it overshoots
+# into the paint: BRASS[2] and BRASS[3] resolve to (246,28,26) and (216,0,109), pure
+# RED and MAGENTA. Two tones of brass is enough for a hinge or a stud, which is why
+# the law in the art-pipeline skill says "brass is 0/1 only" — but anything ROUND
+# needs a shading ramp, and the town fountain's alembic finial spent its life as a
+# magenta blob on a stone plinth for exactly this reason. Use this for those.
+BRASSD = ((242, 223, 167, 255), (240, 188, 98, 255),
+          (186, 134, 62, 255), (132, 88, 44, 255))
 STEEL = ramp((170, 168, 206), "violet", 4)
 COPPER = ramp((198, 112, 72), "violet", 6)
 IRON = ramp((104, 100, 124), "violet", 4)

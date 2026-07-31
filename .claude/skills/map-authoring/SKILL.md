@@ -176,12 +176,78 @@ that is the proof it is shared rather than forked.
 - The bluff's north drop is the other answer: a 1-row authored cliff-LIP band (ragged
   sunlit brow + dark crevice line, three salted 16×16 variants).
 
-## STACKED WALKABLE STOREYS — the strata kit (2026-07-29, four storeys 2026-07-30)
+## STACKED WALKABLE STOREYS — the strata kit (2026-07-29, RING ISLANDS 2026-07-30)
 
-Alembic Town has **four storeys in one 72×48 grid**: the Academy's stone terrace,
-the HOMES in the crowns (`canopy_hi`), the PUBLIC TOWN on the low boardwalk
-(`canopy_lo`), and the forest floor. Full statement: **docs/DESIGN.md → "STACKED
+Alembic Town is a **forest-floor village with four great trees** in one 80×56 grid.
+The town is on the ground; each tree carries a round **ring deck** near its crown —
+one walkable stratum island apiece, reached by a rope ladder, with a door and a lit
+window cut into the trunk.
+
+**THE CANOPY IS NOT A FLOOR, IT IS ISLANDS.** The build before this one made both
+canopy storeys continuous boardwalk edge to edge and rendered as horizontal stripes
+of plank and fascia — a lumber yard. The references read from the VOID between the
+platforms, not from the platforms. Full statement: **docs/DESIGN.md → "STACKED
 WALKABLE STOREYS"**. What you need at the keyboard:
+
+**A ROUND PLATFORM'S WALKABLE CELLS ARE DERIVED, NEVER AUTHORED (2026-07-30).** The
+ring's disc is drawn from `_tree_props.ring_geom`; `ring_cells` rasterizes the *same*
+ellipse into a cell mask and `_alembic.assert_all` checks the map against it.
+Hand-guessed masks drift, and this one drifted badly: two whole columns of drawn deck
+were solid at each pole, so **the widest rows of the disc were the narrowest rows you
+could walk** — the inverse of a circle, felt as an invisible wall following the rim the
+whole way round. Nothing catches it, because a cell that looks like deck and stops you
+looks exactly like a cell you have not reached yet.
+
+**THE TEST IS THE BODY'S 12×8 BOX AT ALL FOUR CORNERS, NOT THE CELL'S CENTRE, AND NOT
+COVERAGE — because the overhang is DIRECTIONAL and no single radius can express it.**
+Row 4 col 2 is at `o = 0.65`, comfortably inside anything you would call the rim, and a
+body there has its west foot off the platform: its feet are 10px *south* of its centre
+and the arc has already curved away. Row 1 col 1 is at `o = 0.88`, far worse by radius,
+and is fine — on the top half of an ellipse those same 10px point further *in*. Any
+single limit either keeps the first or throws away the second.
+
+**Aim at the RIM BOARD (`o ≤ 0.90`), not the outer edge.** The rim is the deck's finished
+lip and the handrail stands just outside it; walking to `o ≤ 1.0` puts a body at the
+poles standing *on* the rim with the rail between its ankles.
+
+**A ROUND PLATFORM GETS NO FACE BAND AND NO `mask_band` (2026-07-30).** The terrace kit
+re-draws a face's top 12px over a body pressed south into it, and the ring asked for one
+on its fascia cells. It shipped as a **16×12 slab of deck planking drawn over anything
+standing on the row above** — a body cropped to the head, one either side of the ladder,
+which is exactly where the eye goes.
+
+The reason is geometric, not a tuning error, and it generalises: **`mask_band` is only
+correct where the walkable row ENDS at the face.** On a terrace it does, so your sunk
+feet are over the wall and the crest has to come back over them. The ring's deck stops a
+whole row north of where the arc begins, so a body pressed south there overhangs onto
+**more deck** and there is nothing to swallow — and the strip, copied from the run's top
+row, was floor rather than face. A crescent painted inside one sprite is not a run of
+band cells; don't type one. Before adding a band to any curved platform, show that a body
+can actually press against the face.
+
+**A RAIL IS NOT DECKING AND IT IS NOT UPPER-LAYER PAINT EITHER.** Baked with the deck,
+every body draws *over* the handline — you stand on it like a kerb. The upper layer is
+the other obvious home and it is wrong the other way: that layer is for art a body may
+never poke out of, so `_check_art`'s corridor cap demands the silhouette continue north
+of every walkable cell it covers, and a rail is two pixels of hemp you are *meant* to be
+seen over. Emit the **near arc as a Tier-3 prop** keyed at the block's south edge (every
+walkable cell is north of it, so it always draws in front) and leave the **far arc
+baked**, because that one is behind you. A closed curve seen from the south wants
+opposite answers on its two halves and a single y-sorted sprite can only give one.
+
+Three more things that fall out of it, and each cost a regen to find:
+
+- **A walkable rim cell needs a terrain that renders the BACKGROUND, not the deck.** The
+  disc's curve crosses those cells, so their art is part deck and part transparent; a
+  `deck` underlay fills the leftover corner with plank fabric and squares the circle back
+  off. `R`/`y` are one terrain (`ringedge` → leaf) worn by a walkable char and a solid
+  one — the O/U/L twin idiom.
+- **Put every char the block is made of in the component set** (`RING_CHARS`), or
+  retyping the border breaks it into three islands and `place_each` stretches a sprite
+  over each.
+- **The disc may be drawn where a body may not stand.** The north tip lies under the
+  crown's 96–100% opaque heart, and `_check_art`'s walk-behind lint fails it in numbers.
+  That exception is explicit in the mask, not silently authored into the grid.
 
 **There is no elevation system.** A cell is one `(x,y)` with one walk/solid bit, so a
 body is never "on-bridge-or-under-bridge" — there is no cell *under* a bridge, the deck
@@ -235,10 +301,15 @@ gap every 4px and the whole boardwalk came out **brickwork**.
 rectangular cottages reads as a raised HIGH STREET. `tree_hut` is the treehouse building
 (Slitherbough / Ewok): a CONE over a woven BARREL on a PORCH, nested in a leaf mass,
 smaller than its footprint. See DESIGN.md for the four cues and why each is not optional.
+**It is a BOUGH building and only a bough building** — Alembic's three shops wore it on
+the forest floor for two days and read as tiki huts; on the ground they use
+`_town_props.town_shop`, which is the cottage's own envelope with an awning. The rule
+under both: a building belongs to the storey it stands on.
 
 **AND THE TRUNKS MATTER MORE THAN EITHER (2026-07-30).** Author the trunks FIRST and
 hang the town in the bays between them; a boardwalk sprinkled with trunks afterwards is
-how the high street happened. Five great trees, each a **5-column channel** whose solid
+how the high street happened. Four great trees — five across a map this wide reads
+as a colonnade — each a **12-column block** whose solid
 footprint is only the middle 3 — so the deck closes on all four sides and **you walk the
 full circle round every tree, passing behind it**, on every storey. That ring is the
 most recognisable thing about both references, and it is why a channel is 5 wide (a
@@ -270,6 +341,24 @@ no code. It also turns a 4-row wall into a 1-row obstacle.
 edge-to-edge now FUSE into one component and one stretched sprite. So
 `_gen_tileset_lanternwood.py` asserts every component is a clean 2×4 with exactly its
 bottom row solid.
+
+## A prop's terrain names its UNDERLAY, not just its collision
+
+Every cell paints its terrain's render class as underlay before any art lands on it,
+so **a piece standing on paving needs a terrain whose class IS the paving.** Reuse
+`lamp` (which renders grass, correctly, because Alembic's lamps stand on grass) for a
+lamp in the middle of a stone court and you punch a **grass square through the court**.
+That defect shipped in Alembic's west lane, where a town tree stood on the road and
+left two grass holes in it, and it is why the Academy carries its own
+`courtlamp` / `rampart` / `gate` / `towerbody` / `orrery` / `orrerybase` names — all of
+them rendering `road`, all of them otherwise identical to pieces that already exist.
+
+**A CROSS-MAP WALL MUST REACH THE BORDER.** Stopping a rampart or a terrace band one
+cell short of the forest edge leaves a grass lane round the end of it, and then the
+gate is one of three ways in and the composition is gone. Nothing lints it by
+construction — the map renders, and `assert_reachable` is satisfied by EITHER hole — so
+assert it explicitly: collect the columns where every row of the wall is walkable and
+compare against the one gap you meant to author (`_gen_tileset_academy.py`).
 
 ## Walls, gates and reachability
 

@@ -217,7 +217,13 @@ TERRAIN_CLS = {
     # the town's depth kit: an authored cliff-column band over grass, a stair
     # flight that renders road so the lane ribbons connect through it, the
     # fountain on plaza paving, walk-behind trees (canopy walk / trunk solid)
-    "cliff": "grass", "stairs": "road", "fountain": "grass",
+    #  - `fountain` renders ROAD. It used to render grass, from when it stood on the
+    #    village green; the 2026-07-30 pass moved it into the PAVED festival square and
+    #    the terrain did not move with it, so it punched a three-cell GREEN LAWN through
+    #    the middle of the court — the same failure as the shops' plank raft, two lines
+    #    apart in this table. When a prop changes ground, its render class changes with
+    #    it; the basin art is opaque over its own cells either way.
+    "cliff": "grass", "stairs": "road", "fountain": "road",
     "treecanopy": "grass", "treetrunk": "grass",
     # THE CANOPY STRATUM (2026-07-29) — a treehouse town's plank boardwalk as a
     # second walkable STOREY in the same grid (see assets/_maps.py's `stratum:`
@@ -254,7 +260,11 @@ TERRAIN_CLS = {
     #    works char, so the drum pinches its landing without walling it off, and
     #    the struct band grounds the machine on the plaza south of it.
     "deck": "deck", "plank": "deck", "trunkstair": "deck",
-    "boughtop": "deck", "crown": "deck", "ropeladder": "deck",
+    "boughtop": "deck", "ropeladder": "deck",
+    # the great trees' crowns and the leaf bed a ring deck hangs in are
+    # LEAF, not boards — `crown` rendered "deck" back when it was the
+    # walkable canopy over a boardwalk
+    "crown": "forest", "ringedge": "forest",
     "deckedge": "grass", "plankedge": "grass",
     "bough": "forest",
     "greattrunk": "grass", "liftdrum": "grass",
@@ -265,7 +275,15 @@ TERRAIN_CLS = {
     #    radius is fixed by its height), so a good half of those cells shows the
     #    underlay, and grass showing through a plank deck reads as a hole in it.
     "hutroof": "deck", "hutbody": "deck",
-    "shoproof": "deck", "shopbody": "deck",
+    #  - ...and `shoproof`/`shopbody` render GRASS, because Alembic's three shops came
+    #    DOWN off the boardwalk in the forest-floor rebuild and their terrain did not
+    #    come with them. A hut sprite is deliberately narrower than its footprint (the
+    #    cone's radius is fixed by its height), so two of its five columns show the
+    #    underlay — and a `deck` underlay on the forest floor drew a hard tan
+    #    RECTANGLE OF BOARDWALK round every shop, five cells wide, which is what the
+    #    buildings were actually reading as: a flat plank box with a cone sitting on
+    #    the middle of it. Nothing was wrong with the hut. It was standing on a raft.
+    "shoproof": "grass", "shopbody": "grass",
     #  - the village NOTICE BOARD renders `deck` and is NOT a struct: it draws its
     #    own posts in the round and the generator bakes its contact band with
     #    bake_shadow(each=True), so a struct band here would double it.
@@ -278,6 +296,26 @@ TERRAIN_CLS = {
     # be reused: TERRAIN_CLS is one module-level dict shared by all four
     # OverWorld maps, and Alembic's terrace must stay grass-lipped.
     "snowcliff": "snow", "chasm": "snow", "trestle": "snow",
+    # THE ALEMBIC ACADEMY (2026-07-30, assets/maps/academy.txt). EVERY ONE OF
+    # THESE RENDERS `road`, AND THAT IS THE ENTIRE POINT OF THEM EXISTING. A
+    # cell paints its terrain's render class as UNDERLAY, so a piece standing on
+    # PAVING needs a name whose class is the paving — reuse `lamp` (which
+    # renders grass, correctly, because Alembic's lamps stand on grass) for a
+    # lamp in the middle of a stone court and it punches a grass square through
+    # the court. That exact defect shipped in Alembic's west lane, where a town
+    # tree stood on the road and left two grass holes in it.
+    "rampart": "road", "gate": "road", "towerbody": "road",
+    "orrery": "road", "orrerybase": "road",
+    "courtlamp": "road",
+    # the two wings stand on the LAWNS either side of the processional way
+    "wingroof": "grass", "wingbody": "grass",
+    # THE TWO GREAT TREES that flank the keep where a castle would put its corner
+    # towers. Same armature as Alembic's four (a 4-column trunk under a 14-column
+    # crown) with no ring, no door and no ladder — here they are not houses, they
+    # are the sides of the building. The crown renders `forest`, which is the same
+    # lobe lattice the map's own border is drawn from, so the two read as one wood
+    # coming into the precinct rather than as two potted plants.
+    "greatcrown": "forest", "courttrunk": "grass",
     # solid crest cells under a walk-behind prop's top rows (roof ridges,
     # crown tops): collision-only, renders plain ground — NEVER a struct
     # (a struct's shade band would peek through the upper art's silhouette)
@@ -301,7 +339,18 @@ STRUCT_TERRAIN = {"well", "lamp", "stall", "fence", "town", "tree", "boulder",
                   # a canopy building's contact shade lands on the BOARDS south of
                   # it, which is the cue that says the hut is standing ON the deck
                   # rather than pasted over it
-                  "hutbody", "shopbody"}
+                  "hutbody", "shopbody",
+                  # THE ACADEMY. The wall, the towers, the plinth, the lamp
+                  # posts and the wings all need the ground darkened at their
+                  # feet, or a precinct of masonry floats on its own paving.
+                  # `orrery` is deliberately absent: those are the WALKABLE
+                  # cells of the armillary's walk-behind crown, and a cell a
+                  # body stands in must never also cast a wall's shadow.
+                  # (`courtlamp` is shared by the post and its walkable head,
+                  # exactly as the town's `lamp` is — the head's band lands on
+                  # the post below it and is covered by the post's own art.)
+                  "rampart", "towerbody", "orrerybase", "courtlamp",
+                  "wingbody", "courttrunk"}
 # NOTE `berth` is deliberately absent: a contact shadow is a thing the ground
 # gets, and the launch's footprint is water.
 
@@ -1382,6 +1431,62 @@ class OverWorld(TileScene):
         Wobble is keyed to the shared EDGE (both cells compute the same
         offset), so ribbons meet exactly at tile lines; corner turns round
         off through the drift point instead of a square L."""
+        # ---- THE WIDE-ROAD FILL (2026-07-30) ----------------------------------
+        # Everything below this branch draws a ~5px RIBBON from edge to edge, which
+        # is a TRAIL: exactly right for a one-cell lane and wrong for anything
+        # wider. A TWO-cell lane gives every cell an N-S ribbon plus a stub
+        # sideways, and the stubs meet across the shared edge into RUNGS — the road
+        # reads as a rope ladder lying on the ground. A plaza of road cells comes
+        # out as a LATTICE of thin paths with verge showing through every hole.
+        # Both of those shipped, in both towns, for as long as there have been
+        # roads; it only became obvious when Alembic got a market square.
+        #
+        # A cell is WIDE when it belongs to a 2x2 BLOCK of road — itself, two
+        # orthogonal neighbours and the diagonal between them. That is the honest
+        # definition of "wider than a trail", and the first version of this test
+        # ("runs straight through on one axis and continues on the other") was not:
+        # it needs road on BOTH sides of an axis, so it is false at every END of a
+        # wide road. A 3x2 lane stub therefore filled its middle column and drew its
+        # four corner cells as ribbons — leaving a square of VERGE showing through
+        # the middle of the road where the four L-bends failed to meet, which looks
+        # exactly like a hole punched in the map.
+        #
+        # A one-cell trail still has no 2x2 anywhere, and neither does a stair-step
+        # diagonal (the cell across the step is grass), so every thin lane on the
+        # overworld and in Lanternwood renders byte-identically. That is asserted by
+        # regenerating them: if those tilesets change, this rule got too greedy.
+        wide = any(conn & a and conn & b and conn & d
+                   for a, b, d in ((N, E, NE), (E, S, SE), (S, W, SW), (W, N, NW)))
+        if wide:
+            # the verge boundary wobbles per column/row so a long road edge is not
+            # a ruled line, and it is keyed on the cell's own coords so the two
+            # cells either side of it stay independent (nothing spans this edge)
+            bN = 2 + (tx * 5 + ty * 3) % 2
+            bS = 13 - (tx * 7 + ty * 3) % 2
+            bW = 2 + (tx * 3 + ty * 5) % 2
+            bE = 13 - (tx * 3 + ty * 7) % 2
+            for v in range(T):
+                for u in range(T):
+                    edge_d = 99
+                    if not conn & N:
+                        edge_d = min(edge_d, v - bN)
+                    if not conn & S:
+                        edge_d = min(edge_d, bS - v)
+                    if not conn & W:
+                        edge_d = min(edge_d, u - bW)
+                    if not conn & E:
+                        edge_d = min(edge_d, bE - u)
+                    if edge_d < 0:
+                        c = self._px_verge(u, v)
+                    elif edge_d < 1:
+                        c = self.ROAD[3]                   # the trodden edge line
+                    elif edge_d < 2 and h2(u, v, 77) % 3 == 0:
+                        c = self.ROAD[2]                   # crumbs into the verge
+                    else:
+                        c = self._px_road(u, v)            # packed-earth core
+                    self.bg.put(X + u, Y + v, c)
+            return
+
         wN = (tx * 5 + ty * 3) % 3 - 1
         wS = (tx * 5 + (ty + 1) * 3) % 3 - 1
         wW = (tx * 3 + ty * 5) % 3 - 1

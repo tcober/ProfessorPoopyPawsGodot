@@ -26,7 +26,7 @@ probe, or a `tools/shot.gd` screenshot.
 | `tools/defence_probe.gd` | 32 | the kit→battle chain, and the south gate held during it |
 | `tools/motion_probe.gd` | 47 | **THE MOTION + THE CROSSING** — Mayor Hollis as a three-state fixture, the beat's flags and party lock, idempotence, the pier refusing then casting off, the west-shingle landing. Its most valuable check is geometric: a mayor is a solid 12×8 body, so it BFSes the walkable graph with his cell removed and proves he cannot seal the pier, then walks a body down the harbour lane for real to prove the graph isn't lying |
 | `tools/muzzle_probe.gd` | 30 | a projectile is never born inside a wall — both axes |
-| `tools/lift_probe.gd` | 8 | **THE DINGHY LIFT** — Alembic's one machine, and the one place the two walkable storeys are joined by CODE rather than by authoring. Checks everything `assert_lift` cannot see: that the ride crosses strata both ways, carries the follower, does not re-fire under the body it just deposited, and REFUSES OUT LOUD when the scene is busy. Its two setup lessons are reusable: wait out `TravelScene`'s `ENTRY_LOCK` before teleporting onto any zone (an entry fired inside it is swallowed and Godot never re-fires one), and step a body OFF a landing before testing a re-entry, because the ride lands ON the destination anchor by the door convention |
+| `tools/academy_probe.gd` | 12 | **THE ALEMBIC ACADEMY** — the precinct north of Alembic Town. The generator already asserts the composition on the walkable graph; this covers everything that needs a BODY: the round trip in both directions (the two halves are wired in different files), a 12×8 box actually fitting through the two-cell gate between the drum towers, every marker standing on walkable ground, and — the one that caught something — the spawn not sitting inside its own exit trigger, which reads exactly like a scene that failed to load |
 | `tools/party_probe.gd` | — | brain moods, no in-view pops, settle distances, and **phase 3: the leash ACROSS A FASCIA** — the one genuinely new systems risk in a stacked map. It checks the follower's STRATUM, not the distance: the distance passes even when the follower is stuck directly below the leader against the boardwalk |
 | `tools/overlay_probe.gd` | — | the paused-modal stack |
 | `tools/status_shot.gd` | — | poses the status tells and the mixing bench for eyeballing |
@@ -66,6 +66,16 @@ Eyeball any scene without launching the game. Args:
    Any action you want testable must be **POLLED** (`Party` polls `swap_member` in
    `_process`).
 
+4b. **NEVER MOVE A PARTY MEMBER BY ASSIGNING `velocity`.** It is a silent no-op: a
+   `PartyMember` re-derives its velocity from an Intent EVERY physics frame
+   (`_gather_intent()` reads the Input axes, `_process_move()` writes `velocity`), so
+   an assignment made before `await physics_frame` is overwritten before
+   `move_and_slide` ever sees it. `academy_probe` reported "moved 0 px" through a
+   perfectly walkable gate, and `zwalk`'s NOTCH family spent its whole life seated in
+   the middle of its cell instead of at the corner. Drive with **polled input**
+   (`Input.action_press`), or with **geometry** — teleport a few px INTO the face and
+   let depenetration seat the body flush, which is what zwalk does now.
+
 5. **An input-polling coroutine on `process_frame` must LEVEL-detect**
    (`is_action_pressed` + a latch), never `is_action_just_pressed` — the frame signal can
    beat the same-frame press. This killed the crank mash.
@@ -88,7 +98,15 @@ Eyeball any scene without launching the game. Args:
    zone before the button fires. Probes teleport, settle, zero `velocity`, and re-park.
 
 10. **A location zone is a 16×12 rect on its anchor**, so an `anchor + (0,40)` teleport
-    lands OUTSIDE it. (That offset belongs to `town_thesis`'s separate dash GOAL area.)
+    lands OUTSIDE it. A probe that has to land on an area the SCENE builds in code must
+    **read that geometry off the live scene**, never re-type the number — the dash goal
+    in `town_thesis` moved from +40 to +24 in the Alembic rebuild, the probe kept its own
+    copy of +40, and a body whose 12×8 collision box sits 10px below the rect never fires
+    `body_entered`. Two checks went red and nothing in the log said why, because nothing
+    had gone wrong: the beat was simply waiting for a body that was standing just south
+    of the finish line. `town_thesis.DASH_GOAL_OFF` / `DASH_GOAL_SIZE` exist for exactly
+    this, and reading a const off an instantiated scene is safe (gotcha 13 forbids
+    `preload`ing the script, not touching the live node).
 
 11. **A walk-gate must be driven by teleporting to the anchor**, like every other gate —
     a mash alone just makes Fuji swing her tome in place.

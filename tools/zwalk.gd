@@ -36,12 +36,19 @@ extends SceneTree
 ## ADD `lint` AND IT MEASURES INSTEAD OF PHOTOGRAPHING:
 ##
 ##   /Applications/Godot.app/Contents/MacOS/Godot --path . \
-##       --script tools/zwalk.gd -- res://scene/alembic_town.tscn /tmp/z lint
+##       --script tools/zwalk.gd -- res://scene/alembic_town.tscn /tmp/z lint [debug]
 ##
 ## Contact sheets work and they do not SCALE — a four-storey town derives ~300
 ## spots and nobody looks at the 290th as hard as the first. `lint` recovers the
 ## body's visible silhouette at every spot and asserts on it, exit code 1 on any
 ## finding. See _lint_all() for the method and for what each family asserts.
+## `debug` prints the body / camera / window arithmetic for every capture.
+##
+## IT MUST BE DETERMINISTIC OR IT IS WORTHLESS, and for one day it was not: three
+## identical runs over an unchanged town reported 8, 91 and 3 findings. A gate that
+## answers differently every time trains you to ignore it, which is strictly worse
+## than having no gate. Both causes were the harness measuring ITSELF —
+## `_pin_pose()` and `_hard_camera()` carry the post-mortems.
 ##
 ## The two things it caught the day it was written, both in a town whose whole
 ## probe suite was green:
@@ -49,7 +56,8 @@ extends SceneTree
 ##      wall and awaiting the frame lets the solver push it back out, so every
 ##      one of the 111 `pressed` spots sat SIX PIXELS shy of the face it was
 ##      supposed to be flush against — the mask-band case was never once tested.
-##      Fixed by seating with real velocity and reporting the settled delta.
+##      The first fix drove it there with velocity, which turned out to be a
+##      NO-OP for a reason worth knowing; see _spot() for both halves.
 ##   2. A WALKABLE CELL UNDER AN OPAQUE TRUNK SHAFT IS AN INVISIBLE BODY. Alembic's
 ##      great tree carried a walkable `J` crown over its footprint's top rows; the
 ##      trunk sprite is y-sorted at the FOOT, so it draws over everything north of
@@ -62,8 +70,8 @@ const CROP := 96           ## px of game view per cell of the contact sheet
 const COLS := 6            ## cells per contact-sheet row
 const SETTLE := 6          ## frames to let the camera snap and the body settle
 const MAX_PER_SHEET := 36
-const PUSH_SPEED := 40.0    ## px/s held during the seat pass — enough to close a
-                            ## few px against a face, slow enough not to overshoot
+const SEAT := 6.0           ## px the requested spot is BIASED toward the face this
+                            ## family wants the body seated against — see _spot()
 const WIN := 64            ## game px of the occlusion window around the body
 const DIFF := 24           ## per-channel delta that counts as "different pixel"
 
@@ -74,6 +82,7 @@ var _masks: Array = []      ## the props manifest's `mask` rects — see _read_m
 var _prop_box: Array = []   ## Tier-3 art rects + sort keys — see _read_prop_boxes()
 var _ref := {}              ## the body's UNOCCLUDED silhouette, measured in the open
 var _fails: Array = []
+var _debug := false
 
 
 func _initialize() -> void:
@@ -93,6 +102,8 @@ func _run() -> void:
 	for i in range(2, args.size()):
 		if args[i] == "lint":
 			_lint = true
+		if args[i] == "debug":
+			_debug = true
 		if args[i].begins_with("beat:"):
 			var table: GDScript = load("res://scene/chapters.gd")
 			var b: Dictionary = table.BEATS[int(args[i].split(":")[1])]
@@ -162,12 +173,6 @@ func _lint_all(families: Dictionary) -> void:
 	var party := root.get_node("Party")
 	var body: Node2D = party.leader
 	var sprite := _sprite_of(body)
-	# PIN THE POSE. The idle cycle would otherwise change the silhouette between
-	# the reference measurement and the spots, and a two-frame idle is easily 20px
-	# of difference — which is the same order as the artefacts being hunted.
-	sprite.animation = "idle_down"
-	sprite.frame = 0
-	sprite.pause()
 	# HIDE EVERY OTHER PARTY BODY for the whole run. The follower walks toward the
 	# leader between captures, and its pixels would land in the window as noise.
 	for m in party.members:
@@ -185,6 +190,7 @@ func _lint_all(families: Dictionary) -> void:
 		for spot: Dictionary in families[name]:
 			var got := await _silhouette(body, sprite, spot)
 			_judge(name, spot, got)
+	_drop_pass_behinds()
 	print("\n=== %d finding(s)" % _fails.size())
 	for f in _fails:
 		print("  ", f)
@@ -192,20 +198,16 @@ func _lint_all(families: Dictionary) -> void:
 
 ## Seat the body and recover its visible silhouette, in game px relative to its
 ## own origin. `spot` may be a plain {"pos","push"} or a full family spot.
-func _silhouette(body: Node2D, sprite: Node2D, spot: Dictionary) -> Dictionary:
+func _silhouette(body: Node2D, sprite: AnimatedSprite2D, spot: Dictionary) -> Dictionary:
+	body.set_physics_process(true)
 	for f in SETTLE:
 		body.global_position = spot["pos"]
 		body.velocity = Vector2.ZERO
 		await physics_frame
-	for f in SETTLE:
-		body.velocity = spot.get("push", Vector2.ZERO)
+	for f in SETTLE:                    # ...then let the solver seat it, unheld
 		await physics_frame
-	body.velocity = Vector2.ZERO
-	var cam: Camera2D = null
-	for c in body.get_children():
-		if c is Camera2D:
-			cam = c
-	cam.reset_smoothing()
+	_pin_pose(body, sprite)
+	var cam := _hard_camera(body)
 	await process_frame
 	var view := MapData.view_size()
 	var scale := 0.0
@@ -219,6 +221,10 @@ func _silhouette(body: Node2D, sprite: Node2D, spot: Dictionary) -> Dictionary:
 			scale = float(frame.get_width()) / view.x
 			var on_screen: Vector2 = (body.global_position
 					- cam.get_screen_center_position() + view * 0.5) * scale
+			if _debug:
+				print("      DBG body=%s cam=%s on_screen=%s"
+						% [body.global_position, cam.get_screen_center_position(),
+						on_screen])
 			var half := int(WIN * scale * 0.5)
 			rect = Rect2i(Vector2i(on_screen) - Vector2i(half, half),
 					Vector2i(half * 2, half * 2)).intersection(
@@ -261,9 +267,112 @@ func _silhouette(body: Node2D, sprite: Node2D, spot: Dictionary) -> Dictionary:
 			"empty": n == 0}
 
 
+## KILL THE CAMERA'S SMOOTHING OUTRIGHT — `reset_smoothing()` is not enough, and
+## trusting it was the second half of the nondeterminism.
+##
+## Every measurement here is made in a window CENTRED ON THE BODY, and where that
+## window sits is computed from `cam.get_screen_center_position()`. So a camera that
+## has not arrived does not merely frame the shot loosely: it slides the window, and a
+## silhouette measured 4px high in the window is reported as a body whose head is
+## clipped by 4px. That is exactly the artefact this lint hunts, manufactured by the
+## harness.
+##
+## And the residual is not a constant, so it does not cancel between the reference and
+## the spots. Measured across two identical runs, the reference frame was teleported to
+## the same pixel both times and the camera sat at (298.5, 422.2) in one and
+## (297.8, 421.2) in the other — still chasing, from a different distance, because the
+## number of idle frames that had elapsed is wall-clock, not frame count (gotcha 3: an
+## occluded window runs uncapped). Same body, same map, different answer.
+##
+## With `position_smoothing_enabled = false` the camera IS the body, clamped to its
+## limits, and `get_screen_center_position()` is exact on the frame it is read.
+func _hard_camera(body: Node2D) -> Camera2D:
+	var cam: Camera2D = null
+	for c in body.get_children():
+		if c is Camera2D:
+			cam = c
+	assert(cam != null, "the body has no Camera2D — nothing to frame the crop on")
+	cam.position_smoothing_enabled = false
+	cam.reset_smoothing()
+	return cam
+
+
+## FREEZE THE BODY IN ONE CANONICAL POSE, IMMEDIATELY BEFORE THE CAPTURE — and this
+## is what made the lint NONDETERMINISTIC (three identical runs reported 8, 91 and 3
+## findings). Pinning the pose once, up front, cannot work: `_process_move` calls
+## `_play_directional(...)` EVERY PHYSICS FRAME, and `AnimatedSprite2D.play()` on the
+## clip already showing resumes it. So the first seat pass un-paused the sprite and
+## every spot afterwards was photographed at whatever frame the idle cycle happened to
+## have reached — wall-clock, not frame count, because an occluded window's frames are
+## not its seconds.
+##
+## Worse, and systematic rather than random: `push` is a direction, so the body FACES
+## the way each family seats it. The reference is measured standing still (idle_down),
+## so `below` (pushed north) was comparing a back view against a front view, `notch` a
+## side view, and the props family all four. The head and foot lines of those clips do
+## not agree to the pixel, and `_judge` reads a 2px disagreement as a clipped head.
+##
+## One pose for the reference and every spot makes the comparison mean what it says:
+## the ONLY difference between the two silhouettes is what the scene drew over the
+## body. Physics is switched off with it so nothing can re-drive the clip between the
+## pin and the three captures — the seat is already finished by then, and `_silhouette`
+## switches it back on before the next spot.
+func _pin_pose(body: Node2D, sprite: AnimatedSprite2D) -> void:
+	body.set_physics_process(false)
+	sprite.animation = "idle_down"
+	sprite.set_frame_and_progress(0, 0.0)
+	sprite.flip_h = false
+	sprite.pause()
+
+
 func _far(p: PackedByteArray, q: PackedByteArray, o: int) -> bool:
 	return (absi(p[o] - q[o]) > DIFF or absi(p[o + 1] - q[o + 1]) > DIFF
 			or absi(p[o + 2] - q[o + 2]) > DIFF)
+
+
+## THE PASS-BEHIND EXEMPTION, and it must agree with _check_art.py's rule exactly:
+## two tools disagreeing about the same cell is how a real defect hides behind a
+## green lint. Vanishing is NOT the defect — walking fully behind a great tree is
+## the effect Alembic is built for, and Basil's hall flee is staged behind a
+## curtain leg on purpose. Vanishing LONG ENOUGH TO GET LOST is: what the boardwalk
+## town shipped was a ring deck running clear under an opaque shaft, every cell of
+## the crossing invisible, no way over that did not leave the player gone.
+##
+## So the test is the length of the hidden RUN along a row: up to two cells is a
+## step you pass through. Applied here as a post-pass over the findings rather than
+## inside _judge, because a spot cannot know whether its NEIGHBOURS came out blank
+## until they have all been captured.
+func _drop_pass_behinds() -> void:
+	var dark := {}                       # Vector2i -> the finding's index
+	var rx := RegEx.new()
+	rx.compile("(\\d+),(\\d+) — THE BODY IS INVISIBLE")
+	for i in _fails.size():
+		var m := rx.search(_fails[i])
+		if m != null:
+			dark[Vector2i(int(m.get_string(1)), int(m.get_string(2)))] = i
+	var keep: Array = []
+	for i in _fails.size():
+		var cell: Vector2i = Vector2i(-1, -1)
+		for c: Vector2i in dark:
+			if dark[c] == i:
+				cell = c
+		if cell.x < 0:
+			keep.append(_fails[i])
+			continue
+		var run := 1
+		var d := 1
+		while dark.has(Vector2i(cell.x - d, cell.y)):
+			run += 1
+			d += 1
+		d = 1
+		while dark.has(Vector2i(cell.x + d, cell.y)):
+			run += 1
+			d += 1
+		if run <= 2:
+			print("    pass-behind (run of %d): %s" % [run, _fails[i]])
+			continue
+		keep.append(_fails[i])
+	_fails = keep
 
 
 func _judge(family: String, spot: Dictionary, got: Dictionary) -> void:
@@ -280,16 +389,29 @@ func _judge(family: String, spot: Dictionary, got: Dictionary) -> void:
 		"pressed":
 			# The strip covers run_top..run_top+11 and the seated body's origin is
 			# run_top-10, so a masked body must lose its bottom ~11 rows.
+			#
+			# A MANIFEST STRIP IS NOT THE ONLY LEGAL WAY TO COVER AN OVERHANG, so the
+			# three non-leak outcomes are reported as themselves rather than lumped
+			# under one line. There are exactly three things that can eat those 11px:
+			# a Tier-3 mask strip (in the manifest, `mask_band`), the `_eave_lift`
+			# UPPER-LAYER band a building facade mirrors onto itself, and ordinary
+			# Tier-3 prop art sorting above the body. Only the first is in the
+			# manifest, so `masked` says nothing about the other two — which is why an
+			# unmasked face reading as covered is a note and not a finding.
 			var masked: bool = spot.get("masked", false)
 			if masked and foot > -4 and not by_prop:
 				_fails.append(("pressed  %s — MASK LEAK: a strip covers this face "
 						+ "but the body still draws %d px past its own foot line "
 						+ "(lost only %.0f%%)") % [label, foot + 21, pct])
-			elif not masked and foot <= -4 and not by_prop:
-				print("    note: %s reads as masked but no manifest strip covers it"
+			elif not masked and foot <= -4:
+				print("    covered without a manifest strip (eave-lift or prop art): %s"
 						% label)
-			elif not masked:
-				print("    unmasked face (deliberate at the lift gate): %s" % label)
+			elif not masked and not by_prop:
+				# The overhang is genuinely uncovered. Legal — a flat-topped 2-row run
+				# with no vertical face art has nothing to leak past — so it is a note.
+				# It is printed because a face that GREW art and never gained a band
+				# looks exactly like this, and nothing else in the suite would say so.
+				print("    bare face, overhang uncovered: %s" % label)
 		"below", "notch":
 			# ONLY THE HEAD. A notch cell is, by the way zwalk derives it, ALWAYS
 			# also the cell on top of the NEXT run down — the step is what makes it
@@ -571,14 +693,26 @@ func _pick(x0: int, n: int) -> Array:
 	return out
 
 
-## One photographed position. `push` is the VELOCITY held for the second settle
-## pass — the direction this family wants the body seated against, so the physics
-## solver decides the final pixel instead of the author guessing it. A press that
-## the solver never actually completed is a test of nothing, which is how the
-## PRESSED family sat six pixels shy of every wall in the first pass.
+## One photographed position, BIASED toward the face this family wants the body
+## seated against. The solver then decides the final pixel: the requested spot puts
+## the collision box a few px inside the wall, depenetration pushes it back out, and
+## what it lands on is flush by construction rather than by the author's arithmetic.
+##
+## IT USED TO SET `velocity` FOR A FEW FRAMES INSTEAD, AND THAT WAS A NO-OP. A
+## PartyMember re-derives its velocity from an Intent EVERY physics frame —
+## `_gather_intent()` reads the Input axes (all zero under a --script tool),
+## `_process_move()` writes `velocity` — so an assignment made before
+## `await physics_frame` is overwritten before move_and_slide ever sees it. The
+## PRESSED family happened to be seated correctly anyway, by luck: a body teleported
+## to a cell's CENTRE already overlaps the solid cell south of it by 2px, because the
+## box bottom sits at origin+10 in a 16px cell. The NOTCH family did not — its whole
+## point is a body at the sideways CORNER of its cell, and it was sitting in the
+## middle of it, testing nothing. Same class of bug as tools/academy_probe.gd's
+## "moved 0 px": drive a body with polled input or with geometry, never by writing
+## velocity at it.
 func _spot(tx: int, ty: int, push: Vector2, label: String) -> Dictionary:
-	return {"pos": Vector2(tx * 16 + 8, ty * 16 + 8),
-			"push": push * PUSH_SPEED, "label": label}
+	return {"pos": Vector2(tx * 16 + 8, ty * 16 + 8) + push.normalized() * SEAT,
+			"push": push, "label": label}
 
 
 ## The chars named by the scene's Tier-3 props manifest — the y-sorted art whose
@@ -637,10 +771,10 @@ func _sheet(path: String, spots: Array) -> void:
 	if not is_instance_valid(body):
 		push_error("the leader was freed — a trigger fired mid-walk")
 		return
-	var cam: Camera2D = null
-	for c in body.get_children():
-		if c is Camera2D:
-			cam = c
+	# same smoothing kill as the lint: a lagging camera slides every crop off the
+	# body, and a contact sheet whose cells are not where the caption says they are
+	# is worse than no contact sheet
+	var cam := _hard_camera(body)
 	var view := MapData.view_size()
 	var rows := int(ceil(float(spots.size()) / COLS))
 	var sheet: Image = null
@@ -657,17 +791,17 @@ func _sheet(path: String, spots: Array) -> void:
 		# a nudge, the settled spot is the truth, and the two differ by however far
 		# the solver pushed. `PRESSED` in particular is only testing the mask-band
 		# case if the settled box bottom ends up ON the run's top edge — which is
-		# why the delta is printed rather than assumed. See _press_to().
+		# why the delta is printed rather than assumed. See _spot().
 		for f in SETTLE:
 			body.global_position = spot["pos"]
 			body.velocity = Vector2.ZERO
 			await physics_frame
-		# Now let it SETTLE without being re-placed, and drive it the last few px
-		# with real velocity so the solver seats the box flush against the face.
+		# Now let it SETTLE without being re-placed. The spot is already biased INTO
+		# the face this family wants it against (see _spot), so depenetration is what
+		# seats it flush — writing `velocity` here did nothing at all, because a
+		# PartyMember re-derives velocity from its Intent every physics frame.
 		for f in SETTLE:
-			body.velocity = spot["push"]
 			await physics_frame
-		body.velocity = Vector2.ZERO
 		var slip: Vector2 = body.global_position - spot["pos"]
 		if absf(slip.x) > 0.6 or absf(slip.y) > 0.6:
 			spot["label"] = "%s  [settled %+d,%+d]" % [spot["label"],

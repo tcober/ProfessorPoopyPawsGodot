@@ -168,10 +168,38 @@ func _process_move() -> void:
 		if intent.move != Vector2.ZERO:
 			velocity = intent.move.limit_length(MOVE_CLAMP) * speed
 			_update_facing(intent.move)
-			_play_directional("walk")
+			# ON A ROPE LADDER YOU CLIMB, YOU DO NOT WALK — IF THE BODY HAS THE ART.
+			# The clip is gated on the SpriteFrames actually carrying it: `play()`
+			# on a missing animation is an error every physics frame plus a frozen
+			# pose, so a body without the row falls back to the walk it had before
+			# — wrong-looking but playable, the right failure for something that
+			# wanders onto a ladder in a scene nobody staged. Every playable body
+			# carries the row now (kid Basil's sheet grew it on 2026-07-30; the
+			# student rides player_frames.tres and always had it), so the gate is
+			# insurance for the next sheet, not a live fallback.
+			#
+			# Alembic's great trees are reached by ladder, and a body crossing
+			# those cells played walk_up —
+			# arms at its sides, feet doing a stroll — which read as a cat SLIDING
+			# up the rungs. The clip is back-view only and has no side or down
+			# variant, because you always face the ladder: it is played by name
+			# rather than through _play_directional, and the facing is FORCED UP so
+			# a body that drifts a pixel sideways cannot flip to a walk_side.
+			if _on_ladder() and sprite.sprite_frames.has_animation("climb_up"):
+				facing = Vector2.UP
+				sprite.flip_h = false
+				sprite.play("climb_up")
+			else:
+				_play_directional("walk")
 		else:
 			velocity = Vector2.ZERO
-			_play_directional("idle")
+			# standing still ON the ladder holds the climb's first frame rather
+			# than dropping to an idle, which would read as letting go
+			if _on_ladder() and sprite.sprite_frames.has_animation("climb_up"):
+				sprite.play("climb_up")
+				sprite.pause()
+			else:
+				_play_directional("idle")
 
 	# A brain takes aim before it pulls the trigger.
 	if intent.face != Vector2.ZERO:
@@ -183,6 +211,49 @@ func _process_move() -> void:
 		_on_secondary_intent()
 	elif intent.jump and not _airborne:
 		_start_jump()
+
+
+## Is this body standing on a rope-ladder cell?
+##
+## Asked of the MAP, not of a collision layer or a marker Area2D, for the same
+## reason every other geometry question in this codebase is: the map txt is the one
+## source both paint and physics come from, so a ladder that moves in the grid moves
+## here too with no scene edit. The scene reference is cached on first use — this
+## runs twice a physics frame per member — and re-resolved whenever the scene
+## changes, because Party.spawn() rebuilds every body at every scene change but the
+## member itself outlives the lookup.
+##
+## Scenes with no `map` (the cutscene stages, the meadow's own loader) simply answer
+## false, which is why this duck-types the property instead of requiring TravelScene.
+var _ladder_scene: Node = null
+var _ladder_map: Dictionary = {}
+
+
+## ASKED OF THE FEET, NOT THE ORIGIN, and that asymmetry is the whole bug this
+## comment exists for. A body's origin sits ~10px ABOVE its collision box's bottom
+## edge, so climbing UP the origin crosses onto a ladder cell a good half-cell before
+## the feet do, and climbing DOWN it hangs on the cell above for that same half-cell.
+## The result reads exactly the way it was reported: "sorta works when you start from
+## the bottom, but from the top it just looks like the character is walking."
+##
+## The box's own bottom is `origin + 10` (12x8 centred at +6), so +8 is a pixel or two
+## inside the cell the feet are actually standing on, whichever way the body entered
+## it. Anything that asks the map where a body IS wants this offset, not the origin.
+const FOOT_OFFSET := Vector2(0.0, 8.0)
+
+
+func _on_ladder() -> bool:
+	var scn := get_tree().current_scene
+	if scn == null:
+		return false
+	if scn != _ladder_scene:
+		_ladder_scene = scn
+		var m: Variant = scn.get("map")
+		_ladder_map = m if m is Dictionary else {}
+	if _ladder_map.is_empty():
+		return false
+	return MapData.terrain_at_px(_ladder_map,
+			global_position + FOOT_OFFSET) == "ropeladder"
 
 
 func _start_jump() -> void:

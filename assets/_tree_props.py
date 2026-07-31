@@ -192,11 +192,27 @@ def _leaf_mass(sp, f, lobes):
     vertically (eave lobes are flatter than crown lobes)."""
     for cx, cy, r, flat, sh in lobes:
         sp.ball(cx, cy, r, r * flat, f, sh=sh, power=2.1)
-    for cx, cy, r, flat, sh in lobes:
+    for i, (cx, cy, r, flat, sh) in enumerate(lobes):
         sp.blob(cx + r * 0.08, cy + r * 0.46 * flat,
                 r * 0.58, r * 0.24 * flat, f[4])       # its own under-arc
-        sp.blob(cx - r * 0.34, cy - r * 0.42 * flat,
-                r * 0.30, r * 0.20 * flat, f[0])       # NW crown catch
+        # THE SUN-CATCH, BROKEN INTO DABS. One smooth f[0] ellipse per lobe is
+        # what made every crown in this kit read as a raft of BALLOONS: a big
+        # flat highlight centred on a round mass is the shading of a sphere, and
+        # a pile of shaded spheres is bubble wrap however good the silhouette
+        # is. Leaves do not have one specular — they have many small ones, and
+        # the gaps between them matter more than the light. So: four dabs along
+        # the lobe's NW shoulder, sizes falling off, the last two a step down
+        # the ramp, and each nudged on a hash so no two lobes catch the light
+        # in the same place. Same pixel budget, completely different material.
+        for k, (ox, oy, rk, tone) in enumerate(((-0.40, -0.34, 0.26, 0),
+                                                (-0.14, -0.46, 0.20, 0),
+                                                (0.12, -0.40, 0.16, 1),
+                                                (-0.48, -0.04, 0.14, 1))):
+            jx = ((h2(i, k, 77) % 5) - 2) * 0.035
+            jy = ((h2(i, k + 8, 77) % 5) - 2) * 0.030
+            rr = r * rk
+            sp.blob(cx + r * (ox + jx), cy + r * (oy + jy) * flat,
+                    rr, rr * 0.70 * flat, f[tone])
 
 
 def _leaf_dabs(sp, f, x0, y0, x1, y1, salt, n=10):
@@ -592,7 +608,18 @@ def great_trunk(bark, ground, spans, salt=401, w=48, lean=0.0):
     # The taper runs over the WHOLE trunk, not per segment — that is the point of
     # building it once. A great tree is barely conical over 22 cells (2-3px), and
     # that restraint is deliberate: a strong taper at this scale reads as a spike.
-    top_half, bot_half = w * 0.27, w * 0.335
+    # THE SHAFT FILLS ITS FOOTPRINT. It used to be w*0.27..0.335 — about 40px of
+    # bark inside a 64px, four-cell footprint — which left the outer third of each
+    # FLANKING cell showing raw underlay all the way down the tree. `_alembic`'s own
+    # note says "a trunk is drawn by an opaque Tier-3 sprite, so the cell only needs
+    # an underlay and a shadow", and that was simply not true of the art. Up in the
+    # canopy it showed: `greattrunk` renders grass, everything around it up there
+    # renders leaf, and the autotile drew a TRANSITION into that exposed third —
+    # a hard-edged pale wedge either side of the ladder that reads as a clipping bug.
+    # Chasing it through the terrain table is chasing the symptom; four cells of
+    # collision want four cells of bark. It also fixes the proportion: a 2.4-cell
+    # trunk under a 12-cell ring deck reads as a lily pad on a stick.
+    top_half, bot_half = w * 0.465, w * 0.485
     cx = cx_at(h - 4)
     sp.blob(cx, h - 3, w * 0.40, 2.8, ground[4])       # ground contact shadow,
     sp.blob(cx, h - 2, w * 0.24, 1.8, ground[5])       # kept TIGHT (see below)
@@ -663,7 +690,7 @@ def great_trunk(bark, ground, spans, salt=401, w=48, lean=0.0):
     return out
 
 
-def great_crown(f, bark, salt=451, w=96, h=48, lean=0.0):
+def great_crown(f, bark, salt=451, w=96, h=48, lean=0.0, window=None):
     """THE CROWN a great trunk's top disappears into — the north arc of the ring
     deck runs UNDER this, so it is the one piece of the tree a body is allowed to
     stand inside.
@@ -728,7 +755,12 @@ def great_crown(f, bark, salt=451, w=96, h=48, lean=0.0):
                       r * k, flat, 0.02 + 0.03 * (i % 4)))
     _leaf_mass(sp, f, lobes)
     _leaf_dabs(sp, f, 3, 3, w - 4, int(h * 0.92), salt, n=max(16, w // 3))
-    sp.blob(w * 0.32, h * 0.20, r * 0.42, r * 0.26, f[0])   # NW sun-catch
+    # THE CROWN'S OWN SUN-CATCH, over the top of the per-lobe dabs. Broken for
+    # the same reason they are — as one r*0.42 ellipse this was a second, larger
+    # balloon laid over the raft.
+    for k, (ox, oy, rk) in enumerate(((0.28, 0.17, 0.30), (0.38, 0.24, 0.22),
+                                      (0.21, 0.27, 0.17), (0.45, 0.14, 0.13))):
+        sp.blob(w * ox, h * oy, r * rk, r * rk * 0.62, f[0])
     sp.set(int(w * 0.28), int(h * 0.14), SPEC)
     # LEAF CLUSTERS ON THE LIMB TIPS. A limb that ends in a bare stub reads as
     # broken; a small tuft at the end reads as a bough carrying foliage, and it is
@@ -791,6 +823,25 @@ def great_crown(f, bark, salt=451, w=96, h=48, lean=0.0):
                         for c in cut)
                 if 1.0 < d <= 1.6 and sp.get(x, y) is not None:
                     sp.set(x, y, f[4] if (x + y) % 2 else f[5])
+    # THE LIT WINDOW, stamped LAST so the leaves cannot bury it. It belongs to the
+    # crown rather than to `trunk_face` because the shaft segment is only two cells
+    # tall — see that builder for why it must not be taller — and because the sketch
+    # this town is drawn from puts the window up among the leaves, not down at deck
+    # level beside the door. A patch of bark goes behind it so a lit pane is never
+    # floating on foliage.
+    if window is not None:
+        wx, wy, hw, hh = int(w * 0.5) - 1, int(h * 0.86), 7, 7
+        sp.blob(wx, wy, 13, 11, bark[3])
+        sp.blob(wx, wy - 2, 11, 8, bark[2])
+        for y in range(wy - hh, wy + hh + 1):
+            for x in range(wx - hw, wx + hw + 1):
+                lit = abs(x - wx) < hw - 1 and abs(y - wy) < hh - 1
+                sp.set(x, y, WARM if lit else window[4])
+        for y in range(wy - hh, wy + hh + 1):
+            sp.set(wx, y, window[4])
+        for x in range(wx - hw, wx + hw + 1):
+            sp.set(x, wy, window[4])
+        sp.set(wx - hw - 1, wy - hh - 1, window[5])
     edge(sp, h)
     clipw(sp, w)
     return sp
@@ -1162,35 +1213,43 @@ def _nest(lo, up, f, bark, w, h, roof, rx, salt):
             _leaf_mass(up, f, [(base + side * (lr * 0.45), ly, lr, 0.90, 0.10)])
 
 
-def _porch(lo, deck, f, w, h, salt):
-    """The hut's PORCH: a plank deck across the FULL footprint width with a hemp
-    rail along its front and joists under it.
+def _porch(lo, deck, f, w, h, salt, foot=None):
+    """The hut's PORCH: a plank deck with a hemp rail along its front and joists
+    under it, spanning the hut's FOOTPRINT plus a 4px apron each side.
 
     Two jobs, and the second one is a lint. A hut is small relative to its
     platform — that is most of what makes both references read as villages rather
     than as streets — so the building leaves the outer footprint cells bare, and a
     solid map cell whose Tier-3 art covers less than 20% of it is an invisible
     wall. The porch is what covers them, and it is also exactly what should be
-    there: you step out of a hut onto its own boards."""
-    lo.rect(1, h - 12, w - 2, h - 5, deck[1])          # the porch boards
+    there: you step out of a hut onto its own boards.
+
+    IT IS THE FOOTPRINT'S WIDTH, NEVER THE SHEET'S. A hut sheet is wider than its
+    footprint so the hanging sign and the lantern have air to swing in; a porch
+    drawn to the sheet's edge instead runs a raised plank deck out over open
+    ground on both sides, joists and all, and reads as a shelf bolted to the front
+    of the building with nothing holding up its ends."""
+    foot = foot or w
+    x0, x1 = (w - foot) // 2 - 4, (w + foot) // 2 + 3
+    lo.rect(x0, h - 12, x1, h - 5, deck[1])            # the porch boards
     for y in range(h - 12, h - 4, 4):
-        lo.rect(1, y, w - 2, y, deck[3])
-    lo.rect(1, h - 4, w - 2, h - 4, deck[0])           # the sill plate, proud
-    lo.rect(1, h - 3, w - 2, h - 2, deck[2])
-    lo.rect(1, h - 1, w - 2, h - 1, deck[5])
-    for jx in range(4, w - 3, 11):                     # the joists under it
+        lo.rect(x0, y, x1, y, deck[3])
+    lo.rect(x0, h - 4, x1, h - 4, deck[0])             # the sill plate, proud
+    lo.rect(x0, h - 3, x1, h - 2, deck[2])
+    lo.rect(x0, h - 1, x1, h - 1, deck[5])
+    for jx in range(x0 + 3, x1 - 2, 11):               # the joists under it
         lo.rect(jx, h - 3, jx + 1, h - 1, deck[4])
         lo.set(jx, h - 3, deck[3])
     for ry, c in ((h - 11, ROPE[1]), (h - 8, ROPE[2])):   # the hemp porch rail
-        for x in range(1, w - 1):
+        for x in range(x0, x1 + 1):
             s = 1 if 4 < x % 14 < 10 else 0
             lo.set(x, ry + s, c)
             lo.set(x, ry + s + 1, ROPE[3])
-    for px_ in range(3, w - 2, 14):
-        lo.rect(px_, h - 12, px_ + 1, h - 6, deck[3])
-        lo.rect(px_, h - 12, px_, h - 6, deck[1])
-        lo.set(px_ + 1, h - 12, deck[4])
-    for i, mx in enumerate(range(5, w - 4, 13)):       # ferns in the porch pots
+    for px_ in (x0 + 1, x1 - 2):                       # a rail post at each END,
+        lo.rect(px_, h - 12, px_ + 1, h - 6, deck[3])  # so the deck stops at
+        lo.rect(px_, h - 12, px_, h - 6, deck[1])      # something instead of
+        lo.set(px_ + 1, h - 12, deck[4])               # running off into air
+    for i, mx in enumerate(range(x0 + 4, x1 - 3, 13)):   # ferns in the porch pots
         lo.set(mx, h - 13, f[2] if i % 2 else f[3])
         lo.set(mx + 1, h - 13, f[4])
 
@@ -1233,7 +1292,7 @@ def _withy_body(lo, wood, f, deck, w, h, top, salt, half):
 
 
 def tree_hut(wood, f, deck, bark, salt=481, composite=True, frames=4, w=96, h=80,
-             rise=20, wares=False, sign=None):
+             rise=20, wares=False, sign=None, nest=True, foot=None):
     """A BOUGH HUT — the treehouse village's building, in the Slitherbough /
     Endor language: a round woven barrel of withy staves under a CONICAL THATCH
     roof with a ragged eave, bound with hemp hoops, standing on its own plank
@@ -1261,6 +1320,15 @@ def tree_hut(wood, f, deck, bark, salt=481, composite=True, frames=4, w=96, h=80
     `sign` make it a shopfront the way both references do — furniture hung off the
     porch, not joinery cut into a wall — which is why one silhouette can serve the
     house and both shops without reading as three copies.
+
+    NOTHING CALLS THIS RIGHT NOW, AND THAT IS NOT AN INVITATION. Alembic's three
+    shops wore it on the FOREST FLOOR for two days after the canopy became four ring
+    decks, and on open grass beside a five-cell plaster cottage every cue above
+    inverts: the cone is a tiki roof, the withy barrel has no wall material and you
+    see daylight between its staves, "made of the forest" with no forest around it
+    is just unfinished, and the whole thing is one flat tan value three cells wide.
+    It is kept for the next building that stands in a BOUGH, which is the only place
+    it is right. A ground shop is `_town_props.town_shop`.
 
     `rise` defaults to 20 and that number is a CEILING, not a preference: at 24 the
     sheet's crown reached 2px into the crown terrace's own walkable row and put a
@@ -1295,9 +1363,14 @@ def tree_hut(wood, f, deck, bark, salt=481, composite=True, frames=4, w=96, h=80
     rx = _cone_rx(w, roof)
     half = rx * 0.78                                   # the body, under the eave
     eave = _thatch_cone(up, THATCH, f, w, roof, salt)
-    _nest(lo, up, f, bark, w, H, roof, rx, salt)
+    # `nest=False` for a hut standing on the GROUND. The leaf mass exists to bed a
+    # hut into a bough, and on open grass it reads as a hard dark RECTANGLE round
+    # the building — the same seam that killed the ring's leaf bed, for the same
+    # reason: authored foliage meeting autotiled foliage at a cell boundary.
+    if nest:
+        _nest(lo, up, f, bark, w, H, roof, rx, salt)
     edge(up, roof + 14)                # the fringe and the lapping foliage
-    _porch(lo, deck, f, w, H, salt)
+    _porch(lo, deck, f, w, H, salt, foot)
     # THE BODY TUCKS UP UNDER THE EAVE, not below it. The first pass put its top
     # at the roof rows' own boundary and left six px of daylight between the
     # fringe and the wall — a hut with its hat hovering over it. The eave has to
@@ -1319,7 +1392,9 @@ def tree_hut(wood, f, deck, bark, salt=481, composite=True, frames=4, w=96, h=80
         lo.rect(cx + 6, bot - 1, cx + int(half) - 1, bot - 1, deck[5])
     if sign:
         # a painted board swinging on two falls from the eave, OUTBOARD of the
-        # hut so it breaks the silhouette and reads from down on the floor
+        # hut so it breaks the silhouette and reads from down on the floor. This
+        # is why the sheet is wider than the footprint: pinch the sheet to the
+        # building and the board has nowhere to hang but on top of the wall.
         bx = int(w * 0.5 + rx) + 9
         _rope(lo, bx - 6, top - 6, bx - 6, top + 1)
         _rope(lo, bx + 5, top - 6, bx + 5, top + 1)
@@ -1331,7 +1406,30 @@ def tree_hut(wood, f, deck, bark, salt=481, composite=True, frames=4, w=96, h=80
         # 16px is mud, so a trade is announced by its OBJECT. That is also the
         # scholarly-village register the town wants — a licensed trade hangs its
         # sign, and you read the shop off the thing painted on the board.
-        if sign == "sword":
+        if sign == "fang":
+            # THE BRASS FANG — a curved canine, root up and point down, in a
+            # collar of iron. `fang` used to fall through to the `else` below and
+            # the WEAPON SHOP hung an apothecary's flask over its door, identical
+            # to the shop across the square: three huts from one builder, and the
+            # one thing that was supposed to tell them apart was drawing the same
+            # device twice. A tooth silhouettes at 13px where a sword blade does
+            # not, and it is the joke the shop's name is already making.
+            # The shaded flank comes out of THATCH, not out of BRASS: BRASS[2] and
+            # BRASS[3] resolve to (246,28,26) and (216,0,109), so the first pass
+            # of this tooth had a HOT PINK outline. Brass is tones 0/1 only — the
+            # shipped law, see the art-pipeline skill's colour section.
+            for i in range(9):
+                u = i / 8.0
+                hw = int(round(3.4 * (1.0 - u) ** 0.75))
+                cxx = bx - 1 + int(round(2.0 * u * u))          # the curve
+                ty = top + 5 + i
+                lo.rect(cxx - hw, ty, cxx + hw, ty, BRASS[1])
+                lo.set(cxx - hw, ty, BRASS[0])                  # lit flank
+                lo.set(cxx + hw, ty, THATCH[3])                 # shaded flank
+            lo.rect(bx - 5, top + 3, bx + 3, top + 5, IRON[1])  # the collar
+            lo.rect(bx - 5, top + 3, bx + 3, top + 3, IRON[0])
+            lo.rect(bx - 5, top + 5, bx + 3, top + 5, IRON[3])
+        elif sign == "sword":
             ln(lo, bx - 5, top + 11, bx + 4, top + 5, STEEL[1])
             ln(lo, bx - 5, top + 12, bx + 3, top + 6, STEEL[2])
             lo.rect(bx - 7, top + 10, bx - 4, top + 12, BRASS[1])
@@ -1463,6 +1561,380 @@ def tree_platform(deck, f, salt=421, w=80, h=48, rails="we", fascia=6):
         sp.set(mx, my + 1, f[4])
     _crop(sp, w, h)
     return sp
+
+
+def trunk_face(bark, deck, salt=401, w=64, h=32, door=True):
+    """THE TRUNK SEGMENT THE RING PASSES THROUGH — the one that carries the DOOR.
+
+    This is the piece that makes the sketch's idea true: the house IS the tree. Not
+    a hut standing on a deck, not a cottage in the boughs — a door cut into the
+    trunk at deck level with a lit window over it, and a balcony round the outside.
+
+    Cut from the same `_shaft` the rest of the tree is, at the same half-widths, so
+    the bark bands and the taper continue through it and the joins are invisible.
+
+    IT MUST NOT BE TALLER THAN ITS OWN FOOTPRINT (2 cells, h=32). Bottom-anchored
+    art that overshoots reaches UP into the ring's north-arc row — a walkable cell —
+    and a trunk is an opaque ~40px mass, so a body standing there is not "behind"
+    anything, it is GONE. At h=48 that is exactly what shipped: `zwalk lint` measured
+    0 visible pixels on all four trees, in both eras, on the one row the map header
+    calls "you pass BEHIND the tree here". Anything that covers that row has to be
+    PERFORATED, which a shaft cannot be — so the crown covers it and this does not.
+    That is also why the window lives on `great_crown` now and not here: two cells is
+    a door's worth of height and no more.
+
+    THE DOOR'S THRESHOLD IS THE SPRITE'S BOTTOM EDGE, because that is where the
+    ring's south deck meets the bark: you step off the boards straight through it.
+    The map's `home` anchor sits on the deck row below, never on the trunk — a door
+    does not need a walkable cell, and a walkable cell inside a Tier-3 trunk is a
+    body standing behind an opaque mass.
+
+    FOOTPRINT: `w // 16` x `h // 16` cells, EVERY CELL SOLID.
+    ANCHOR: `emit_prop(name, chars, img, each=True, base_inset=19)` — that inset
+    lands the sort key in the 2px of daylight between a body on the trunk row and a
+    body on the deck south of it, so you pass BEHIND the tree on the north arc and
+    walk in FRONT of it on the south.
+    COVERAGE: 100% of the shaft's own cells.
+    """
+    sp = S(w, h, salt)
+    cx = w / 2.0
+    half = w * 0.47          # matches great_trunk: four cells of bark (see there)
+    _shaft(sp, bark, cx, 0, h - 1, half, half * 1.03, salt)
+    if door:
+        base, dhw, dhh = h - 1, 11, h - 5
+        for y in range(base - dhh, base + 1):          # the dark reveal, arched
+            u = (base - y) / float(dhh)
+            hx = dhw * (1.0 - max(0.0, (u - 0.62) / 0.38) ** 2) ** 0.5 \
+                if u > 0.62 else dhw
+            for x in range(int(cx - hx), int(cx + hx) + 1):
+                sp.set(x, y, DOORDARK)
+        for y in range(base - dhh + 3, base):          # the plank leaf, set back
+            u = (base - y) / float(dhh)
+            hx = (dhw - 2) * (1.0 - max(0.0, (u - 0.58) / 0.42) ** 2) ** 0.5 \
+                if u > 0.58 else dhw - 2
+            for x in range(int(cx - hx), int(cx + hx) + 1):
+                sp.set(x, y, deck[3] if (x - int(cx - hx)) % 5 else deck[4])
+        sp.set(int(cx + dhw - 4), base - 8, BRASS[0])  # the latch
+    _crop(sp, w, h)
+    return sp
+
+
+def ring_geom(w, ry=44, hole=(26, 15)):
+    """THE ONE PLACE THE RING'S ELLIPSE IS DEFINED: (cx, cy, rx, ry, hx, hy).
+
+    `tree_ring` draws from these and `ring_cells` rasterizes them, so the art and
+    the map's walkable cells cannot be two different opinions of where the deck
+    is. They were, for one build: the disc was drawn out to the block edge and
+    the map authored a tight blob inside it, which put a one-to-two-cell
+    INVISIBLE WALL along the whole rim — you walked a rectangle inside a circle,
+    and every cell of the mismatch looked like solid decking."""
+    return (w / 2.0, ry + 4.0, w / 2.0 - 2.0, float(ry),
+            float(hole[0]), float(hole[1]))
+
+
+## Where the radial planking stops and the CONCENTRIC RIM BOARD begins, in the
+## ellipse's own normalized radius. The rim is the deck's finished edge and the
+## railing stands just outside it (at 0.955 of the ellipse, i.e. o = 0.912), so
+## this one number is both "where the boards end" and "how far a body may walk".
+RIM_O = 0.90
+
+
+## The party body's collision box relative to its origin: half-width, and the
+## top and bottom of the 12x8 footprint at its feet (entities/player/player.tscn,
+## `RectangleShape2D_body` 12x8 at offset (0, 6)). The ring's mask is derived
+## against this rather than against a point, so it answers the question that
+## actually matters — does the BODY fit on the boards, not does the cell's centre.
+BODY_BOX = (6.0, 2.0, 10.0)
+
+
+def ring_cells(w, h, ry=44, hole=(26, 15), T=16, limit=RIM_O, box=BODY_BOX):
+    """The ring's deck as a CELL MASK — [row][col] True where a body standing in
+    the middle of that cell is ON THE RADIAL PLANKING, whole.
+
+    THE TEST IS THE BODY'S BOX, NOT A POINT, and that is not fastidiousness — a
+    single radius cannot express this, because the overhang is DIRECTIONAL. Run
+    the numbers on the shipped ellipse: the cell at (row 4, col 2) has its centre
+    at o = 0.652, comfortably inside anything you would call the rim, and a body
+    standing there has its feet at x 34..46 against a deck that at THAT LINE, ten
+    pixels further south where the arc has already curved away, spans 36.3..155.7.
+    Its west foot is off the platform. Meanwhile (row 1, col 1) sits at o = 0.884,
+    far worse by radius, and is fine — because its feet are ten pixels NORTH of
+    its centre, which on the top half of an ellipse is further IN. Any single
+    limit either keeps the first or throws away the second.
+
+    So: place the 12x8 box at the cell centre and require all four corners inside
+    `limit`. Cheap, and it is the same question the player's hands are asking.
+
+    THE LIMIT IS THE RIM BOARD, NOT THE OUTER EDGE. The rim is the deck's finished
+    lip and the handrail stands just outside it; walking to o <= 1.0 puts a body
+    at the poles standing ON the rim board with the rail between its ankles. You
+    walk the planking and stand BEHIND the rail. The rail is not decking.
+
+    Returns the mask for the whole block, fascia rows included (all False) — the
+    caller checks it against the map, so it has to speak about every cell. The
+    south rim comes out empty and that is correct: the arc there is at y = 92, so
+    ANY cell centred at y = 88 has its feet past it. The one place you are meant
+    to stand on that rim is the ladder's landing, and the caller adds it back by
+    name (see `_alembic.assert_all`) rather than by loosening this."""
+    cx, cy, rx, ry_, hx, hy = ring_geom(w, ry, hole)
+    bw, bt, bb = box
+    mask = []
+    for r in range(h // T):
+        row = []
+        for c in range(w // T):
+            x, y = c * T + T // 2.0, r * T + T // 2.0
+            corners = ((x - bw, y + bt), (x + bw, y + bt),
+                       (x - bw, y + bb), (x + bw, y + bb))
+            row.append(all(((px - cx) / rx) ** 2 + ((py - cy) / ry_) ** 2 <= limit
+                           for px, py in corners)
+                       and ((x - cx) / hx) ** 2 + ((y - cy) / hy) ** 2 >= 1.0)
+        mask.append(row)
+    return mask
+
+
+def tree_ring(deck, bark, f, salt=491, w=144, h=144, ry=44, hole=(26, 15),
+              fascia=16, planks=32, rail=True, ladder=True):
+    """THE RING — the round collar of decking that wraps a great trunk, and the
+    one thing both references are most recognisable for.
+
+    WHY A DEDICATED BUILDER AND NOT A RECTANGLE OF `tree_platform`. The v1 canopy
+    town let a body walk the full circle around every trunk and NOBODY COULD SEE
+    IT, because the deck ran wall to wall and a round platform drawn in a square
+    floor is not a platform, it is floor. The ring has to be an ISLAND with air
+    all round it, and it has to be visibly ROUND, or the geometry is invisible and
+    the tree reads as a post standing in a warehouse.
+
+    THREE THINGS MAKE IT READ AS A CIRCLE, and it needs all three:
+
+      1. RADIAL PLANKING. The boards run out from the trunk like spokes, so every
+         board is a different angle and the eye integrates them into a disc. This
+         is the whole trick — a round platform with the deck's normal east-west
+         boards reads as a rectangular deck someone rounded the corners off.
+      2. A CONCENTRIC RIM. Two boards following the curve right at the edge, which
+         is how a real round deck is finished and, more to the point, is the only
+         continuous line in the piece: it draws the circle explicitly rather than
+         leaving it implied by 32 plank ends.
+      3. THE FASCIA IS A CRESCENT. The vertical face hangs below the outer curve's
+         SOUTHERN arc only, deepest at due south and thinning to nothing at the
+         east and west poles — which is exactly what the side of a disc does seen
+         from above and slightly in front. A constant-depth band all the way round
+         is a cylinder seen from the side, i.e. a barrel, and that is the shape
+         the first pass came out as.
+
+    The ellipse is `w/2` x `ry`, squashed to the scene's oblique (~0.6) rather
+    than circular: a true circle in a top-down-with-a-tilt scene reads as a dome.
+    `hole` is the trunk's own cross-section, kept slightly WIDER than the shaft so
+    a collar of shadowed decking shows all round the bark — that shadow is what
+    plants the tree THROUGH the boards instead of on top of them.
+
+    FOOTPRINT: `w//16` x `h//16` cells. The deck cells are WALKABLE on the ring's
+    own stratum; the middle of the trunk row is the shaft and stays solid. The
+    north arc is walk-behind under the crown, which is why `great_crown` is
+    perforated — see its docstring.
+    ANCHOR: returns (lower, upper). The deck, the fascia and the rail's NORTH arc
+    are Tier-1 (bodies draw over a floor and over the far rail); the rail's SOUTH
+    arc is the UPPER layer, so a body on the boards stands behind it. Blit both at
+    the block's top-left, per component — one ring per great tree.
+    COVERAGE: 100% on the deck rows, >= 62% on the fascia crescent's own cells.
+    """
+    assert w % 16 == 0 and h % 16 == 0, "a ring must be a whole number of cells"
+    sp = S(w, h, salt)
+    up = S(w, h, salt + 1)                     # the UPPER layer: the south rail
+    cx, cy, rx, ry, hx, hy = ring_geom(w, ry, hole)   # shared with ring_cells
+    TAU = 6.283185307179586
+
+    def _out(x, y):
+        return ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2
+
+    def _in(x, y):
+        return ((x - cx) / hx) ** 2 + ((y - cy) / hy) ** 2
+
+    # 0. THE CAST SHADOW, and NOT a leaf bed. The first pass filled the whole canvas
+    # with foliage so the block would be opaque — and in-engine that read as a dark
+    # RECTANGLE sitting on the forest, because two different leaf renderings meeting
+    # at a cell boundary is a seam however good either one is. It was also solving a
+    # problem that does not exist: the block's cells render `forest` terrain, which
+    # autotiles with the woods around it, so transparent art over them shows canopy
+    # and the invisible-wall lint is satisfied by the terrain underneath.
+    #
+    # What the disc actually needs is separation, and a platform gets that from the
+    # shade it throws on the leaves below. Drawn as a band OUTSIDE the outer ellipse,
+    # so its edge is a curve rather than the sprite's rect — offset south and east
+    # like every other shadow in the game.
+    for y in range(h):
+        for x in range(w):
+            d = ((x - cx - 5) / (rx + 7)) ** 2 + ((y - cy - 6) / (ry + 7)) ** 2
+            if 0.62 < d <= 1.0 and _out(x, y) > 1.0:
+                sp.set(x, y, f[4] if d < 0.86 else f[5])
+
+    # 1. THE FASCIA CRESCENT, drawn first so the deck's rim overwrites its top
+    # edge and the two meet with no seam. For every column the outer curve's
+    # SOUTH intercept is ys; the face hangs `fascia` px below it, scaled by how
+    # square-on that part of the curve faces us — full depth at due south, zero
+    # at the poles. Same graded darkening every other vertical face in this town
+    # uses (see _alembic.shaded): a face is darker than the floor it hangs off.
+    for x in range(w):
+        t = (x - cx) / rx
+        if abs(t) >= 1.0:
+            continue
+        k = (1.0 - t * t) ** 0.5
+        ys = cy + ry * k
+        d = int(round(fascia * k))
+        for i in range(d):
+            y = int(ys) + i
+            if not 0 <= y < h:
+                continue
+            # the butt ends of the radial boards, then two darker courses under
+            sp.set(x, y, deck[3] if i < 2 else deck[4] if i < d - 2 else deck[5])
+        # the lit arris where floor turns into face — one px, and it is what
+        # keeps the fascia from reading as a shadow cast on the leaves below
+        if 0 <= int(ys) < h:
+            sp.set(x, int(ys), deck[0])
+    # KNEE BRACES. A ring this wide cannot be holding itself up, and a disc with
+    # nothing under it reads as a lily pad floating in the leaves. Four timbers
+    # angling back to the trunk say cantilever, which is the structural idea both
+    # references are built on. Drawn under the crescent's lower edge only.
+    for bt in (-0.74, -0.34, 0.34, 0.74):
+        k = (1.0 - bt * bt) ** 0.5
+        bx0 = cx + rx * bt
+        by0 = cy + ry * k + fascia * k * 0.7
+        bx1 = cx + hx * bt * 0.7
+        by1 = by0 + 16 + 10 * (1.0 - abs(bt))
+        for i in range(int(by1 - by0)):
+            u = i / max(1.0, by1 - by0)
+            bx = bx0 + (bx1 - bx0) * u
+            yy = int(by0 + i)
+            if not 0 <= yy < h:
+                continue
+            sp.set(int(round(bx)), yy, bark[3])
+            sp.set(int(round(bx)) + 1, yy, bark[4])
+            sp.set(int(round(bx)) - 1, yy, bark[2])
+    # 2. THE DECK — radial boards between the trunk hole and the outer curve.
+    for y in range(h):
+        for x in range(w):
+            if _out(x, y) > 1.0 or _in(x, y) < 1.0:
+                continue
+            a = _turns64(y - cy, x - cx) / 64.0            # 0..1 around the ring
+            p = a * planks
+            band = int(p) % 2
+            c = deck[1] if band == 0 else deck[2]
+            if p - int(p) < 0.09:                          # the seam between two
+                c = deck[3]                                # boards, one step down
+            sp.set(x, y, c)
+    # 3. THE CONCENTRIC RIM — two boards following the curve, and the SHADOW
+    # COLLAR where the boards die into the bark. Both are drawn as bands in the
+    # ellipse's own normalized radius so they stay parallel to the edge all the
+    # way round rather than bunching at the poles.
+    for y in range(h):
+        for x in range(w):
+            o = _out(x, y)
+            if o > 1.0 or _in(x, y) < 1.0:
+                continue
+            if o > RIM_O:
+                sp.set(x, y, deck[2] if o > 0.96 else deck[1])
+            if o > 0.985:
+                sp.set(x, y, deck[3])
+            i2 = _in(x, y)
+            if i2 < 1.55:                                   # the trunk's shadow
+                sp.set(x, y, deck[4] if i2 < 1.28 else deck[3])
+    # 4. THE RAILING, on the outer curve and OPEN AT DUE SOUTH where the ladder
+    # and the bridges land. Posts are set on the ellipse itself and the hemp runs
+    # post to post, so the handline is the circle drawn a second time, 6px up.
+    #
+    # THE SOUTHERN HALF OF IT GOES ON THE UPPER LAYER, and this is the whole
+    # difference between a railing and a stripe painted on the boards. Baked with
+    # the deck, every body on the ring draws OVER the rail — you stand on the
+    # handline like it is a kerb. But a ring is a closed curve seen from the
+    # south, so the two halves want opposite answers and a y-sorted sprite can
+    # only give one: the NORTH arc is behind you (it is further away) and the
+    # SOUTH arc is in front of you (it is between you and the camera). Split at
+    # the ellipse's own waist and each half is unconditionally right — every
+    # walkable cell is INSIDE the curve, so nothing can ever need to draw in
+    # front of the south arc. `tree_edge` argues the same point for the fascia
+    # and buys it from mask_band; a rail up on the deck rows has no band to hide
+    # in, so it buys it from the upper layer instead.
+    if rail:
+        import math
+        n = 26
+        pts = []
+        for i in range(n):
+            a = TAU * i / n
+            t = a / TAU
+            if 0.20 < t < 0.30:                             # the south gap
+                pts.append(None)
+                continue
+            px_ = cx + rx * 0.955 * -math.sin(a - 1.5707963)
+            py_ = cy + ry * 0.955 * math.cos(a - 1.5707963)
+            pts.append((px_, py_))
+        for i in range(n):
+            a, b = pts[i], pts[(i + 1) % n]
+            if a is None or b is None:
+                continue
+            for s in range(0, 24):
+                u = s / 23.0
+                fy = a[1] + (b[1] - a[1]) * u               # the foot of the rail
+                lx = int(round(a[0] + (b[0] - a[0]) * u))
+                ly = int(round(fy)) - 6
+                if 0 <= lx < w and 0 <= ly < h:
+                    tgt = up if fy > cy else sp
+                    tgt.set(lx, ly, ROPE[1])
+                    tgt.set(lx, ly + 1, ROPE[3])
+        for pt in pts:
+            if pt is None:
+                continue
+            px_, py_ = int(round(pt[0])), int(round(pt[1]))
+            tgt = up if pt[1] > cy else sp
+            tgt.rect(px_, py_ - 7, px_ + 1, py_, deck[3])
+            tgt.rect(px_, py_ - 7, px_, py_, deck[1])
+            tgt.set(px_ + 1, py_, deck[5])
+    # 5. THE LADDER HEAD, in the railing's south gap.
+    #
+    # A rope ladder that simply BEGINS in mid-air below the deck is the single
+    # commonest tell that a platform is floating art rather than a place — it was
+    # the first thing spotted in the ring preview, and it is spotted because a
+    # ladder is the one object in frame whose whole job is to connect two things.
+    # Three cues fix it and they are cheap: a stout CLEAT board across the rail
+    # gap for the stiles to be lashed to, the stiles OVERSHOOTING the deck by ~10px
+    # (every real ladder head stands proud of the thing it leans on — flush with
+    # the edge reads as a hole in the boards), and visible LASHINGS wrapping the
+    # cleat. Then the stiles run on down to the sprite's bottom edge, so
+    # `rope_ladder`'s own run — whose stiles sit at 9 and 22 of a 32-wide box —
+    # continues them exactly when it is authored on the cell below.
+    if ladder:
+        lx0, lx1 = int(round(cx)) - 7, int(round(cx)) + 6
+        rim = int(cy + ry)
+        # THE CLEAT sits proud of the fascia and two steps LIGHTER than it. Drawn
+        # in the fascia's own tones it vanished — a fixing has to out-value the
+        # thing it is fixed to or it reads as a stain on the timber.
+        sp.rect(lx0 - 6, rim - 4, lx1 + 6, rim, deck[1])
+        sp.rect(lx0 - 6, rim - 5, lx1 + 6, rim - 5, deck[0])       # its lit crown
+        sp.rect(lx0 - 6, rim + 1, lx1 + 6, rim + 2, deck[5])       # and its shadow
+        sp.set(lx0 - 6, rim - 4, deck[3]); sp.set(lx1 + 6, rim - 4, deck[3])
+        # the stiles OVERSHOOT by ~8px only. At 15 the ladder read as lying flat
+        # ON the boards rather than hanging off the rim behind them.
+        for i, sx in enumerate((lx0, lx1)):
+            _rope(sp, sx, rim - 8, sx, h - 1, phase=i * 2, wide=True)
+        for sx in (lx0, lx1):                                      # the lashings —
+            for yy in range(rim - 4, rim + 2):                     # a fat wrap over
+                sp.set(sx - 2, yy, ROPE[2]); sp.set(sx - 1, yy, ROPE[0])
+                sp.set(sx + 2, yy, ROPE[1]); sp.set(sx + 3, yy, ROPE[3])
+            sp.set(sx - 2, rim - 4, ROPE[3]); sp.set(sx + 3, rim + 1, ROPE[3])
+        # rungs from the head all the way to the sprite's bottom edge, on the same
+        # irregular pitch `rope_ladder` uses — a rung every N px exactly reads as a
+        # machined ladder bolted to a wall, and this one is hanging.
+        ry_, n = rim - 13, 0
+        while ry_ < h - 2:
+            if ry_ < rim - 6 or ry_ > rim + 2:            # never across the cleat
+                sp.rect(lx0 - 1, ry_, lx1 + 2, ry_ + 1, deck[2])
+                sp.rect(lx0 - 1, ry_, lx1 + 2, ry_, deck[0])
+                sp.rect(lx0 - 1, ry_ + 2, lx1 + 2, ry_ + 2, deck[5])
+            ry_ += 9 + h2(n, 3, salt) % 3
+            n += 1
+    _crop(sp, w, h)
+    _crop(up, w, h)
+    assert any(p for row in up.px for p in row), \
+        "the ring's upper layer is empty — the south rail did not split"
+    return sp, up
 
 
 # ---- 3b. THE CANOPY EDGE — the piece that carries the whole "this is UP" read ---------
@@ -2375,7 +2847,7 @@ def tree_canopy(f, bark, salt=451, w=48, h=48, cut=None, face=1):
 
 # ---- 7. THE UNDERSTORY ---------------------------------------------------------------
 
-_UNDERSTORY = ("roots", "fern", "shroom", "log")
+_UNDERSTORY = ("roots", "fern", "shroom", "log", "drift", "sapling")
 
 
 def _duff(sp, ground, w, salt):
@@ -2404,6 +2876,18 @@ def understory(f, wood, ground, kind="roots", salt=461, cells=1):
                        understory's ONE pale accent; keep it rare.
       "log"    `16*cells` x 16 — a fallen log with end-grain rings, bark bands,
                        moss along its lit crown and two shelf fungi.
+      "drift"  16x16 — a drift of fallen leaves, and THE MOST IMPORTANT ONE.
+                       A clearing floor drawn entirely from the grass ramp reads
+                       as a LAWN no matter how many ferns are standing on it,
+                       because every piece of dressing is the same green as the
+                       thing it is dressing. Warm curled leaves in the `wood`
+                       ramp are the only cheap thing that breaks the field's hue,
+                       so this is the common case and everything else is a
+                       feature standing in it.
+      "sapling" 16x16 — a knee-high young tree: one leaning stem, four leaves,
+                       a lit tip. Vertical interest with almost no silhouette,
+                       for the middle distance where a fern clump reads as a
+                       blob and a log is too big an event.
 
     FULLY OPAQUE and UN-OUTLINED per the tile-reusability rule: each prop
     carries its own duff base (see `_duff`) so its cells dedupe regardless of
@@ -2497,6 +2981,55 @@ def understory(f, wood, ground, kind="roots", salt=461, cells=1):
                            else SHROOM[1] if dy <= 0 else SHROOM[2])
             sp.rect(int(cx_ - rx_ * 0.86), iy + int(ry_),
                     int(cx_ + rx_ * 0.86), iy + int(ry_), SHROOM[3])  # the gills
+    elif kind == "drift":
+        # NO SILHOUETTE AT ALL — this one is pure hue, and the shape of the mark
+        # is the whole job. The first pass drew each leaf as a 4px sloping LINE
+        # with a stem, and a floor of those reads as a scatter of dead TWIGS: a
+        # line has a direction and no area, so thirteen of them per cell come out
+        # as bracken, or as damage. A leaf lying face up is a small SOLID patch
+        # with a lit edge on one side and its own shadow on the other, three or
+        # four pixels across, and eight of those per cell is a drift.
+        for i in range(8):
+            lx = 2 + h2(i, 0, salt + 11) % 11
+            ly = 2 + h2(i, 1, salt + 13) % 11
+            k = (1, 2, 0, 3)[h2(i, 2, salt + 17) % 4]   # which warm tone
+            if h2(i, 3, salt + 19) % 2:                 # lying across
+                sp.rect(lx, ly, lx + 2, ly, wood[k])
+                sp.rect(lx, ly + 1, lx + 2, ly + 1, wood[min(k + 2, 5)])
+                sp.set(lx, ly, wood[max(k - 1, 0)])
+                sp.set(lx + 3, ly + 1, wood[5])         # the stalk
+            else:                                       # or end-on
+                sp.rect(lx, ly, lx + 1, ly + 2, wood[k])
+                sp.set(lx, ly, wood[max(k - 1, 0)])
+                sp.set(lx + 1, ly + 2, wood[min(k + 2, 5)])
+                sp.set(lx, ly + 3, wood[5])
+        for i in range(2):     # a couple still green, so it fell from THESE trees
+            gx = 2 + h2(i, 4, salt + 23) % 11
+            gy = 3 + h2(i, 5, salt + 29) % 10
+            sp.rect(gx, gy, gx + 2, gy, f[2])
+            sp.rect(gx, gy + 1, gx + 2, gy + 1, f[4])
+    elif kind == "sapling":
+        # ONE stem with a LEAN, and the leaves have to be BROAD. Drawn as 1px
+        # sloping runs the whole plant came out as another brown twig standing in
+        # a field of brown twigs — at 16px a leaf needs two rows to be a leaf, and
+        # the stem needs to be shorter than instinct says or the thing reads as a
+        # sapling nobody would call knee-high.
+        sp.blob(8, 14, 3.6, 1.3, ground[5])            # what it stands in
+        for s in range(8):
+            t = s / 7.0
+            x = 8 - int(round(t * 2))
+            y = 14 - s
+            sp.set(x, y, wood[3] if t < 0.4 else wood[2])
+            sp.set(x + 1, y, wood[5])
+        for lx, ly, ll in ((5, 7, 4), (9, 9, 3), (5, 10, 3), (8, 5, 3)):
+            dr = 1 if lx < 7 else -1
+            for s in range(ll):
+                x = lx + dr * s
+                sp.set(x, ly - s, f[1] if s else f[2])
+                sp.set(x, ly - s + 1, f[2] if s else f[4])
+                sp.set(x, ly - s + 2, f[4])
+        sp.rect(6, 3, 7, 4, f[1])                      # the growing tip
+        sp.set(6, 2, f[0])
     else:                                              # a fallen log
         sp.blob(1, 12, w - 2, 2.2, ground[4])          # the shadow it lies in
         sp.capsule(1, 8, w - 2, 9, 4.4, 3.9, wood, sh=0.02, end_sh=0.08)

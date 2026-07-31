@@ -530,21 +530,64 @@ def t3_hidden_cells(mm, props, figure):
             ay0 = y0 * ZONE_TILE + prop["top"] if prop["top"] is not None \
                 else (y1 + 1) * ZONE_TILE - ph
             sort_y = (y1 + 1) * ZONE_TILE - prop["inset"] - PLAYER_FEET
-            for (cx, cy) in comp:
-                if mm.legend[mm.at(cx, cy)]["solid"]:
+            # SCAN THE ART RECT, NOT THE FOOTPRINT — the 2026-07-30 blind spot.
+            # A Tier-3 sprite may be taller or wider than the cells it declares:
+            # `top=0` with a long sprite hangs art SOUTH of the footprint, and a
+            # bottom-anchored sprite that overshoots reaches NORTH of it. The cells
+            # it covers out there belong to no prop component, so iterating `comp`
+            # could never see them — and that is exactly where the defect landed.
+            # A great trunk's art overshot one row up into its ring's walkable north
+            # arc and measured ZERO visible pixels on four decks in two eras while
+            # this lint printed all clear. The rule could not see the case it exists
+            # to catch, which is worse than not having it.
+            hits = []
+            for cy in range(max(0, int(ay0 // ZONE_TILE)),
+                            min(mm.rows_n, int((ay0 + ph) // ZONE_TILE) + 1)):
+                for cx in range(max(0, int(ax0 // ZONE_TILE)),
+                                min(mm.cols, int((ax0 + fw) // ZONE_TILE) + 1)):
+                    if mm.legend[mm.at(cx, cy)]["solid"]:
+                        continue
+                    ox = cx * ZONE_TILE + ZONE_TILE / 2.0
+                    oy = cy * ZONE_TILE + ZONE_TILE / 2.0
+                    if oy >= sort_y:
+                        continue      # the body sorts in FRONT: nothing hidden
+                    n = 0
+                    for (dx, dy) in figure:
+                        sx, sy = int(ox + dx - ax0), int(oy + dy - ay0)
+                        if 0 <= sx < fw and 0 <= sy < ph and alpha[sy][sx] > 0:
+                            n += 1
+                    hits.append(((cx, cy), n / float(len(figure))))
+            # THE PASS-BEHIND EXEMPTION. Walking fully behind a great tree is the
+            # effect this whole town is built for, and Basil's hall flee is staged
+            # behind a curtain leg on purpose — so vanishing is not by itself a
+            # defect. What IS a defect is vanishing for LONG ENOUGH TO GET LOST,
+            # which is what v1 shipped: a ring deck running clear under an opaque
+            # shaft, every cell of the crossing invisible, no way over that did not
+            # leave the player gone.
+            #
+            # So the test is the length of the hidden RUN, not the fact of hiding.
+            # Up to two cells is a step you pass through; three or more is a place
+            # you disappear into. The cell must also have a way OUT — some
+            # 4-neighbour that is not itself hidden — or a two-cell run against a
+            # wall would slip through.
+            dark = {c for c, fr in hits if fr > T3_HIDE_MAX}
+            for (cx, cy), frac in hits:
+                if (cx, cy) not in dark:
                     continue
-                ox = cx * ZONE_TILE + ZONE_TILE / 2.0
-                oy = cy * ZONE_TILE + ZONE_TILE / 2.0
-                if oy >= sort_y:
-                    continue          # the body sorts in FRONT: nothing hidden
-                n = 0
-                for (dx, dy) in figure:
-                    sx, sy = int(ox + dx - ax0), int(oy + dy - ay0)
-                    if 0 <= sx < fw and 0 <= sy < ph and alpha[sy][sx] > 0:
-                        n += 1
-                frac = n / float(len(figure))
-                if frac > T3_HIDE_MAX:
-                    out.append(((cx, cy), prop["name"], frac))
+                run = 1
+                d = 1
+                while (cx - d, cy) in dark:
+                    run += 1
+                    d += 1
+                d = 1
+                while (cx + d, cy) in dark:
+                    run += 1
+                    d += 1
+                out_of_it = any((cx + ax, cy + ay) not in dark
+                                for ax, ay in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+                if run <= 2 and out_of_it:
+                    continue          # a pass-behind, not a trap
+                out.append(((cx, cy), prop["name"], frac))
     return out
 
 
@@ -598,8 +641,10 @@ for rel, map_rel in PLACEMENTS.items():
 
 # ---- sheet dimensions -----------------------------------------------------------------
 SHEETS = {
-    "assets/basil_gen.png": (6 * ZONE_CELL, 10 * ZONE_CELL),
-    "assets/fuji_gen.png": (6 * ZONE_CELL, 10 * ZONE_CELL),
+    # row 10 is the LADDER CLIMB (2026-07-30) — Alembic is reached by rope
+    # ladder and a body on one used to play walk_up, i.e. slide up the rungs
+    "assets/basil_gen.png": (6 * ZONE_CELL, 11 * ZONE_CELL),
+    "assets/fuji_gen.png": (6 * ZONE_CELL, 11 * ZONE_CELL),
     # THE VILLAGER SHEET CONTRACT IS 10 COLUMNS. Row 0 is the POSE row:
     #   [0,1] idle_down · [2,3] act · [4,5] emote · [6,7] back · [8,9] side
     # and the side pair is drawn facing LEFT (npc.gd flips it for east).
@@ -639,7 +684,7 @@ SHEETS = {
     "assets/placeholder/shadow.png": (24, 10),
     "assets/placeholder/blow_dart.png": (12, 4),
     # the Prologue A cast (assets/_gen_prologue_sprites.py)
-    "assets/kid_basil_gen.png": (6 * ZONE_CELL, 5 * ZONE_CELL),
+    "assets/kid_basil_gen.png": (6 * ZONE_CELL, 6 * ZONE_CELL),
     # the three CHILDREN widened to the 10-column contract (2026-07-29) so they
     # stop gliding around the recital and the schoolyard permanently face-on
     "assets/npc_sage_gen.png": (10 * ZONE_CELL, ZONE_CELL),
