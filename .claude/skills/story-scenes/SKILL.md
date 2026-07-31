@@ -12,6 +12,36 @@ the kit, the rules, and where each beat lives.
 **Nothing narrative is ever recovered from git** (the 2026-07-12 build-fresh doctrine).
 If a scene was deleted, rebuild it fresh from DESIGN.md.
 
+## Read the screenplay before you read the scene
+
+**[docs/dialogue/](../../../docs/dialogue/) is every spoken line in the game, generated
+from the `.gd` files** — one screenplay per scene, in story order, grouped by beat, with
+the speaker in front of every line and a `file:line` beside it. `docs/dialogue/README.md`
+indexes them in chapter order and lists the cast by line count.
+
+**To reword anything, work there and push it back**, rather than grepping ~290
+`theater.say()` call sites:
+
+```sh
+python3 tools/dialogue.py export     # refresh the book from the .gd (do this FIRST)
+#   ... edit the words after `> ` ...
+python3 tools/dialogue.py apply      # and they land back in the scene
+python3 tools/dialogue.py check      # neither side has drifted
+```
+
+`apply` rewrites only the text inside the quotes, and only once it has proved the book
+and the scene still hold the same lines said by the same people in the same order. It
+refuses a file whole rather than guessing.
+
+**It does words, not structure.** Adding, deleting or reordering lines means moving the
+`close_dialog()` and `wait()` beats threaded between them — that is directing, and it
+belongs in the `.gd`. Do it there, then re-export.
+
+**A new dialogue idiom must be taught to the parser.** `check` reports any prose literal
+no extraction rule claims, because the failure mode here is silent omission: a book
+missing a line looks exactly like a complete one. If you invent a new way to route a
+line (a helper, a data table, a new kind of list), `check` will name it — add the rule.
+
 ## The two hard writing rules
 
 ### 1. The NARRATION PURGE — never add a narrator box

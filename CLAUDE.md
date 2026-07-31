@@ -91,7 +91,8 @@ before you start**, not after something breaks:
 | `components/`, `entities/player|fuji|enemies|projectiles`, ammo, status effects, damage | **`combat-kits`** |
 | `scene/party.gd`, `entities/party/`, brains, follower behaviour, movement speed | **`party-ai`** |
 | sheets, stats, gear, satchel, `party_menu`, `save_game`, `title` | **`rpg-systems`** |
-| cutscenes, dialogue, NPCs, phases, flags, walk-gates, doors, any character's lines | **`story-scenes`** |
+| cutscenes, NPCs, phases, flags, walk-gates, doors, staging any character's lines | **`story-scenes`** |
+| WORDING a line — read [docs/dialogue/](docs/dialogue/) first; `tools/dialogue.py` writes edits back | **`story-scenes`** |
 | the overworld, towns, zones, interiors, travel markers | **`world-and-zones`** |
 | `tools/`, probes, screenshots, headless gotchas | **`probes-and-shots`** |
 
@@ -259,4 +260,23 @@ python3 assets/_gen_tileset_<scene>.py     # regenerate art
 python3 assets/_check_art.py               # lint the output
 godot --headless --import                  # REQUIRED after any regen or new class_name
 godot --headless --script tools/shot.gd    # eyeball a scene (see probes-and-shots)
+
+python3 tools/dialogue.py export           # .gd -> docs/dialogue/*.md (the screenplay)
+python3 tools/dialogue.py apply            # docs/dialogue/*.md -> .gd (your rewrites)
+python3 tools/dialogue.py check            # neither side has drifted
+python3 tools/dialogue_test.py             # the round-trip's own tests
 ```
+
+## Writing dialogue: read the book, not the code
+
+**[docs/dialogue/](docs/dialogue/) is every spoken line in the game as a screenplay** —
+one file per scene, in story order, speaker in front of every line, `file:line`
+beside it. It is GENERATED from the `.gd` files, which stay the source of truth,
+but it is a two-way door: edit the words after `> `, run `python3
+tools/dialogue.py apply`, and they land back in the scene.
+
+Do that instead of grepping ~290 `theater.say()` call sites. **Re-export after any
+`.gd` edit**, and `apply` before rearranging a beat — an unapplied edit lives only
+in the `.md` and `export` overwrites it. Rewording is supported; adding, deleting
+or reordering lines is a change to the SCENE and belongs in the `.gd`
+(`close_dialog()` / `wait()` beats have to move with it).

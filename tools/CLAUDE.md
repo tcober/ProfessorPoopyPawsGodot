@@ -1,7 +1,15 @@
-# tools/ — probes and headless screenshots
+# tools/ — probes, headless screenshots, and the dialogue book
 
 **Load the `probes-and-shots` skill before running or writing anything here.** It carries
 the probe inventory, `tools/shot.gd`'s args, and all the harness gotchas.
+
+## The one tool here that is not a probe
+
+`tools/dialogue.py` is Python, needs no engine, and WRITES INTO `scene/*.gd`. It projects
+every spoken line into `docs/dialogue/*.md` as a screenplay and pushes edits back:
+`export` / `apply` / `check` (see the `story-scenes` skill). `tools/dialogue_test.py` is
+its round-trip suite — **it edits `scene/` and restores with `git checkout`, so it
+refuses to run on a dirty tree.** Run it after touching the parser.
 
 The standing rule: **verify the scene you changed, not the whole chapter.**
 `prologue_probe.gd` takes minutes and is for handoff-chain changes and final checks only
