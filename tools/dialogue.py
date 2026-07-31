@@ -1042,10 +1042,16 @@ def write_readme(books):
             out.append("| beat | screenplay | lines |")
             out.append("| --- | --- | --- |")
             continue
-        if stem in by_stem:
+        # chapters.gd names a .tscn, whose stem is the STAGE script. A scene split
+        # stage/dialogue (see scene/sickroom.gd) keeps its beats in
+        # `<stem>_dialogue.gd`, so that is where its book is — check both, or every
+        # split scene silently reads "(no dialogue)" in its own index.
+        book = stem if stem in by_stem else (
+            stem + "_dialogue" if stem + "_dialogue" in by_stem else "")
+        if book:
             out.append("| %s | [`%s.md`](%s.md) | %d |"
-                       % (label, stem, stem, counts.get(stem, 0)))
-            seen.add(stem)
+                       % (label, book, book, counts.get(book, 0)))
+            seen.add(book)
         else:
             out.append("| %s | *(no dialogue)* | — |" % label)
 

@@ -119,7 +119,7 @@ of contents. The line count in the table below is the whole file's, not the beat
 | B7 - SHE CALLS | [`bluff.md`](bluff.md) | 78 |
 | B8 - THE ACCIDENT | [`accident.md`](accident.md) | 8 |
 | B9 - THE WRONG VOICE | [`bluff.md`](bluff.md) | 78 |
-| B10 - THE VERDICT | [`sickroom.md`](sickroom.md) | 18 |
+| B10 - THE VERDICT | [`sickroom_dialogue.md`](sickroom_dialogue.md) | 18 |
 | B11 - THE CLINIC STEPS | [`town_thesis.md`](town_thesis.md) | 29 |
 
 ### THE EBB
@@ -153,9 +153,9 @@ of contents. The line count in the table below is the whole file's, not the beat
 
 | character | lines | scenes |
 | --- | ---: | --- |
-| Basil | 82 | [`bluff`](bluff.md), [`downstairs_fest`](downstairs_fest.md), [`hall`](hall.md), [`house_fest`](house_fest.md), [`house_thesis`](house_thesis.md), [`sickroom`](sickroom.md), [`town_fest`](town_fest.md), [`town_thesis`](town_thesis.md) |
+| Basil | 82 | [`bluff`](bluff.md), [`downstairs_fest`](downstairs_fest.md), [`hall`](hall.md), [`house_fest`](house_fest.md), [`house_thesis`](house_thesis.md), [`sickroom_dialogue`](sickroom_dialogue.md), [`town_fest`](town_fest.md), [`town_thesis`](town_thesis.md) |
 | Fuji | 77 | [`lanternwood`](lanternwood.md), [`library`](library.md) |
-| Kitty | 55 | [`bluff`](bluff.md), [`downstairs_fest`](downstairs_fest.md), [`hall`](hall.md), [`sickroom`](sickroom.md), [`town_thesis`](town_thesis.md) |
+| Kitty | 55 | [`bluff`](bluff.md), [`downstairs_fest`](downstairs_fest.md), [`hall`](hall.md), [`sickroom_dialogue`](sickroom_dialogue.md), [`town_thesis`](town_thesis.md) |
 | Mayor Hollis | 29 | [`lanternwood`](lanternwood.md) |
 | Mom | 18 | [`downstairs_fest`](downstairs_fest.md) |
 | Schweinler | 17 | [`accident`](accident.md), [`hall`](hall.md), [`town_fest`](town_fest.md), [`town_thesis`](town_thesis.md) |
@@ -163,9 +163,9 @@ of contents. The line count in the table below is the whole file's, not the beat
 | Ridley | 11 | [`accident`](accident.md), [`bluff`](bluff.md), [`town_thesis`](town_thesis.md) |
 | Goose | 9 | [`town_fest`](town_fest.md) |
 | Professor Strix | 7 | [`hall`](hall.md), [`town_fest`](town_fest.md) |
-| Dr. Ciconia | 5 | [`sickroom`](sickroom.md) |
+| Dr. Ciconia | 5 | [`sickroom_dialogue`](sickroom_dialogue.md) |
 | ??? | 4 | [`bluff`](bluff.md) |
-| Kitty's Mother | 4 | [`sickroom`](sickroom.md) |
+| Kitty's Mother | 4 | [`sickroom_dialogue`](sickroom_dialogue.md) |
 | Pip | 4 | [`lanternwood`](lanternwood.md), [`town_fest`](town_fest.md) |
 | Mrs. Flockhart | 3 | [`town_fest`](town_fest.md) |
 | Alder | 2 | [`lanternwood`](lanternwood.md) |

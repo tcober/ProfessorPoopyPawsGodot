@@ -1,6 +1,6 @@
 [gd_scene load_steps=7 format=3]
 
-[ext_resource type="Script" path="res://scene/sickroom.gd" id="1_sr"]
+[ext_resource type="Script" path="res://scene/sickroom_dialogue.gd" id="1_sr"]
 [ext_resource type="TileSet" path="res://assets/collision_tileset.tres" id="2_collision"]
 [ext_resource type="TileSet" path="res://assets/tilesets/sickroom_tiles.tres" id="3_tiles"]
 [ext_resource type="Texture2D" path="res://assets/tilesets/sickroom_glow.png" id="4_glow"]
