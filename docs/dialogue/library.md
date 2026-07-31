@@ -46,14 +46,22 @@
 
 ## `_ebb_night`
 
+*— 0.4s pause · fade up · 0.8s pause —*
+
 **FUJI**  <sub>`library.gd:190:28`</sub>
 > One more chapter, then bed. ...Which means coffee.
+
+*— 0.4s pause —*
 
 **FUJI**  <sub>`library.gd:195:28`</sub>
 > Ah - no - the KETTLE, not the floorboards-
 
+*— 0.3s pause · fuji hops —*
+
 **FUJI**  <sub>`library.gd:201:28`</sub>
 > Oh, come ON. Heat the water. It's barely even a spell.
+
+*— 0.5s pause · 1.2s pause · 0.7s pause —*
 
 **FUJI**  <sub>`library.gd:213:28`</sub>
 > ...Did I do that?
@@ -66,6 +74,8 @@
 
 **FUJI**  <sub>`library.gd:216:28`</sub>
 > Where was I. Coffee.
+
+*— 0.5s pause · 1.5s pause · 2.0s pause —*
 
 **FUJI**  <sub>`library.gd:228:28`</sub>
 > ...It's not the wand.
@@ -80,6 +90,8 @@
 
 *The cutscene ends IN the room — no fade, no card, nobody drags her out. The puppet goes and her real body takes its place on the SAME front-facing pose (npc_fuji_gen is drawn to her canonical player sheet's geometry off the same palette, so the change reads as nothing); from here the player walks her out her own door.*
 
+*— control handed back —*
+
 **ON-SCREEN HINT**  <sub>`library.gd:249:15`</sub>
 > GO OUTSIDE - THE SOUTH DOOR
 
@@ -87,8 +99,12 @@
 
 *Weeks after the Ebb, in the same room. She has read everything in it and found nothing, and the beat hands control straight back — this is a GATE, not a cutscene. The ledger on her desk is the only clue: the catalogue says shelf nine holds eleven titles, and shelf nine holds twelve spines. The twelfth was never catalogued because nobody ever accessioned it, which is also the honest answer to how it crossed an ocean — nobody wrote that down either.*
 
+*— 0.5s pause —*
+
 **CARD**  <sub>`library.gd:265:21`</sub>
 > SOME WEEKS LATER.
+
+*— fade up · 0.7s pause —*
 
 **FUJI**  <sub>`library.gd:268:28`</sub>
 > Six weeks. Every shelf in this room, twice.
@@ -99,13 +115,19 @@
 **FUJI**  <sub>`library.gd:270:28`</sub>
 > Not one of them says what to do when it stops.
 
+*— 0.6s pause —*
+
 **FUJI**  <sub>`library.gd:273:28`</sub>
 > ...Fine. Properly, then. From the ledger.
+
+*— control handed back —*
 
 **ON-SCREEN HINT**  <sub>`library.gd:276:15`</sub>
 > READ THE LEDGER - THE DESK
 
 ## `_kit_night`
+
+*— 0.5s pause · fade up —*
 
 **FUJI**  <sub>`library.gd:305:28`</sub>
 > Right. He's across an ocean and the road there has things on it.
@@ -113,8 +135,12 @@
 **FUJI**  <sub>`library.gd:306:28`</sub>
 > And I have... a dead stick and a library card.
 
+*— 0.6s pause —*
+
 **FUJI**  <sub>`library.gd:309:28`</sub>
 > ...No. I have a LIBRARY.
+
+*— control handed back —*
 
 **ON-SCREEN HINT**  <sub>`library.gd:312:15`</sub>
 > SHELF THREE   THE COUNTER   PICK A BOOK
@@ -139,8 +165,12 @@
 **FUJI**  <sub>`library.gd:333:28`</sub>
 > 'To trim the hooves of a full-grown ox, the beast must first be put down soft.'
 
+*— 0.7s pause —*
+
 **FUJI**  <sub>`library.gd:336:28`</sub>
 > 'Two grains to the hundredweight. It comes on slow. Do not stand where it will fall.'
+
+*— 0.5s pause —*
 
 **FUJI**  <sub>`library.gd:339:28`</sub>
 > ...Two grains to the hundredweight.
@@ -158,8 +188,12 @@
 **FUJI**  <sub>`library.gd:356:29`</sub>
 > It's a stick. It has always just been a stick.
 
+*— 0.8s pause —*
+
 **FUJI**  <sub>`library.gd:359:29`</sub>
 > Hollow it out and it's a tube. Hollow it out and it's -
+
+*— 1.0s pause —*
 
 **FUJI**  <sub>`library.gd:362:29`</sub>
 > ...
@@ -169,6 +203,8 @@
 
 **FUJI**  <sub>`library.gd:366:28`</sub>
 > ...It was never the wand. It was never going to be the wand again.
+
+*— 0.6s pause —*
 
 **FUJI**  <sub>`library.gd:369:28`</sub>
 > So it may as well be useful.
@@ -186,17 +222,23 @@
 **FUJI**  <sub>`library.gd:389:29`</sub>
 > ...
 
+*— 0.6s pause —*
+
 **FUJI**  <sub>`library.gd:392:29`</sub>
 > Not this one. Never this one.
 
 **FUJI**  <sub>`library.gd:393:29`</sub>
 > You don't hit things with a book you love.
 
+*— 0.5s pause —*
+
 **ON-SCREEN HINT**  <sub>`library.gd:396:16`</sub>
 > PICK ONE YOU CAN LIVE WITH BREAKING
 
 **FUJI**  <sub>`library.gd:402:28`</sub>
 > ...This one. %s.
+
+*— 0.5s pause —*
 
 **FUJI**  <sub>`library.gd:405:28`</sub>
 > Heavy. That's the whole review.
@@ -222,6 +264,8 @@
 
 **FUJI**  <sub>`library.gd:430:28`</sub>
 > Shelf nine. Enchantment, theory. ...Eleven titles.
+
+*— 0.8s pause —*
 
 **FUJI**  <sub>`library.gd:433:28`</sub>
 > ...Eleven.
@@ -252,8 +296,12 @@
 **FUJI**  <sub>`library.gd:468:28`</sub>
 > Eleven titles. All right. One... four... nine, ten, eleven -
 
+*— 0.9s pause · the player hops —*
+
 **FUJI**  <sub>`library.gd:472:28`</sub>
 > - twelve.
+
+*— 0.7s pause —*
 
 **FUJI**  <sub>`library.gd:475:28`</sub>
 > It isn't a book. It's PAPER. Somebody's paper, string-tied, shoved in behind the rest.
@@ -264,11 +312,15 @@
 **FUJI**  <sub>`library.gd:477:28`</sub>
 > Nobody ever wrote this down. It just... got here.
 
+*— the player walks · 0.9s pause —*
+
 **FUJI**  <sub>`library.gd:487:28`</sub>
 > "ON RE-ENCHANTMENT: WHY SCIENCE IS MAGIC'S EQUAL."
 
 **FUJI**  <sub>`library.gd:488:28`</sub>
 > B. Basil.
+
+*— 0.8s pause —*
 
 **FUJI**  <sub>`library.gd:491:28`</sub>
 > There's a note in the margin. Not his hand - somebody else's, pressed hard enough to dent the page.
@@ -276,11 +328,15 @@
 **FUJI**  <sub>`library.gd:492:28`</sub>
 > "Laughed out of the Academy."
 
+*— 1.4s pause —*
+
 **FUJI**  <sub>`library.gd:495:28`</sub>
 > ...Magic isn't gone. It's asleep. And it can be woken, and here is HOW.
 
 **FUJI**  <sub>`library.gd:496:28`</sub>
 > Somebody worked this out. Years ago. And they laughed at him and shelved him and forgot which shelf.
+
+*— 0.9s pause —*
 
 **FUJI**  <sub>`library.gd:499:28`</sub>
 > ...Where are you, B. Basil?

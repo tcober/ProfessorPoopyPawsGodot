@@ -82,6 +82,8 @@
 **MOM**  <sub>`downstairs_fest.gd:166:27`</sub>
 > Listen to me. Magic is common as dandelions.
 
+*— mom: big feeling —*
+
 **MOM**  <sub>`downstairs_fest.gd:168:27`</sub>
 > You? You take things apart to see WHY. You put them back together BETTER. That is rarer than any ribbon trick.
 
@@ -94,12 +96,16 @@
 **MOM**  <sub>`downstairs_fest.gd:171:27`</sub>
 > Now scoot. Sulk somewhere sunny - the meadow's good for it. Out the south gate. Home before the lamps.
 
+*— control handed back —*
+
 **ON-SCREEN HINT**  <sub>`downstairs_fest.gd:176:15`</sub>
 > THE SOUTH GATE IS OPEN - THE MEADOW
 
 ## `_brew`
 
 *The workbench pocket has exactly ONE entrance — the bench base (row 8) is solid below it, the armchair and boiler wall off row 6, and the plant seals row 5's east end — so the only route in is x17 down the row-5 lane. A band over the whole bench top therefore cannot be walked around: the gate is unavoidable for its objective, which is the law.*
+
+*— mom: big feeling —*
 
 **MOM**  <sub>`downstairs_fest.gd:197:28`</sub>
 > BASIL. And a friend. Wipe your paws, both of - is that a PROPELLER?
@@ -110,11 +116,15 @@
 **BASIL**  <sub>`downstairs_fest.gd:199:30`</sub>
 > Mom, I need the bench.
 
+*— mom: business pose —*
+
 **MOM**  <sub>`downstairs_fest.gd:201:28`</sub>
 > ...You have that face. Go on, then. Not the good pot.
 
 **ON-SCREEN HINT**  <sub>`downstairs_fest.gd:204:15`</sub>
 > THE WORKBENCH - THE EAST CORNER
+
+*— player walks there themselves · kitty: business pose —*
 
 **BASIL**  <sub>`downstairs_fest.gd:213:29`</sub>
 > Everyone at that recital is going to make a colour appear in the air.
@@ -125,17 +135,23 @@
 **KITTY**  <sub>`downstairs_fest.gd:215:29`</sub>
 > And you can't set them off... but my whirligig can carry them up where nobody has to hold them.
 
+*— the mash minigame · 0.5s pause · kitty: big feeling —*
+
 **KITTY**  <sub>`downstairs_fest.gd:231:29`</sub>
 > ...Basil. That's four.
 
 **BASIL**  <sub>`downstairs_fest.gd:232:29`</sub>
 > That's four.
 
+*— mom: big feeling —*
+
 **MOM**  <sub>`downstairs_fest.gd:235:28`</sub>
 > Whatever that is, it is not staying in my kitchen.
 
 **KITTY**  <sub>`downstairs_fest.gd:236:29`</sub>
 > It isn't. It's going to the Academy.
+
+*— control handed back —*
 
 **ON-SCREEN HINT**  <sub>`downstairs_fest.gd:240:15`</sub>
 > THE ACADEMY - ACROSS TOWN, UP THE STAIR

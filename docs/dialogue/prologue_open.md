@@ -19,6 +19,8 @@
 
 ## `_run`
 
+*— 0.7s pause —*
+
 **CARD**  <sub>`prologue_open.gd:20:21`</sub>
 > PROFESSOR POOPY PAWS
 

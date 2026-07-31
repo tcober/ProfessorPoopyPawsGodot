@@ -35,6 +35,8 @@
 **BASIL**  <sub>`town_thesis.gd:126:29`</sub>
 > Home. Sleep. Tomorrow I become a professor.
 
+*— player walks there themselves · 0.5s pause —*
+
 **KITTY**  <sub>`town_thesis.gd:137:29`</sub>
 > Say it again. One more time. I want to hear it.
 
@@ -59,11 +61,17 @@
 **BASIL**  <sub>`town_thesis.gd:144:29`</sub>
 > ...Goodnight, Kitty.
 
+*— the player walks · 0.8s pause · 1.0s pause · schw walks —*
+
 **SCHWEINLER**  <sub>`town_thesis.gd:180:34`</sub>
 > Heh heh heh. A little CONGRATULATIONS for the no-magic wonder and his little POTIONS.
 
+*— schw: big feeling —*
+
 **SCHWEINLER**  <sub>`town_thesis.gd:182:34`</sub>
 > Enjoy your big lecture tomorrow, Basil. Oink - hahaha!
+
+*— schw walks · fade to black —*
 
 **CARD**  <sub>`town_thesis.gd:196:21`</sub>
 > THE NEXT MORNING.
@@ -74,6 +82,8 @@
 
 **BASIL**  <sub>`town_thesis.gd:209:29`</sub>
 > The lecture! I OVERSLEPT! First lecture as a professor and I overslept!
+
+*— the player walks · the player hops —*
 
 **BASIL**  <sub>`town_thesis.gd:217:29`</sub>
 > Ew. EW. Squishy. Why was that SQUISHY?!
@@ -93,6 +103,8 @@
 
 *The clinic-steps ending (2026-07-17): Basil gets six steps out of the doctor's door and folds onto the stoop. Ridley finds him there, says the blunt thing, and leaves — Basil barely speaks; the bowed head says it. Then the cut: the south gate at night — the knapsack, one look back at the town, the goodbye he owes nobody, and he walks out of the story. Fully scripted on purpose — the user's agency spent itself at the sickroom door; this part just happens TO him.*
 
+*— badger walks —*
+
 **RIDLEY**  <sub>`town_thesis.gd:320:30`</sub>
 > Hey. Basil, right? I was there. On the road. I saw the whole thing.
 
@@ -102,8 +114,12 @@
 **BASIL**  <sub>`town_thesis.gd:322:29`</sub>
 > ...
 
+*— 0.6s pause —*
+
 **RIDLEY**  <sub>`town_thesis.gd:324:30`</sub>
 > That bad. ...You know what? Sitting out here like the sky fell on YOU - that's pretty selfish.
+
+*— 0.4s pause —*
 
 **RIDLEY**  <sub>`town_thesis.gd:328:30`</sub>
 > YOU weren't the one who got run over. SHE'S the one in the bed. And you're over here feeling sorry for YOURSELF?
@@ -111,12 +127,16 @@
 **RIDLEY**  <sub>`town_thesis.gd:329:30`</sub>
 > ...I'm just saying. Perspective. Anyway. Feel better!
 
+*— badger walks · 0.8s pause —*
+
 **BASIL**  <sub>`town_thesis.gd:336:29`</sub>
 > ...
 
 ## `_leaving`
 
 *The cut: the south gate at night. A knapsack over his shoulder, one look back at the town (2026-07-18 — restaged from the east lane), and out.*
+
+*— 1.8s pause · 1.2s pause —*
 
 **BASIL**  <sub>`town_thesis.gd:365:29`</sub>
 > ...Goodbye.
@@ -126,6 +146,8 @@
 
 **BASIL**  <sub>`town_thesis.gd:367:29`</sub>
 > I wish I could have been welcome here.
+
+*— 1.0s pause · 0.5s pause · 2.8s pause · fade to black —*
 
 **CARD**  <sub>`town_thesis.gd:399:21`</sub>
 > YEARS LATER.

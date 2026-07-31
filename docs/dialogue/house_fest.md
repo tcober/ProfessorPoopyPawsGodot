@@ -19,11 +19,17 @@
 
 ## `_sunrise_cutscene`
 
+*— 1.4s pause · 0.8s pause —*
+
 **BASIL**  <sub>`house_fest.gd:65:29`</sub>
 > ...morning already?
 
+*— the player walks · 0.4s pause · 0.25s pause · 0.9s pause —*
+
 **BASIL**  <sub>`house_fest.gd:87:29`</sub>
 > *siiigh*...The WHOLE town will be out there...
+
+*— control handed back —*
 
 **ON-SCREEN HINT**  <sub>`house_fest.gd:91:15`</sub>
 > FESTIVAL MORNING - HEAD DOWNSTAIRS

@@ -84,6 +84,8 @@
 
 ## `_the_motion`
 
+*— mayor: business pose —*
+
 **MAYOR HOLLIS**  <sub>`lanternwood.gd:338:36`</sub>
 > 'Item four. Curdled magic in the lower lanes. Cleared by' - by WHOM, exactly. What do I put.
 
@@ -92,6 +94,8 @@
 
 **MAYOR HOLLIS**  <sub>`lanternwood.gd:340:36`</sub>
 > I KNOW where you work. I signed your ledger. I am asking what you are NOW, because that was not a librarian.
+
+*— 0.5s pause —*
 
 **FUJI**  <sub>`lanternwood.gd:346:28`</sub>
 > There's a paper on my own shelves. Someone worked out why the magic could go. And how to bring it back.
@@ -114,8 +118,12 @@
 **MAYOR HOLLIS**  <sub>`lanternwood.gd:352:36`</sub>
 > Which is the most frightening sentence I have said out loud in my life.
 
+*— 0.7s pause · mayor: big feeling —*
+
 **MAYOR HOLLIS**  <sub>`lanternwood.gd:357:36`</sub>
 > I move that Lanternwood send somebody to find the author of it.
+
+*— 1.1s pause —*
 
 **MAYOR HOLLIS**  <sub>`lanternwood.gd:360:36`</sub>
 > Seconded.
@@ -125,6 +133,8 @@
 
 **MAYOR HOLLIS**  <sub>`lanternwood.gd:362:36`</sub>
 > Seconded. Carried. Minuted.
+
+*— 0.6s pause —*
 
 **MAYOR HOLLIS**  <sub>`lanternwood.gd:367:36`</sub>
 > Now the part I would rather not minute. Nobody is coming.
@@ -137,6 +147,8 @@
 
 **MAYOR HOLLIS**  <sub>`lanternwood.gd:370:36`</sub>
 > And you are the one holding the paper.
+
+*— 0.8s pause —*
 
 **MAYOR HOLLIS**  <sub>`lanternwood.gd:376:36`</sub>
 > The town launch is at the pier. It is yours until you bring it back to me.
@@ -156,6 +168,8 @@
 **MAYOR HOLLIS**  <sub>`lanternwood.gd:381:36`</sub>
 > Alder is right twice a decade. Let him have this one.
 
+*— 0.5s pause · mayor: business pose —*
+
 **MAYOR HOLLIS**  <sub>`lanternwood.gd:387:36`</sub>
 > One condition, and it is the only thing I have the authority to ask. You write down what you find.
 
@@ -168,11 +182,15 @@
 **MAYOR HOLLIS**  <sub>`lanternwood.gd:390:36`</sub>
 > It is what I have, Librarian. A town that wrote nothing down was never here at all.
 
+*— 1.2s pause —*
+
 **MAYOR HOLLIS**  <sub>`lanternwood.gd:395:36`</sub>
 > ...Fuji.
 
 **MAYOR HOLLIS**  <sub>`lanternwood.gd:396:36`</sub>
 > Come back and read it to me.
+
+*— 0.6s pause —*
 
 **MAYOR HOLLIS** *(idle line — this block is a list)*  <sub>`lanternwood.gd:402:3`</sub>
 > The launch is at the pier and the pier is east of here. Coal's in the bunker. Take all of it.
@@ -195,11 +213,15 @@
 
 ## `_cast_off`
 
+*— the player walks · 0.6s pause —*
+
 **FUJI**  <sub>`lanternwood.gd:457:28`</sub>
 > It burns coal. It makes fire. It goes.
 
 **FUJI**  <sub>`lanternwood.gd:458:28`</sub>
 > ...I can do the third one.
+
+*— 0.8s pause · fade to black —*
 
 **CARD**  <sub>`lanternwood.gd:462:21`</sub>
 > THREE DAYS LATER.

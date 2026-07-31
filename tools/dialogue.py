@@ -138,9 +138,11 @@ def escape(text):
 # ---- the model ---------------------------------------------------------------------
 
 class Line:
-    __slots__ = ("kind", "speaker", "text", "raw", "path", "lineno", "col", "end", "note")
+    __slots__ = ("kind", "speaker", "text", "raw", "path", "lineno", "col", "end",
+                 "note", "stage")
 
     def __init__(self, kind, speaker, raw, path, lineno, col, end, note=""):
+        self.stage = ""     # stage direction standing BEFORE this line, if any
         self.kind = kind
         self.speaker = speaker
         self.raw = raw
@@ -417,7 +419,12 @@ def extract(path):
                     depth -= 1
                 j += 1
             if depth:
-                return "TRUNCATED"             # call wraps lines — caller reports it
+                # The call wraps onto the next line, so the args can't be split
+                # here. Claim NOTHING rather than guessing at arg 0: an unclaimed
+                # literal is reported by the prose audit with a message that says
+                # what to do, where a wrong guess would put the line in the book
+                # under the wrong speaker and look right.
+                return None
             args = _split_args(code[open_at:j - 1])
             if arg_i >= len(args):
                 continue
@@ -492,12 +499,6 @@ def extract(path):
         # --- a local dialogue helper: _look("H", "the line"), _door_hint("...")
         if strings:
             hit = helper_hit(code_only, idx)
-            if hit == "TRUNCATED":
-                lines.append(Line(SAY, "", strings[0][2], path, idx + 1,
-                                  strings[0][0], strings[0][1],
-                                  note="MULTILINE-HELPER-CALL"))
-                _track_brackets(code_only, depth_ctx)
-                continue
             if hit:
                 col, end, lit, kind, spk = hit
                 lines.append(Line(kind, spk, lit, path, idx + 1, col, end))
@@ -563,6 +564,7 @@ def extract(path):
             by_func[name] = sec
             sections.append(sec)
         by_func[name].lines.append(ln)
+    _attach_stage(sections, src)
     return sections, _blurb_above(src, _first_code(src)), src
 
 
@@ -617,6 +619,71 @@ def unclaimed(path):
             if looks_like_prose(text, window):
                 out.append((idx + 1, text))
     return out
+
+
+# ---- stage directions ---------------------------------------------------------------
+# THE SILENCES ARE PART OF THE WRITING. Between two adjacent lines of the book the
+# scene may hold a 1.2-second beat, fade to black, or send somebody across a room —
+# sickroom's "Your paws. They're folding pleats..." lands after a held pause and a
+# change of pose, and a screenplay that prints it flush against the line before it is
+# showing the writer the wrong rhythm.
+#
+# So the code BETWEEN two lines is summarised into a one-line direction. Only the
+# things that change pacing or staging: waits, fades, cards, walks, hops, handing
+# control back. Not flags, not tweens, not sprite frames — this is a script, not a
+# disassembly. Directions are DERIVED and never parsed back (parse_book only reads
+# `> ` rows under a heading), so they are safe to be as chatty as they are useful.
+
+STAGE_RULES = [
+    (re.compile(r"\btheater\.wait\(\s*([0-9.]+)"), lambda m: "%ss pause" % m.group(1)),
+    (re.compile(r"\btheater\.black\("), lambda m: "fade to black"),
+    (re.compile(r"\btheater\.clear\("), lambda m: "fade up"),
+    (re.compile(r"\btheater\.walk_gate\("), lambda m: "player walks there themselves"),
+    (re.compile(r"\btheater\.walk(?:_via)?\(\s*([A-Za-z_][\w.]*)"),
+     lambda m: "%s walks" % _actor(m.group(1))),
+    (re.compile(r"\btheater\.hop\(\s*([A-Za-z_][\w.]*)"),
+     lambda m: "%s hops" % _actor(m.group(1))),
+    # lock_party is deliberately absent: every cutscene opens with it, so printing
+    # it says nothing. Handing control BACK is a real event in the script.
+    (re.compile(r"\btheater\.unlock_party\("), lambda m: "control handed back"),
+    (re.compile(r"\btheater\.mash_meter\("), lambda m: "the mash minigame"),
+    (re.compile(r"([A-Za-z_][\w.]*)\.play_act\("), lambda m: "%s: business pose" % _actor(m.group(1))),
+    (re.compile(r"([A-Za-z_][\w.]*)\.play_emote\("), lambda m: "%s: big feeling" % _actor(m.group(1))),
+]
+
+
+def _actor(expr):
+    """`_kitty` / `player.sprite` / `_mayor` -> a name a reader recognises."""
+    name = expr.split(".")[0].lstrip("_")
+    return "the player" if name == "player" else name.replace("_", " ")
+
+
+def _stage_between(src, lo, hi):
+    """A one-line direction for the code in src[lo:hi], or ""."""
+    beats = []
+    for row in src[lo:hi]:
+        code = row.split("#")[0]
+        for rx, fmt in STAGE_RULES:
+            m = rx.search(code)
+            if m:
+                said = fmt(m)
+                if not beats or beats[-1] != said:
+                    beats.append(said)
+    # walk_gate hands control over AND tweens the last steps, so the two rules both
+    # fire on one action; the gate is the one that describes it.
+    if "player walks there themselves" in beats and "the player walks" in beats:
+        beats.remove("the player walks")
+    return " · ".join(beats[:4])
+
+
+def _attach_stage(sections, src):
+    """Hang a stage direction on each line, from the code since the previous one."""
+    for sec in sections:
+        prev = None
+        for ln in sec.lines:
+            lo = prev.lineno if prev else max(ln.lineno - 6, 0)
+            ln.stage = _stage_between(src, lo, ln.lineno - 1)
+            prev = ln
 
 
 def _first_code(src):
@@ -701,6 +768,9 @@ def render(path, sections, header, rel):
                 head = "**%s** *(via `%s`)*" % (ln.speaker.upper() or "LINE", ln.note)
             else:
                 head = "**%s**" % KIND_LABEL[ln.kind]
+            if ln.stage:
+                out.append("*— %s —*" % ln.stage)
+                out.append("")
             out.append("%s  <sub>`%s`</sub>" % (head, ln.anchor))
             out.append("> " + ln.text)
             out.append("")
@@ -884,6 +954,20 @@ does nothing).
 
 **One line of dialogue is one `> ` line, however long.** Don't hard-wrap it; your
 editor's soft wrap is fine and markdown renders it wrapped anyway.
+
+### The italic rows are stage directions
+
+```
+*— 0.6s pause · fade to black —*
+```
+
+Those are read off the code between two lines — the held beats, the fades, who
+walks where, when control goes back to the player. **They are not editable** (they
+are derived, and `export` rewrites them); they are there because the silences are
+part of the writing. Basil's *"Your paws. They're folding pleats…"* lands after a
+held pause, and a script that printed it flush against the line before would be
+showing you the wrong rhythm. To change a pause, change the `theater.wait()` in
+the `.gd`.
 
 ### What you can and can't do here
 

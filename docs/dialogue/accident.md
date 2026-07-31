@@ -19,6 +19,8 @@
 
 ## `_run`
 
+*— 0.4s pause · fade up —*
+
 **SCHWEINLER**  <sub>`accident.gd:138:34`</sub>
 > Feast your eyes, Ridley. Father had it shipped from the CAPITAL. The fastest machine in the kingdom.
 
@@ -28,11 +30,15 @@
 **SCHWEINLER**  <sub>`accident.gd:142:34`</sub>
 > DRIVEN it? You don't DRIVE a machine like this. You POINT it. Watch.
 
+*— 0.35s pause · 0.25s pause —*
+
 **SCHWEINLER**  <sub>`accident.gd:165:34`</sub>
 > HA! FIRST try! You hear that purr, Ridley? It already respects m- wait. Wait, why is it-
 
 **RIDLEY**  <sub>`accident.gd:189:30`</sub>
 > SCHWEINLER! The BRAKE! Where's the BRAKE?!
+
+*— 0.3s pause · 0.12s pause · 1.6s pause · 1.0s pause —*
 
 **SCHWEINLER**  <sub>`accident.gd:257:34`</sub>
 > ...I didn't see her. I swear I - the machine just - I didn't SEE her!

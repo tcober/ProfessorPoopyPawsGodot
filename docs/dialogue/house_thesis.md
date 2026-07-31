@@ -19,6 +19,8 @@
 
 ## `_wake_cutscene`
 
+*— 0.8s pause —*
+
 **BASIL**  <sub>`house_thesis.gd:77:29`</sub>
 > Zzz... mm. Tenure... acceptance speech... zzz...
 
@@ -45,6 +47,8 @@
 
 **BASIL**  <sub>`house_thesis.gd:91:29`</sub>
 > No no no no no no NO!
+
+*— the player hops · control handed back —*
 
 **ON-SCREEN HINT**  <sub>`house_thesis.gd:97:15`</sub>
 > GET DOWNSTAIRS - THE SW STAIRS

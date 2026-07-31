@@ -29,6 +29,20 @@ does nothing).
 **One line of dialogue is one `> ` line, however long.** Don't hard-wrap it; your
 editor's soft wrap is fine and markdown renders it wrapped anyway.
 
+### The italic rows are stage directions
+
+```
+*— 0.6s pause · fade to black —*
+```
+
+Those are read off the code between two lines — the held beats, the fades, who
+walks where, when control goes back to the player. **They are not editable** (they
+are derived, and `export` rewrites them); they are there because the silences are
+part of the writing. Basil's *"Your paws. They're folding pleats…"* lands after a
+held pause, and a script that printed it flush against the line before would be
+showing you the wrong rhythm. To change a pause, change the `theater.wait()` in
+the `.gd`.
+
 ### What you can and can't do here
 
 | | |

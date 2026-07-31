@@ -163,6 +163,29 @@ def t_bulk_rewrite():
     reset()
 
 
+def t_stage_directions_are_not_dialogue():
+    """`*— 0.6s pause —*` rows are derived, and must be inert to the parser.
+
+    They sit between lines and look like content. If parse_book ever picked one up
+    the counts would drift and every apply would refuse; if _book_shape did, the
+    speaker check would go off. Both are asserted here rather than assumed, because
+    a new row type in the renderer is exactly how that would happen.
+    """
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("dialogue", TOOL)
+    d = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(d)
+
+    book = read("docs/dialogue/sickroom.md")
+    ok("*— " in book, "the book really does carry stage directions")
+    sections, _, _ = d.extract(os.path.join(ROOT, "scene", "sickroom.gd"))
+    live = [ln for s in sections for ln in s.lines]
+    ok(len(d.parse_book(book)) == len(live),
+       "stage directions are not counted as dialogue by parse_book")
+    ok(len(d._book_shape(book)) == len(live),
+       "...nor by the speaker-shape check")
+
+
 def t_check_is_clean_at_rest():
     ok("in sync" in run("check"), "check reports in sync on an untouched tree")
 
@@ -195,6 +218,7 @@ CASES = [
     t_refuses_a_hard_wrap,
     t_speaker_heading_is_a_label,
     t_bulk_rewrite,
+    t_stage_directions_are_not_dialogue,
     t_check_is_clean_at_rest,
     t_check_catches_an_unapplied_edit,
     t_check_catches_unclaimed_prose,

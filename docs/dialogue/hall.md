@@ -26,8 +26,12 @@
 
 ## `_naming_cutscene`
 
+*— 0.6s pause —*
+
 **DEAN STRIX**  <sub>`hall.gd:182:34`</sub>
 > ...and so. Never before has a cat with no magic at all stood at this podium. The work stood for itself instead - every measured drop of it. The floor is yours, Basil.
+
+*— player walks there themselves —*
 
 **BASIL**  <sub>`hall.gd:195:29`</sub>
 > Th-thank you, Dean. Esteemed faculty.
@@ -38,31 +42,47 @@
 **BASIL**  <sub>`hall.gd:197:29`</sub>
 > You call my flasks 'potions.' They are chemistry. And chemistry does not need magic to be TRUE.
 
+*— 0.4s pause —*
+
 **SCHWEINLER**  <sub>`hall.gd:201:34`</sub>
 > Hold on. HOLD ON. Does anyone else... smell that?
 
 **BASIL**  <sub>`hall.gd:203:29`</sub>
 > S-Schweinler? Smell wh-
 
+*— schw: business pose —*
+
 **SCHWEINLER**  <sub>`hall.gd:205:34`</sub>
 > LOOK at his paws! He TRACKED it! All the way up onto the STAGE!
+
+*— schw hops · schw: big feeling —*
 
 **SCHWEINLER**  <sub>`hall.gd:208:34`</sub>
 > A brilliant lecture, everyone. From PROFESSOR... POOPY... PAWS!
 
+*— j: big feeling · dean: big feeling · schw hops —*
+
 **BASIL**  <sub>`hall.gd:223:29`</sub>
 > But... I...
+
+*— schw: business pose —*
 
 **SCHWEINLER**  <sub>`hall.gd:225:34`</sub>
 > 'BUT'?! HA! HE SAID BUTT! Even his EXCUSES are potty talk! Oink-hahaha!
 
+*— schw: big feeling · schw hops · 1.2s pause —*
+
 **GALLERY**  <sub>`hall.gd:252:31`</sub>
 > Poopy Paws! POOPY PAWS! POOPY PAWS!
+
+*— 0.4s pause · fade to black —*
 
 **CARD**  <sub>`hall.gd:263:21`</sub>
 > THAT EVENING.
 
 ## `_recital`
+
+*— 0.6s pause · kitty: business pose —*
 
 **KITTY**  <sub>`hall.gd:395:29`</sub>
 > Sign-up sheet said MAGIC RECITAL. I scratched out 'magic.' They'll cope.
@@ -73,11 +93,15 @@
 **KITTY**  <sub>`hall.gd:397:29`</sub>
 > Up the middle. I've got the crank, you've got the flask.
 
+*— kitty walks · player walks there themselves —*
+
 **PROFESSOR STRIX**  <sub>`hall.gd:410:39`</sub>
 > Next. ...Basil. There is a note against this name. It says 'no aptitude.'
 
 **PROFESSOR STRIX**  <sub>`hall.gd:411:39`</sub>
 > The evening is short, child. The floor is... yours, I suppose.
+
+*— schw: business pose · schw hops —*
 
 **SCHWEINLER**  <sub>`hall.gd:414:34`</sub>
 > He can't do MAGIC! What's he going to do, WIND something at us?
@@ -90,10 +114,14 @@
 **SCHWEINLER**  <sub>`hall.gd:618:34`</sub>
 > That's not - that's not magic, that's just -
 
+*— 0.55s pause · 0.25s pause · kitty: big feeling —*
+
 **KITTY**  <sub>`hall.gd:625:29`</sub>
 > THAT'S MY WHIRLIGIG! THAT'S BASIL! WHOOOOO!
 
 ## `_invitation`
+
+*— dean: big feeling —*
 
 **PROFESSOR STRIX**  <sub>`hall.gd:650:39`</sub>
 > Stop. STOP. Young man - what IS that.
@@ -110,11 +138,15 @@
 **PROFESSOR STRIX**  <sub>`hall.gd:656:39`</sub>
 > Apply to this Academy the year you are old enough. I will know the name.
 
+*— kitty: business pose —*
+
 **KITTY**  <sub>`hall.gd:658:29`</sub>
 > It's Basil. Write it down.
 
 **BASIL**  <sub>`hall.gd:659:29`</sub>
 > I'll be here.
+
+*— 1.4s pause · fade to black —*
 
 **CARD**  <sub>`hall.gd:669:21`</sub>
 > THREE SUMMERS LATER.

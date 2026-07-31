@@ -62,6 +62,8 @@
 
 ## `_meet_kitty`
 
+*— the player walks —*
+
 **???**  <sub>`bluff.gd:230:27`</sub>
 > Stupid. Stubborn. WING-NUT.
 
@@ -92,10 +94,14 @@
 **KITTY** *(idle line — this block is a list)*  <sub>`bluff.gd:246:3`</sub>
 > The crank? Honestly, no idea. Cranks are free spirits. Try the flowers.
 
+*— control handed back —*
+
 **ON-SCREEN HINT**  <sub>`bluff.gd:249:15`</sub>
 > FIND THE GEAR, THE SPRING AND THE CRANK
 
 ## `_part_line`
+
+*— control handed back —*
 
 **ON-SCREEN HINT**  <sub>`bluff.gd:271:16`</sub>
 > %d OF %d PARTS
@@ -105,11 +111,17 @@
 
 ## `_flight_finale`
 
+*— the player walks —*
+
 **KITTY**  <sub>`bluff.gd:282:29`</sub>
 > Gear. Spring. Crank. Perfect!
 
+*— kitty: business pose · 1.4s pause —*
+
 **KITTY**  <sub>`bluff.gd:286:29`</sub>
 > Okay. Grab the crank and WIND!
+
+*— kitty: big feeling —*
 
 **KITTY**  <sub>`bluff.gd:298:29`</sub>
 > LOOK AT IT GO! No magic at all. Just brains and paws.
@@ -148,6 +160,8 @@
 **BASIL**  <sub>`bluff.gd:367:29`</sub>
 > I can't do that. But I know four things that make a colour when they get hot enough.
 
+*— kitty: big feeling —*
+
 **KITTY**  <sub>`bluff.gd:369:29`</sub>
 > ...You want to load my whirligig.
 
@@ -161,11 +175,17 @@
 
 *romance (sunset): the watch — explode, gather, fix, the kiss*
 
+*— 0.7s pause —*
+
 **BASIL**  <sub>`bluff.gd:392:29`</sub>
 > Okay, I climbed your bluff. The letter's going to crease in this wind, you know.
 
+*— 0.3s pause · kitty: big feeling —*
+
 **KITTY**  <sub>`bluff.gd:398:29`</sub>
 > It CAME? IT CAME. Get over here, Academy cat!
+
+*— the player walks · 1.4s pause —*
 
 **KITTY**  <sub>`bluff.gd:409:29`</sub>
 > In on CRAFT alone. Wiggle-fingers: zero. Paws: ONE. I could BURST.
@@ -188,6 +208,8 @@
 **KITTY**  <sub>`bluff.gd:421:29`</sub>
 > PAW.
 
+*— 0.5s pause —*
+
 **KITTY**  <sub>`bluff.gd:430:29`</sub>
 > ...
 
@@ -205,6 +227,8 @@
 
 **KITTY** *(idle line — this block is a list)*  <sub>`bluff.gd:437:3`</sub>
 > Overwound. OVER-wound. The case is FINE.
+
+*— control handed back —*
 
 **ON-SCREEN HINT**  <sub>`bluff.gd:446:16`</sub>
 > GEAR - SPRING - CRANK. SOME RECIPES DON'T CHANGE.
@@ -226,11 +250,17 @@
 
 ## `_refit_and_kiss`
 
+*— kitty: business pose —*
+
 **KITTY**  <sub>`bluff.gd:566:29`</sub>
 > Gear... spring... crank. And THIS time the mainspring gets some respect.
 
+*— 0.22s pause —*
+
 **KITTY**  <sub>`bluff.gd:576:29`</sub>
 > Paw. ...It's safe. Probably. Paw anyway.
+
+*— 1.0s pause —*
 
 **BASIL**  <sub>`bluff.gd:582:29`</sub>
 > It ticks. Kitty, the escapement alone - three summers? For me?
@@ -253,6 +283,8 @@
 **KITTY**  <sub>`bluff.gd:591:29`</sub>
 > Whooping is a promise, professor.
 
+*— kitty walks · 0.4s pause · 0.8s pause · 2.0s pause —*
+
 **CARD**  <sub>`bluff.gd:632:21`</sub>
 > YEARS LATER.
 
@@ -260,11 +292,15 @@
 
 *call1 (dusk): she calls to ask how it went*
 
+*— 0.8s pause —*
+
 **BASIL**  <sub>`bluff.gd:644:29`</sub>
 > Poopy Paws. They're all still laughing. I can hear it from here.
 
 **ON-SCREEN HINT**  <sub>`bluff.gd:647:15`</sub>
 > THE EDGE OF THE BLUFF - SOMEWHERE NOBODY IS
+
+*— player walks there themselves · 1.2s pause · 2.6s pause · 0.8s pause —*
 
 **KITTY**  <sub>`bluff.gd:667:29`</sub>
 > SO? Professor Basil. A stupid AXLE job ate my whole morning - I'm sorry, I ran the workshop right through your lecture. How'd it go? Did they whoop? Tell me somebody whooped.
@@ -278,6 +314,8 @@
 **BASIL**  <sub>`bluff.gd:670:29`</sub>
 > ...The hall. Schweinler. I can't - Kitty, I can't even say it.
 
+*— 0.6s pause —*
+
 **KITTY**  <sub>`bluff.gd:672:29`</sub>
 > ...That bad, huh. Okay. Listen to me. I'm coming. Stay right there.
 
@@ -288,8 +326,12 @@
 
 *call2 (late): her watch calls his — with the wrong voice on it*
 
+*— 1.0s pause —*
+
 **BASIL**  <sub>`bluff.gd:696:29`</sub>
 > ...Where is she?
+
+*— 0.6s pause · 0.9s pause —*
 
 **BASIL**  <sub>`bluff.gd:700:29`</sub>
 > Kitty! Finally - where ARE you, I was about to -

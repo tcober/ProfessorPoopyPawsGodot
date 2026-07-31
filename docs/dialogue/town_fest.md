@@ -98,8 +98,12 @@
 
 *the festival beat*
 
+*— 0.4s pause · sage: big feeling —*
+
 **SAGE**  <sub>`town_fest.gd:390:28`</sub>
 > BASIL! HEY! Over HERE! You have GOT to see this!
+
+*— sage: business pose · 0.4s pause · the player walks —*
 
 **SAGE**  <sub>`town_fest.gd:397:28`</sub>
 > Look-look-LOOK! Three ribbons at once! Basil, count them. THREE.
@@ -110,14 +114,22 @@
 **SAGE**  <sub>`town_fest.gd:399:28`</sub>
 > Maybe today is the day you figure it out! Ribbons basically float themselves.
 
+*— 0.8s pause · 0.5s pause —*
+
 **BASIL**  <sub>`town_fest.gd:403:29`</sub>
 > ...It doesn't work. You KNOW it doesn't work. It never works...
+
+*— sage: big feeling —*
 
 **SAGE**  <sub>`town_fest.gd:405:28`</sub>
 > Maybe you're holding your whiskers wrong?
 
+*— schw: business pose —*
+
 **SCHWEINLER**  <sub>`town_fest.gd:408:34`</sub>
 > HA! You still can't do magic Basil!?
+
+*— schw: big feeling · schw hops —*
 
 **SCHWEINLER**  <sub>`town_fest.gd:411:34`</sub>
 > No magic! BASIL'S GOT NO MAGIC! Oink-hahaha!
@@ -128,12 +140,16 @@
 **SCHWEINLER**  <sub>`town_fest.gd:414:34`</sub>
 > See you at the recital, Basil. Oh wait - no magic so I guess you can't even participate!
 
+*— 0.6s pause —*
+
 **BASIL**  <sub>`town_fest.gd:418:29`</sub>
 > ...I'm going for a walk.
 
 ## `_goose_theft`
 
 *The goose FLIES BY (the sneak restage, 2026-07-18: the old announced waddle-to-her-elbow read as anything but a theft): no narration, a swoop in from off-screen WEST at ribbon height, the lowest of Sage's ribbons snatched mid-glide — the SAME fx cell rides the beak and the orchard hide-out — and out past the east edge toward the bridge before anyone has finished blinking. Sage's reaction lands AFTER it's gone. Both flight endpoints are outside the locked view, so the teleport in and the hidden respawn are invisible — and since 2026-07-29 that is TRUE BY CONSTRUCTION rather than true of this grid: the endpoints are measured outward from _locked_view() around the body the cutscene parked, and the snatch is measured off the ribbon's own stashed rest pixel. This block was the most brittle thing in the town, triple-coupled to sage_pos, to the camera's window at basil_mark, and to the map's east/west extents; all three of those couplings are now read at run time from the map.*
+
+*— 0.8s pause —*
 
 **SAGE**  <sub>`town_fest.gd:484:28`</sub>
 > ...did that goose just steal my RIBBON!?
@@ -149,6 +165,8 @@
 ## `_goose_startle`
 
 *Found behind the tree, the goose startles, then hands the ribbon over as if returning it was its own idea all along.*
+
+*— goose hops · goose: business pose —*
 
 **GOOSE**  <sub>`town_fest.gd:578:29`</sub>
 > HONK!! ...honk. (...oh. It's you.)
@@ -169,6 +187,8 @@
 > (It seems to respect you now. Or it is planning something.)
 
 ## `_ribbon_return`
+
+*— sage: big feeling —*
 
 **SAGE**  <sub>`town_fest.gd:600:28`</sub>
 > MY RIBBON! You caught the goose?! Nobody catches the goose!

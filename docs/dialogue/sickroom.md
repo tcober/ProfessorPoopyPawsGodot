@@ -19,8 +19,12 @@
 
 ## `_verdict_cutscene`
 
+*— 0.8s pause · doctor: business pose —*
+
 **DR. CICONIA**  <sub>`sickroom.gd:76:35`</sub>
 > You're Basil. The name engraved on her little glass. Sit, if you like. She's stable.
+
+*— player walks there themselves —*
 
 **BASIL**  <sub>`sickroom.gd:87:29`</sub>
 > Kitty. Kitty, I'm here. It's me. I'm so sorry - you told ME to stay put, and then YOU were the one on the road, I -
@@ -46,8 +50,12 @@
 **KITTY**  <sub>`sickroom.gd:96:29`</sub>
 > You have a kind face. Did we... make something together? I keep thinking about my hands. Isn't that funny.
 
+*— 0.6s pause —*
+
 **BASIL**  <sub>`sickroom.gd:103:29`</sub>
 > Your paws. They're folding pleats into the blanket. You always do that when you're think-
+
+*— 0.5s pause —*
 
 **BASIL**  <sub>`sickroom.gd:105:29`</sub>
 > ...No. No, we didn't. I'm sorry. I have the wrong room.
@@ -55,11 +63,15 @@
 **KITTY**  <sub>`sickroom.gd:106:29`</sub>
 > Oh. Well - I hope you find who you're looking for. You look like you need to.
 
+*— doctor hops · 0.25s pause · kmom walks · kmom: business pose —*
+
 **KITTY'S MOTHER**  <sub>`sickroom.gd:121:38`</sub>
 > Oh no - Kitty! My baby, what HAPPENED to you?!
 
 **BASIL**  <sub>`sickroom.gd:122:29`</sub>
 > It was an accident. She was on the road - she was riding out to see me. It's my fault, I -
+
+*— kmom: big feeling —*
 
 **KITTY'S MOTHER**  <sub>`sickroom.gd:129:38`</sub>
 > You. YOU did this. She was coming to YOU, and now she doesn't even know her own name.
