@@ -338,7 +338,12 @@ func _test_kill_grants_whole_roster() -> void:
 	# Two ten-EXP slimes is exactly one level, which is what the first street
 	# fight is tuned around.
 	game.call("reset_story")
-	var slime_exp: int = load("res://entities/enemies/slime.tscn").instantiate().exp_value
+	# Freed, not dropped: the instance is never parented, so without this the
+	# probe leaks a whole Slime subtree and Godot reports it at exit — noise that
+	# reads as a failure in a tool whose job is to tell you when something is.
+	var probe_slime: Node = load("res://entities/enemies/slime.tscn").instantiate()
+	var slime_exp: int = probe_slime.exp_value
+	probe_slime.free()
 	game.call("grant_kill", slime_exp)
 	_check(game.call("sheet", &"fuji").level == 1, "levelled on the FIRST slime")
 	game.call("grant_kill", slime_exp)

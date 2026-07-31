@@ -22,7 +22,7 @@ func _update_facing(dir: Vector2) -> void:
 func _facing_suffix() -> String:
 	if facing == Vector2.UP:
 		return "up"
-	elif facing == Vector2.DOWN:
+	if facing == Vector2.DOWN:
 		return "down"
 	return "side"
 

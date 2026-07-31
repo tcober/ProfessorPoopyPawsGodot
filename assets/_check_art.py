@@ -107,6 +107,34 @@ MAPS = [
     "maps/bluff.txt",
 ]
 
+# THE TABLES MUST COVER THE DIRECTORY, and this is the check that says so.
+#
+# The academy shipped absent from MAPS, TILED and PROPS all at once (found
+# 2026-07-30): a 64x48 map with six Tier-3 props on it, and not one of the
+# enclosure, anchor, strata, layout, atlas, invisible-wall, walk-behind or
+# floating-art lints ever looked at it. Adding it to the three tables fixed that
+# ONE map and left the failure mode exactly where it was, because the failure
+# mode is not "the academy is missing" — it is that a map absent from a table is
+# indistinguishable from a map that passed, and the summary line prints "all
+# checks passed" either way. A lint you have to remember to enrol a file in is a
+# lint that is one commit away from being a no-op.
+#
+# So: the tables are checked against what is on disk rather than trusted. A new
+# map, or a new props manifest, now fails HERE — by name, with the table to add
+# it to — instead of silently opting out of the whole file.
+def _on_disk(subdir, suffix):
+    d = os.path.join(HERE, subdir)
+    return {f"{subdir}/{f}" for f in os.listdir(d) if f.endswith(suffix)}
+
+
+print("lint coverage:")
+_map_files = _on_disk("maps", ".txt")
+_missing = sorted(_map_files - set(MAPS))
+check("every assets/maps/*.txt is in MAPS", not _missing,
+      f"add to MAPS in _check_art.py: {_missing}")
+_stale = sorted(set(MAPS) - _map_files)
+check("MAPS names no map that is gone", not _stale, f"stale entries: {_stale}")
+
 print("maps:")
 maps = {}
 for rel in MAPS:
@@ -214,6 +242,11 @@ TILED = {
 }
 
 print("tiled scenes:")
+# Every map in the project IS a tiled scene — there is no other kind — so this
+# table has to cover MAPS exactly. See the lint-coverage note above MAPS.
+_untiled = sorted(set(MAPS) - set(TILED))
+check("every map has a TILED entry", not _untiled,
+      f"add to TILED in _check_art.py: {_untiled}")
 LAYERS = {}
 for map_rel, (layout, atlas, tres) in TILED.items():
     mm = maps[map_rel]
@@ -337,6 +370,15 @@ PROPS = {
     "maps/library.txt": "tilesets/library_props.txt",
     "maps/bluff.txt": "tilesets/bluff_props.txt",
 }
+# Not every map HAS Tier-3 props (the meadow and both overworlds are pure tile
+# scenes), so this one is checked from the manifests on disk rather than from
+# MAPS: a generator that emits a props file nobody lints is the academy bug in
+# its other direction.
+_props_files = _on_disk("tilesets", "_props.txt")
+_unlinted = sorted(_props_files - set(PROPS.values()))
+check("every props manifest is in PROPS", not _unlinted,
+      f"add to PROPS in _check_art.py: {_unlinted}")
+
 T3_CHARS = {}                          # map_rel -> chars whose art is y-sorted
 T3_PROPS = {}                          # map_rel -> parsed rows (coverage lint)
 for map_rel, props_rel in PROPS.items():

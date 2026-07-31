@@ -22,6 +22,9 @@ var _typing := false
 var _awaiting := false
 var _reveal := 0.0
 var _accept_after := 0
+## Raised by close() and cleared by say(), so a conversation dropped mid-run
+## stops instead of resuming. See close().
+var _closed := false
 
 @onready var text: Label = $Text
 @onready var name_label: Label = $NameLabel
@@ -40,6 +43,7 @@ func _ready() -> void:
 ## One line; resolves when the player advances past it.
 func say(speaker: String, line: String) -> void:
 	visible = true
+	_closed = false
 	_set_speaker(speaker)
 	text.text = line
 	text.visible_characters = 0
@@ -52,15 +56,24 @@ func say(speaker: String, line: String) -> void:
 
 
 ## A whole one-speaker conversation, then the box drops.
+##
+## The `_closed` break is what makes close() mean CLOSED here too: without it,
+## the advanced.emit() that close() fires to unpark the current say() reads as an
+## ordinary advance, and the loop cheerfully opens the box again on the next
+## line — a conversation "closed" from outside would play out to the end anyway,
+## one line at a time, over whatever the closer was trying to get on screen.
 func converse(speaker: String, conversation: PackedStringArray) -> void:
 	for line in conversation:
 		await say(speaker, line)
+		if _closed:
+			return
 	close()
 
 
 func close() -> void:
 	visible = false
 	_typing = false
+	_closed = true
 	# A say() still parked on `advanced` would hang its whole cutscene — the
 	# beat's remaining awaits would never run and the party would stay locked.
 	# Dropping the box resolves the line instead.

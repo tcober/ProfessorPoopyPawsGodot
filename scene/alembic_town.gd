@@ -91,16 +91,12 @@ func _on_exit_south(body: Node) -> void:
 ## and this is the lane. The mouth is still walled past the trigger — the fade is
 ## several frames long and a body keeps walking through them.
 func _on_exit_north(body: Node) -> void:
-	if not body.is_in_group("player") or _busy:
-		return
-	_busy = true
-	await fade_out()
-	get_tree().change_scene_to_file("res://scene/academy.tscn")
+	if body.is_in_group("player"):
+		await _leave_for("res://scene/academy.tscn")
 
 
 ## The same wall town_fest, town_thesis and lanternwood all put at their gate mouths
-## (2026-07-29): a mouth road runs to the map's last row and the collision layer only
-## stamps grid cells, so past the mouth there is nothing. It never bit at the south
+## (2026-07-29); TravelScene._wall is the shared body of it. It never bit at the south
 ## gate because the exit trigger happened to cover the whole 2-cell mouth — but the
 ## north and east mouths have no trigger at all yet, and the adult sandbox has no
 ## backstop and no refusal state, so without these the player walks off the collision
@@ -111,15 +107,3 @@ func _wall_mouths() -> void:
 	_wall(Vector2(MapData.anchor_px(map, "exit_north").x, -4.0), Vector2(64.0, 8.0))
 	_wall(Vector2(size.x + 4.0, MapData.anchor_px(map, "exit_se").y),
 			Vector2(8.0, 64.0))
-
-
-func _wall(at: Vector2, size: Vector2) -> void:
-	var wall := StaticBody2D.new()
-	wall.collision_layer = 1
-	var shape := CollisionShape2D.new()
-	var rect := RectangleShape2D.new()
-	rect.size = size
-	shape.shape = rect
-	wall.add_child(shape)
-	wall.position = at
-	add_child(wall)

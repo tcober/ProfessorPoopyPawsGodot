@@ -165,13 +165,54 @@ func _show_banner(text: String, hold: float) -> void:
 ## The shared south-gate exit: leave for the overworld, arriving back at this
 ## zone's own icon marker (explicit, never the value the overworld wrote on
 ## the way in).
+## The `_busy` check is here as well as inside _leave_for, and it is not
+## redundant: the router write must not happen on a refused exit, or a banner
+## that happened to be holding `_busy` leaves a marker behind that misroutes the
+## NEXT arrival on the overworld.
 func _exit_to_overworld(marker: String) -> void:
 	if _busy:
 		return
-	_busy = true
 	Game.overworld_spawn = marker
+	await _leave_for("res://scene/overworld.tscn")
+
+
+## Fade out and go, holding `_busy` for the whole fade. Every zone exit in the
+## project is this, and the `_busy` guard is the load-bearing half: a fade is
+## several frames long and the body keeps walking through them, so a second
+## body_entered would queue a second change_scene_to_file. Not every neighbour
+## is the overworld — Alembic's north lane goes to the Academy and the Academy's
+## south lane comes back — so the destination is a parameter and
+## _exit_to_overworld is the one that also sets the return marker.
+func _leave_for(scene_path: String) -> void:
+	if _busy:
+		return
+	_busy = true
 	await fade_out()
-	get_tree().change_scene_to_file("res://scene/overworld.tscn")
+	get_tree().change_scene_to_file(scene_path)
+
+
+## Wall a gate mouth shut just past the map's edge.
+##
+## A mouth road runs to the map's last row and the collision layer only stamps
+## GRID cells, so past the mouth there is nothing at all to stand on. The exit
+## zone fires well before a body reaches this, but a zone that has already fired
+## holds `_busy` for a fade's worth of frames and the body keeps walking during
+## them — and a mouth with no trigger on it yet (Alembic's east one, authored
+## for beat 5b) has nothing to fire in the first place.
+##
+## Hand-copied verbatim into alembic_town, academy and lanternwood before it
+## lived here; three copies of a ten-line StaticBody2D is how the fourth mouth
+## ends up without one.
+func _wall(at: Vector2, size: Vector2) -> void:
+	var wall := StaticBody2D.new()
+	wall.collision_layer = 1
+	var shape := CollisionShape2D.new()
+	var rect := RectangleShape2D.new()
+	rect.size = size
+	shape.shape = rect
+	wall.add_child(shape)
+	wall.position = at
+	add_child(wall)
 
 
 ## Fade to black; callers change scene once it resolves.

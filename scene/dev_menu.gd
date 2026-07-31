@@ -94,9 +94,9 @@ func _process(delta: float) -> void:
 	elif Input.is_action_just_pressed("move_up") or Input.is_action_just_pressed("ui_up"):
 		_step(-1)
 	elif Input.is_action_just_pressed("move_right") or Input.is_action_just_pressed("ui_right"):
-		_jump_column()
+		_jump_column(1)
 	elif Input.is_action_just_pressed("move_left") or Input.is_action_just_pressed("ui_left"):
-		_jump_column()
+		_jump_column(-1)
 	elif Input.is_action_just_pressed("attack") \
 			or Input.is_action_just_pressed("interact") \
 			or Input.is_action_just_pressed("ui_accept"):
@@ -207,18 +207,35 @@ func _step(dir: int) -> void:
 			return
 
 
-## Left and right both mean "the other column" — there are only two.
-func _jump_column() -> void:
-	var want_col: int = 1 - int(_items[_cursor]["col"])
+## Step to the ADJACENT column in `dir`, wrapping round the ends.
+##
+## This was `1 - col` — right for the two columns the selector had, and left
+## that way when the THIRD landed (2026-07-28). With three, `1 - col` sends col 0
+## to col 1, col 1 back to col 0, and col 2 to -1, which matches nothing and
+## leaves the cursor sitting still: column two was unreachable by left/right in
+## both directions, and column two is where the whole SANDBOX group lives plus
+## every Act 1 beat from the defence onward. Only _step's up/down wrap could get
+## there, by scrolling through forty rows.
+##
+## The outer loop keeps walking in `dir` past a column with no selectable row in
+## it, so the wrap is total rather than stalling on a column of headings. There
+## are no such columns today; there is also no reason for this to be the thing
+## that breaks when there are.
+func _jump_column(dir: int) -> void:
+	var cols := COL_X.size()
+	var from: int = int(_items[_cursor]["col"])
 	var want_row: int = _items[_cursor]["row"]
-	var best := -1
-	for i in _items.size():
-		if not _items[i]["selectable"] or int(_items[i]["col"]) != want_col:
-			continue
-		# nearest selectable row in the other column, ties going to the first
-		if best < 0 or absi(int(_items[i]["row"]) - want_row) \
-				< absi(int(_items[best]["row"]) - want_row):
-			best = i
-	if best >= 0:
-		_cursor = best
-		_sync()
+	for step in cols - 1:
+		var want_col := wrapi(from + dir * (step + 1), 0, cols)
+		var best := -1
+		for i in _items.size():
+			if not _items[i]["selectable"] or int(_items[i]["col"]) != want_col:
+				continue
+			# nearest selectable row in that column, ties going to the first
+			if best < 0 or absi(int(_items[i]["row"]) - want_row) \
+					< absi(int(_items[best]["row"]) - want_row):
+				best = i
+		if best >= 0:
+			_cursor = best
+			_sync()
+			return

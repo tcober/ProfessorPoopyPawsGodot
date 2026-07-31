@@ -449,6 +449,12 @@ in the commit that creates it.**
   first run: the south border was open lawn from edge to edge and a body could walk off
   the bottom of the map. **Add a new map to `MAPS` and `PROPS` in the same commit that
   creates it.**
+  **You no longer have to remember to.** The tables are now checked against the
+  DIRECTORY (`_check_art.py`'s "lint coverage" section): every `assets/maps/*.txt` must
+  be in `MAPS`, every `MAPS` entry in `TILED`, and every `assets/tilesets/*_props.txt`
+  in `PROPS`. A new map fails by name, with the table to add it to, instead of silently
+  opting out of every lint in the file. Fixing the academy fixed one map; this fixes
+  the class — a lint you have to enrol a file in is one commit from being a no-op.
 
 ## Color law (the gotchas that cost real bugs)
 

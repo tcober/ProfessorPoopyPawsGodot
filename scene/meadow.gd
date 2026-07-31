@@ -68,7 +68,7 @@ func _roll_kind() -> Compound.Kind:
 	var roll := randf()
 	if roll < 0.5:
 		return Compound.Kind.BASE
-	elif roll < 0.75:
+	if roll < 0.75:
 		return Compound.Kind.FROST
 	return Compound.Kind.FLAME
 

@@ -301,7 +301,7 @@ func mash_meter(prompt: String, tick := Callable(), gain := 0.09,
 	label.offset_right = 256.0
 	label.offset_bottom = 118.0
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_override("font", preload("res://assets/font/pixel_font.fnt"))
+	label.add_theme_font_override("font", FONT)
 	label.add_theme_font_size_override("font_size", 8)
 	label.add_theme_color_override("font_shadow_color", Color.BLACK)
 	for node in [back, fill_rect, label]:

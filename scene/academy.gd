@@ -54,31 +54,22 @@ func _extra_setup() -> void:
 
 ## Back down the causeway to Alembic Town, arriving in ITS north lane.
 ##
-## NOT _exit_to_overworld: this precinct's neighbour is the town, not the map. The
-## _busy guard is the same one every exit takes — a fade is several frames long and a
-## body keeps walking through the zone during it.
+## NOT _exit_to_overworld: this precinct's neighbour is the town, not the map, so it
+## goes through TravelScene._leave_for and sets the town's OWN router instead.
+##
+## `_busy` is checked here as well as inside _leave_for for the same reason
+## _exit_to_overworld checks it: the router write below must not happen on a refused
+## exit. A marker banner also holds `_busy`, and a stale "north" would misroute the
+## NEXT arrival in Alembic Town.
 func _on_exit_south(body: Node) -> void:
 	if not body.is_in_group("player") or _busy:
 		return
-	_busy = true
 	Game.town_spawn = "north"
-	await fade_out()
-	get_tree().change_scene_to_file("res://scene/alembic_town.tscn")
+	await _leave_for("res://scene/alembic_town.tscn")
 
 
-## The same wall every gate mouth in this project gets (2026-07-29): the lane runs to
-## the map's last row and the collision layer only stamps grid cells, so past the mouth
-## there is nothing at all. The ExitSouth zone fires well before a body reaches this,
-## but a zone that has already fired holds `_busy` for a fade's worth of frames and a
-## body keeps walking during it.
+## The same wall every gate mouth in this project gets (2026-07-29) —
+## TravelScene._wall is the shared body of it, and its doc is why.
 func _wall_mouth() -> void:
-	var size := MapData.size_px(map)
-	var wall := StaticBody2D.new()
-	wall.collision_layer = 1
-	var shape := CollisionShape2D.new()
-	var rect := RectangleShape2D.new()
-	rect.size = Vector2(64.0, 8.0)
-	shape.shape = rect
-	wall.add_child(shape)
-	wall.position = Vector2($ExitSouth.position.x, size.y + 4.0)
-	add_child(wall)
+	_wall(Vector2($ExitSouth.position.x, MapData.size_px(map).y + 4.0),
+			Vector2(64.0, 8.0))

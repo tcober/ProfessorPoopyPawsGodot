@@ -43,12 +43,23 @@ enum { M_MEMBER, M_SLOT, M_PICK, M_ITEM }
 const ITEMS_ROW := 4
 const SAVE_ROW := 5
 
+## How many candidate rows fit under the gear pane before _desc at y=182.
+## The list SCROLLS through them (see _choice_top) rather than being truncated:
+## the cursor could already run past the sixth row, where the row it selected was
+## not drawn and the selection bar stuck on the last visible line — so the menu
+## showed you equipping one thing while equipping another. Nothing in the shipped
+## item table reaches seven candidates in one slot, which is exactly why this
+## would have gone unnoticed until the eighth book.
+const CHOICE_ROWS := 6
+
 var _ui: CanvasLayer
 var _bar: ColorRect
 var _mode := M_MEMBER
 var _member := 0
 var _slot := 0
 var _choice := 0
+## First candidate on screen. Scrolled to keep _choice in view, never by hand.
+var _choice_top := 0
 var _swallow := 0.0
 var _note := ""                      # transient feedback ("NOTHING TO EQUIP")
 
@@ -105,6 +116,7 @@ func _open() -> void:
 	_member = 0
 	_slot = 0
 	_choice = 0
+	_choice_top = 0
 	_note = ""
 	_build()
 	_swallow = Overlay.SWALLOW
@@ -133,6 +145,7 @@ func _back() -> void:
 		_:
 			_mode = M_SLOT
 			_choice = 0
+			_choice_top = 0
 			_sync()
 
 
@@ -212,6 +225,7 @@ func _accept() -> void:
 			else:
 				_mode = M_PICK
 			_choice = 0
+			_choice_top = 0
 		M_PICK:
 			_equip()
 		M_ITEM:
@@ -305,7 +319,7 @@ func _build() -> void:
 		_stat_rows.append(Overlay.label(_ui, "", STATS_X, TOP + i * ROW_H, TEXT, STATS_W))
 	for i in SAVE_ROW + 1:
 		_gear_rows.append(Overlay.label(_ui, "", GEAR_X, TOP + i * ROW_H, TEXT, GEAR_W))
-	for i in 6:
+	for i in CHOICE_ROWS:
 		_choice_rows.append(Overlay.label(_ui, "", GEAR_X, TOP + (SAVE_ROW + 2 + i) * ROW_H,
 			TEXT, GEAR_W))
 
@@ -417,6 +431,26 @@ func _rebuild_candidates(id: StringName, sheet: CharacterSheet) -> void:
 			if it.kind == Item.Kind.CONSUMABLE:
 				_candidates.append(it)
 	_choice = clampi(_choice, 0, maxi(_candidates.size() - 1, 0))
+	_scroll_choices()
+
+
+## How many CANDIDATE rows are drawn. A list that fits uses every row; one that
+## doesn't gives the last row up to the "more" indicator, so the cursor never
+## lands on it.
+func _choice_window() -> int:
+	return CHOICE_ROWS if _candidates.size() <= CHOICE_ROWS else CHOICE_ROWS - 1
+
+
+## Keep the cursor inside the drawn window. Derived from _choice every sync
+## rather than nudged on each keypress, so a list that SHRANK under the cursor
+## (drinking the last tonic) can't leave the window parked off the end of it.
+func _scroll_choices() -> void:
+	var window := _choice_window()
+	_choice_top = clampi(_choice_top, 0, maxi(_candidates.size() - window, 0))
+	if _choice < _choice_top:
+		_choice_top = _choice
+	elif _choice >= _choice_top + window:
+		_choice_top = _choice - window + 1
 
 
 func _draw_candidates() -> void:
@@ -428,8 +462,9 @@ func _draw_candidates() -> void:
 		_choice_rows[0].text = "(NOTHING)"
 		_choice_rows[0].add_theme_color_override("font_color", DIM)
 		return
-	for i in mini(_candidates.size(), _choice_rows.size()):
-		var it: Item = _candidates[i]
+	var window := _choice_window()
+	for i in mini(_candidates.size() - _choice_top, window):
+		var it: Item = _candidates[_choice_top + i]
 		if it == null:
 			_choice_rows[i].text = "(NONE)"
 			_choice_rows[i].add_theme_color_override("font_color", DIM)
@@ -437,6 +472,16 @@ func _draw_candidates() -> void:
 		var n := Game.item_count(it.id)
 		_choice_rows[i].text = ("%s x%d" % [it.display_name, n]) if n > 1 else it.display_name
 		_choice_rows[i].add_theme_color_override("font_color", it.tint)
+	# Say there is more, or a scrolled list reads as the whole list. The pixel
+	# font has no ">" but it does have "▼" (assets/_pixfont.py). The indicator
+	# gets the row _choice_window() gave up for it, so the cursor can never land
+	# on it — a selection bar sitting on "MORE" would be its own bug.
+	if _candidates.size() > CHOICE_ROWS:
+		var below := _candidates.size() - _choice_top - window
+		# The pixel font has no "▲", so the top of the list says its count plainly.
+		_choice_rows[window].text = ("▼ %d MORE" % below) if below > 0 \
+				else "- %d ABOVE" % _choice_top
+		_choice_rows[window].add_theme_color_override("font_color", DIM)
 
 
 func _place_bar(roster: Array) -> void:
@@ -452,10 +497,13 @@ func _place_bar(roster: Array) -> void:
 			_bar.size = Vector2(GEAR_W + 4, ROW_H)
 			_bar.position = Vector2(GEAR_X - 2, TOP + _slot * ROW_H)
 		_:
+			# The bar keys off the row the cursor is ON SCREEN at, not its index
+			# in the list — it used to clamp the index to the last row, so past
+			# six candidates the bar stuck there while _choice went on climbing.
 			_bar.visible = not _candidates.is_empty()
 			_bar.size = Vector2(GEAR_W + 4, ROW_H)
 			_bar.position = Vector2(GEAR_X - 2,
-				TOP + (SAVE_ROW + 2 + mini(_choice, _choice_rows.size() - 1)) * ROW_H)
+				TOP + (SAVE_ROW + 2 + _choice - _choice_top) * ROW_H)
 
 
 func _draw_footer() -> void:

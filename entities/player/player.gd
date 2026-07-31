@@ -101,6 +101,17 @@ func _process_kit(delta: float) -> void:
 				# The single moment a beaker becomes ammo — and therefore the
 				# moment the gun's whole character changes, since the spare he
 				# pours decides what the next magazine fires.
+				#
+				# The coat is re-checked HERE and not only in _try_reload: the
+				# pour is a third of a second long and `Game.spares` is shared
+				# mutable state that anything can edit across it (the mixing
+				# bench, a reset_story from the chapter selector). pop_front on
+				# an empty array returns null, and a null `loaded` is not a
+				# missed reload — it is a crash on the next line AND a null left
+				# on the autoload, which outlives the scene.
+				if Game.spares.is_empty():
+					state = STATE_MOVE
+					return
 				_poured = true
 				loaded = Game.spares.pop_front()
 				Game.loaded = loaded

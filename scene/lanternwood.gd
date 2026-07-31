@@ -134,19 +134,12 @@ func _extra_setup() -> void:
 
 ## The gate-mouth road runs to the map's last row and the collision layer only
 ## stamps grid cells, so nothing stops a body walking off the south edge into
-## the void on the one frame the exit refuses. Wall it just past the edge — the
-## same guard both Alembic maps carry, and new here because the lane used to
-## dead-end in open snow instead of running out through the pines.
+## the void on the one frame the exit refuses (and this gate REFUSES for the
+## whole defence). The same guard both Alembic maps carry — TravelScene._wall is
+## the shared body of it.
 func _wall_gate_mouth() -> void:
-	var wall := StaticBody2D.new()
-	wall.collision_layer = 1
-	var shape := CollisionShape2D.new()
-	var rect := RectangleShape2D.new()
-	rect.size = Vector2(64.0, 8.0)
-	shape.shape = rect
-	wall.add_child(shape)
-	wall.position = Vector2($ExitSouth.position.x, MapData.size_px(map).y + 4.0)
-	add_child(wall)
+	_wall(Vector2($ExitSouth.position.x, MapData.size_px(map).y + 4.0),
+			Vector2(64.0, 8.0))
 
 
 ## Out the south gate lane, back to the overworld at the Lanternwood icon.

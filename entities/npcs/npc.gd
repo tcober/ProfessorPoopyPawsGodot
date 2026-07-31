@@ -307,11 +307,13 @@ func _can_stand(cell: Vector2i) -> bool:
 	return _clear_of_party(_px_of(cell))
 
 
+## `grid`, not `lines`: the export above is already called `lines` (the NPC's
+## dialogue), and the map's rows are a different thing entirely.
 func _char_at(cell: Vector2i) -> String:
-	var lines_: PackedStringArray = _map.get("lines", PackedStringArray())
-	if cell.y < 0 or cell.y >= lines_.size():
+	var grid: PackedStringArray = _map.get("lines", PackedStringArray())
+	if cell.y < 0 or cell.y >= grid.size():
 		return ""
-	var row: String = lines_[cell.y]
+	var row: String = grid[cell.y]
 	if cell.x < 0 or cell.x >= row.length():
 		return ""
 	return row[cell.x]
