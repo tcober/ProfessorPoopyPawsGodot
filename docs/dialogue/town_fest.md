@@ -37,7 +37,7 @@
 **SCHWEINLER** *(idle line — this block is a list)*  <sub>`town_fest.gd:231:5`</sub>
 > What are YOU looking at? You can't even do magic.
 
-**MRS. FLOCKHART** *(idle line — this block is a list)*  <sub>`town_fest.gd:232:5`</sub>
+**SCHWEINLER** *(idle line — this block is a list)*  <sub>`town_fest.gd:232:5`</sub>
 > My father says magic is BREEDING. And pigs of quality have LOADS of it.
 
 **MRS. FLOCKHART** *(idle line — this block is a list)*  <sub>`town_fest.gd:236:5`</sub>
@@ -46,13 +46,13 @@
 **MRS. FLOCKHART** *(idle line — this block is a list)*  <sub>`town_fest.gd:237:5`</sub>
 > Don't fret about the magic. Everyone blooms eventually. My Wooliam didn't float his first ribbon till he was six.
 
-**PROFESSOR STRIX** *(idle line — this block is a list)*  <sub>`town_fest.gd:238:5`</sub>
+**MRS. FLOCKHART** *(idle line — this block is a list)*  <sub>`town_fest.gd:238:5`</sub>
 > ...You're ten? Oh. Oh dear. Well - wool over it, love!
 
 **PROFESSOR STRIX** *(idle line — this block is a list)*  <sub>`town_fest.gd:242:5`</sub>
 > Ah. The young Basil. I have read EVERY treatise on late-blooming magic. All nine of them.
 
-**PIP** *(idle line — this block is a list)*  <sub>`town_fest.gd:243:5`</sub>
+**PROFESSOR STRIX** *(idle line — this block is a list)*  <sub>`town_fest.gd:243:5`</sub>
 > Chapter one is quite clear: some cats simply... don't. A fascinating case! May I take notes?
 
 **PIP** *(idle line — this block is a list)*  <sub>`town_fest.gd:247:5`</sub>

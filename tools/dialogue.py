@@ -243,13 +243,26 @@ def _speaker_near(src, idx, lo, hi):
     `"name":` above its `"lines":`, and lanternwood's mayor builds his lines
     BEFORE the NPC he hangs them on exists.
     """
-    for probe in range(1, 40):
-        for j in (idx - probe, idx + probe):
-            if not (lo <= j < hi):
-                continue
-            m = VILLAGER_RE.search(src[j]) or NAME_RE.search(src[j])
-            if m:
-                return m.group(1)
+    # BACKWARD FIRST, exhaustively, and only then forward. A symmetric outward
+    # search looks obviously right and is wrong on the commonest idiom in the
+    # game: town_fest's cast is a list of dicts, each `"name": ... "lines": [...]`,
+    # so from the SECOND line of a character's block the next character's name is
+    # nearer than its own. Six of Schweinler's, Mrs. Flockhart's and Professor
+    # Strix's lines came out attributed to the character below them — a book that
+    # puts words in the wrong mouth, which is the one thing it must never do.
+    #
+    # Backward is right wherever the name is declared before the dialogue (the cast
+    # dict, `npc.display_name = ...` then `npc.lines = ...`). Forward is the
+    # fallback for the mayor, who builds a local `lines` array before the NPC that
+    # will wear it exists.
+    for j in range(idx - 1, lo - 1, -1):
+        m = VILLAGER_RE.search(src[j]) or NAME_RE.search(src[j])
+        if m:
+            return m.group(1)
+    for j in range(idx + 1, min(hi, idx + 40)):
+        m = VILLAGER_RE.search(src[j]) or NAME_RE.search(src[j])
+        if m:
+            return m.group(1)
     # Whoever was speaking just above. town_fest re-arms the goose's idle lines at
     # the end of the beat in which the goose has just said four things, and the
     # variable holding it is a function PARAMETER (`_goose_startle(goose: NPC)`),

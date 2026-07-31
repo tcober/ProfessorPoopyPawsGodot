@@ -186,6 +186,65 @@ def t_stage_directions_are_not_dialogue():
        "...nor by the speaker-shape check")
 
 
+def t_npc_lines_get_the_right_speaker():
+    """Every NPC block's lines belong to the name declared above them, in scope.
+
+    The regression this pins: `_speaker_near` used to search OUTWARD symmetrically,
+    which looks right and is wrong on the commonest idiom in the game. town_fest's
+    cast is a list of `{"name": ..., "lines": [...]}` dicts, so from the SECOND line
+    of a block the NEXT character's name is nearer than its own — six lines came out
+    in the wrong mouth. Attribution is the one thing a screenplay cannot be sloppy
+    about, so it is checked here independently of the code that produces it.
+    """
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("dialogue", TOOL)
+    d = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(d)
+
+    declare = re.compile(r'(?:"name":\s*|display_name\s*=\s*|_villager\(\s*)"([^"]+)"')
+    checked, bad = 0, []
+    for path in d.gd_files():
+        with open(path, encoding="utf-8") as fh:
+            src = fh.read().split("\n")
+        funcs = d._func_bounds(src)
+        sections, _, _ = d.extract(path)
+        for sec in sections:
+            for ln in sec.lines:
+                if ln.kind != d.NPC:
+                    continue
+                checked += 1
+                lo = next((a for a, b, _ in funcs if a <= ln.lineno - 1 < b), 0)
+                want = ""
+                for j in range(ln.lineno - 2, lo - 1, -1):
+                    m = declare.search(src[j])
+                    if m:
+                        want = m.group(1)
+                        break
+                if want and want != ln.speaker:
+                    bad.append("%s:%d %r != %r"
+                               % (os.path.basename(path), ln.lineno, ln.speaker, want))
+    ok(checked > 40, "there are NPC line blocks to check (%d)" % checked)
+    ok(not bad, "every NPC line is attributed to the name declared above it%s"
+                % ("" if not bad else " — " + "; ".join(bad[:3])))
+
+
+def t_every_line_has_a_speaker():
+    """A line with no name renders as an empty heading and reads as nobody's."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("dialogue", TOOL)
+    d = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(d)
+    nameless = []
+    for path in d.gd_files():
+        sections, _, _ = d.extract(path)
+        for sec in sections:
+            for ln in sec.lines:
+                if ln.kind in (d.SAY, d.NPC) and not ln.speaker:
+                    nameless.append("%s:%d" % (os.path.basename(path), ln.lineno))
+    ok(not nameless, "every spoken line has a named speaker%s"
+                     % ("" if not nameless else " — " + ", ".join(nameless[:4])))
+
+
 def t_check_is_clean_at_rest():
     ok("in sync" in run("check"), "check reports in sync on an untouched tree")
 
@@ -219,6 +278,8 @@ CASES = [
     t_speaker_heading_is_a_label,
     t_bulk_rewrite,
     t_stage_directions_are_not_dialogue,
+    t_npc_lines_get_the_right_speaker,
+    t_every_line_has_a_speaker,
     t_check_is_clean_at_rest,
     t_check_catches_an_unapplied_edit,
     t_check_catches_unclaimed_prose,

@@ -158,15 +158,15 @@ of contents. The line count in the table below is the whole file's, not the beat
 | Kitty | 55 | [`bluff`](bluff.md), [`downstairs_fest`](downstairs_fest.md), [`hall`](hall.md), [`sickroom`](sickroom.md), [`town_thesis`](town_thesis.md) |
 | Mayor Hollis | 29 | [`lanternwood`](lanternwood.md) |
 | Mom | 18 | [`downstairs_fest`](downstairs_fest.md) |
-| Schweinler | 16 | [`accident`](accident.md), [`hall`](hall.md), [`town_fest`](town_fest.md), [`town_thesis`](town_thesis.md) |
+| Schweinler | 17 | [`accident`](accident.md), [`hall`](hall.md), [`town_fest`](town_fest.md), [`town_thesis`](town_thesis.md) |
 | Sage | 14 | [`town_fest`](town_fest.md) |
 | Ridley | 11 | [`accident`](accident.md), [`bluff`](bluff.md), [`town_thesis`](town_thesis.md) |
 | Goose | 9 | [`town_fest`](town_fest.md) |
 | Professor Strix | 7 | [`hall`](hall.md), [`town_fest`](town_fest.md) |
 | Dr. Ciconia | 5 | [`sickroom`](sickroom.md) |
-| Pip | 5 | [`lanternwood`](lanternwood.md), [`town_fest`](town_fest.md) |
 | ??? | 4 | [`bluff`](bluff.md) |
 | Kitty's Mother | 4 | [`sickroom`](sickroom.md) |
+| Pip | 4 | [`lanternwood`](lanternwood.md), [`town_fest`](town_fest.md) |
 | Mrs. Flockhart | 3 | [`town_fest`](town_fest.md) |
 | Alder | 2 | [`lanternwood`](lanternwood.md) |
 | Bramble | 2 | [`lanternwood`](lanternwood.md) |
