@@ -625,12 +625,10 @@ func _on_exit_south(body: Node) -> void:
 			_gate_hinted = true
 			_gate_hint()
 		return
-	_busy = true
-	await fade_out()
 	# the south road climbs the headland (2026-07-18: the meet moved onto
 	# the bluff; the fest meadow scene was cut)
 	Game.bluff_phase = "meet"
-	get_tree().change_scene_to_file("res://scene/bluff.tscn")
+	await _leave_for("res://scene/bluff.tscn")
 
 
 ## Not _gate_hinted's one-shot latch: this is a hard REFUSAL for the rest of

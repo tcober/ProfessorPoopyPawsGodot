@@ -254,8 +254,11 @@ func _on_reach_school(body: Node2D) -> void:
 	theater.lock_party()
 	await theater.say("Basil", "Made it. Okay. Deep breath. You are a professor. You belong here.")
 	theater.close_dialog()
-	await fade_out()
-	get_tree().change_scene_to_file("res://scene/hall.tscn")
+	# _leave_for rather than a bare fade_out: it also raises TravelScene's `_busy`,
+	# which kills the location markers for the length of the fade. `_dashing` above
+	# stops THIS zone re-firing but says nothing about the school door the body is
+	# still standing on while the screen goes black.
+	await _leave_for("res://scene/hall.tscn")
 
 
 func _process(delta: float) -> void:

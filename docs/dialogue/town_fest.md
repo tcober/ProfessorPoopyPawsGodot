@@ -203,13 +203,13 @@
 
 *Not _gate_hinted's one-shot latch: this is a hard REFUSAL for the rest of the chapter, and a silent wall walked into three times reads as a bug. Its own re-entrancy latch instead — lock_party() freezes the body INSIDE the zone, so without one a second body_entered could stack a coroutine on the same DialogBox.*
 
-**BASIL**  <sub>`town_fest.gd:646:29`</sub>
+**BASIL**  <sub>`town_fest.gd:644:29`</sub>
 > Not the bluff. The ACADEMY. It's the other way, and they've already started.
 
 ## `_gate_hint`
 
-**BASIL**  <sub>`town_fest.gd:655:30`</sub>
+**BASIL**  <sub>`town_fest.gd:653:30`</sub>
 > Not without telling Mom. She has EARS.
 
-**BASIL**  <sub>`town_fest.gd:657:30`</sub>
+**BASIL**  <sub>`town_fest.gd:655:30`</sub>
 > Mom said stay in town for the festival. The festival says otherwise.

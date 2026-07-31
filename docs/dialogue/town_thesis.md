@@ -105,31 +105,31 @@
 
 *— badger walks —*
 
-**RIDLEY**  <sub>`town_thesis.gd:320:30`</sub>
+**RIDLEY**  <sub>`town_thesis.gd:323:30`</sub>
 > Hey. Basil, right? I was there. On the road. I saw the whole thing.
 
-**RIDLEY**  <sub>`town_thesis.gd:321:30`</sub>
+**RIDLEY**  <sub>`town_thesis.gd:324:30`</sub>
 > The doctor won't say it plain, so: how is she?
 
-**BASIL**  <sub>`town_thesis.gd:322:29`</sub>
+**BASIL**  <sub>`town_thesis.gd:325:29`</sub>
 > ...
 
 *— 0.6s pause —*
 
-**RIDLEY**  <sub>`town_thesis.gd:324:30`</sub>
+**RIDLEY**  <sub>`town_thesis.gd:327:30`</sub>
 > That bad. ...You know what? Sitting out here like the sky fell on YOU - that's pretty selfish.
 
 *— 0.4s pause —*
 
-**RIDLEY**  <sub>`town_thesis.gd:328:30`</sub>
+**RIDLEY**  <sub>`town_thesis.gd:331:30`</sub>
 > YOU weren't the one who got run over. SHE'S the one in the bed. And you're over here feeling sorry for YOURSELF?
 
-**RIDLEY**  <sub>`town_thesis.gd:329:30`</sub>
+**RIDLEY**  <sub>`town_thesis.gd:332:30`</sub>
 > ...I'm just saying. Perspective. Anyway. Feel better!
 
 *— badger walks · 0.8s pause —*
 
-**BASIL**  <sub>`town_thesis.gd:336:29`</sub>
+**BASIL**  <sub>`town_thesis.gd:339:29`</sub>
 > ...
 
 ## `_leaving`
@@ -138,16 +138,16 @@
 
 *— 1.8s pause · 1.2s pause —*
 
-**BASIL**  <sub>`town_thesis.gd:365:29`</sub>
+**BASIL**  <sub>`town_thesis.gd:368:29`</sub>
 > ...Goodbye.
 
-**BASIL**  <sub>`town_thesis.gd:366:29`</sub>
+**BASIL**  <sub>`town_thesis.gd:369:29`</sub>
 > I would have loved being yours. Your chemist. Your neighbor. Anything.
 
-**BASIL**  <sub>`town_thesis.gd:367:29`</sub>
+**BASIL**  <sub>`town_thesis.gd:370:29`</sub>
 > I wish I could have been welcome here.
 
 *— 1.0s pause · 0.5s pause · 2.8s pause · fade to black —*
 
-**CARD**  <sub>`town_thesis.gd:399:21`</sub>
+**CARD**  <sub>`town_thesis.gd:402:21`</sub>
 > YEARS LATER.
