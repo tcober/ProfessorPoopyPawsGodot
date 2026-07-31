@@ -117,10 +117,12 @@ func _run() -> void:
 	quit(0 if ok else 1)
 
 
-## PHASE 3 — THE LEASH ACROSS A FASCIA (2026-07-29, the two-strata town). The one
-## genuinely new systems risk in a stacked map: the follower walks with COLLISION,
-## so it cannot cross the boardwalk's fascia the way its leader can (up a ladder),
-## and `_follow` will happily push it into the underside of a storey forever.
+## PHASE 3 — THE LEASH ACROSS TWO FASCIAS (2026-07-29; four storeys 2026-07-30).
+## The one genuinely new systems risk in a stacked map: the follower walks with
+## COLLISION, so it cannot cross a boardwalk's fascia the way its leader can (up a
+## ladder), and `_follow` will happily push it into the underside of a storey
+## forever. Basil's door is on `canopy_hi` now, so this drops the follower all the
+## way to the forest floor and it has TWO fascias and a whole storey to climb.
 ##
 ## What must hold is that the OFF-SCREEN CATCH-UP TELEPORT resolves it — and that
 ## it resolves it by landing the follower on THE LEADER'S STOREY, because a warp
@@ -129,7 +131,9 @@ func _run() -> void:
 ## re-deriving: `_teleport_home` lands a step behind the LEADER, so the follower
 ## inherits whichever storey the leader is standing on by construction. The
 ## stratum is checked, not the distance alone, because the distance passes even
-## when the follower is stuck directly BELOW the leader against the fascia.
+## when the follower is stuck directly BELOW the leader against the fascia — and
+## it is compared against the LEADER's stratum rather than a spelled name, or the
+## check stops meaning anything the next time a storey is added.
 func _phase3_across_a_fascia() -> bool:
 	change_scene_to_file("res://scene/alembic_town.tscn")
 	for i in 20:
@@ -141,15 +145,33 @@ func _phase3_across_a_fascia() -> bool:
 	for m in party.members:
 		if m != leader:
 			follower = m
-	# the leader on Basil's canopy deck, the follower on the forest floor below
-	leader.global_position = MapData.anchor_px(map, "home") + Vector2(0.0, 26.0)
-	follower.global_position = MapData.anchor_px(map, "home") + Vector2(0.0, 190.0)
+	# THE LEADER ON BASIL'S RING DECK, THE FOLLOWER ON THE FOREST FLOOR BELOW.
+	# No southward offset on the leader any more: the `home` anchor sits on the ring's
+	# south deck row, and the deck is only two rows deep below the door, so the old
+	# +26 pushed him 1.6 cells south onto the LADDER — a `link` cell, whose stratum is
+	# "link" and not "canopy", so the probe compared the follower's storey against the
+	# wrong answer and failed for a reason that had nothing to do with the leash.
+	# ONE ROW SOUTH OF THE ANCHOR, and both halves of that matter. `home` IS Basil's
+	# door marker, so parking a body on it fires the travel zone and change_scene
+	# frees every member mid-probe ("Invalid access ... on a base object of type
+	# 'previously freed'"). And it can only be ONE row: the ring's south deck is two
+	# rows deep, so +26 lands on the ladder, whose stratum is "link", not the canopy
+	# the follower is supposed to be compared against.
+	leader.global_position = MapData.anchor_px(map, "home") + Vector2(0.0, 16.0)
+	follower.global_position = MapData.anchor_px(map, "home") + Vector2(0.0, 400.0)
 	for c in leader.get_children():
 		if c is Camera2D:
 			(c as Camera2D).reset_smoothing()
+	var want := MapData.stratum_at_px(map, leader.global_position)
+	var start := MapData.stratum_at_px(map, follower.global_position)
 	for i in 600:
 		await physics_frame
 	var st := MapData.stratum_at_px(map, follower.global_position)
 	var dist := follower.global_position.distance_to(leader.global_position)
-	print("phase-3 follower stratum: %s  dist %.1f  (PASS canopy, < 60)" % [st, dist])
-	return st == "canopy" and dist < 60.0
+	# ASKED OF THE MAP, not spelled: the point is that the follower ends up on THE
+	# LEADER'S storey, whatever it is called. Comparing against the literal "canopy"
+	# made this check unsatisfiable the moment the boardwalk split into canopy_hi and
+	# canopy_lo, and it failed for a reason that had nothing to do with the leash.
+	print("phase-3 follower %s -> %s (leader %s)  dist %.1f  (PASS same, < 60)"
+			% [start, st, want, dist])
+	return st == want and start != want and dist < 60.0

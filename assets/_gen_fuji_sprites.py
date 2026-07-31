@@ -14,6 +14,7 @@ entities/fuji/fuji_frames.tres (region contract):
   row6 dart_down(4)   row7 dart_up(4)   row8 dart_side(4)   (cols 4-5 empty)
       the blow-pipe: raise, aim, PUFF (dart leaves here), settle
   row9 hurt(2) + idle_down blink + idle_side tail-flick + happy + sad
+  row10 climb(4, back view — the rope-ladder cycle)
 
 Art contracts consumed by code: feet baseline y=44 (_core.ZONE_FEET); origin
 (24,24); in the leveled dart frames the pipe TIP sits exactly 19px from the
@@ -43,7 +44,7 @@ from _core import write_cells, ZONE_CELL, ZONE_FEET
 from _sprites import Sprite, Rig
 from _palette import FUJI
 
-CELL, COLS, ROWS = ZONE_CELL, 6, 10
+CELL, COLS, ROWS = ZONE_CELL, 6, 11
 FEET = ZONE_FEET          # 44 — bottom row of the paw FILL (outline sits at 45)
 CX = 24
 HEM = 40                  # near-floor robe hem — only paw TIPS peek below it
@@ -371,6 +372,39 @@ def cat_up(s, bobY=0, liftL=0, liftR=0, tail_sway=0, robe_sway=0):
     arms_up_walk(s, p)
     tail_up(s, tail_sway)
     head_up(s, bobY)
+    finish(s)
+
+
+def arms_climb(s, p, reach_l, reach_r):
+    """Both sleeves up to the rungs, each hand at its own height. The forearms
+    converge — a climber's arms are narrower than his shoulders on a rope ladder,
+    and drawn straight up they read as a surrender pose."""
+    for (sh_a, reach, dx, sh) in (("shL", reach_l, 2, 0.20),
+                                  ("shR", reach_r, -2, 0.34)):
+        sx, sy = p[sh_a]
+        hx, hy = sx + dx, sy - reach
+        s.capsule(sx, sy, hx, hy, 1.8, 1.5, ROBE, sh=sh)
+        s.ball(hx, hy - 1.3, 1.7, 1.4, FUR, power=2.2, sh=sh * 0.5,
+               wrap=0.10, curve=0.10)
+
+
+def climb_up(s, step):
+    """THE LADDER CLIMB — back view, four frames, opposite limbs together. See
+    _gen_basil_sprites.climb_up for why the arms carry this and the legs do not:
+    the robe hides most of the leg action, so what sells a climb at this size is
+    the alternating REACH."""
+    hi = (7, 4, 7, 4)[step]
+    lo = (2, 4, 2, 4)[step]
+    left_high = step in (0, 1)
+    rl, rr = (hi, lo) if left_high else (lo, hi)
+    liftL, liftR = (5, 0) if not left_high else (0, 5)
+    bob = -1 if step in (0, 2) else 0
+    p = RIG.pose(shL=(0, bob), shR=(0, bob))
+    legs_down(s, p, liftL, liftR)
+    robe_down(s, bob, back=True, sway=(1 if left_high else -1))
+    arms_climb(s, p, rl, rr)
+    tail_up(s, 2 if left_high else -2)
+    head_up(s, bob)
     finish(s)
 
 
@@ -908,5 +942,11 @@ cat_side(cells[9][3], 0, side_fA[0], side_fB[0], side_tail[0],
          tail_raised=True)                              # matches walk_side f0
 cat_down(cells[9][4], eyes="happy", tail_sway=2)        # her warm face
 cat_down(cells[9][5], eyes="sad", ears="droop", tail_droop=1)
+
+# row 10 (2026-07-30): THE LADDER CLIMB, the twin of Basil's row 10 — Alembic's
+# great trees are reached by rope ladder and a follower on one used to play
+# walk_up, i.e. slide up the rungs with her arms at her sides.
+for i in range(4):
+    climb_up(cells[10][i], i)
 
 write_cells(os.path.join(HERE, "fuji_gen.png"), cells, CELL)

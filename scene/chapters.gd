@@ -323,6 +323,11 @@ static var BEATS: Array[Dictionary] = [
 		flags = ["prologue_done", "ebb_done"] + KIT_ARMED,
 	},
 	{
+		name = "THE ACADEMY", scene = "res://scene/academy.tscn",
+		roster = ADULTS, lead = &"basil", state = {},
+		flags = ["prologue_done", "ebb_done"] + KIT_ARMED,
+	},
+	{
 		name = "THE OVERWORLD", scene = "res://scene/overworld.tscn",
 		roster = ADULTS, lead = &"basil", state = {overworld_spawn = "town"},
 		flags = ["prologue_done", "ebb_done"] + KIT_ARMED,

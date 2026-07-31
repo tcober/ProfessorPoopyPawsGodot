@@ -383,7 +383,13 @@ func _run() -> void:
 	var dashing := func() -> bool: return dash._dashing
 	ok = await _mash_until(dashing, 4000)         # squelch beat
 	await _wait_frames(20)
-	_player().global_position = MapData.anchor_px(town_map, "school") + Vector2(0.0, 40.0)
+	# The finish line's offset is READ OFF THE LIVE SCENE, never re-typed: this
+	# was a hardcoded +40, the scene moved its goal to +24 in the Alembic rebuild
+	# (the Academy became its own scene and `school` now names the north lane's
+	# mouth), and a body parked 40px below the anchor has its collision box a
+	# clear 10px under the rect — body_entered never fires and the dash hangs
+	# with nothing in the log.
+	_player().global_position = MapData.anchor_px(town_map, "school") + dash.DASH_GOAL_OFF
 	ok = await _mash_until(in_hall, 5000)
 	_check("dash -> the lecture hall", ok)
 	await _wait_frames(40)

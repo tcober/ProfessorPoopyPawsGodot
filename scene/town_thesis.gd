@@ -42,6 +42,16 @@ const BAG_OFF := Vector2(0.0, 38.0)
 ## derived from it, so a taller or shorter town changes how long he walks and
 ## never how fast: 85px over 4.6s, the shipped trudge, held exactly.
 const TRUDGE_SPEED := 18.5
+## Where the morning dash ENDS, hung off the "school" anchor — the finish line
+## in the north lane's mouth. It is a const rather than a literal because
+## tools/prologue_probe.gd has to land a body on it, and the two copies of the
+## number DID drift: the goal moved from +40 to +24 in the Alembic rebuild, the
+## probe kept teleporting to +40, and a body whose collision box sits 10px below
+## the rect's bottom edge never fires body_entered — a beat that hangs forever
+## with no error. The probe reads this off the live scene now.
+const DASH_GOAL_OFF := Vector2(0.0, 24.0)
+## ...and how big that finish line is: a band across the two-cell lane.
+const DASH_GOAL_SIZE := Vector2(48.0, 16.0)
 
 const TINT_NIGHT := Color(0.42, 0.40, 0.66)
 const TINT_MORNING := Color(0.98, 0.93, 0.86)
@@ -222,10 +232,17 @@ func _phase_dash() -> void:
 	goal.collision_mask = 2
 	var shape := CollisionShape2D.new()
 	var rect := RectangleShape2D.new()
-	rect.size = Vector2(48, 16)
+	rect.size = DASH_GOAL_SIZE
 	shape.shape = rect
 	goal.add_child(shape)
-	goal.position = MapData.anchor_px(map, "school") + Vector2(0.0, 40.0)
+	# DASH_GOAL_OFF is +24, not the +40 this used to be: since the Alembic rebuild
+	# the Academy is its own scene and `school` names the NORTH LANE'S MOUTH, the
+	# way there rather than a building. Two rows down the lane is still lane — the
+	# old +40 was the forecourt cliff band, a goal rect of solid cells the player
+	# could never enter, which hangs the beat forever with no error. The plant
+	# spawn happens to use the same offset and that is fine: the two are in
+	# different phases and never coexist.
+	goal.position = MapData.anchor_px(map, "school") + DASH_GOAL_OFF
 	add_child(goal)
 	goal.body_entered.connect(_on_reach_school)
 

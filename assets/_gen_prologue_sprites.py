@@ -7,11 +7,13 @@ proportions — the head is nearly half the figure.
 
 Sheets written (all 48px cells, feet baseline y=44 = _core.ZONE_FEET):
 
-  kid_basil_gen.png (288x240, 6x5) — the PLAYABLE kid, matching
+  kid_basil_gen.png (288x288, 6x6) — the PLAYABLE kid, matching
       entities/kid/kid_basil_frames.tres:
       row0 walk_down(6)  row1 walk_up(6)  row2 walk_side(6, faces RIGHT)
       row3 hurt(2) + idle-down blink + idle-side tail-flick + happy + sad
       row4 sleep + wake + sigh (the fest sunrise wake-up cutscene) + 3 spare
+      row5 climb_up(4) + 2 spare — the rope-ladder climb, the same clip the
+      adult sheet carries on its row 10
       (walk f0 per facing is the planted idle pose, same contract as the
       adults' sheets)
 
@@ -331,15 +333,32 @@ def _mirror_cell(s):
 # dict.
 
 
-def kid_back(s, fur, paw, bob=0, liftL=0, liftR=0, tail_sway=0):
+def kid_back(s, fur, paw, bob=0, liftL=0, liftR=0, tail_sway=0, reach=None):
     """The kid cat from BEHIND. Ear BACKS (no inner pink), hanging arms drawn
     under the skull so the nape reads, tail swishing up past the tummy, the
-    neck part creased into the shoulders. Returns the head y."""
+    neck part creased into the shoulders. Returns the head y.
+
+    `reach` = (left, right) px above the shoulder swaps the hanging arms for
+    RAISED ones — the ladder climb, the only pose that needs them. Each paw
+    goes straight up and slightly OUT, to x = CX +/- 8, which is the same
+    place kid_body_down's "up" arms put them and is just clear of the skull's
+    silhouette. The adult's forearms CONVERGE on the rungs (see
+    _gen_basil_sprites.arms_climb); a kid's head is nearly as wide as his
+    shoulders, so converging arms are swallowed by it and the climb reads as
+    a walk again — which is the whole thing this pose exists to stop."""
     kid_legs_down(s, fur, paw, liftL, liftR, bob)
     by = 36 + bob
     s.ball(CX, by, 5.8, 5.0, fur, power=2.2, wrap=0.30, curve=0.24)
-    s.capsule(CX - 5.5, by - 3, CX - 6.5, by + 1, 1.7, 1.5, fur, sh=0.06)
-    s.capsule(CX + 5.5, by - 3, CX + 6.5, by + 1, 1.7, 1.5, fur, sh=0.16)
+    if reach is not None:
+        s.capsule(CX - 5.5, by - 3, CX - 8, by - 3 - reach[0], 1.7, 1.5, fur, sh=0.06)
+        s.capsule(CX + 5.5, by - 3, CX + 8, by - 3 - reach[1], 1.7, 1.5, fur, sh=0.16)
+        s.ball(CX - 8, by - 4 - reach[0], 1.6, 1.4, paw, power=2.2,
+               wrap=0.10, curve=0.10)
+        s.ball(CX + 8, by - 4 - reach[1], 1.6, 1.4, paw, power=2.2, sh=0.10,
+               wrap=0.10, curve=0.10)
+    else:
+        s.capsule(CX - 5.5, by - 3, CX - 6.5, by + 1, 1.7, 1.5, fur, sh=0.06)
+        s.capsule(CX + 5.5, by - 3, CX + 6.5, by + 1, 1.7, 1.5, fur, sh=0.16)
     # tail swishes up past the tummy, seen from behind
     s.capsule(CX + 5, by + 1, CX + 8, by - 4, 1.5, 1.2, fur, sh=0.10)
     s.set(CX + 8 + tail_sway, by - 5, fur[0])
@@ -416,6 +435,34 @@ def kb_down(s, bob=0, liftL=0, liftR=0, tail_sway=0, tail_droop=0,
 
 def kb_up(s, bob=0, liftL=0, liftR=0, tail_sway=0):
     kid_back(s, FUR, WHITE, bob, liftL, liftR, tail_sway)
+    kb_finish(s)
+
+
+def kb_climb(s, step):
+    """THE LADDER CLIMB — back view, four frames, opposite limbs together.
+
+    The same clip the adult sheet grew on 2026-07-30 (row 10 there), cut for the
+    kid rig: Alembic's great trees are reached by rope ladder, and a body without
+    this row falls back to `walk_up` — arms at its sides, feet strolling — which
+    reads as a cat sliding up the rungs.
+
+    Contralateral, like the walk cycle already is: left paw high with the RIGHT
+    foot lifted. Frames 0 and 2 are the two reaches, 1 and 3 the passing
+    positions, so the cycle reads at 8fps with no hitch frame. Cell 0 is
+    deliberately NOT a planted neutral — there is no neutral on a ladder, and the
+    clip only ever plays on one.
+
+    The kid's foot lift is 2px where the adult's is 5: his round tummy hangs
+    lower than a coat hem, and anything above 2 puts the paw behind it, which
+    costs the frame its only visible leg action."""
+    hi = (6, 4, 6, 4)[step]                 # the high paw's reach above the shoulder
+    lo = (2, 4, 2, 4)[step]                 # ...and the low one's
+    left_high = step in (0, 1)
+    rl, rr = (hi, lo) if left_high else (lo, hi)
+    liftL, liftR = (0, 2) if left_high else (2, 0)
+    bob = -1 if step in (0, 2) else 0
+    kid_back(s, FUR, WHITE, bob, liftL, liftR, 1 if left_high else -1,
+             reach=(rl, rr))
     kb_finish(s)
 
 
@@ -3641,8 +3688,8 @@ def accident_bg():
 
 # ---- build all sheets -----------------------------------------------------------------------
 
-# kid Basil: 6x5
-kb = [[new() for _ in range(6)] for _ in range(5)]
+# kid Basil: 6x6
+kb = [[new() for _ in range(6)] for _ in range(6)]
 walk_bob = [0, -1, -1, 0, -1, -1]
 walk_liftl = [0, 1, 1, 0, 0, 0]
 walk_liftr = [0, 0, 0, 0, 1, 1]
@@ -3666,6 +3713,12 @@ kb_down(kb[4][1], eyes="open", bob=-1)                 # wake: eyes wide, head l
 kb_down(kb[4][2], eyes="sad", ears="droop", tail_droop=1)   # sigh: half-lids, ears down
 for (bx, by) in ((CX + 9, 28), (CX + 11, 26), (CX + 12, 24)):
     kb[4][2].set(bx, by, WHISK)                        # the exhaled breath drifting off
+# row 5 (2026-07-30): THE LADDER CLIMB, four frames in cols 0-3. The adult sheet
+# and Fuji's grew this row when Alembic's great trees went in; the kid's predated
+# it, so kid Basil kept falling back to walk_up on a rung (party_member.gd gates
+# the clip on the SpriteFrames actually carrying it).
+for i in range(4):
+    kb_climb(kb[5][i], i)
 write_cells(os.path.join(HERE, "kid_basil_gen.png"), kb, CELL)
 
 
@@ -4025,5 +4078,5 @@ write_cells(os.path.join(HERE, "accident_bike_down_gen.png"), bdn, CELL)
 
 accident_bg()
 
-print("prologue cast written: kid_basil (6x5) + 19 NPC sheets + fx strip 16x2"
+print("prologue cast written: kid_basil (6x6) + 19 NPC sheets + fx strip 16x2"
       " + the accident set + the bluff kiss (96px x3)")

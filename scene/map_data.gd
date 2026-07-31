@@ -44,7 +44,15 @@ static func load_map(path: String) -> Dictionary:
 							"%s: unknown legend option '%s'" % [path, opt])
 					stratum = opt.substr(8)
 					assert(not stratum.is_empty(), "%s: empty stratum name" % path)
-				legend[parts[1]] = {"solid": parts[3] == "solid", "stratum": stratum}
+				# THE TERRAIN NAME IS STORED, and it was not until 2026-07-30. The
+				# Python parser (_maps.py) has always kept it, so the two sides of
+				# the one map format had drifted: anything asking this side what a
+				# cell IS — rather than merely whether it is solid — got a missing
+				# key, which in GDScript is an error every call and a null result.
+				# The rope-ladder climb was written against it and was dead on
+				# arrival, silently, while logging twice per physics frame per body.
+				legend[parts[1]] = {"terrain": parts[2],
+						"solid": parts[3] == "solid", "stratum": stratum}
 				if parts[3] != "solid":
 					strata[stratum] = true
 			"anchor":
@@ -98,6 +106,24 @@ static func stratum_at(map: Dictionary, cell: Vector2i) -> String:
 ## already in, so callers never hand-divide by the tile size.
 static func stratum_at_px(map: Dictionary, pos: Vector2) -> String:
 	return stratum_at(map, Vector2i(floori(pos.x / 16.0), floori(pos.y / 16.0)))
+
+
+## The TERRAIN NAME of a cell — the legend's second column, e.g. "grass",
+## "ropeladder", "deck". Unlike stratum_at this answers for SOLID cells too, and
+## returns "" off the map. Bodies use it to ask what they are standing on when the
+## walk/solid bit is not enough: a rope ladder is walkable ground that must be
+## CLIMBED rather than walked across.
+static func terrain_at(map: Dictionary, cell: Vector2i) -> String:
+	if cell.x < 0 or cell.y < 0 or cell.x >= map.cols or cell.y >= map.rows:
+		return ""
+	var ch: String = (map.lines[cell.y] as String)[cell.x]
+	if not map.legend.has(ch):
+		return ""
+	return map.legend[ch]["terrain"]
+
+
+static func terrain_at_px(map: Dictionary, pos: Vector2) -> String:
+	return terrain_at(map, Vector2i(floori(pos.x / 16.0), floori(pos.y / 16.0)))
 
 
 static func size_px(map: Dictionary) -> Vector2:

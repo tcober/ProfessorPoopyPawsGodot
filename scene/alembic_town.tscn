@@ -65,16 +65,6 @@ locked_text = "DARK WINDOWS. THE OLD STORK RETIRED YEARS AGO. NOBODY CAME AFTER.
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/CottageE"]
 shape = SubResource("RectangleShape2D_door")
 
-[node name="School" type="Area2D" parent="Locations"]
-position = Vector2(440, 152)
-script = ExtResource("2_loc")
-id = "school"
-display_name = "THE ALEMBIC ACADEMY"
-locked_text = "THE GATES ARE BARRED. NO MAGIC HAS STIRRED HERE IN YEARS."
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/School"]
-shape = SubResource("RectangleShape2D_door")
-
 [node name="Weapons" type="Area2D" parent="Locations"]
 position = Vector2(360, 264)
 script = ExtResource("2_loc")
@@ -111,6 +101,14 @@ collision_layer = 0
 collision_mask = 2
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ExitSouth"]
+shape = SubResource("RectangleShape2D_exit")
+
+[node name="ExitNorth" type="Area2D" parent="."]
+position = Vector2(440, 8)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitNorth"]
 shape = SubResource("RectangleShape2D_exit")
 
 [node name="World" type="Node2D" parent="."]

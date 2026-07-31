@@ -1,32 +1,15 @@
 ; y-sorted World props from assets/maps/town_fest.txt — see scene/prop_spawner.gd
-prop Home hH3 town_fest_home.png hframes=8
-prop CottageW q14 town_fest_cottagew.png hframes=4
-prop CottageE w25 town_fest_cottagee.png hframes=4
-prop Academy kK6 town_fest_academy.png hframes=4
-prop Weapons xX7 town_fest_weapons.png hframes=8
-prop Items pP8 town_fest_items.png hframes=8
-prop Inn nN9 town_fest_inn.png hframes=4
+prop CottageW q1 town_fest_cottagew.png hframes=4
+prop CottageE w2 town_fest_cottagee.png hframes=4
+prop Weapons xX town_fest_weapons.png hframes=8
+prop Items pP town_fest_items.png hframes=8
+prop Inn iI town_fest_inn.png hframes=8
 prop Fountain oO town_fest_fountain.png hframes=4
 prop Well uU town_fest_well.png
 prop Lamp lL town_fest_lamp.png each
 prop Stall m town_fest_stall.png
-prop Fence F town_fest_fence.png each
-prop FenceLong G town_fest_fencelong.png
-prop GreatTrunk jJ town_fest_greattrunk.png each
-prop BoughBranch A town_fest_boughbranch.png each
-prop BoughLeaves A town_fest_boughleaves.png anchor=top:0 base_inset=-16 each
-prop LiftHead M town_fest_lifthead.png
-prop LiftCar Q town_fest_liftcar.png hframes=8
-prop LiftDrum Ii town_fest_liftdrum.png
-prop TreeTrunk Tt^ town_fest_treetrunk.png each
-prop TreeCrown Tt^ town_fest_treecrown.png anchor=top:0 base_inset=-16 each
-mask town_fest_maskC0.png 128 176 168
-mask town_fest_maskC1.png 464 176 168
-mask town_fest_maskb0.png 752 272 264
-mask town_fest_maskb1.png 800 272 264
-mask town_fest_maskb2.png 320 304 296
-mask town_fest_maskb3.png 384 304 296
-mask town_fest_maskb4.png 544 304 296
-mask town_fest_maskb5.png 288 320 312
-mask town_fest_maskv0.png 96 320 312
-mask town_fest_maskv1.png 160 320 312
+prop Crown G town_fest_crown.png anchor=top:0 base_inset=-52 each
+prop RingRail yR town_fest_ringrail.png anchor=top:0 each
+prop TrunkRing J town_fest_trunkring.png base_inset=19 each
+prop TreeTrunk Tt town_fest_treetrunk.png each
+prop TreeCrown Tt town_fest_treecrown.png anchor=top:0 base_inset=-16 each

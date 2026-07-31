@@ -1483,17 +1483,23 @@ Markers in the live build:
   obelisk network survives as lore — one dark obelisk per landmass, the
   Act 2+ dungeon skeleton (see "Lore spine").
 
-**Alembic Town, walkable** (`scene/alembic_town.tscn`, 56×34 tiles — rebuilt
-from scratch 2026-07-11 as the Kakariko-style hub, LIVE in the flow) — the
+**Alembic Town, walkable** (`scene/alembic_town.tscn`, 80×56 tiles — rebuilt
+from scratch 2026-07-11 as the Kakariko-style hub, again 2026-07-30 as a
+four-storey canopy village that read as a LUMBER YARD, and a third time the same
+day as what shipped: a FOREST-FLOOR VILLAGE WITH FOUR GREAT TREES, each carrying
+a round ring deck, a door in its trunk and a ladder down. The Academy has left
+this grid entirely — it is its own scene, reached by the north lane, and the
+`school` anchor now sits in that lane's mouth. LIVE in the flow) — the
 village at zone scale (48px player), riding the SAME OverWorld tile driver
 (tree borders = the forest class, lanes = the trail painter, fence class
 yards, sea+beach pond, a river stream with one bridge cell), composed
-DEPTH-FIRST: the barred **Academy crowns a north cliff terrace** on the
-town's central axis (`school`, announce-only — "no magic has stirred here in
-years"), a grand stone stair descending through the authored cliff-column
-band (16×32 face columns, 3 salted variants stamped per column — the
-meadow-boulder reuse pattern) to a lamp-flanked stair plaza; the **fountain
-square** at the lane crossing (basin + brass alembic-bulb finial, trail ring
+DEPTH-FIRST: **four GREAT TREES along the clearing's north edge**, each a ring
+deck round its trunk with a door and a lit window cut into the bark and a rope
+ladder down to the floor (Basil's is the westmost, `home` → `downstairs.tscn`);
+the **north lane** running out of the clearing to **THE ALEMBIC ACADEMY**, which
+is its own scene now (`exit_north` → `academy.tscn`, and `Game.town_spawn =
+"north"` is what brings you back into this lane rather than to the south gate);
+the **fountain square** at the lane crossing (basin + brass alembic-bulb finial, trail ring
 forking around it, the flask-stall on its rim); the **weapons shop** "THE
 BRASS FANG" (`weapons`) and **item shop** "THE CRACKED FLASK" (`items`)
 facing the market cross-lane — one shared shopfront builder, same salt, only
@@ -1511,6 +1517,53 @@ CT-style. The south lane gap (`exit_south`) returns to the overworld at the
 town icon. Spawns route through `Game.town_spawn` (read-and-clear; "" = the
 south gate, `home` = below Basil's door — the downstairs front door now
 opens HERE, not onto the overworld).
+
+**THE ALEMBIC ACADEMY, walkable** (`scene/academy.tscn`, 64×48 tiles, NEW
+2026-07-30) — the college, which used to be one 14×9 landmark on a cliff terrace
+at the top of the town grid and is now its own precinct, because as a building in
+a town it could only ever be a facade you walked up to. Reached by Alembic's north
+lane; its great door opens into the lecture hall (`hall.tscn`) where Prologue B
+names him. **COMPOSED DEPTH-FIRST ON ONE AXIS, south to north**, which is what
+makes a building epic rather than merely large — you arrive at the bottom of a
+sequence and the thing you came to see is at the top of it:
+
+- **the causeway** out of the forest, two cells wide through a chokepoint mouth;
+- **THE BECK**, a stream right across the precinct on animated water, crossed on
+  the axis by a four-cell bridge. Water and not a chasm, deliberately: authoring
+  an ABSENCE is the one thing this kit is bad at (Lanternwood's rift was tried
+  twice and read as a wall both times), a stream is a POSITIVE thing, and a bridge
+  over it is one more gate on the way in;
+- **the outer ward**, then **THE RAMPART** — a crenellated curtain wall clear
+  across the map, pierced on the axis by a gatehouse of two drum towers standing
+  proud of it. A wall with a hole in it is a hole in a wall; a wall with two towers
+  either side of the hole is a gate;
+- **the inner court**, with **THE GREAT ORRERY** on its plinth standing dead on
+  the axis. It blocks the straight line from the gate to the stair on purpose —
+  you walk round a monument, and being made to go round it is what makes the court
+  read as the middle of a place rather than as a corridor. The **observatory**
+  (copper dome, shutter slit, brass refractor) and the **still-house** (riveted
+  boiler, two flues venting) flank it on the lawns, one builder and one salt apart;
+- **the grand stair** through the terrace wall — the only way up, asserted;
+- **THE KEEP** on the back rank: `town_academy` unchanged, twin spired towers, the
+  arcane rose window burning MINT on the glow overlay, the door iron-barred.
+  **TWO GREAT TREES FLANK IT WHERE A CASTLE WOULD PUT CORNER TOWERS** — the same
+  4-column trunk under a 14-column crown Alembic's four are built on, with no ring,
+  no door and no ladder, because here they are not houses, they are the sides of
+  the building. Nothing else at this scale frames a keep the way something taller
+  than the keep does, and it costs no new art at all.
+
+**PAVING ONLY WHERE THE PROCESSION WALKS, LAWN EITHER SIDE.** Paved edge to edge
+the court was 52×9 cells of one flat stone fabric — the "100% floor" failure the
+canopy town already taught, in a different material. What makes a bailey read is
+the contrast between the swept way and the green it is cut through.
+
+Two asserts in `_gen_tileset_academy.py` earn their keep and would each be silent:
+**both cross-map walls must be pierced in exactly one place** (stopping a wall one
+cell short of the forest border leaves a grass lane round the end of it, and then
+the grand stair is one of three ways up), and the usual footprint/component table.
+`tools/academy_probe.gd` covers what no art lint can see — the round trip in both
+directions, a body actually fitting through the two-cell gate, and the spawn not
+sitting inside its own exit trigger.
 
 **Lanternwood, walkable** (`scene/lanternwood.tscn`, **56×50 tiles** since the
 2026-07-28 Narshe rebuild; shipped 2026-07-19) — Fuji's winter pine-forest town
@@ -2388,7 +2441,7 @@ actually cycle; hand-drawn sheets can still drop in later against "Asset Specs" 
   TilesUpper + additive glow + the town/meadow/lanternwood markers) ·
   `scene/overworld_bright.gd/.tscn` (the byte-locked pre-Ebb twin —
   staging/screenshots only) ·
-  `scene/alembic_town.gd/.tscn` (56×34 TILED walkable town: same
+  `scene/alembic_town.gd/.tscn` (80×56 TILED walkable town, ring islands: same
   stamp-and-anchor pattern with the full-scale party, door/announce markers
   + the south exit) ·
   `scene/lanternwood.gd/.tscn` (44×28 TILED walkable snow town on the same
@@ -2804,10 +2857,21 @@ driven by its `assets/maps/*.txt` file.
   legitimately sit under y-sorted sprites).
   Generator-side, `place_upper` asserts a non-empty upper sprite (no dead
   splits).
-- **STACKED WALKABLE STOREYS — the strata doctrine (2026-07-29, assert-enforced).**
-  Alembic Town is a **two-strata canopy town**: a forest floor, a plank boardwalk
-  in the boughs above it, and the Academy's stone terrace above that, all in ONE
-  56x34 grid. **There is no elevation system and there does not need to be one.**
+- **STACKED WALKABLE STOREYS — the strata doctrine (2026-07-29, assert-enforced;
+  rebuilt to RING ISLANDS 2026-07-30).**
+  Alembic Town is a **forest-floor village with four great trees** in ONE 80x56
+  grid. The town is on the ground; each tree carries a round **RING DECK** near
+  its crown — one walkable stratum island apiece, reached by a rope ladder, with
+  a door and a lit window cut into the trunk.
+  **THE CANOPY IS NOT A FLOOR, IT IS FOUR ISLANDS, and that cost two rebuilds to
+  learn.** The version before this one made both canopy storeys continuous
+  boardwalk edge to edge. A town that is 100% floor renders as horizontal stripes
+  of plank and fascia — a LUMBER YARD, or a fence — because there is no negative
+  space anywhere in frame. What makes Slitherbough and Endor read is the **VOID
+  BETWEEN THE PLATFORMS**: discrete decks hanging in a canopy, joined by ladders,
+  with the drop visible around them. Structure was never the problem either time;
+  what was missing was the absence.
+  **There is no elevation system and there does not need to be one.**
   The reason is not thrift, it is expressiveness: a cell is exactly one `(x, y)`
   with one legend char and one walk/solid bit, so a body is never
   "on-bridge-or-under-bridge" — there IS no cell under a bridge, the deck **is**
@@ -2816,22 +2880,58 @@ driven by its `assets/maps/*.txt` file.
   separated by a band of solid cells wearing opaque face art, pierced by a
   walkable stair. "A bridge over walkable ground" stops being discouraged and
   becomes *unrepresentable*.
+  - **A ROUND PLATFORM'S WALKABLE CELLS ARE DERIVED FROM ITS ELLIPSE, NEVER
+	AUTHORED (2026-07-30).** The ring's disc is drawn from one set of numbers
+	(`_tree_props.ring_geom`); `ring_cells` rasterizes those same numbers into a
+	cell mask, and `_alembic.assert_all` checks the grid against it. Before that
+	the mask was hand-guessed, and it was guessed as a tight blob INSIDE the disc:
+	two whole columns of drawn decking were solid at each pole, so **the widest
+	rows of the circle were the narrowest rows you could walk** — the inverse of a
+	circle, felt in the hands as an invisible wall following the rim the whole way
+	round while the art insisted you were standing in the middle of a platform.
+	Nothing catches this: a cell that looks like deck and stops you looks exactly
+	like a cell you have not reached yet. **The test is the BODY'S 12x8 BOX at all
+	four corners, not the cell's centre and not coverage**, because the overhang is
+	DIRECTIONAL and no single radius can express it: the cell at (row 4, col 2) sits
+	at o = 0.65, comfortably inside anything you would call the rim, and a body
+	standing there has its west foot off the platform — its feet are ten pixels
+	SOUTH of its centre and the arc has already curved away — while (row 1, col 1)
+	at o = 0.88 is fine, because on the top half of an ellipse those same ten pixels
+	point further IN. And the box is aimed at the RIM BOARD, not the outer edge: the
+	rim is the deck's finished lip and the handrail stands just outside it, so
+	walking to the edge put a body at the poles standing ON the rim with the rail
+	between its ankles.
+	Three consequences worth carrying to the next round platform. A walkable RIM
+	cell must render the background (leaf) and not the deck, or the part of it the
+	curve misses fills with plank fabric and squares the circle back off. The disc
+	may legitimately be drawn where a body may not stand — the north tip is under
+	the crown's opaque heart, where a body is invisible — and such exceptions live
+	in the mask, NAMED, rather than being quietly authored into the grid; the
+	ladder's LANDING is the mirror of that, the one rim cell you are meant to stand
+	on, because standing there is stepping onto the rungs.
+	**And a rail is not decking.** Baked with the deck every body draws OVER the
+	handline and stands on it like a kerb; put it on the upper layer instead and it
+	becomes art a body may never poke out of, which a two-pixel hemp line plainly
+	is not. A closed curve seen from the south wants opposite answers on its two
+	halves, so it gets them: the NEAR arc is a Tier-3 prop keyed at the block's
+	south edge (every walkable cell is north of it, so it always draws in front),
+	the FAR arc stays baked, because that one is behind you.
   - **The `stratum:` legend token** (`assets/_maps.py`, `scene/map_data.gd`, kept
-    in sync as always) names which storey a walkable char belongs to; it defaults
-    to `ground`, so every map written before it means what it always meant.
+	in sync as always) names which storey a walkable char belongs to; it defaults
+	to `ground`, so every map written before it means what it always meant.
   - **`TileScene.assert_strata` IS the system, and it is ~25 lines.** Every failure
-    here is otherwise SILENT: fuse the canopy to the floor with ONE mistyped cell
-    and the boardwalk stops being a storey and becomes a wooden patch of forest —
-    it renders, it dedupes, every lint above passes it, and `assert_reachable` is
-    *happier* with a fused canopy than a correct one. Two rules: no two 4-adjacent
-    walkable cells may declare different strata unless one is a `link` (a rope
-    ladder), and every `link` component must border **exactly two** distinct
-    strata — one is a ladder to nothing, three is a junction no player can be
-    taught. `_check_art.py` re-runs the identical rule straight off the shipped map
-    txt, so a hand-edit with no regen still fails the build.
+	here is otherwise SILENT: fuse the canopy to the floor with ONE mistyped cell
+	and the boardwalk stops being a storey and becomes a wooden patch of forest —
+	it renders, it dedupes, every lint above passes it, and `assert_reachable` is
+	*happier* with a fused canopy than a correct one. Two rules: no two 4-adjacent
+	walkable cells may declare different strata unless one is a `link` (a rope
+	ladder), and every `link` component must border **exactly two** distinct
+	strata — one is a ladder to nothing, three is a junction no player can be
+	taught. `_check_art.py` re-runs the identical rule straight off the shipped map
+	txt, so a hand-edit with no regen still fails the build.
   - **THE SPAN LAW.** "Bridges only span ground that is not walkable" permits
-    authoring an ABSENCE, which is the shipped chasm failure verbatim (below). So
-    state it positively: **a span is a lid on a NAMED POSITIVE THING, and that
+	authoring an ABSENCE, which is the shipped chasm failure verbatim (below). So
+	state it positively: **a span is a lid on a NAMED POSITIVE THING, and that
 	thing's own art is what you see** — a bough, a great trunk, a creek, a
 	building. `assert_span`: a span is two rows deep (the rails live in the second
 	row; a 1-cell span would put a rail on the walking line), the row below it
@@ -2840,15 +2940,67 @@ driven by its `assets/maps/*.txt` file.
 	ground on another storey. The `≥2` is the mask-band rule above, not taste: one
 	row of solid between two walkable rows has no assignment of those twelve pixels
 	that serves both bodies.
+  - **THE TRUNKS ARE THE ARMATURE AND THE TOWN HANGS ON THEM (2026-07-30).** The
+	two-strata version was structurally correct and read as a RAISED HIGH STREET,
+	because a boardwalk was the biggest mass on screen. In both references the
+	TRUNKS are, and the buildings are subordinate to them. So the grid is authored
+	trunks-first: four great trees — never five, which across a map this wide reads
+	as a COLONNADE — each a 12-column block, and the town is the floor they stand
+	in.
+	- **A TIER-3 SPRITE MUST NOT OVERSHOOT ITS OWN FOOTPRINT OVER WALKABLE CELLS.**
+	  A prop carries ONE y-sort key — its footprint's south edge — so anything it
+	  draws north of that footprint is unconditionally in front of a body standing
+	  there. Behind an opaque shaft that is not depth, it is DELETION. The rebuild
+	  shipped `trunk_face` at 48px over a 2-cell footprint and it reached one row up
+	  into the ring's walkable north arc: zero visible pixels, four decks, two eras.
+	  Only the CROWN may hang over that row, and only because it is perforated.
+	  `_check_art.py` now scans each prop's ART RECT rather than its footprint
+	  cells, because the old rule structurally could not see cells belonging to no
+	  component — it printed all clear on exactly the defect it exists to catch.
+	- **VANISHING IS NOT THE DEFECT; VANISHING LONG ENOUGH TO GET LOST IS.** Walking
+	  fully behind a great tree is the effect the town is built for, and the hall
+	  flee is staged behind a curtain leg on purpose. The lint rules on the length
+	  of the hidden RUN: up to two cells is a step you pass through, three or more
+	  is a place you disappear into (which is precisely what the boardwalk version
+	  shipped — a deck running clear under an opaque shaft).
+	- **THE RING DECK IS THE FEATURE.** The trunk's solid footprint is the middle
+	  four of the block's twelve columns, so the deck closes north, south, east and
+	  west of every shaft and **you walk the full circle around every tree, passing
+	  behind it**. THREE THINGS MAKE IT READ AS A CIRCLE and it needs all three:
+	  RADIAL planking (spokes from the trunk — with ordinary east-west boards it is
+	  a rectangular deck with the corners rounded off), a CONCENTRIC RIM board (the
+	  only continuous line in the piece, so the circle is drawn rather than implied
+	  by 32 plank ends), and a fascia that is a CRESCENT (the vertical face hangs
+	  below the southern arc only, deepest at due south, thinning to nothing at the
+	  poles — constant depth all the way round is a barrel).
+	  The block's OUTER COLUMN EACH SIDE IS ALWAYS SOLID: a ring's deck 4-adjacent
+	  to the forest floor beside it fuses the two strata, silently. And the LADDER
+	  RUNS DOWN INSIDE THE TRUNK'S OWN COLUMNS, with solid timber both sides for its
+	  whole length — a `link` is exempt from the fusion rule, so a ladder with open
+	  floor beside it passes every assert and still lets you step sideways off rung
+	  eight onto ground thirty feet below. That raised circular path is the single
+	  most recognisable thing about Slitherbough and the Ewok village. It is also
+	  why the channel is 5 wide and not 3 — a 3-col channel is all trunk, and a
+	  trunk you cannot walk round is a pillar — and why there are five heavier
+	  trunks rather than six thin ones, which read as a colonnade. `assert_all`
+	  proves the ring: for every trunk, on every storey, the cells around the shaft
+	  must be walkable and on ONE stratum. A ring is one mistyped cell from a dead
+	  end nobody notices, because the deck still looks continuous from the south,
+	  which is the side the player is standing on.
+	- **A LADDER IS A LINK, AND ITS LAST CELL MUST REACH WALKABLE GROUND.** It runs
+	  THROUGH the trunk's foot to the floor: a link whose bottom butts into solid
+	  timber joins its ring to nothing, and `assert_strata`'s "every link component
+	  borders exactly two strata" is satisfied by the ring alone, so it does not
+	  catch it. Alembic asserts the ground cell below each ladder explicitly.
   - **THE MASK BAND IS THE RAILING.** Do not add a railing char. A rail on a
 	walkable deck cell fails two z-order lints by construction; baked on the lower
 	layer it reads as *standing on the rail* (the 2026-07-19 fence lesson); as a
 	Tier-3 prop it is a whole new manifest family. Instead **draw the posts and the
 	lashed hemp handline into the fascia art's top 12px**, which `mask_band()`
-    already re-emits as a Tier-3 y-sorted strip keyed at `run_top - 8`. A body on
-    the deck pressed south is then drawn BEHIND the rail, a body in the notch
-    beside a step is not, and a body on the floor below is not — the three answers
-    the three bodies want, for free, from shipped code.
+	already re-emits as a Tier-3 y-sorted strip keyed at `run_top - 8`. A body on
+	the deck pressed south is then drawn BEHIND the rail, a body in the notch
+	beside a step is not, and a body on the floor below is not — the three answers
+	the three bodies want, for free, from shipped code.
   - **A ONE-ROW FASCIA GETS AUTHORED UPPER ART, NEVER A BAND** — a span's south row
 	is exactly the 1-row strip the mask-band rule forbids, so it takes
 	`_tree_props.tree_span_edge` on the upper layer (laid on the lower canvas too,
@@ -2856,27 +3008,27 @@ driven by its `assets/maps/*.txt` file.
 	`_lower_frames` repaints river cells per frame and asserts frame 0 is
 	byte-identical.
   - **THE ONE MACHINE IS JOINED BY CODE, NOT BY AUTHORING.** The dinghy lift's
-    shaft is SOLID and its ride is a scripted ~1.1s tween (`alembic_town.gd`, and
-    only there — the bright era wires no zones, so the Prologue takes no new risk).
-    A *cosmetic* lift that is mechanically one more link would need a walkable
-    shaft, and then you must answer what the floor of those cells is: there are no
-    treads and no ground, the honest art is nothing, and the player walks up a wall
-    with a boat overhead. The mechanism IS the motion. So the two landings are
-    walkable on their own strata behind a solid curtain with ZERO adjacency,
-    `assert_strata` is satisfied with no link at all, and the lift is the same
-    thing a door is — a scripted crossing of a wall. `assert_lift` proves at BUILD
-    TIME that the top landing is reachable with the shaft treated as impassable, so
-    riding up and reloading cannot strand you.
+	shaft is SOLID and its ride is a scripted ~1.1s tween (`alembic_town.gd`, and
+	only there — the bright era wires no zones, so the Prologue takes no new risk).
+	A *cosmetic* lift that is mechanically one more link would need a walkable
+	shaft, and then you must answer what the floor of those cells is: there are no
+	treads and no ground, the honest art is nothing, and the player walks up a wall
+	with a boat overhead. The mechanism IS the motion. So the two landings are
+	walkable on their own strata behind a solid curtain with ZERO adjacency,
+	`assert_strata` is satisfied with no link at all, and the lift is the same
+	thing a door is — a scripted crossing of a wall. `assert_lift` proves at BUILD
+	TIME that the top landing is reachable with the shaft treated as impassable, so
+	riding up and reloading cannot strand you.
   - **REJECTED: a two-scene split** (ground town / canopy town linked like
-    interiors). It doubles the byte-lock invariant from 2 grids to 4, and several
-    shipped Prologue beats span both halves in one unbroken playable stretch — so a
-    scene boundary mid-beat means a fade to black, and **a fade to black to climb a
-    ladder inside one town destroys the sense of place**, which is the entire reason
-    to build a treehouse town.
+	interiors). It doubles the byte-lock invariant from 2 grids to 4, and several
+	shipped Prologue beats span both halves in one unbroken playable stretch — so a
+	scene boundary mid-beat means a fade to black, and **a fade to black to climb a
+	ladder inside one town destroys the sense of place**, which is the entire reason
+	to build a treehouse town.
   - **REJECTED: a real per-body elevation system.** Per-cell level field, per-level
-    collision layers, per-body level state, a third static tile layer (so
-    `_tiles.py`, `write_layout`, `tiled_map.gd` and the layout format all change), a
-    3-D `assert_reachable`, level-awareness in both brains, in the leash teleport
+	collision layers, per-body level state, a third static tile layer (so
+	`_tiles.py`, `write_layout`, `tiled_map.gd` and the layout format all change), a
+	3-D `assert_reachable`, level-awareness in both brains, in the leash teleport
 	and in `theater.walk`, and a redo of `mask_band`'s `run_top - 8` derivation —
 	which is a **2-D y-sort result** with no per-level meaning. A rewrite of the
 	z-order doctrine, the tile pipeline, the collision builder, the party AI and the
@@ -2903,12 +3055,12 @@ driven by its `assets/maps/*.txt` file.
 	 a rim ellipse, and lay the reed RADIALLY from the peak (horizontal courses on
 	 a round roof read as a coil of rope). **The radius is solved backwards from
 	 the vertical room**, never chosen: a cone's proportions are fixed by its
-     height, and scaling it off the footprint width is exactly how the parasol
-     happened.
+	 height, and scaling it off the footprint width is exactly how the parasol
+	 happened.
   2. **THE BARREL.** The body curves in at both flanks, so the silhouette carries
-     no vertical edge anywhere — the precise opposite of a cottage.
+	 no vertical edge anywhere — the precise opposite of a cottage.
   3. **WOVEN, NOT BUILT.** Vertical withy staves between lashed hemp hoops. A hut
-     is made of the forest; a cottage is made of quarried and milled things. The
+	 is made of the forest; a cottage is made of quarried and milled things. The
 	 stave tone is a function of x ALONE — keyed on the barrel's curvature per row
 	 as well, it put a horizontal band across every course and the hut came out a
 	 barrel lying on its side.
@@ -2927,6 +3079,59 @@ driven by its `assets/maps/*.txt` file.
   The **GROUND** buildings keep Alembic's plaster-and-cement language on purpose:
   the old town on the forest floor, the woven canopy above it, and the two do not
   have to be the same town.
+- **A HUT IS A BOUGH BUILDING, AND ONLY A BOUGH BUILDING (2026-07-30).** When the
+  canopy town became four ring decks and the shops came down onto the forest
+  floor, they came down still wearing `tree_hut` — and on open grass, beside a
+  five-cell plaster cottage, every one of the four cues above inverts. The cone is
+  a **tiki roof**; the withy barrel has no wall material and you see daylight
+  between its staves; "made of the forest" with no forest around it is just
+  unfinished; and the whole thing is one flat tan value from finial to porch,
+  three cells wide next to a house five cells wide. It shipped, and it was called
+  out twice before I stopped defending the art and looked at where it was standing.
+  **A shop in this town is a COTTAGE THAT SELLS SOMETHING** —
+  `_town_props.town_shop`, the cottage's own 80×64 envelope over a 5×4 footprint
+  (leaf canopy, greeny cement, copper header and rain-barrel, vines) plus the three
+  things a house does not have: a striped **AWNING** with a scalloped valance — the
+  only cloth on any building in the town, and the strongest shop cue at this scale —
+  a warm **DISPLAY WINDOW** with the trade's goods silhouetted in it, and a
+  **HANGING SIGN**, a dark painted field in a timber frame carrying the trade's
+  device and never a word. One builder and one `trade` argument (arms / tonics /
+  inn) picks cloth, goods and device together, so the three shops are three shops
+  and also siblings of the houses around them. The general rule is the one the
+  canopy taught in the other direction: **a building belongs to the storey it
+  stands on.**
+- **A VERTICAL FACE MUST BE DARKER THAN THE SURFACE IT HANGS OFF (2026-07-30).**
+  The four-storey grid (since replaced) was structurally perfect and came out a
+  **LUMBER YARD**: deck, fascias, porches and spans were all drawn from the one
+  `DECK` ramp, so three tiers of near-identical honey planks stacked into
+  horizontal stripes with no cue anywhere that one band was a floor and the next
+  was a wall you were standing on top of. Structure was right, VALUE was flat, and
+  no amount of extra detail would have fixed it. `_alembic.shaded()` is the whole
+  answer and it costs one ramp: the same timber pulled toward the void, **graded**
+  — hard at the light end, gentle at the dark — so the contrast lands on the turned
+  edge where an eye reads it, and the shadow end never silts up into the mud the
+  palette doctrine bans. Any kit that draws a floor and its own edge from one ramp
+  has this bug waiting in it.
+- **WALK-BEHIND IS ONLY LEGAL UNDER PERFORATED ART (2026-07-29, lint-enforced).**
+  A Tier-3 prop is y-sorted at its footprint's south edge, so **every walkable cell
+  inside its own footprint draws behind its art.** That is the walk-behind idiom
+  and it is the point of it — a tree crown, a lamp mantle, a leaf mass is partial
+  art and being half-hidden is what reads as depth. Under a CONTINUOUS OPAQUE MASS
+  it is not depth, it is deletion: Alembic's great tree carried a walkable crown
+  over its own 35px shaft and standing there left **zero visible pixels**. Nothing
+  was looking — every other assert reasons about cells and layers, never about
+  whether the pixels over a standable cell leave a body visible.
+  `_check_art.py`'s **walk-behind visibility** rule is the mirror of the T3
+  coverage rule (a SOLID footprint cell needs ≥20% art; a WALKABLE one must leave
+  ≥10% of the FIGURE showing) and it must be measured against the figure, not the
+  cell: per-cell coverage cannot separate the cases, since a trunk's centre column
+  and a bough's own leaf cell are both 100% of their 16×16 square, while against
+  the 22×38 body the two clusters part with fifteen points of daylight.
+  The fix is never to lower the threshold. **Retype it solid, or perforate the
+  art** — and perforate it LOW: the crown a ring deck passes under got eleven
+  evenly-scattered gaps and read as POLKA DOTS, where six ragged two-ellipse gaps
+  in its lower half read as the underside of a canopy, which is what you are in
+  fact looking at from a deck built inside one.
 - **`assets/_sprites.py`** — the sprite construction kit: `Sprite` canvas with
   steer-lit `ball`/`capsule`/`panel` volumes, cluster-jittered tone selection,
   `cluster_shade`/`despeckle`/`outline`/`crease` finishing passes, and `Rig`
@@ -2996,7 +3201,8 @@ Tiled scenes (atlas + `.tres` + layout from `assets/maps/*.txt`):
 
 Sprites and fx (on `_sprites.py`; sheet layouts frozen against the `.tres` files):
 
-- `assets/_gen_basil_sprites.py` → `basil_gen.png` (288×384, 48×48, 6×8): Basil —
+- `assets/_gen_basil_sprites.py` → `basil_gen.png` (288×528, 48×48, 6×11; row 10 is
+  the rope-ladder `climb_up`, which every playable sheet owes — see art-pipeline): Basil —
   jet-black tuxedo, stern yellow eyes (sweet ^ ^ blink), white blaze/muzzle/paws,
   close-set ears, big rimmed aviator goggles (amber glass) up on the forehead,
   lab coat worn LONG (hem y=35, flat CT bands — paw stubs peek under it, so the
@@ -3233,7 +3439,7 @@ stays friendly, with crisp fire/recover cadence, hit-pause, and readable knockba
   reason sleep is a meter and not a flag. Her AI opens with the pipe as it
   closes and stops darting once the target is under.
   `entities/fuji/` (fuji.gd/.tscn/frames), `entities/projectiles/blow_dart.*`,
-  `assets/_gen_fuji_sprites.py` → `fuji_gen.png` (288×480, 6×10), chibi
+  `assets/_gen_fuji_sprites.py` → `fuji_gen.png` (288×528, 6×11), chibi
   `overworld_fuji.png` in `_gen_overworld_actors.py`, `FUJI` palette dict.
   Remaining party ideas for later: member 3, real KO/downed state (both
   members currently refill on death), per-member AI stance settings

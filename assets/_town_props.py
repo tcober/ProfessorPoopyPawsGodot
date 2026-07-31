@@ -22,7 +22,7 @@ from _core import h2
 from _overworld_props import (_hip_roof, _window, _chimney, _steam, _coursed_wall,
                               _hatch_px, DOORDARK, WARM, WARMD, CRYSTAL, BLOOM)
 from _propkit import S, ln, edge
-from _tilekit import (ramp, sprite_img, Img, TIMBER, BRASS, STEEL, IRON, COPPER,
+from _tilekit import (ramp, sprite_img, Img, TIMBER, BRASS, BRASSD, STEEL, IRON, COPPER,
                       STONER, GLASS, MINT, VIOLETF, PAPER, PAPERD, RED, SPEC,
                       WATER, STEAM, OUTLINE)
 
@@ -219,8 +219,11 @@ def _cottage_anim(facade, canopy, f, dy=0):
 
 
 def _shop_anim(facade, canopy, f, dy=0):
-    _anim_building(facade, canopy, f, dy=dy, flues=((66, 2),),
-                   barrels=((78, 89, 55),))
+    # geometry follows town_shop's 80x64 rebuild: one flue, the rain-barrel under
+    # the right riser, and the DISPLAY WINDOW on the breath — a shop's lit front
+    # is the thing that says it is open, so it is the pane the pulse lands on
+    _anim_building(facade, canopy, f, dy=dy, flues=((58, 2),),
+                   barrels=((62, 73, 55),), windows=((6, 49, 23, 7),))
 
 
 def _inn_anim(facade, canopy, f, dy=0):
@@ -772,52 +775,232 @@ def town_fence(cells, salt=247):
     return sp
 
 
-def town_shop(roof, plaster, sign, wares, salt=251, composite=False, frames=1):
-    """A shopfront in the naturey language: 96x64 (2 roof + 2 facade rows) —
-    leaf canopy + flue, greeny-cement walls, a wide wood DISPLAY window of
-    wares, a hanging trade sign (sword / flask), a copper pipe + rain-barrel,
-    and vines. Both shops share the salt; only sign / wares differ."""
-    w, h, fy = 96, 64, 32
-    dx0, dx1 = 49, 62                                      # arch over the D cell
+# THE THREE TRADES' CLOTH, hand-pinned lit/mid/shade — the SACKR/BRASSD
+# precedent, and for the same reason: `ramp()`'s violet shadow law swings a warm
+# seed straight past brown into red, and an INN's awning is the warmest thing in
+# the town. Three tones is what a striped canvas needs (two stripes and the
+# valance's shade) and three tones is all it gets — the town's palette is minimal
+# and an awning is not where to spend a sixth colour.
+CLOTH = {
+    "arms":   ((214, 96, 104, 255), (166, 58, 78, 255), (110, 38, 62, 255)),
+    "tonics": ((130, 206, 160, 255), (74, 152, 122, 255), (44, 100, 92, 255)),
+    "inn":    ((236, 188, 118, 255), (186, 132, 78, 255), (124, 82, 58, 255)),
+}
+
+
+def _awning(lo, x0, x1, y, trade):
+    """A striped canvas awning over a shopfront, with a scalloped VALANCE and
+    the shadow it throws on the wall under it. Occupies y-2 .. y+10.
+
+    THE SINGLE STRONGEST "THIS IS A SHOP" CUE at 16px, and the reason is that it
+    is the only thing on any building in this town that is CLOTH: everything else
+    is plaster, leaf, timber, copper. A trade sign says which shop; an awning says
+    shop at all, from across the square, before you can read the device.
+
+    CREAM AND ONE COLOUR, in 4px stripes, because that pairing IS the awning — a
+    band in one colour is a banner or a string course, whatever you do to its edge.
+    The stripes turn two tones darker over their bottom third (canvas curving away
+    from the sun) and the SCALLOPS are cut on the same 8px period as a stripe pair,
+    so every arc hangs off one cream and one coloured stripe rather than drifting
+    across them. Then the wall under it gets two rows of shade, which is what
+    actually says the cloth is standing PROUD of the wall rather than painted on
+    it — the first pass spent that budget on little iron stays instead and they
+    read at this scale as violet scratches."""
+    cl = CLOTH[trade]
+    lo.rect(x0 - 1, y - 2, x1 + 1, y - 1, TIMBER[3])       # the head rail it hangs on
+    lo.rect(x0 - 1, y - 2, x1 + 1, y - 2, TIMBER[1])
+    for x in range(x0, x1 + 1):
+        band = ((x - x0) // 4) % 2                          # 4px stripes
+        lit, dk = (PAPER, PAPERD) if band else (cl[0], cl[1])
+        lo.rect(x, y, x, y + 3, lit)
+        lo.rect(x, y + 4, x, y + 5, dk)
+        dip = (0, 1, 2, 2, 2, 2, 1, 0)[(x - x0) % 8]        # THE VALANCE: scallops
+        for i in range(dip):
+            lo.set(x, y + 6 + i, dk if i == 0 else cl[2])
+    for x in range(x0 - 1, x1 + 2):                         # its shadow on the wall
+        lo.set(x, y + 9, CEMENT[3])
+        lo.set(x, y + 10, CEMENT[2])
+
+
+def _wares(lo, lx, rx, gy, trade):
+    """The trade's goods stood on a lit shop window's sill line, as SILHOUETTES —
+    ONE OBJECT PER PANE, centred on `lx` and `rx`, standing on `gy`.
+
+    Two things this got wrong first and both are worth keeping written down.
+
+    OBJECTS DRAWN IN THEIR OWN COLOURS AGAINST WARM GLASS ARE MUD. A ten-pixel
+    helm in IRON is a grey blob and a ten-pixel flask in MINT is a green one, and
+    neither survives a 3x screenshot. Backlit things are DARK — the same argument
+    `_hearth_window` already makes for keeping its mullions dark — so these are
+    DOORDARK masses with one lit rim, and they read at native res because a
+    silhouette is all shape and has no detail to lose.
+
+    AND THE MULLIONS MUST NOT CROSS THEM. The first pass put three mullions across
+    25px of glass and stood the goods wherever they fit, so every object was sliced
+    into two or three pieces by a bar in front of it. Physically correct; visually
+    a tangle. One mullion, two panes, one object each — the pane IS the frame the
+    silhouette needs."""
+    dk, rim = DOORDARK, TIMBER[4]
+    lo.rect(lx - 9, gy, rx + 9, gy, TIMBER[5])                   # the shelf
+    if trade == "arms":
+        lo.set(lx, gy - 11, dk)                                  # a blade, point up
+        lo.rect(lx - 1, gy - 10, lx + 1, gy - 4, dk)
+        lo.rect(lx - 1, gy - 10, lx - 1, gy - 4, rim)            # its lit edge
+        lo.rect(lx - 2, gy - 3, lx + 2, gy - 3, dk)              # short quillons
+        lo.rect(lx - 1, gy - 2, lx, gy - 1, dk)                  # grip and pommel
+        lo.set(lx - 1, gy, dk)
+        lo.blob(rx, gy - 4, 4.6, 4.2, dk)                        # a round shield —
+        for i in range(5):                                       # a solid disc with
+            lo.set(rx - 4 + i, gy - 7 + i, rim)                  # ONE lit rim arc.
+        lo.set(rx - 1, gy - 5, rim)                              # Lighting its middle
+        lo.set(rx, gy - 4, TIMBER[5])                            # made it a donut.
+    elif trade == "tonics":
+        for bx, ht, r in ((lx - 3, 6, 2.2), (lx + 3, 9, 2.6)):   # two small bottles
+            lo.blob(bx, gy - r + 0.5, r, r * 0.9, dk)
+            lo.rect(bx - 1, gy - ht, bx + 1, gy - int(r), dk)
+            lo.rect(bx - 1, gy - ht, bx - 1, gy - int(r), rim)
+        lo.blob(rx, gy - 4, 4.4, 3.8, dk)                        # one big flask
+        lo.rect(rx - 1, gy - 11, rx + 1, gy - 5, dk)             # its long neck
+        lo.rect(rx - 2, gy - 12, rx + 2, gy - 12, dk)            # a flared lip
+        lo.rect(rx - 1, gy - 11, rx - 1, gy - 5, rim)
+        lo.blob(rx - 1, gy - 4, 2.0, 1.6, rim)                   # a lit meniscus
+    else:                                                        # inn
+        lo.rect(lx - 3, gy - 8, lx + 2, gy - 1, dk)              # a tankard
+        lo.rect(lx - 3, gy - 9, lx + 2, gy - 9, rim)             # its foam, lit
+        lo.rect(lx - 3, gy - 8, lx - 3, gy - 1, rim)
+        lo.rect(lx + 3, gy - 6, lx + 4, gy - 3, dk)              # its handle
+        lo.blob(rx, gy - 4, 5.2, 4.0, dk)                        # a round loaf
+        lo.blob(rx - 1, gy - 5, 3.2, 2.0, rim)
+
+
+def town_shop(roof, plaster, trade, salt=251, composite=False, frames=1):
+    """A SHOPFRONT, 80x64 over a 5x4 footprint — the cottage's own envelope, and
+    that is the point of it.
+
+    WHAT THIS REPLACED AND WHY. The canopy-town rebuild put `_tree_props.tree_hut`
+    in this slot: a conical thatch roof over a barrel of withy staves. Up in a
+    bough that is Slitherbough and it is right. Standing on the forest floor in a
+    plaster-and-cement village it is a TIKI HUT — one flat tan value from finial to
+    porch, no wall material, no storey, gaps you see daylight through, and about
+    two Basils tall next to a cottage five cells wide. It was called out twice.
+
+    A shop in this town is a COTTAGE THAT SELLS SOMETHING. Same leaf canopy, same
+    greeny cement, same copper and vines, same 2-roof-2-facade split — and then
+    three things a house does not have, in order of weight:
+      1. THE AWNING (`_awning`). Cloth, striped, scalloped. See its docstring.
+      2. THE DISPLAY WINDOW. Wide, mullioned, warm behind the glass, with the
+         trade's own goods stood in it — the window BREATHES on the 8-frame sheet,
+         so the shop is the lit thing on a dark street.
+      3. THE HANGING SIGN on a wrought bracket, out past the wall so it breaks the
+         silhouette and reads from down the lane. THE DEVICE, NEVER LETTERING:
+         this game has no font and a painted word at 16px is mud, so a trade is
+         announced by its object.
+    `trade` is one of arms / tonics / inn and picks all three at once — cloth
+    colour, goods and device — so three shops off one builder are three shops and
+    not three copies. Everything else is deliberately shared: sibling buildings in
+    one town want one vocabulary (the tile-reusability rule).
+
+    FOOTPRINT: 5 x 4 cells, EVERY CELL SOLID, the D cell centred on the bottom row.
+    ANCHOR: bottom-anchored at the footprint's south edge; the SMOKE_PAD rows
+    extend the art upward into the sky for the flue's plume."""
+    w, h, fy = 80, 64, 32
+    dx0, dx1 = 33, 46                                      # arch over the D cell
     lo, up = S(w, h, salt), S(w, h, salt + 1)
-    _canopy(up, w, fy, flue_xs=(66,))
+    _canopy(up, w, fy, flue_xs=(58,))
     edge(up, fy)
     _cement_wall(lo, w, h, fy)
-    # the wide wood display window, wares behind the glass
-    wx, wy = 10, fy + 6
-    lo.rect(wx - 1, wy - 1, wx + 26, wy + 15, TIMBER[4])
-    lo.rect(wx, wy, wx + 25, wy + 14, DOORDARK)
-    lo.rect(wx, wy, wx + 25, wy, TIMBER[2])
-    lo.rect(wx - 2, wy + 15, wx + 27, wy + 16, TIMBER[3])  # sill
-    for mx in range(wx + 6, wx + 25, 7):
-        lo.rect(mx, wy, mx, wy + 13, TIMBER[4])            # mullions
-    if wares == "arms":
-        ln(lo, wx + 4, wy + 12, wx + 11, wy + 5, STEEL[1]); ln(lo, wx + 5, wy + 13, wx + 12, wy + 6, STEEL[3])
-        lo.set(wx + 12, wy + 5, SPEC)
-        lo.rect(wx + 15, wy + 9, wx + 18, wy + 12, BRASS[3]); lo.set(wx + 16, wy + 10, TIMBER[5])
-        lo.rect(wx + 21, wy + 10, wx + 23, wy + 13, IRON[2])
-    else:                                                  # tonics
-        lo.rect(wx + 5, wy + 8, wx + 7, wy + 13, MINT); lo.set(wx + 6, wy + 6, PAPERD)
-        lo.rect(wx + 12, wy + 10, wx + 13, wy + 13, WATER)
-        lo.rect(wx + 18, wy + 9, wx + 20, wy + 13, FOLIAGE[2])   # a potted plant
+    # ---- the left bay: the awning, and the lit display window under it
+    wx0, wx1 = 5, 29
+    _awning(lo, wx0 - 1, wx1 + 1, fy + 4, trade)
+    wy0, wy1 = fy + 15, h - 7                                    # glass 47..57
+    lo.rect(wx0 - 2, wy0 - 2, wx1 + 2, wy1 + 1, TIMBER[4])       # the frame
+    lo.rect(wx0 - 2, wy0 - 2, wx1 + 2, wy0 - 2, TIMBER[2])
+    lo.rect(wx0, wy0, wx1, wy1, WARMD)                           # lamplight within
+    lo.rect(wx0 + 1, wy0 + 1, wx1 - 1, wy0 + 3, WARM)            # its throw
+    mx = (wx0 + wx1) // 2                                        # ONE mullion, and
+    _wares(lo, (wx0 + mx) // 2, (mx + wx1) // 2, wy1, trade)     # a ware per pane
+    lo.rect(mx, wy0, mx, wy1, TIMBER[4])
+    lo.rect(wx0, wy0, wx1, wy0, TIMBER[5])                       # the shaded head
+    lo.rect(wx0 - 3, wy1 + 2, wx1 + 3, wy1 + 3, TIMBER[3])       # the sill
+    lo.rect(wx0 - 3, wy1 + 4, wx1 + 3, wy1 + 4, TIMBER[5])
     _arch_door(lo, dx0, dx1, fy, h)
-    # the hanging trade sign right of the door
-    sx = dx1 + 6
-    lo.rect(sx, fy + 4, sx, fy + 10, IRON[2]); lo.rect(sx - 1, fy + 4, sx + 8, fy + 4, IRON[3])
-    lo.rect(sx + 1, fy + 6, sx + 8, fy + 17, TIMBER[2]); lo.rect(sx + 1, fy + 6, sx + 8, fy + 6, TIMBER[1])
-    if sign == "sword":
-        lo.rect(sx + 4, fy + 8, sx + 5, fy + 13, STEEL[1]); lo.set(sx + 4, fy + 8, SPEC)
-        lo.rect(sx + 2, fy + 14, sx + 7, fy + 14, BRASS[1]); lo.set(sx + 4, fy + 16, BRASS[3])
+    # ---- the right bay: the trade sign, and the goods stacked under it
+    sx = dx1 + 5
+    lo.rect(sx, fy + 4, sx, fy + 8, IRON[2])                     # the wall standard
+    lo.rect(sx, fy + 4, sx + 17, fy + 4, IRON[2])                # the arm out
+    lo.rect(sx, fy + 5, sx + 17, fy + 5, IRON[3])
+    ln(lo, sx + 1, fy + 8, sx + 4, fy + 5, IRON[3])              # its scrolled knee
+    lo.set(sx + 17, fy + 3, IRON[1])                             # the arm's finial
+    for hx in (sx + 2, sx + 15):                                 # two eyes it swings on
+        lo.rect(hx, fy + 6, hx, fy + 7, IRON[1])
+    # THE BOARD IS A DARK FIELD IN A TIMBER FRAME, not a plank with paint on it.
+    # Drawn as bare TIMBER it was a big mid-brown rectangle on a light cement wall
+    # — the loudest thing on the building, and the DEVICE, which is the only part
+    # that carries meaning, was a pale mark lost in the middle of it. A painted
+    # sign is a dark ground with one bright object on it, so the object is the
+    # thing you see and the board is just what it is painted on.
+    bx0, by0, bw, bh = sx + 1, fy + 7, 15, 12
+    lo.rect(bx0, by0, bx0 + bw, by0 + bh, TIMBER[3])             # the frame
+    lo.rect(bx0 + 1, by0 + 1, bx0 + bw - 1, by0 + bh - 1, DOORDARK)   # the field
+    lo.rect(bx0, by0, bx0 + bw, by0, TIMBER[1])                  # lit crown
+    lo.rect(bx0, by0 + bh, bx0 + bw, by0 + bh, TIMBER[5])        # shaded foot
+    lo.rect(bx0 + bw, by0, bx0 + bw, by0 + bh, TIMBER[4])
+    cx, cy = bx0 + bw // 2, by0 + 7                              # the device
+    if trade == "arms":
+        # THE BRASS FANG — a curved canine, root up and point down, hung off an
+        # iron band. A tooth silhouettes at 10px where a sword blade does not, and
+        # it is the joke the shop's name is already making. Its flanks come off
+        # BRASSD, never BRASS[2..3]: those resolve to red and magenta.
+        #
+        # THE PROFILE IS A TABLE, NOT A FORMULA, because the two things that make a
+        # tooth a tooth and not a triangle are both local: the crown is WIDEST TWO
+        # ROWS DOWN and pinches back in above (a smooth taper from the top row is a
+        # pennant, which is exactly what the formula version read as), and the last
+        # three rows CURVE, so the point is offset from the root rather than under
+        # it. Ten rows is all there is; every one of them is doing something.
+        for i, (dx, hw) in enumerate(((0, 1), (0, 2), (0, 3), (0, 3), (0, 3),
+                                      (1, 2), (1, 2), (2, 1), (2, 1), (3, 0))):
+            ty = cy - 5 + i
+            lo.rect(cx + dx - hw, ty, cx + dx + hw, ty, BRASSD[1])
+            lo.set(cx + dx - hw, ty, BRASSD[0])                  # the lit flank
+            lo.set(cx + dx + hw, ty, BRASSD[2])                  # the shaded one
+        lo.rect(cx - 3, cy - 6, cx + 2, cy - 6, IRON[1])         # the band it hangs on
+        lo.set(cx - 3, cy - 6, IRON[0])
+    elif trade == "tonics":
+        lo.blob(cx, cy + 1, 4.2, 3.8, MINT)                      # a flask: belly,
+        lo.blob(cx - 1, cy + 1, 2.2, 1.8, GLASS)                 # a lit meniscus
+        lo.rect(cx - 1, cy - 5, cx + 1, cy - 2, GLASS)           # the long neck
+        lo.rect(cx - 2, cy - 6, cx + 2, cy - 6, PAPERD)          # its stopper
     else:
-        lo.rect(sx + 3, fy + 9, sx + 6, fy + 15, MINT); lo.rect(sx + 4, fy + 7, sx + 5, fy + 8, PAPERD)
-    # copper pipe + rain-barrel, right base
-    _ph(lo, 4, w - 5, fy + 3); _pv(lo, w - 6, fy + 3, h - 10); _valve(lo, w - 6, fy + 3)
-    rx0, rx1 = 78, 89
-    lo.rect(rx0, h - 10, rx1, h - 3, TIMBER[3]); lo.rect(rx0, h - 10, rx1, h - 10, TIMBER[1])
-    lo.rect(rx0, h - 10, rx1, h - 9, WATER); lo.rect(rx0, h - 9, rx1, h - 9, WATERL)
-    lo.rect(rx0, h - 6, rx1, h - 6, TIMBER[5])
+        lo.rect(cx - 4, cy - 2, cx + 2, cy + 3, BRASSD[1])       # the kettle belly
+        lo.rect(cx - 4, cy - 2, cx + 2, cy - 2, BRASSD[0])
+        lo.rect(cx - 4, cy + 3, cx + 2, cy + 3, BRASSD[3])
+        lo.rect(cx - 2, cy - 4, cx + 1, cy - 3, BRASSD[2])       # its lid
+        lo.rect(cx + 3, cy - 1, cx + 4, cy, BRASSD[2])           # its spout
+        lo.rect(cx - 6, cy, cx - 5, cy + 2, BRASSD[3])           # its handle
+        ln(lo, cx - 1, cy - 6, cx + 1, cy - 8, STEAM)            # one steam curl
+        lo.set(cx, cy - 7, STEAM)
+    # A SHOP SPILLS ONTO THE STREET. Without this the whole right half of the
+    # facade is bare cement under a sign, and the building reads half-finished —
+    # the cottages get their density from a window at each end and a shop cannot,
+    # because one of its ends is the shopfront.
+    _pv(lo, w - 6, fy + 3, h - 12); _valve(lo, w - 6, fy + 3)    # the riser, and
+    _ph(lo, 4, w - 5, fy + 3)                                    # the town header
+    rx0, rx1 = 62, 73                                            # its rain-barrel
+    lo.rect(rx0, h - 12, rx1, h - 3, TIMBER[3])
+    lo.rect(rx0, h - 12, rx1, h - 12, TIMBER[1])
+    lo.rect(rx0, h - 12, rx1, h - 11, WATER); lo.rect(rx0, h - 11, rx1, h - 11, WATERL)
+    for by in (h - 8, h - 4):                                    # its hoops
+        lo.rect(rx0, by, rx1, by, TIMBER[5])
+    lo.rect(50, h - 9, 60, h - 3, TIMBER[3])                     # a crate beside it
+    lo.rect(50, h - 9, 60, h - 9, TIMBER[1])
+    lo.rect(50, h - 9, 50, h - 3, TIMBER[2])
+    lo.rect(60, h - 9, 60, h - 3, TIMBER[5])
+    ln(lo, 51, h - 8, 59, h - 4, TIMBER[5])                      # its diagonal brace
+    lo.rect(48, h - 5, 62, h - 4, TIMBER[4])                     # a lower crate,
+    lo.rect(48, h - 5, 62, h - 5, TIMBER[2])                     # stacked under it
     _vine(lo, [(3, h - 4), (6, fy + 14), (2, fy + 4)])
-    _vine(lo, [(w - 4, h - 5), (w - 9, fy + 12), (w - 3, fy + 4)])
+    _vine(lo, [(w - 4, h - 5), (w - 9, fy + 14), (w - 3, fy + 4)])
     edge(lo, h)
     return _finish(lo, up, w, fy, h, composite, frames, _shop_anim)
 
@@ -915,8 +1098,15 @@ def town_fountain(stone, salt=271, frames=1):
     sp.rect(19, 10, 28, 11, stone[0])                      # cap course
     sp.set(19, 11, stone[3])
     sp.set(28, 11, stone[3])
-    sp.rect(22, 7, 25, 9, BRASS[3])                        # the alembic neck
-    sp.ball(23.5, 4, 3.8, 3.4, BRASS, power=2.0)           # the bulb
+    # THE FINIAL IS AN ALEMBIC, so it wants to READ as one — and it did not, because
+    # the neck was BRASS[3] and the bulb shaded down the same ramp. Those tones are
+    # (216,0,109) and (246,28,26): the town's little monument to the drained craft was
+    # a MAGENTA BLOB on a stone plinth, which is the candy register, in the middle of
+    # the square. BRASSD is the hand-pinned ramp that exists for round brass.
+    sp.rect(22, 7, 25, 9, BRASSD[2])                       # the alembic neck
+    sp.set(22, 7, BRASSD[1])
+    sp.rect(22, 9, 25, 9, BRASSD[3])                       # the collar's shaded lip
+    sp.ball(23.5, 4, 3.8, 3.4, BRASSD, power=2.0)          # the bulb
     sp.set(22, 2, SPEC)
     for x, y0, y1 in _FOUNTAIN_STREAMS:                    # pour streams: solid
         sp.rect(x, y0, x, y1, WATER)                       # columns IN the base

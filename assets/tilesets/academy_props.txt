@@ -1,0 +1,21 @@
+; y-sorted World props from assets/maps/academy.txt — see scene/prop_spawner.gd
+prop Keep Aa academy_keep.png hframes=8
+prop Observatory Be academy_observatory.png hframes=8
+prop Stillhouse Nn academy_stillhouse.png hframes=8
+prop GreatCrown K academy_greatcrown.png base_inset=-52 each
+prop Orrery Qq academy_orrery.png
+prop Lamp mL academy_lamp.png each
+prop TreeTrunk Tt academy_treetrunk.png each
+prop TreeCrown Tt academy_treecrown.png anchor=top:0 base_inset=-16 each
+mask academy_maskC0.png 48 240 232
+mask academy_maskC1.png 208 240 232
+mask academy_maskC2.png 368 240 232
+mask academy_maskC3.png 512 240 232
+mask academy_maskC4.png 672 240 232
+mask academy_maskC5.png 832 240 232
+mask academy_maskW0.png 48 416 408
+mask academy_maskW1.png 320 416 408
+mask academy_maskW2.png 544 416 408
+mask academy_maskW3.png 736 416 408
+mask academy_masku0.png 448 400 392
+mask academy_masku1.png 512 400 392
