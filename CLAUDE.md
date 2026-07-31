@@ -214,7 +214,27 @@ up the north lane, and back down again into the town's own lane
 (`Game.town_spawn = "north"`). Composed depth-first on one axis: causeway → the beck and
 its bridge → outer ward → the crenellated RAMPART and its two-tower gatehouse → the
 inner court with the GREAT ORRERY standing in the middle of it → the grand stair → THE
-KEEP, flanked by **two great trees standing where a castle would put corner towers**.
+KEEP.
+
+**THE KEEP IS A TIMBER CASTLE-SCHOOL AND ITS CORNER TOWERS ARE THE TWO GREAT TREES
+(2026-07-30 rework).** `_academy_props.academy_keep` replaced `town_academy` (retired —
+no other caller): one 22×9 block, one 416×192 sprite, the hall's cedar-shake pitch
+running out and dying INTO each trunk, a 48px iron-barred door under a porch bay, the
+mint rose window in its gable, two masonry chimney breasts, timber galleries hooped
+round both trunks and the **Academy bell** hung under the west one. It runs off the top
+of the frame on purpose — **only 100px above a building's foot is ever on screen**, and
+that is a rule about which FURNITURE must sit below the line, not about how big the
+building may be. The two WINGS were redrawn for depth and their **phantom smoke fixed**
+(`_wing_anim` gave flues to the observatory, which has no chimney). The court got weeds
+and cracks in drifts, the beck reeds and a timber bridge. **Five hand-pinned ramps**
+(`OAK`/`SHAKE`/`DAUB`/`VERDI`/`COPPERD`) — the violet shadow law was drawing the dome,
+the boiler, the orrery's sun and plate and the whole timber frame RED. And
+`assets/maps/academy.txt` **was never in any of `_check_art.py`'s four tables**: adding
+it found the south border wide open and a hipped roof leaving the wings' back corners
+art-free. A third silent failure needed measuring rather than linting — `Sprite.rect` on
+an inverted range draws NOTHING, so the still-house's rebuilt flues were a rain cap with
+no shaft and the smoke still rising off it. `_flue` asserts on that now.
+
 Full statement in DESIGN.md → "THE ALEMBIC ACADEMY, walkable"; the art kit is
 `assets/_academy_props.py` and the walk is covered by `tools/academy_probe.gd`.
 

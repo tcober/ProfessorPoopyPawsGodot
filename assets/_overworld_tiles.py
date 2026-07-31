@@ -210,7 +210,6 @@ TERRAIN_CLS = {
     "homebody": "grass", "homeroof": "grass",
     "cotWbody": "grass", "cotWroof": "grass",
     "cotEbody": "grass", "cotEroof": "grass",
-    "academybody": "grass", "academyroof": "grass",
     "weaponbody": "grass", "weaponroof": "grass",
     "itembody": "grass", "itemroof": "grass",
     "innbody": "grass", "innroof": "grass",
@@ -309,13 +308,17 @@ TERRAIN_CLS = {
     "courtlamp": "road",
     # the two wings stand on the LAWNS either side of the processional way
     "wingroof": "grass", "wingbody": "grass",
-    # THE TWO GREAT TREES that flank the keep where a castle would put its corner
-    # towers. Same armature as Alembic's four (a 4-column trunk under a 14-column
-    # crown) with no ring, no door and no ladder — here they are not houses, they
-    # are the sides of the building. The crown renders `forest`, which is the same
-    # lobe lattice the map's own border is drawn from, so the two read as one wood
-    # coming into the precinct rather than as two potted plants.
-    "greatcrown": "forest", "courttrunk": "grass",
+    # THE KEEP is ONE 22x9 block whose corner towers ARE the two great trees (they
+    # used to be their own `greatcrown`/`courttrunk` blocks out in the lawn, which
+    # is landscaping beside a building, not a tower). Its two rows differ in class
+    # and that difference is the design:
+    #  - `keeproof` renders FOREST. What shows through the gaps in a crown must be
+    #    more canopy — the same lobe lattice the map's own border is drawn from —
+    #    so the keep's back rank reads as a hall standing IN the wood. Rendering
+    #    grass there would punch lawn-coloured holes in the leaves, which is the
+    #    fountain's and the shops' failure in a third material.
+    #  - `keepbody` renders GRASS, because that IS the ground the hall stands on.
+    "keeproof": "forest", "keepbody": "grass",
     # solid crest cells under a walk-behind prop's top rows (roof ridges,
     # crown tops): collision-only, renders plain ground — NEVER a struct
     # (a struct's shade band would peek through the upper art's silhouette)
@@ -324,7 +327,7 @@ TERRAIN_CLS = {
 # solid built things that drop a contact shadow on the ground cell south of them
 STRUCT_TERRAIN = {"well", "lamp", "stall", "fence", "town", "tree", "boulder",
                   "obelisk", "crystal", "castle", "peak", "giant_tree",
-                  "homebody", "cotWbody", "cotEbody", "academybody",
+                  "homebody", "cotWbody", "cotEbody",
                   "weaponbody", "itembody", "innbody",
                   "cliff", "fountain", "treetrunk",
                   "lanternwood", "bigmountain", "snowlamp", "gatepost",
@@ -350,7 +353,7 @@ STRUCT_TERRAIN = {"well", "lamp", "stall", "fence", "town", "tree", "boulder",
                   # exactly as the town's `lamp` is — the head's band lands on
                   # the post below it and is covered by the post's own art.)
                   "rampart", "towerbody", "orrerybase", "courtlamp",
-                  "wingbody", "courttrunk"}
+                  "wingbody", "keepbody"}
 # NOTE `berth` is deliberately absent: a contact shadow is a thing the ground
 # gets, and the launch's footprint is water.
 

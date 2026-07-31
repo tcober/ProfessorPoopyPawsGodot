@@ -98,6 +98,7 @@ MAPS = [
     "maps/town.txt",
     "maps/town_fest.txt",
     "maps/lanternwood.txt",
+    "maps/academy.txt",
     "maps/house.txt",
     "maps/downstairs.txt",
     "maps/hall.txt",
@@ -182,6 +183,12 @@ TILED = {
     "maps/overworld.txt": ("tilesets/overworld_layout.txt",
                            "tilesets/overworld_tiles.png",
                            "tilesets/overworld_tiles.tres"),
+    # academy was in MAPS and PROPS but NOT here, so "layout dims match the map",
+    # "atlas refs in range" and ".tres declares every tile" never ran on it — the
+    # three that catch a footprint change that was not regenerated, which is the
+    # single most likely way to break this precinct.
+    "maps/academy.txt": ("tilesets/academy_layout.txt", "tilesets/academy_tiles.png",
+                         "tilesets/academy_tiles.tres"),
     "maps/overworld_bright.txt": ("tilesets/overworld_bright_layout.txt",
                                   "tilesets/overworld_bright_tiles.png",
                                   "tilesets/overworld_bright_tiles.tres"),
@@ -319,6 +326,12 @@ PROPS = {
     "maps/town.txt": "tilesets/town_props.txt",
     "maps/town_fest.txt": "tilesets/town_fest_props.txt",
     "maps/lanternwood.txt": "tilesets/lanternwood_props.txt",
+    # THE ACADEMY WAS NEVER IN EITHER TABLE (found 2026-07-30). The whole
+    # precinct — a 64x48 map with six Tier-3 props on it — shipped without
+    # the invisible-wall, walk-behind-visibility, floating-art or manifest
+    # lints ever looking at it. A map that is not in MAPS is not "passing";
+    # it is absent, and the summary line says "all checks passed" either way.
+    "maps/academy.txt": "tilesets/academy_props.txt",
     "maps/hall.txt": "tilesets/hall_props.txt",
     "maps/sickroom.txt": "tilesets/sickroom_props.txt",
     "maps/library.txt": "tilesets/library_props.txt",
@@ -618,6 +631,7 @@ PLACEMENTS = {
     "scene/downstairs.tscn": "maps/downstairs.txt",
     "scene/alembic_town.tscn": "maps/town.txt",
     "scene/lanternwood.tscn": "maps/lanternwood.txt",
+    "scene/academy.tscn": "maps/academy.txt",
     "scene/town_fest.tscn": "maps/town_fest.txt",
     "scene/town_thesis.tscn": "maps/town_fest.txt",
     "scene/house_thesis.tscn": "maps/house.txt",
@@ -702,8 +716,9 @@ SHEETS = {
     # thesis-day cast (Prologue B) + Mom (the A pacing pass). Mom got the walk
     # rows so she can WORK her kitchen instead of standing in it.
     "assets/npc_mom_gen.png": (10 * ZONE_CELL, 4 * ZONE_CELL),
-    "assets/npc_schweinler_adult_gen.png": (6 * ZONE_CELL, ZONE_CELL),
-    "assets/npc_badger_gen.png": (8 * ZONE_CELL, ZONE_CELL),
+    # both grew to 10 cols + the walk rows on 2026-07-30 — see the accident
+    "assets/npc_schweinler_adult_gen.png": (10 * ZONE_CELL, 4 * ZONE_CELL),
+    "assets/npc_badger_gen.png": (10 * ZONE_CELL, 4 * ZONE_CELL),
     "assets/npc_stork_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/npc_kitty_bed_gen.png": (6 * ZONE_CELL, ZONE_CELL),
     "assets/npc_kittymom_gen.png": (6 * ZONE_CELL, ZONE_CELL),

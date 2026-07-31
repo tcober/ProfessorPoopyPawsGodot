@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scene/academy.gd" id="1_academy"]
 [ext_resource type="Script" path="res://scene/overworld_location.gd" id="2_loc"]
@@ -10,6 +10,9 @@
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
 size = Vector2(16, 12)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_greatdoor"]
+size = Vector2(32, 12)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
 size = Vector2(32, 16)
@@ -36,14 +39,14 @@ tile_set = ExtResource("5_collision")
 [node name="Locations" type="Node2D" parent="."]
 
 [node name="Hall" type="Area2D" parent="Locations"]
-position = Vector2(520, 184)
+position = Vector2(496, 184)
 script = ExtResource("2_loc")
 id = "hall"
 display_name = "THE GREAT HALL"
 locked_text = "IRON ACROSS THE DOOR, AND A SEAM OF OLD LIGHT STILL IN IT."
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Hall"]
-shape = SubResource("RectangleShape2D_door")
+shape = SubResource("RectangleShape2D_greatdoor")
 
 [node name="Gate" type="Area2D" parent="Locations"]
 position = Vector2(488, 456)

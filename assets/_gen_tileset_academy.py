@@ -2,12 +2,17 @@
 """THE ALEMBIC ACADEMY — the precinct north of Alembic Town, its own scene.
 
 Read assets/maps/academy.txt's header for the composition and why it is shaped
-the way it is; this file only paints it. The four pieces no town has live in
-assets/_academy_props.py (the rampart, the drum towers, the orrery, the two
-wings); everything else is REUSED from _town_props, which is the point — the
-keep is `town_academy` unchanged, the terrace is Lanternwood's cast-cement
-`town_cliff(wall=True)`, the flight is `town_stairs`, the lamps and trees are
-the town's own.
+the way it is; this file only paints it. The five pieces no town has live in
+assets/_academy_props.py (the KEEP, the rampart, the drum towers, the orrery,
+the two wings); the rest is REUSED from _town_props — the terrace is
+Lanternwood's cast-cement `town_cliff(wall=True)`, the flight is `town_stairs`,
+the lamps and small trees are the town's own.
+
+THE KEEP USED TO BE `_town_props.town_academy`, a cement landmark drawn for the
+town grid the Academy has since left, with the two great trees standing six cells
+out in the lawn beside it. It is now `_academy_props.academy_keep` — a timber hall
+whose corner towers ARE those trees, in one 416x192 sprite. `town_academy` had no
+other caller and has been retired.
 
 THE BECK NEEDS NO FASCIA AND NO MASK BAND. Alembic's stream takes a hand-drawn
 `bridge_fascia` on the water cell south of its deck, because there you stand ON
@@ -26,18 +31,25 @@ sys.path.insert(0, HERE)
 from _core import h2
 from _overworld_tiles import OverWorld, T
 from _tilekit import sprite_img, GLOW_WARM as WARM, GLOW_MINT as MINTG
-from _town_props import town_academy, town_cliff, town_stairs, town_lamp, town_tree
+from _town_props import town_cliff, town_stairs, town_lamp, town_tree
 from _academy_props import (academy_rampart, academy_tower, academy_orrery,
-                            academy_wing)
-from _tree_props import understory, great_trunk, great_crown, BARK
-from _alembic import _blit_img
+                            academy_wing, academy_keep, court_weed)
+from _tree_props import understory, BARK
 
 _blob = OverWorld.glow_blob
 
 RAMP_SALTS = (601, 607, 613, 619, 623, 629)
 CLIFF_SALTS = (291, 293, 297, 299, 307, 311)
 # every char whose cell the glow must be WIPED off — see the clip pass
-FACES = "WuCk"
+FACES = "WuC"
+
+
+# THE LITTER'S OWN BROWN, HAND-PINNED. Derived from this scene's timber the way the
+# town's is, it comes out RED: the academy palette is violet-biased and the module
+# TIMBER seed is already warm, so ramp()'s violet shadow law lands its midtones on
+# brick — scattered over a green lawn that reads as blood, not leaves.
+ROT_LATER = [(196, 168, 116, 255), (170, 138, 92, 255), (142, 112, 78, 255),
+             (112, 86, 68, 255), (80, 60, 62, 255), (52, 38, 50, 255)]
 
 
 def build():
@@ -62,13 +74,16 @@ def build():
     ac.place_each("u", academy_tower(STONE, salt=611, w=2 * T, h=3 * T))
 
     # ---- THE BACK RANK ----------------------------------------------------------------
-    # The keep is town_academy, unchanged, drawn for the town grid it has now left:
-    # 224x144 over exactly the 14x9 `Aa` footprint, twin spired towers, the arcane
-    # rose window, the door SEALED. `open_door` stays False on purpose — nothing has
-    # stirred in here since the Ebb, and the era that opens it is the prologue's,
-    # which plays inside the lecture hall and never comes out to this precinct.
+    # THE KEEP IS A TIMBER CASTLE-SCHOOL AND ITS CORNER TOWERS ARE THE TWO GREAT
+    # TREES — one sprite, 416x192, over the whole 22x9 `Aa` block. It replaced
+    # `town_academy`, which was drawn for the town grid the Academy has left and
+    # read here as a flat cream wall with a garden on top, with the two trees
+    # standing six cells out in the lawn where nothing could tie them to it.
+    # The art is 26 cells wide over 22 cells of collision: emit_prop centres art on
+    # its block, so the crowns hang two cells of leaf into the lawn either side and
+    # you walk under them.
     ac.emit_prop("Keep", "Aa",
-                 town_academy(ac.mat("roof_green"), STONE, salt=221,
+                 academy_keep(STONE, BARK, FOL, ac.GRASS, salt=221,
                               composite=True, frames=8),
                  hframes=8)
     # THE TWO WINGS ARE ONE BUILDER, ONE SALT, TWO CROWNS. Their facades come out
@@ -82,27 +97,6 @@ def build():
                      academy_wing(STONE, salt=631, kind=kind, composite=True,
                                   frames=8),
                      hframes=8)
-
-    # ---- THE TWO GREAT TREES --------------------------------------------------------
-    # THE CROWN IS BOTTOM-ANCHORED (no `top`), so its 128px runs UP off the top of a
-    # 4-row block and into the forest border, and the shaft gets five clear rows below
-    # it. Anchored top=0 over a deep block — the way Alembic's are, where the trunk
-    # continues nine rows further down — the crown hung over all but the last row of
-    # its own shaft and the great tree read as a STUMP WITH A BUSH ON IT.
-    # `base_inset=-52` still pushes the sort key south of the shaft, so the trunk's
-    # top end disappears into the leaves rather than stopping at a hard horizontal
-    # cut against them.
-    ac.emit_prop("GreatCrown", "K",
-                 sprite_img(great_crown(FOL, BARK, salt=451, w=14 * T, h=8 * T),
-                            14 * T, 8 * T),
-                 each=True, base_inset=-52)
-    # The shaft is TIER-1 BAKED, not a sprite. Nothing can stand behind it — the
-    # crown is solid above and the terrace wall is below — so the depth question
-    # never arises, and baking is simply correct.
-    for comp in ac.comps("k"):
-        x0, y0, x1, y1 = ac.comp_bbox(comp)
-        shaft = great_trunk(BARK, ac.GRASS, [(0, y1 - y0)], salt=401, w=4 * T)[0]
-        _blit_img(ac.bg, shaft, x0 * T, y0 * T)
 
     # ---- the court furniture ----------------------------------------------------------
     ac.emit_prop("Orrery", "Qq",
@@ -122,8 +116,7 @@ def build():
     # the town's is, it comes out RED: the academy palette is violet-biased and the
     # module TIMBER seed is already warm, so ramp()'s violet shadow law lands its
     # midtones on brick. Scattered over a green lawn that reads as blood, not leaves.
-    ROT = [(196, 168, 116, 255), (170, 138, 92, 255), (142, 112, 78, 255),
-           (112, 86, 68, 255), (80, 60, 62, 255), (52, 38, 50, 255)]
+    ROT = ROT_LATER
     KINDS = (("drift", 4), ("fern", 2), ("sapling", 2), ("roots", 1))
     under = {k: [understory(FOL, ROT, ac.GRASS, kind=k, salt=461 + 31 * i + 7 * v)
                  for v in range(n)]
@@ -139,6 +132,52 @@ def build():
                 continue
             bag = under[POOL[h2(x, y, 463) % len(POOL)]]
             ac.bg.blit_cell(bag[h2(x, y, 479) % len(bag)], x * T, y * T)
+
+    # ---- NOBODY HAS SWEPT THE COURT ---------------------------------------------------
+    # 300-odd cells of one flat stone was the biggest remaining problem in the
+    # precinct after the buildings, and the cheapest honest fix is not more paving
+    # detail — it is the fact that this is a college the world stopped funding, in the
+    # season the magic drained out of the ground. Cracks, weeds and moss, banked toward
+    # the edges where the sweeping stops first and thinning along the axis where feet
+    # still fall. See _academy_props.court_weed.
+    WEEDS = [court_weed(ac.ROAD, ac.GRASS, salt=701 + 17 * i, kind=i % 4)
+             for i in range(12)]
+    for y in range(ac.m.rows_n):
+        for x in range(ac.m.cols):
+            if ac.m.at(x, y) != "-":
+                continue
+            edgeward = any((ac.m.at(x + ax, y + ay) or "") in ".,#TtCWuBeNn"
+                           for ax in (-1, 0, 1) for ay in (-1, 0, 1))
+            axis = abs(x - 30) <= 1                        # the way feet still take
+            # PATCHES, NOT CONFETTI. Rolled per cell at an even rate the weeds came
+            # out as uniform speckle over the whole ward, which is its own kind of
+            # flat — a texture rather than a place that has been let go. Weeds
+            # colonise: gate the roll on a coarse 3x3 field first, so growth comes
+            # in drifts with swept stone between them.
+            if h2(x // 3, y // 3, 743) % 5 >= 3:
+                continue
+            chance = 4 if axis else (13 if edgeward else 9)
+            if h2(x, y, 733) % 16 >= chance:
+                continue
+            ac.bg.blit_cell(WEEDS[h2(x, y, 739) % len(WEEDS)], x * T, y * T)
+
+    # ---- THE BECK'S BANKS ---------------------------------------------------------------
+    # The stream shipped as a flat blue strip laid across a green one, with no edge
+    # between them at all: two fabrics meeting on a grid line read as a painted band,
+    # not as water in a channel. Reeds and bank stones on the cells that touch it are
+    # what make it a beck.
+    REEDS = [understory(FOL, ROT_LATER, ac.GRASS, kind="fern", salt=751 + 13 * i)
+             for i in range(3)]
+    for y in range(ac.m.rows_n):
+        for x in range(ac.m.cols):
+            if ac.m.at(x, y) not in ".," :
+                continue
+            if not any((ac.m.at(x + ax, y + ay) or "") == "r"
+                       for ax in (-1, 0, 1) for ay in (-1, 0, 1)):
+                continue
+            if h2(x, y, 757) % 8 >= 5:
+                continue
+            ac.bg.blit_cell(REEDS[h2(x, y, 761) % len(REEDS)], x * T, y * T)
 
     ac.write_glow(lambda img: glow(ac, img))
 
@@ -162,14 +201,22 @@ def glow(ac, img):
     burns MINT."""
     m = ac.m
     x0, y0, x1, y1 = ac.bbox("Aa")
-    cx = (x0 + x1 + 1) * T // 2
-    _blob(img, cx - 1, y0 * T + 100, 26, MINTG, 96)         # THE ROSE WINDOW
-    _blob(img, cx, (y1 + 1) * T - 10, 14, MINTG, 34)        # its wash on the door
+    cx = (x0 + x1 + 1) * T // 2                             # = 496, the precinct axis
+    # The keep's sprite is 416x192 bottom-anchored on a 22x9 block, so its own
+    # origin is (axis - 208, block_bottom - 192) and every dab below is quoted as
+    # a SPRITE-LOCAL coordinate off that. Quoting them off the bbox instead is how
+    # the old build ended up lighting a rose window that had moved.
+    base = (y1 + 1) * T - 192                               # the keep sprite's own y0
+    _blob(img, cx, base + 104, 21, MINTG, 108)              # THE ROSE WINDOW
+    _blob(img, cx, base + 186, 18, MINTG, 32)               # its wash on the door
+    for dx in (-86, 86):                                    # the hall's lancets
+        _blob(img, cx + dx, base + 148, 15, WARM, 66)
+    _blob(img, cx + 159, base + 100, 9, MINTG, 52)          # the gallery lamp
     for chars in ("Be", "Nn"):                              # the wings' windows
         wx0, wy0, wx1, wy1 = ac.bbox(chars)
-        base = (wy1 + 1) * T
+        wbase = (wy1 + 1) * T
         for dx in (-42, 0, 42):
-            _blob(img, (wx0 + wx1 + 1) * T // 2 + dx, base - 30, 10, WARM, 56)
+            _blob(img, (wx0 + wx1 + 1) * T // 2 + dx, wbase - 30, 10, WARM, 56)
     for y in range(m.rows_n):
         for x in range(m.cols):
             if m.at(x, y) in "mL" and m.at(x, y - 1) not in "mL":
@@ -193,9 +240,8 @@ def assert_all(ac):
     ac.assert_stair("S", "C", 2)
     ac.assert_door_approach(rows=2)
     ac.assert_npc_room()
-    for chars, w, h, n in (("Aa", 14, 9, 1), ("Be", 9, 6, 1), ("Nn", 9, 6, 1),
-                           ("K", 14, 4, 2), ("k", 4, 5, 2),
-                           ("Qq", 6, 4, 1), ("u", 2, 3, 2), ("Tt", 2, 2, 16)):
+    for chars, w, h, n in (("AaD", 22, 9, 1), ("Be", 9, 6, 1), ("Nn", 9, 6, 1),
+                           ("Qq", 6, 4, 1), ("u", 2, 3, 2), ("Tt", 2, 2, 18)):
         cs = ac.comps(chars)
         assert len(cs) == n, (
             f"academy.txt: {chars!r} has {len(cs)} components, want {n}")

@@ -9,6 +9,14 @@
 ; rank with the rose window over its sealed door. You arrive at the bottom of a
 ; sequence and the thing you came to see is at the top of it.
 ;
+; THE CAUSEWAY MOUTH IS SEALED (2026-07-30). The last two rows used to be open
+; lawn from border to border, so a body could walk off the bottom of the map
+; anywhere along it — the scene only walls the exit lane itself. Nothing caught it
+; because assets/maps/academy.txt was never in _check_art.py's MAPS list at all:
+; the whole precinct shipped without a single map lint looking at it, and the
+; summary still printed "all checks passed". A map that is not in the table is not
+; passing, it is ABSENT.
+;
 ; THE BECK IS WATER, NOT A CHASM. Verticality here is authoring, and authoring an
 ; ABSENCE is the one thing this kit is bad at — see the map-authoring skill:
 ; Lanternwood's rift was attempted twice and read as a wall both times. A stream
@@ -18,6 +26,19 @@
 ; THE ORRERY STANDS ON THE AXIS, blocking the straight line from the gate to the
 ; stair deliberately. You walk round a monument; being made to go round it is what
 ; makes the court read as the middle of a place rather than as a corridor.
+;
+; THE KEEP'S CORNER TOWERS ARE THE TWO GREAT TREES, and that is why it is ONE
+; 22x9 block (`Aa`, cols 20-41) rather than a keep with a tree either side of it.
+; A tree read as a tower has to lean its crown over the hall's roof, and one char
+; per cell means a separate crown block never can — so the trees moved INTO the
+; keep's footprint and into its sprite, where the pitch runs out and dies into each
+; trunk. See _academy_props.academy_keep. The art is 26 cells wide over those 22,
+; hanging two cells of leaf into the lawn either side: emit_prop centres art on its
+; block, and a two-cell hidden run is a step you pass through (the walk-behind
+; visibility lint condemns three).
+;
+; EVERYTHING ON THE AXIS IS ON x=496 — the gate GG, the stair SS, the orrery and
+; now the keep's own door DD. The old keep sat one cell east of its own stair.
 ;
 ; EVERY PROP STANDING ON PAVING HAS ITS OWN TERRAIN NAME. A cell paints its
 ; terrain's render class as underlay, so `lamp` (which renders grass, because
@@ -42,14 +63,12 @@ legend G gate walk
 legend u towerbody solid
 legend Q orrery walk
 legend q orrerybase solid
-legend A academyroof solid
-legend a academybody solid
+legend A keeproof solid
+legend a keepbody solid
 legend B wingroof solid
 legend e wingbody solid
 legend N wingroof solid
 legend n wingbody solid
-legend K greatcrown solid
-legend k courttrunk solid
 legend T treecanopy solid
 legend t treetrunk solid
 legend L courtlamp walk
@@ -57,7 +76,7 @@ legend m courtlamp solid
 
 anchor player_start 30 42
 anchor exit_south 30 46
-anchor hall 32 11
+anchor hall 30 11
 anchor gate 30 28
 anchor orrery 30 23
 anchor observatory 12 24
@@ -68,15 +87,15 @@ map
 ################################################################
 ################################################################
 ################################################################
-###.......KKKKKKKKKKKKKK.AAAAAAAAAAAAAA.KKKKKKKKKKKKKK.......###
-###.,,,,,.KKKKKKKKKKKKKK.AAAAAAAAAAAAAA.KKKKKKKKKKKKKK.,,,,,.###
-###.,,,,,.KKKKKKKKKKKKKK.AAAAAAAAAAAAAA.KKKKKKKKKKKKKK.,,,,,.###
-###.,,,,,.KKKKKKKKKKKKKK.AAAAAAAAAAAAAA.KKKKKKKKKKKKKK.,,,,,.###
-###.,,,,,......kkkk......AAAAAAAAAAAAAA......kkkk......,,,,,.###
-###............kkkk......aaaaaaaaaaaaaa......kkkk............###
-###..TT........kkkk......aaaaaaaaaaaaaa......kkkk........TT..###
-###..tt........kkkk......aaaaaaaaaaaaaa......kkkk........tt..###
-###............kkkk......aaaaaaaDaaaaaa......kkkk............###
+###.....,,,,,.......AAAAAAAAAAAAAAAAAAAAAA.......,,,,,.......###
+###.....,,,,,.......AAAAAAAAAAAAAAAAAAAAAA.......,,,,,.......###
+###.....,,,,,.......AAAAAAAAAAAAAAAAAAAAAA.......,,,,,.......###
+###.................AAAAAAAAAAAAAAAAAAAAAA...................###
+###..TT.............AAAAAAAAAAAAAAAAAAAAAA..............TT...###
+###..tt.............aaaaaaaaaaaaaaaaaaaaaa..............tt...###
+###.........TT......aaaaaaaaaaaaaaaaaaaaaa.....TT............###
+###.........tt......aaaaaaaaaaaaaaaaaaaaaa.....tt............###
+###.......,,,,......aaaaaaaaaaDDaaaaaaaaaa........,,,,.......###
 ###.--------------------------------------------------------.###
 ###.--------L---------L------------------L---------L--------.###
 ###.--------m---------m------------------m---------m--------.###
@@ -111,5 +130,5 @@ map
 ###......,,,..................--........................tt...###
 ###......,,,................TT--TT...........................###
 ###.........................tt--tt...........................###
-###...........................--.............................###
-###...........................--.............................###
+###########################...--...#############################
+#############################.--.###############################

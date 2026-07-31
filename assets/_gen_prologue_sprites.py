@@ -52,7 +52,8 @@ Sheets written (all 48px cells, feet baseline y=44 = _core.ZONE_FEET):
           emote = STARTLED (ears pinned, shoulders up); cols 6-7 = BACK x2,
           cols 8-9 = SIDE x2 (left profile — play_side(true) faces her east);
           spawn with frame_cols = 10
-  FIVE WALKING NPC sheets (480x192, 10 cols x 4 rows) — the 2026-07-29 pass.
+  SEVEN WALKING NPC sheets (480x192, 10 cols x 4 rows) — five from the
+  2026-07-29 pass, plus the two thesis-day bystanders on 2026-07-30.
   Row 0 is the ordinary 10-cell pose row above; rows 1-3 are the WALK:
       row 1  walk_down x6   row 2  walk_up x6   row 3  walk_side x6 (LEFT)
   each padded out to 10 cells (write_cells wants a square grid). Frame 0 of the
@@ -93,6 +94,19 @@ Sheets written (all 48px cells, feet baseline y=44 = _core.ZONE_FEET):
           motion; cols 6-9 = BACK x2 (the rack unobstructed, the asymmetry
           mirrored, the pale rump tuft in the coat vent) + SIDE x2 (the chain
           survives the profile). Spawn with frame_cols = 10.
+      npc_schweinler_adult_gen.png (480x192) — the grown pig. Was SIX cells
+          until 2026-07-30, when the accident set-piece needed him to cross to
+          his machine instead of blinking onto it; cols 6-9 = BACK x2 (the
+          waistcoat with no placket and no buttons, which is the whole
+          difference from the front, plus the curly tail on the rump) +
+          SIDE x2 (the placket and its brass run down the FRONT edge of the
+          flank — at this size they are what says which way he faces)
+      npc_badger_gen.png      (480x192) — Ridley. Was EIGHT cells (he had
+          backs for the hall tiers but no profile) until the same pass; cols
+          8-9 = SIDE x2. His face stripes run VERTICALLY in the front cell, so
+          the profile carries ONE vertical band down the skull with the dark
+          ear atop it — drawn as the real animal's horizontal nose-to-ear
+          stripe he is a different creature, and 2px high he is a bird
 
   prologue_fx.png (256x32, TWO 16-cell rows of 16px cells) — row 0 FROZEN
       [ribbon_magenta, ribbon_gold, sparkle_small, sparkle_big, gear, spring,
@@ -108,7 +122,7 @@ import os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from _core import write_cells, Img, ZONE_CELL
+from _core import write_cells, Img, ZONE_CELL, h2
 from _propkit import ln
 from _sprites import Sprite
 from _palette import BASIL, FUJI, ramp
@@ -1170,9 +1184,11 @@ SCHW_A_OUTS = outs_for((PIG, OUT_DARK), (SNOUT, OUT_DARK), (KERCH, OUT_DARK),
                        (VEST, OUT_DARK), (BRASSF, OUT_DARK))
 
 
-def schweinler_adult(s, mood="idle", bob=0):
+def schweinler_adult(s, mood="idle", bob=0, liftL=0, liftR=0):
     """Schweinler grown: taller, wider, moneyed — plum waistcoat, brass
-    buttons, the same smug snout. [idle, point, laugh]."""
+    buttons, the same smug snout. [idle, point, laugh]. `liftL`/`liftR` are
+    the walk rows' paw lifts (2026-07-30) — on this body the trotters are
+    all that shows under the girth, so the lift IS the leg animation."""
     hy = 20 + bob
     s.tri((CX - 8, hy - 8), hy - 3, CX - 9, CX - 3, PIG, sh=0.16)
     s.tri((CX + 8, hy - 8), hy - 3, CX + 3, CX + 9, PIG, sh=0.26)
@@ -1195,8 +1211,8 @@ def schweinler_adult(s, mood="idle", bob=0):
     else:
         s.capsule(CX - 7.5, by - 5, CX - 9, by + 2, 2.0, 1.6, PIG, sh=0.06)
     s.capsule(CX + 7.5, by - 5, CX + 9, by + 2, 2.0, 1.6, PIG, sh=0.16)
-    for lx in (CX - 3, CX + 3):
-        s.rect(lx - 1, 43, lx + 1, 44, PIG[3])      # trotters under the girth
+    for (lx, lift) in ((CX - 3, liftL), (CX + 3, liftR)):
+        s.rect(lx - 1, 43 - lift, lx + 1, 44 - lift, PIG[3])  # trotters, girth
     s.line([(CX + 9, by + 3), (CX + 10, by + 2), (CX + 11, by + 3),
             (CX + 10, by + 4)], PIG[2])             # curly tail
     s.ball(CX, hy + 2.5, 3.4, 2.3, SNOUT, power=2.0, wrap=0.10, curve=0.10)
@@ -1221,12 +1237,89 @@ def schweinler_adult(s, mood="idle", bob=0):
     s.outline(SCHW_A_OUTS, OUT_DARK)
 
 
+def schweinler_adult_back(s, bob=0, liftL=0, liftR=0):
+    """The grown pig from behind (2026-07-30) — the flop-ear BACKS, the curly
+    tail on the rump, and a waistcoat with NO placket and NO buttons, which
+    is the whole difference between this and the front redrawn. The cravat
+    survives as its knot at the nape; the triangle hangs out of sight."""
+    hy, by = 20 + bob, 34 + bob
+    s.tri((CX - 8, hy - 8), hy - 3, CX - 10, CX - 4, PIG, sh=0.30)
+    s.tri((CX + 8, hy - 8), hy - 3, CX + 4, CX + 10, PIG, sh=0.38)
+    s.ball(CX, hy, 7.8, 6.6, PIG, power=2.4, wrap=0.32, curve=0.28)
+    s.ball(CX, by, 8.2, 7.6, PIG, power=2.2, wrap=0.28, curve=0.22)
+    for y in range(by - 6, by + 7):                 # the waistcoat's back
+        half = 5 + (2 if y > by - 2 else 1)
+        for x in range(CX - half, CX + half + 1):
+            s.set(x, y, VEST[1] if x < CX else VEST[2])
+    for sy in range(by - 6, by + 7):
+        s.set(CX, sy, VEST[3])                      # its centre seam
+    s.capsule(CX - 7.5, by - 5, CX - 9, by + 2, 2.0, 1.6, PIG, sh=0.06)
+    s.capsule(CX + 7.5, by - 5, CX + 9, by + 2, 2.0, 1.6, PIG, sh=0.16)
+    for (lx, lift) in ((CX - 3, liftL), (CX + 3, liftR)):
+        s.rect(lx - 1, 43 - lift, lx + 1, 44 - lift, PIG[3])
+    s.rect(CX - 4, hy + 6, CX + 4, hy + 6, KERCH[1])            # the knot
+    s.rect(CX - 4, hy + 7, CX + 4, hy + 7, KERCH[2])
+    s.rect(CX - 1, hy + 6, CX + 1, hy + 8, KERCH[1])
+    s.set(CX - 2, hy + 7, KERCH[3])
+    s.set(CX + 2, hy + 7, KERCH[3])
+    s.despeckle(passes=1)
+    s.outline(SCHW_A_OUTS, OUT_DARK)
+    # start the curl one px INSIDE the silhouette: _pig_curl only lays its dark
+    # edge on EMPTY pixels, so a squiggle begun exactly on the body's rim loses
+    # its root to the outline and hangs in space (the shipped kid cells do)
+    _pig_curl(s, CX - 7, by + 2)                    # THE CURLY TAIL, west hip
+
+
+def schweinler_adult_side(s, bob=0, fF=(0, 0), fB=(0, 0)):
+    """The grown pig in profile, drawn facing RIGHT and mirrored last. Same
+    read as the kid's: the SNOUT out past the cheek under a flop ear draped
+    forward over the eye — but on the moneyed body, so the waistcoat's
+    placket and its brass run down the FRONT edge of the flank, where they
+    are the only thing that says which way he is facing at a glance."""
+    hy, by = 20 + bob, 34 + bob
+    for (base_x, (dx, lift), sh) in ((19, fB, 0.20), (27, fF, 0.0)):
+        lx = base_x + dx
+        s.capsule(lx, by + 6, lx, 42 - lift, 2.1, 1.9, PIG, sh=sh)
+        s.rect(lx - 1, 43 - lift, lx + 1, 44 - lift, PIG[3])
+    s.ball(23, by, 8.0, 7.4, PIG, power=2.2, wrap=0.28, curve=0.22)
+    for y in range(by - 6, by + 7):                 # the waistcoat, front-biased
+        half = 5 + (2 if y > by - 2 else 1)
+        for x in range(24 - half, 24 + half + 1):
+            s.set(x, y, VEST[0] if x < 24 else VEST[1])
+    s.rect(28, by - 5, 28, by + 5, VEST[3])         # the placket shadow
+    for byy in (by - 4, by - 1, by + 2):
+        s.set(27, byy, BRASSF[0])                   # brass, one column
+    s.capsule(25, by - 5, 27, by + 1, 2.0, 1.6, PIG, sh=0.10)        # near arm
+    s.tri((19, hy - 8), hy - 2, 15, 20, PIG, sh=0.36)                # far ear
+    s.ball(22, hy, 7.6, 6.4, PIG, power=2.4, wrap=0.32, curve=0.28)
+    s.capsule(27, hy + 3, 31, hy + 3, 2.8, 2.5, SNOUT, sh=0.06)
+    s.rect(32, hy + 1, 32, hy + 5, SNOUT[2])                         # disc end
+    s.set(32, hy + 3, PIG_EYE)                                       # nostril
+    s.set(31, hy + 5, SNOUT[3])
+    s.tri((21, hy - 9), hy + 2, 24, 30, PIG, sh=0.16)   # near ear, draped fwd
+    s.rect(27, hy + 2, 29, hy + 3, PIG[2])              # its heavy tip
+    s.rect(24, hy - 2, 25, hy - 1, PIG_EYE)
+    s.set(24, hy - 2, GLINT)
+    s.rect(23, hy - 4, 26, hy - 4, PIG[3])              # the smug brow
+    s.line([(29, hy + 6), (30, hy + 6)], MOUTH)
+    s.rect(19, hy + 6, 27, hy + 7, KERCH[1])            # the cravat band
+    s.rect(19, hy + 7, 22, hy + 7, KERCH[2])
+    s.tri((26, hy + 11), hy + 8, 24, 28, KERCH, sh=0.14)   # its hanging point
+    s.despeckle(passes=1)
+    s.outline(SCHW_A_OUTS, OUT_DARK)
+    _pig_curl(s, 16, by + 1)                        # one px inside — see above
+    _mirror_cell(s)
+
+
 BADGER_OUTS = outs_for((BADGER, OUT_DARK), (WHITE, OUT_LIGHT), (FUR, OUT_DARK))
 
 
-def badger(s, mood="idle", bob=0):
+def badger(s, mood="idle", bob=0, liftL=0, liftR=0):
     """The classmate: a blunt young badger — white face, twin dark stripes,
-    stocky. His honesty is a blunt instrument. [idle, shrug, belly laugh]."""
+    stocky. His honesty is a blunt instrument. [idle, shrug, belly laugh].
+    `liftL`/`liftR` are the walk rows' 1px paw lifts (2026-07-30); at 0 the
+    cell is byte-identical to the shipped pose, which is the planted-neutral
+    contract walk_down f0 / walk_up f0 rely on."""
     hy = 23 + bob
     s.tri((CX - 6, hy - 8), hy - 4, CX - 8, CX - 3, BADGER)
     s.tri((CX + 6, hy - 8), hy - 4, CX + 3, CX + 8, BADGER, sh=0.12)
@@ -1265,11 +1358,61 @@ def badger(s, mood="idle", bob=0):
     else:
         s.capsule(CX - 6, by - 3, CX - 7, by + 2, 1.8, 1.5, BADGER, sh=0.06)
         s.capsule(CX + 6, by - 3, CX + 7, by + 2, 1.8, 1.5, BADGER, sh=0.16)
-    for lx in (CX - 3, CX + 3):
-        s.capsule(lx, by + 4, lx, 42, 2.0, 1.8, BADGER, sh=0.08)
-        s.ball(lx, 43, 2.0, 1.5, FUR, power=2.2, wrap=0.10, curve=0.10)
+    for (lx, lift) in ((CX - 3, liftL), (CX + 3, liftR)):
+        s.capsule(lx, by + 4, lx, 42 - lift, 2.0, 1.8, BADGER, sh=0.08)
+        s.ball(lx, 43 - lift, 2.0, 1.5, FUR, power=2.2, wrap=0.10, curve=0.10)
     s.despeckle(passes=1)
     s.outline(BADGER_OUTS, OUT_DARK)
+
+
+def badger_side(s, bob=0, fF=(0, 0), fB=(0, 0)):
+    """Ridley in PROFILE (2026-07-30), drawn facing RIGHT and mirrored last
+    (the npc kit stores left-facing side cells).
+
+    His whole read at 48px is the FACE, and it has to be THIS character's
+    face, not a photograph of a badger. The front view's stripes run
+    VERTICALLY — crown, through the eye, down to the jaw, flanking a white
+    blaze — so in profile the near one is a vertical band down the side of
+    the skull with the dark ear sitting on top of it. Drawn as the real
+    animal's horizontal nose-to-ear stripe it is a different creature, and
+    at 2px of drift it hoods him and reads as a bird.
+
+    The other half of the identity is proportion: in the front cell the HEAD
+    is bigger than the trunk and the white belly covers most of the chest.
+    Reverse either one and it is some other stocky animal in his colours."""
+    hx, hy, by = 21, 24 + bob, 36 + bob
+    for (base_x, (dx, lift), sh) in ((18, fB, 0.24), (25, fF, 0.0)):
+        lx = base_x + dx                            # the fore/aft scissor
+        s.capsule(lx, by + 4, lx, 42 - lift, 2.0, 1.8, BADGER, sh=sh)
+        s.ball(lx, 43 - lift, 2.0, 1.5, FUR, power=2.2, sh=sh, wrap=0.10,
+               curve=0.10)
+    s.ball(13, by + 1, 1.8, 1.5, BADGER, power=2.0, sh=0.30, wrap=0.12,
+           curve=0.10)                              # the stub tail, rear
+    s.ball(20, by, 6.6, 5.6, BADGER, power=2.2, wrap=0.28, curve=0.22)
+    s.ball(22, by + 1, 4.0, 3.4, WHITE, power=2.2, sh=0.12, wrap=0.10,
+           curve=0.10)                              # the belly, most of the chest
+    s.capsule(23, by - 4, 24.5, by + 1, 1.8, 1.5, BADGER, sh=0.12)   # near arm
+    s.ball(24.5, by + 2, 1.7, 1.4, WHITE, power=2.2, sh=0.26, wrap=0.10,
+           curve=0.10)
+    # NO NECK. The front view has none either — the skull sits straight on the
+    # trunk, and a visible column between them turns a stocky chibi badger into
+    # something long and hunched
+    s.ball(hx, hy, 6.8, 6.0, WHITE, power=2.4, wrap=0.30, curve=0.26)
+    # a SHORT muzzle bump — run out as a proper snout the white skull and the
+    # white muzzle fuse into one mass with nothing to break it up
+    s.ball(hx + 5, hy + 3, 2.6, 1.9, WHITE, power=2.0, wrap=0.12, curve=0.10)
+    s.rect(hx + 7, hy + 2, hx + 8, hy + 3, NOSE)
+    for y in range(hy - 6, hy + 5):                 # THE stripe, vertical
+        s.rect(hx, y, hx + 1, y, FUR[1])
+        s.set(hx + 2, y, FUR[2])
+    s.ball(hx - 1, hy - 6, 2.6, 2.0, FUR, power=2.2, sh=0.20, wrap=0.14,
+           curve=0.12)                              # the ear, atop the stripe
+    s.rect(hx, hy - 1, hx + 1, hy, PUPIL)           # the eye INSIDE the stripe —
+    s.set(hx + 1, hy - 1, GLINT)                    # only the glint finds it
+    s.line([(hx + 5, hy + 5), (hx + 6, hy + 5)], MOUTH)
+    s.despeckle(passes=1)
+    s.outline(BADGER_OUTS, OUT_DARK)
+    _mirror_cell(s)
 
 
 STORK_OUTS = outs_for((STORK, OUT_LIGHT), (BILL, OUT_DARK), (FUR, OUT_DARK))
@@ -3604,85 +3747,285 @@ def fx_beaker(s):
 
 
 def accident_bg():
-    """The dusk road backdrop for scene/accident.tscn — one 384x216 painting
-    (a one-off set, not a tileset): banded violet-to-rose dusk, a half-set
-    amber sun, hill silhouettes, a fence line, ONE narrow country lane the
-    48px vehicles nearly fill (the 2026-07-16 recomposition — the first cut's
-    road band ate 40% of the frame and dwarfed the cast), and a dark
-    foreground meadow strip framing the bottom. Duo-tone with a hot horizon
-    accent, per the palette law."""
+    """The dusk FOREST TRACK backdrop for scene/accident.tscn — one 384x216
+    painting (a one-off set, not a tileset).
+
+    REBUILT 2026-07-30: the first two cuts were a country ROAD — a painted
+    centerline, a fence line, open hill country — and this kingdom has no
+    roads. Carts and machines run on rutted tracks through the wood, which
+    is also the honest reason the fastest machine in the kingdom kills
+    somebody on it. The GEOMETRY is unchanged (the walkable band stays
+    y 154-200, so accident.gd's lanes and every tween are untouched); the
+    world around it is new: a two-rut cart track in a dusk wood, near trunks
+    rising out of frame with the last of the sun burning between them, a
+    canopy closing the top of the frame, leaf litter and fern on both
+    verges. Duo-tone violet dusk with the amber sun as the only hot accent,
+    per the palette law; hard bands everywhere, no dither."""
     W, H = 384, 216
     img = Img(W, H)
+    horizon = 128                                   # the far tree line's foot
+    path_top, path_bot = 154, 200                   # PINNED — the cast's lanes
+    # (the vehicles' wheels ride ~14px above path_bot, so the 48px cast
+    # fills the track — scene/accident.gd's LANE_* match this geometry)
     SKY_T = (44, 30, 74)
     SKY_M = (110, 52, 96)
     SKY_H = (214, 110, 88)
-    AMBER = (244, 168, 92)
-    HILL = (58, 38, 74)
-    HILL2 = (42, 28, 58)
-    FIELD = (66, 46, 76)
-    ROAD = (98, 72, 94)
-    ROADL = (126, 92, 112)
-    ROADD = (72, 52, 76)
-    FORE = (36, 24, 52)                             # foreground meadow, near-black
-    FLOWER = (150, 84, 128)
-    horizon = 128
-    road_top = horizon + 26                         # a NARROW lane: 46px tall
-    road_bot = road_top + 46
-    # (the vehicles' wheels ride ~14px above road_bot, so the 48px cast
-    # fills the lane — scene/accident.gd ROAD_Y matches this geometry)
+    AMBER = (244, 168, 92, 255)
+    AMBER_H = (252, 204, 128, 255)
+    STAR = (238, 222, 240, 255)
+    FAR = (64, 42, 80, 255)                         # far wood, hazed by distance
+    NEAR = (42, 28, 58, 255)                        # the mass behind the trunks
+    CANOPY_L = (46, 30, 60, 255)                    # the leaf overhead, two layers
+    CANOPY = (28, 18, 42, 255)
+    TRUNK = (44, 30, 52, 255)
+    TRUNK_M = (70, 46, 66, 255)                     # the one lit band of bark
+    RIM = (156, 96, 82, 255)                        # the sun's edge-light, and it
+    RIM_D = (94, 60, 72, 255)                       # falls off away from the sun
+    ROOT = (76, 52, 62, 255)                        # root over dirt, not over sky
+    # the ground gets LIGHTER as it comes forward — and the verge has to clear
+    # TRUNK or the trunk feet vanish into it and leave their rim lines floating
+    VERGE = (70, 48, 78, 255)                       # forest floor, both sides
+    SCRUB = (52, 34, 62, 255)                       # bushes ON it — their own
+    LITTER = (88, 60, 84, 255)                      # value, between wood and floor
+    DRIFT = (128, 74, 64, 255)                      # fallen leaves — the hue break
+    PATH = (90, 62, 68, 255)                        # packed DIRT — a pale value
+    PATH_L = (118, 84, 82, 255)                     # here reads as paving stone
+    PATH_D = (64, 44, 58, 255)
+    RUT = (74, 52, 64, 255)
+    DAPPLE = (192, 132, 96, 255)                    # what gets through the trunks
+    FORE = (26, 16, 38, 255)                        # near undergrowth, near-black
+    FLOWER = (150, 84, 128, 255)
+    SUN = (292, 106)
 
     def lerp3(a, b, t):
         return (int(a[0] + (b[0] - a[0]) * t), int(a[1] + (b[1] - a[1]) * t),
                 int(a[2] + (b[2] - a[2]) * t), 255)
 
+    def meander(v, salt, amp):
+        """A smooth 16-period wobble — every edge in a wood is a curve, and a
+        ruler-straight one is what made the first cut read as pavement."""
+        a = h2(v // 16, salt, 3) / 255.0
+        b = h2(v // 16 + 1, salt, 3) / 255.0
+        return int(round((a + (b - a) * ((v % 16) / 16.0)) * amp))
+
+    def leaf(lx, ly, r, color):
+        for y in range(-r, r + 1):                  # a leaf mass is a PATCH, never
+            half = int((r * r - y * y) ** 0.5)      # a sloping LINE (the understory
+            img.rect(lx - half, ly + y, lx + half, ly + y, color)   # law)
+
+    # ---- sky: the same banded violet-to-rose dusk, seen in the gaps ------------
     for y in range(horizon):
         t = int(y / float(horizon) * 9) / 9.0       # hard 9-band gradient
         c = lerp3(SKY_T, SKY_M, t / 0.6) if t < 0.6 \
             else lerp3(SKY_M, SKY_H, (t - 0.6) / 0.4)
+        img.rect(0, y, W - 1, y, c)
+    # the low sun's haze, four hard rings, squashed (it spreads along the wood)
+    for y in range(horizon):
         for x in range(W):
-            img.put(x, y, c)
-    for (sx, sy) in ((30, 18), (88, 9), (150, 26), (238, 13), (322, 22),
-                     (356, 40), (196, 38), (58, 44)):
-        img.put(sx, sy, (238, 222, 240, 255))       # first stars
-    # the setting sun, amber, banded — high enough that its crown clears the
-    # hill silhouettes painted after it (it sinks BEHIND them)
-    for dy in range(-10, 1):
-        half = int((100 - dy * dy) ** 0.5) if dy * dy <= 100 else 0
+            dx, dy = x - SUN[0], (y - SUN[1]) * 1.4
+            d = (dx * dx + dy * dy) ** 0.5
+            if d < 100.0:
+                img.mix(x, y, AMBER, (0.42, 0.28, 0.16, 0.07)[int(d / 25.0)])
+    for (sx, sy) in ((22, 62), (66, 54), (128, 70), (176, 58), (94, 88),
+                     (232, 66), (268, 52), (348, 60), (150, 96), (312, 78)):
+        if ((sx - SUN[0]) ** 2 + (sy - SUN[1]) ** 2) ** 0.5 > 96.0:
+            img.put(sx, sy, STAR)                   # first stars, clear of the haze
+    for dy in range(-11, 12):                       # the sun itself, banded
+        half = int((121 - dy * dy) ** 0.5)
         for dx in range(-half, half + 1):
-            img.put(290 + dx, horizon - 12 + dy,
-                    (AMBER + (255,)) if dy > -6 else (252, 204, 128, 255))
-    img.rect(0, horizon - 2, W - 1, horizon - 1, AMBER + (255,))
-    # hills: two silhouette bands with deliberate lobed tops
+            img.put(SUN[0] + dx, SUN[1] + dy, AMBER if dy > -5 else AMBER_H)
+
+    def crown_line(salt, base, lo, hi, rlo, rhi, gap, color):
+        """A silhouette band of overlapping crown lobes along `base` — the
+        lobe arcs ARE the treeline, the same law the tileset's canopy uses."""
+        top = [base] * W
+        cx = -12
+        while cx < W + 24:
+            r = rlo + h2(cx, salt, 3) % (rhi - rlo + 1)
+            rise = lo + h2(cx, salt, 5) % (hi - lo + 1)
+            for x in range(cx - r, cx + r + 1):
+                if 0 <= x < W:
+                    u = (x - cx) / float(r)
+                    top[x] = min(top[x], base - int((1.0 - u * u) ** 0.5 * rise))
+            cx += max(7, r + gap - h2(cx, salt, 9) % 8)
+        for x in range(W):
+            img.rect(x, top[x], x, base, color)
+
+    # ---- the wood, back to front ----------------------------------------------
+    crown_line(1, horizon - 5, 12, 30, 13, 24, 10, FAR)
+    crown_line(2, horizon, 7, 18, 10, 18, 8, NEAR)
+    for (cx, ch, cw) in ((36, 36, 10), (188, 44, 12), (300, 32, 9), (352, 38, 11)):
+        for i in range(ch):                         # conifers: TIERED, not cones
+            half = max(1, int(cw * ((i + 1) / float(ch)) ** 0.8)
+                       - (3 if i % 9 < 2 else 0))
+            img.rect(cx - half, horizon - ch + i, cx + half, horizon - ch + i, NEAR)
+    # the far verge: forest floor from the tree feet down to the track's lip.
+    # Its top edge MEANDERS — a ruled line across the full width is a painted
+    # backdrop the treeline is standing in front of.
     for x in range(W):
-        h1 = 10 + ((x // 40) * 7 + (x // 40) ** 2 * 3) % 12
-        for y in range(horizon - 2 - h1 + 8, horizon):
-            img.put(x, y, HILL + (255,))
-        h2 = 5 + ((x // 26) * 5) % 8
-        for y in range(horizon - h2, horizon):
-            img.put(x, y, HILL2 + (255,))
-    # far field with the fence line, then the lane, then the near meadow
-    img.rect(0, horizon, W - 1, road_top - 1, FIELD + (255,))
-    for fx_ in range(8, W, 34):                     # fence posts + rail
-        img.rect(fx_, horizon + 6, fx_ + 1, horizon + 18, HILL2 + (255,))
-    img.rect(0, horizon + 9, W - 1, horizon + 10, HILL2 + (255,))
-    img.rect(0, road_top, W - 1, road_bot - 1, ROAD + (255,))
-    img.rect(0, road_top, W - 1, road_top + 1, ROADL + (255,))    # lit lip
-    img.rect(0, road_bot - 2, W - 1, road_bot - 1, ROADD + (255,))
-    for dx_ in range(6, W, 30):                     # centerline dashes
-        img.rect(dx_, road_top + 22, dx_ + 12, road_top + 23, ROADL + (255,))
-    for gx in range(3, W, 17):                      # road grit, sparse
-        img.put(gx, road_top + 6 + (gx * 7) % 36, ROADD + (255,))
-    # the near meadow strip: a dark silhouette band with a wobbled grass lip
-    # and a few dusk flowers — frames the bottom, keeps the lane narrow
-    img.rect(0, road_bot, W - 1, H - 1, FORE + (255,))
+        img.rect(x, horizon - 7 + meander(x, 71, 8), x, path_top + 6, VERGE)
+
+    # ---- the track: two ruts in packed dirt, both edges meandering -------------
+    top_e = [path_top + meander(x, 11, 6) - 3 for x in range(W)]
+    bot_e = [path_bot - meander(x, 23, 6) + 3 for x in range(W)]
     for x in range(W):
-        lip = (x // 9) % 3                          # deliberate wobble, no noise
-        img.put(x, road_bot - 1 if lip == 2 else road_bot, FORE + (255,))
-        if lip == 1:
-            img.put(x, road_bot + 1, ROADD + (255,))
+        img.rect(x, top_e[x], x, bot_e[x], PATH)
+        img.put(x, top_e[x], PATH_L)                # the low sun grazes the far lip
+        img.put(x, bot_e[x], PATH_D)
+    for (ry, salt) in ((path_top + 15, 31), (path_top + 31, 37)):
+        for x in range(W):                          # the ruts, fading in and out
+            if h2(x // 7, salt, 2) % 7 == 0:
+                continue
+            y = ry + meander(x, salt, 4) - 2
+            img.rect(x, y, x, y + 1, RUT)
+            img.put(x, y + 2, PATH_L)               # the lit lower lip of a trench
+    # The dirt has to be OVERGROWN at its edges or the meander alone reads as a
+    # kerb — bare dirt between two clean lines is a paved lane whatever colour
+    # it is, and the first rebuild's crossing roots only added cracks to it.
+    for gx in range(0, W, 3):
+        for (edge, sgn, salt) in ((top_e, 1, 51), (bot_e, -1, 53)):
+            t = h2(gx, salt, 6) % 5
+            if t:
+                for i in range(t):                  # tufts breaking into the track
+                    img.rect(gx, edge[gx] + sgn * i, gx + h2(gx, salt, 8) % 2,
+                             edge[gx] + sgn * i, VERGE)
+    for lx_ in range(5, W, 17):                     # leaf drift ON the track: the
+        ly_ = top_e[lx_] + 4 + h2(lx_, 55, 7) % 38  # one thing dirt has and stone
+        if ly_ < bot_e[lx_] - 1:                    # never does
+            leaf(lx_, ly_, 1 + h2(lx_, 57, 4) % 2, DRIFT)
+    for (dx_, dy_, dw, dh) in ((36, 172, 19, 5), (96, 187, 14, 4), (152, 165, 21, 5),
+                               (228, 179, 16, 4), (278, 169, 23, 6), (332, 190, 15, 4)):
+        for y in range(dy_ - dh, dy_ + dh + 1):     # dapple: what gets through
+            for x in range(dx_ - dw, dx_ + dw + 1):
+                u = ((x - dx_) / float(dw)) ** 2 + ((y - dy_) / float(dh)) ** 2
+                lim = 1.0 - (h2(x // 3, dx_, 7) % 34) / 100.0   # a RAGGED pool of
+                if u <= lim and 0 <= x < W and top_e[x] + 2 < y < bot_e[x] - 1:
+                    img.mix(x, y, DAPPLE, 0.34 if u < lim * 0.45 else 0.17)
+    for gx in range(3, W, 13):                      # grit and small stones
+        gy = top_e[gx] + 5 + (gx * 7) % 34
+        if gy < bot_e[gx] - 2:
+            img.put(gx, gy, PATH_D)
+            if gx % 39 == 3:
+                img.rect(gx, gy - 1, gx + 1, gy, PATH_D)
+                img.put(gx, gy - 2, PATH_L)
+
+    # ---- the near trunks: the whole reason this reads as a wood ----------------
+    for (tx, base, wt, wb, salt) in ((16, 145, 6, 9, 3), (58, 137, 4, 6, 5),
+                                     (104, 142, 5, 7, 7), (152, 133, 3, 5, 11),
+                                     (200, 144, 6, 8, 13), (244, 136, 4, 6, 17),
+                                     (316, 146, 7, 10, 19), (366, 138, 5, 7, 23)):
+        lit = 1 if tx < SUN[0] else -1              # every rim faces the sun
+        # ...and falls off with distance from it, and BREAKS on the bark. An
+        # unbroken 1px stripe of hot orange up a black trunk is a neon tube.
+        rim_c = RIM if abs(tx - SUN[0]) < 150 else RIM_D
+        bw = (h2(tx, salt, 1) % 7) - 3              # a trunk BOWS; a ruler is a post
+        for i in range(7):                          # the root flare, drawn under
+            e = (8 - i) // 2
+            img.rect(tx - wb - e, base - i, tx + wb + e, base - i, TRUNK)
+        for y in range(0, base + 1):
+            t = y / float(base)
+            half = int(round(wt + (wb - wt) * t))
+            off = int(round(bw * (1.0 - (2.0 * t - 1.0) ** 2)))
+            img.rect(tx + off - half, y, tx + off + half, y, TRUNK)
+            m0, m1 = sorted((tx + off + lit * (half - 3), tx + off + lit * (half - 1)))
+            img.rect(m0, y, m1, y, TRUNK_M)
+            if h2(y // 4, salt, 21) % 4:
+                img.put(tx + off + lit * half, y, rim_c)
+        for k in range(3):                          # roots gripping the verge
+            rl = 4 + h2(tx, k, 13) % 7
+            sgn = -1 if k % 2 else 1
+            x0, x1 = sorted((tx + sgn * wb, tx + sgn * (wb + rl)))
+            img.rect(x0, base + 1 + k, x1, base + 1 + k, TRUNK)
+        if h2(tx, salt, 2) % 2 == 0:                # a BARE LIMB on half of them
+            sy = 56 + h2(tx, salt, 4) % 30          # — eight bare shafts running
+            sd = 1 if h2(tx, salt, 6) % 2 else -1   # floor to canopy is a
+            sl = 16 + h2(tx, salt, 8) % 7           # COLONNADE, not a wood.
+            for s in range(sl):                     # No leaf clumps: a small dark
+                by_ = sy - int(s * 0.62)            # ball on a thin stick reads
+                th = 2 if s < sl * 0.35 else (1 if s < sl * 0.75 else 0)
+                img.rect(tx + sd * (wt + s), by_, tx + sd * (wt + s),
+                         by_ + th, TRUNK)           # as something FLYING, and
+                for (at, tl) in ((sl // 2, 6), (sl * 3 // 4, 4)):
+                    if s == at:                     # two twigs — a limb forks
+                        for f in range(tl):
+                            img.put(tx + sd * (wt + s + f * 2 // 3), by_ - 1 - f,
+                                    TRUNK)
+
+    # ---- the verge dressing, in FRONT of the trunk feet ------------------------
+    def fern(fx, fy, fh, color):
+        img.rect(fx, fy - fh, fx, fy, color)
+        for i in range(1, fh, 2):
+            w = 1 + (fh - i) // 3
+            img.rect(fx - w, fy - i, fx - 1, fy - i, color)
+            img.rect(fx + 1, fy - i, fx + w, fy - i, color)
+
+    # scrub first: the mass that bridges the tree feet to the ground. Without
+    # it the verge is a flat 26px stripe of one colour across the whole frame,
+    # which is what the treeline is standing on and reads as a painted wall.
+    for sx_ in range(-4, W + 12, 11):
+        bx = sx_ + h2(sx_, 61, 3) % 9
+        by = horizon + 2 + h2(sx_, 63, 5) % 9       # ON the verge. Straddling the
+        r = 3 + h2(sx_, 65, 7) % 4                  # treeline's foot in the SAME
+        leaf(bx, by, r, SCRUB)                      # value as the treeline made
+        leaf(bx + r, by + 1, max(2, r - 2), SCRUB)  # lumps at an unreadable depth
+        img.rect(bx, by - r, bx + r - 1, by - r, LITTER)   # a crown catching sky
+    for (lx_, ly_, ll) in ((110, horizon + 19, 38), (294, horizon + 14, 24)):
+        img.rect(lx_, ly_ - 5, lx_ + ll, ly_, TRUNK)         # fallen logs, the
+        img.rect(lx_ + 1, ly_ - 6, lx_ + ll - 1, ly_ - 5, TRUNK_M)   # verge's
+        img.rect(lx_ + 2, ly_ - 7, lx_ + ll - 3, ly_ - 7, LITTER)    # one big
+        img.rect(lx_ - 3, ly_ - 4, lx_ - 1, ly_, TRUNK)      # shape, and it
+        img.rect(lx_ + ll + 1, ly_ - 3, lx_ + ll + 2, ly_, TRUNK)    # has ends
+        for k in range(3, ll - 2, 9):
+            img.put(lx_ + k, ly_ - 4, LITTER)
+    for vx in range(3, W, 6):
+        vy = horizon + 6 + (h2(vx, 27, 4) % 18)
+        kind = h2(vx, 29, 6) % 5
+        if kind == 0:
+            fern(vx, min(vy + 6, top_e[vx] - 1), 7 + h2(vx, 31, 8) % 6, SCRUB)
+        elif kind == 1:                             # warm drift, the hue break
+            leaf(vx, min(vy + 8, top_e[vx] - 2), 1 + h2(vx, 33, 2) % 2, DRIFT)
+        elif kind == 2:
+            img.rect(vx, vy, vx + 1 + h2(vx, 35, 3) % 3, vy, LITTER)
+        elif kind == 3:
+            leaf(vx, vy + 2, 2, SCRUB)
+
+    # ---- the canopy closes the top of the frame -------------------------------
+    def canopy(salt, rlo, rhi, dlo, dhi, gap, color):
+        bot = [-1] * W
+        cx = -14
+        while cx < W + 24:
+            r = rlo + h2(cx, salt, 3) % (rhi - rlo + 1)
+            drop = dlo + h2(cx, salt, 5) % (dhi - dlo + 1)
+            for x in range(cx - r, cx + r + 1):
+                if 0 <= x < W:
+                    u = (x - cx) / float(r)
+                    bot[x] = max(bot[x], int((1.0 - u * u) ** 0.5 * drop))
+            cx += max(8, r + gap - h2(cx, salt, 9) % 9)
+        for x in range(W):
+            img.rect(x, 0, x, bot[x], color)
+
+    canopy(7, 16, 30, 26, 46, 6, CANOPY_L)
+    canopy(8, 14, 26, 20, 38, 7, CANOPY)
+    # one bough drooping into frame. The masses must OVERLAP into a single
+    # ragged silhouette — spaced out along the limb they were beads on a wire.
+    for s in range(96):
+        x = 336 - s
+        y = 26 + int(s * s / 260.0)                 # the droop, not a slope
+        img.rect(x, y, x, y + 2 + s // 40, CANOPY)
+    for (lx, ly, lr) in ((328, 29, 6), (317, 33, 7), (305, 38, 7), (293, 44, 6),
+                         (281, 50, 6), (269, 55, 5), (257, 59, 4), (247, 61, 3)):
+        leaf(lx, ly, lr, CANOPY)                    # overlapping, but a BOUGH —
+                                                    # at r=10 it is a black slab
+
+    # ---- the near undergrowth: a black silhouette band framing the bottom ------
+    for x in range(W):
+        img.rect(x, bot_e[x] + 1, x, H - 1, FORE)
+    for ux in range(6, W, 11):
+        fern(ux, bot_e[ux] + 3 + h2(ux, 39, 5) % 7, 7 + h2(ux, 41, 9) % 7, FORE)
     for fx_ in range(11, W, 46):                    # dusk flowers, sparse
-        img.put(fx_, road_bot + 8 + (fx_ * 3) % 8, FLOWER + (255,))
-        img.put(fx_ + 1, road_bot + 9 + (fx_ * 3) % 8, FLOWER + (255,))
+        fy_ = bot_e[fx_] + 9 + (fx_ * 3) % 8
+        img.put(fx_, fy_, FLOWER)
+        img.put(fx_ + 1, fy_ + 1, FLOWER)
     img.save(os.path.join(HERE, "accident_bg.png"))
 
 
@@ -3864,16 +4207,30 @@ kittymom(km[0][5], mood="emote", bob=-1)
 write_cells(os.path.join(HERE, "npc_kittymom_gen.png"), km, CELL)
 
 # Prologue B cast
-sa = [[new() for _ in range(6)]]
+# The two THESIS-DAY bystanders grew to the full 10-col + walking contract on
+# 2026-07-30. They are the whole cast of the accident set-piece and both of its
+# staged moves were theirs — Schweinler crossing to the machine and Ridley
+# running to the wreck — and a pose-only sheet can only slide them there.
+sa = [[new() for _ in range(10)]]
 schweinler_adult(sa[0][0])
 schweinler_adult(sa[0][1], bob=-1)
 schweinler_adult(sa[0][2], mood="point")
 schweinler_adult(sa[0][3], mood="point", bob=-1)
 schweinler_adult(sa[0][4], mood="laugh")
 schweinler_adult(sa[0][5], mood="laugh", bob=-2)
+schweinler_adult_back(sa[0][6])
+schweinler_adult_back(sa[0][7], bob=-1)
+schweinler_adult_side(sa[0][8])
+schweinler_adult_side(sa[0][9], bob=-1)
+sa += walk_rows(
+    lambda c, i: schweinler_adult(c, bob=walk_bob[i], liftL=walk_liftl[i],
+                                  liftR=walk_liftr[i]),
+    lambda c, i: schweinler_adult_back(c, walk_bob[i], walk_liftl[i],
+                                       walk_liftr[i]),
+    lambda c, i: schweinler_adult_side(c, walk_bob[i], side_fF[i], side_fB[i]))
 write_cells(os.path.join(HERE, "npc_schweinler_adult_gen.png"), sa, CELL)
 
-bd = [[new() for _ in range(8)]]
+bd = [[new() for _ in range(10)]]
 badger(bd[0][0])
 badger(bd[0][1], bob=-1)
 badger(bd[0][2], mood="act")
@@ -3882,6 +4239,14 @@ badger(bd[0][4], mood="emote")
 badger(bd[0][5], mood="emote", bob=-2)
 badger(bd[0][6], mood="back")
 badger(bd[0][7], mood="back", bob=-1)
+badger_side(bd[0][8])
+badger_side(bd[0][9], bob=-1)
+bd += walk_rows(
+    lambda c, i: badger(c, bob=walk_bob[i], liftL=walk_liftl[i],
+                        liftR=walk_liftr[i]),
+    lambda c, i: badger(c, mood="back", bob=walk_bob[i], liftL=walk_liftl[i],
+                        liftR=walk_liftr[i]),
+    lambda c, i: badger_side(c, walk_bob[i], side_fF[i], side_fB[i]))
 write_cells(os.path.join(HERE, "npc_badger_gen.png"), bd, CELL)
 
 st = [[new() for _ in range(6)]]
@@ -4056,7 +4421,7 @@ fx_burst(fx[1][7], True)            # frame 23 — the burst ring
 fx_beaker(fx[1][8])                 # frame 24 — the recital potion / payload
 write_cells(os.path.join(HERE, "prologue_fx.png"), fx, 16)
 
-# the accident set-piece: side-view sheets + the dusk road backdrop
+# the accident set-piece: side-view sheets + the dusk forest-track backdrop
 # (5 cols since 2026-07-17: `tumble` is the loop-and-land arc frame —
 # accident.tscn's Kitty hframes must stay 5)
 ak = [[new() for _ in range(5)]]

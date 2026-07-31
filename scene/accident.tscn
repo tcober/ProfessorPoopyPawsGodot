@@ -28,12 +28,14 @@ texture = ExtResource("5_bike")
 [node name="Ridley" type="Sprite2D" parent="."]
 texture_filter = 1
 texture = ExtResource("9_badger")
-hframes = 6
+hframes = 10
+vframes = 4
 
 [node name="SchwStand" type="Sprite2D" parent="."]
 texture_filter = 1
 texture = ExtResource("8_schw")
-hframes = 6
+hframes = 10
+vframes = 4
 
 [node name="Kitty" type="Sprite2D" parent="."]
 texture_filter = 1

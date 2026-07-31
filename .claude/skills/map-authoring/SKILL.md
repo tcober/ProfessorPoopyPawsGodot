@@ -423,3 +423,21 @@ Some maps exist as era pairs that must stay in lockstep, cell for cell:
 - `overworld.txt` ↔ `overworld_bright.txt`.
 
 Edit one, edit the other in the same commit, or the eras silently diverge.
+
+## A TIER-3 SPRITE MAY BE WIDER THAN ITS BLOCK (2026-07-30)
+
+`emit_prop` centres art on the chars' bbox, so a sprite wider than its footprint hangs
+symmetrically into the neighbouring cells. The Academy keep is **26 cells of art over 22
+cells of collision**: the two great trees' crowns hang two cells of leaf into the lawn
+either side and you walk under them.
+
+That is the walk-behind idiom, and the hang is **two cells on purpose**. The
+walk-behind-visibility lint forgives a hidden RUN of two (a step you pass through) and
+condemns three (a place you disappear into), so a 2-cell overhang is safe by
+construction however opaque the leaves get. Three would need measuring.
+
+**This is also the answer when one char per cell blocks a composition.** The keep's
+corner towers ARE two great trees; a tree only reads as a tower if its crown leans over
+the hall's roof; a separate crown block can never overlap the keep's block. Putting the
+trees inside the keep's own sprite settles it — and buys the join (the roof running out
+and dying INTO each trunk) for free, since baked order inside one sprite is depth.

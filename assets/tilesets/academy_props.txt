@@ -2,7 +2,6 @@
 prop Keep Aa academy_keep.png hframes=8
 prop Observatory Be academy_observatory.png hframes=8
 prop Stillhouse Nn academy_stillhouse.png hframes=8
-prop GreatCrown K academy_greatcrown.png base_inset=-52 each
 prop Orrery Qq academy_orrery.png
 prop Lamp mL academy_lamp.png each
 prop TreeTrunk Tt academy_treetrunk.png each

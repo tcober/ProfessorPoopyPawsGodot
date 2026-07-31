@@ -285,7 +285,7 @@ that nobody in the scene finds the animal remarkable.
   stall is generic town scenery again, nobody's in particular): a
   busted-axle job there runs long on thesis morning — why she misses the
   lecture, told only in her call1 apology — and by dusk she's shut the
-  shop and is on the road, riding to him.
+  shop and is riding out to him through the wood.
   Run down by the machine Schweinler was joyriding; lives, but her memories
   never return (the doctor's verdict stays honest — no miracle recovery);
   at the bedside her paws already fidget — folding neat pleats into the
@@ -546,10 +546,11 @@ decision: the old look is rejected wholesale); only the beats are canon:
    job that ate her morning — the only place the excuse is told):
    "How'd it go? Tell me somebody whooped." He can barely
    answer. "...That bad, huh. Okay. Listen to me. **I'm coming. Stay
-   right there.**" — "Wait - it's nearly dark, the road - ...She's
+   right there.**" — "Wait - it's nearly dark, the forest track - ...She's
    already pedaling."
 7. **The accident** *(SHOWN, side-view set-piece, `scene/accident.tscn`,
-   WITH CAUSE; impact reworked 2026-07-17)*: dusk roadside — Schweinler
+   WITH CAUSE; impact reworked 2026-07-17, the FOREST TRACK 2026-07-30)*:
+   the dusk track through the wood — Schweinler
    shows Ridley the badger his brand-new machine (parked frame, a bow on
    the bars) with the line that turned out to be load-bearing —
    *"**Father had it shipped from the CAPITAL.** The fastest machine in
@@ -560,7 +561,7 @@ decision: the old look is rejected wholesale); only the beats are canon:
    ("You don't DRIVE a machine like this. You POINT it.") and loses
    control the moment the engine catches — exactly as Kitty happens to
    pedal around the bend, bell bright. Wobble, motion lines, the drift
-   across the centerline; Kitty braces — then **the LOOP**: a soft flash
+   onto her side of the track; Kitty braces — then **the LOOP**: a soft flash
    and she launches up-and-OVER in one cartoon arc (the spinning `tumble`
    curl, accident_kitty frame 4), the bike thrown down, landing into the
    still frame while the machine grinds past. Stylized motion, never a
@@ -571,7 +572,7 @@ decision: the old look is rejected wholesale); only the beats are canon:
    told him to stay — the fall to FULL night plays out on screen while he
    sits (no narrator; the stars just come out), then one line: "...Where
    is she?" His wrist lights up — "Kitty! Finally -" — but the
-   voice is RIDLEY's, from the roadside, reading the name engraved on her
+   voice is RIDLEY's, from the track, reading the name engraved on her
    little glass. "There's been an accident. The doctor has her. You
    should... you should run." And he RUNS — a real bolt back down the
    headland, the cut catching him mid-run. Then the sickroom: the verdict — expanded
@@ -1544,18 +1545,84 @@ sequence and the thing you came to see is at the top of it:
   (copper dome, shutter slit, brass refractor) and the **still-house** (riveted
   boiler, two flues venting) flank it on the lawns, one builder and one salt apart;
 - **the grand stair** through the terrace wall — the only way up, asserted;
-- **THE KEEP** on the back rank: `town_academy` unchanged, twin spired towers, the
-  arcane rose window burning MINT on the glow overlay, the door iron-barred.
-  **TWO GREAT TREES FLANK IT WHERE A CASTLE WOULD PUT CORNER TOWERS** — the same
-  4-column trunk under a 14-column crown Alembic's four are built on, with no ring,
-  no door and no ladder, because here they are not houses, they are the sides of
-  the building. Nothing else at this scale frames a keep the way something taller
-  than the keep does, and it costs no new art at all.
+- **THE KEEP** on the back rank — **A TIMBER CASTLE-SCHOOL WHOSE CORNER TOWERS ARE
+  TWO GREAT TREES** (`_academy_props.academy_keep`, rebuilt 2026-07-30). A hall of
+  dark oak framing over limewashed daub on a stone footing, under a steep cedar-shake
+  pitch; a porch bay standing proud of the wall with the arcane **rose window** in its
+  gable (still burning MINT on the glow overlay, still the one cold light in the game
+  that is not a lamp) over a great arched door that is **48px wide** and iron-barred
+  shut; two masonry **chimney breasts** running the full height of the facade and out
+  through the eave; and at each end a **great tree**, its trunk hooped with a timber
+  gallery at the hall's own eaves level, a door cut into the bark at its foot, and the
+  **Academy bell** hung on an iron yoke under the west one.
+
+  **THE TREES ARE IN THE BUILDING, NOT BESIDE IT** — one 22×9 block, one 416×192
+  sprite, the hall's roof running out and dying INTO each trunk. The first cut had them
+  as their own map blocks six cells out in the lawn, which at ground level (the only
+  level the player is ever at) is landscaping next to a building. One char per cell
+  means a separate crown block can never overlap the keep's, and a crown that cannot
+  lean over the roof cannot flank it; putting the trees inside the keep's own sprite
+  settles that and buys the join for free. The art is 26 cells wide over 22 of
+  collision, so the crowns hang two cells of leaf into the lawn either side and you
+  walk under them.
+
+  **IT RUNS OFF THE TOP OF THE FRAME, DELIBERATELY.** The camera only ever shows 100px
+  above a building's foot (y-centred body, 216-tall viewport, player ~8px south of the
+  base line — and backing away does not help, the camera backs away too). Squashing the
+  hall until the whole silhouette fits was tried and it read as a cottage; a roof that
+  leaves the top of the screen reads as too big for the screen, which is the thing you
+  want out of a keep. What the constraint really governs is FURNITURE: anything meant
+  to be READ — the rose window, the bell, the door, the galleries, and every chimney
+  cap, because a plume whose flue is off screen is its own defect — must sit below
+  y=92. That is why the chimneys are breasts on the facade and not stacks on a ridge
+  nobody can see.
+
+  Three materials, all HAND-PINNED, because `ramp()`'s violet shadow law takes a warm
+  seed straight to red and `TIMBER[3..5]` are brick, plum and plum: **OAK** for the
+  frame, **SHAKE** for the roof (deliberately darker than both the daub and the stone,
+  so the roof is the mass), **DAUB** for the panels.
 
 **PAVING ONLY WHERE THE PROCESSION WALKS, LAWN EITHER SIDE.** Paved edge to edge
 the court was 52×9 cells of one flat stone fabric — the "100% floor" failure the
 canopy town already taught, in a different material. What makes a bailey read is
 the contrast between the swept way and the green it is cut through.
+
+**AND NOBODY HAS SWEPT IT** (2026-07-30). Even with lawns either side, 300-odd cells
+of one stone read as a car park, and the cheapest honest fix was not more paving
+detail: this is a college the world stopped funding, in the season the magic drained
+out of the ground overnight. `court_weed` blits cracks, tufts, moss seams and chipped
+stones onto the paving in **DRIFTS** — gated on a coarse 3×3 field first, because an
+even per-cell roll comes out as uniform speckle, which is its own kind of flat — banked
+toward the edges where sweeping stops first and thinning to almost nothing along the
+axis, where feet still fall. The cracks are the story; the flat stone was just flat.
+
+**THE TWO WINGS** were the flattest thing in the precinct and were redrawn the same
+day: a porch bay with a door standing proud of the wall, a deep eave with the shade
+band it throws, stepped corner buttresses, hood moulds and sills on every opening, and
+a pitched roof with verge boards instead of a pale band — in that order, because the
+first two are worth more than all the rest together. The observatory's dome is
+**VERDIGRIS** and the still-house's boiler **COPPERD**, both hand-pinned: drawn down
+the derived `COPPER` ramp they came out a red mushroom and a wine barrel.
+
+**THE PRECINCT WAS NEVER IN `_check_art.py`'s TABLES** (found 2026-07-30). A 64×48 map
+with six Tier-3 props on it shipped without the invisible-wall, walk-behind-visibility,
+floating-art, enclosure or manifest lints ever looking at it — and the summary still
+printed "all checks passed", because a map that is not in the table is not passing, it
+is ABSENT. It is now in all four (`MAPS`, `PROPS`, `TILED`, `PLACEMENTS`), and it earned
+its place twice on the way in:
+
+- the last two rows were **open lawn from border to border**, so a body could walk off
+  the bottom of the map anywhere along it (the scene only walls the exit lane itself).
+  The causeway mouth is now sealed into the chokepoint the composition always claimed;
+- the rebuilt wings' **hipped roof left the footprint's back corners with no art at
+  all** — 0%, 0%, 6%, 9% across the block's top row, which is an invisible wall. Redrawn
+  as a full-width gable, which for a long hall is the better architecture anyway.
+
+And one thing no lint can see, caught by measuring the sprite: the still-house's rebuilt
+flues were handed `y1 < y0`, and **`Sprite.rect` on a backwards range draws nothing and
+says nothing** — eight pixels of rain cap with the smoke still rising off it. The user's
+original complaint, put back by the fix for it. `_academy_props._flue` now asserts on the
+shaft, and draws in `COPPERD` rather than the shared `_chimney`'s magenta `BRASS[3]`.
 
 Two asserts in `_gen_tileset_academy.py` earn their keep and would each be silent:
 **both cross-map walls must be pierced in exactly one place** (stopping a wall one
@@ -2189,7 +2256,7 @@ tab; probe now 36 checks):
   the pacing-pass paragraph above).
 - **The accident is SHOWN**: bluff call1 → black →
   `scene/accident.gd/.tscn`, a partyless side-view set-piece on a generated
-  384×216 dusk-road painting (`accident_bg.png`) with profile sheets
+  384×216 dusk forest-track painting (`accident_bg.png`) with profile sheets
   `accident_kitty_gen` (pedal ×2 / brace / down / **tumble**, 5 cols since
   2026-07-17), `accident_atv_gen` (drive ×2 / swerve / skid — Schweinler
   baked into every frame, so the aftermath line comes from the stopped
@@ -2203,18 +2270,71 @@ tab; probe now 36 checks):
   `prologue_accident` and hands to bluff call2 (her watch, Ridley's
   voice) → the sickroom.
   **Recomposed 2026-07-16 on the user's notes** ("the road is way too big;
-  the side-view sprites don't match the cast"): ONE narrow country lane
-  (46px, y 154-200) the 48px cast nearly fills, dark foreground meadow
-  strip framing the bottom; the profile sprites redrawn at the cast's
-  CHIBI proportions (head nearly half the figure, the kid-sheet 3×3 lit
-  eye + glint, white muzzle/snout leading). Staging: Kitty rides the NEAR
-  side, the machine enters on the FAR side and drifts across the
-  centerline during the swerve (rotation wobble + motion lines + a bell
-  sparkle on her bars earlier); impact adds a full-screen white Flash
-  before the black; the aftermath plays under a cooler CanvasModulate
-  (the sun is gone). RULE for any future one-off cutscene art: keep the
-  cast's chibi proportions and let the characters DOMINATE the
-  composition — scenery bands stay narrow.
+  the side-view sprites don't match the cast"): ONE narrow band (46px,
+  y 154-200) the 48px cast nearly fills, dark foreground strip framing the
+  bottom; the profile sprites redrawn at the cast's CHIBI proportions (head
+  nearly half the figure, the kid-sheet 3×3 lit eye + glint, white
+  muzzle/snout leading). Staging: Kitty rides the NEAR side, the machine
+  enters on the FAR side and drifts onto hers during the swerve (rotation
+  wobble + motion lines + a bell sparkle on her bars earlier); impact adds
+  a full-screen white Flash before the black; the aftermath plays under a
+  cooler CanvasModulate (the sun is gone). RULE for any future one-off
+  cutscene art: keep the cast's chibi proportions and let the characters
+  DOMINATE the composition — scenery bands stay narrow.
+  **IT IS A FOREST TRACK, NOT A ROAD (2026-07-30, on the user's note "there
+  are no roads in the game").** Both earlier cuts were open country with a
+  painted centerline, a fence line and hill silhouettes — a *road*, which
+  this kingdom does not have anywhere else, and which quietly made the
+  world bigger and more settled than it is. The backdrop was rebuilt on the
+  IDENTICAL geometry (the band stays y 154-200, so every lane constant and
+  tween in `accident.gd` was untouched — only its comments changed): a
+  rutted cart track in a dusk wood, eight near trunks rising out of frame
+  with the last of the sun burning between them, a canopy closing the top,
+  scrub and fallen logs on the verge. The genre also gains from it — the
+  fastest machine in the kingdom, opened up on a rutted track between
+  trees, is a worse idea than the same machine on a road, so Ridley's
+  warning lands harder and Schweinler is that much more culpable. Three
+  things the rebuild cost, all of them the same mistake in different
+  clothes: a flat lit band with two clean edges reads as PAVING whatever
+  colour it is (it needs overgrown edges, drift leaves and ruts); a small
+  dark ball on a thin limb DETACHES and reads as something flying (bare
+  forked limbs, no leaf clumps); and scrub drawn in the far treeline's own
+  value sits at an unreadable depth (the near verge needs its own step on
+  the value ladder — canopy < trunk < treeline < verge < track).
+  The two spoken lines that named a road moved with it: Basil's "it's
+  nearly dark, the forest track -" and Ridley's "Out on the forest track."
+  **THE CAST WAS SMOOTHED OUT the same day**, on the user's note that the two
+  bystanders looked buggy — and one of them literally was. Three things, in
+  order of how badly they showed:
+  - **Ridley was drawn through a 64px window.** `accident.tscn` declared
+	`hframes = 6` against an EIGHT-column sheet, so every frame sliced 64px
+	of a 48px grid: he sat 8px off his own origin, and on his warning line
+	(`frame = 2`) the window opened on the right edge of the shrug cell, so
+	a detached arm and paw floated beside him. **A raw `Sprite2D` on a cast
+	sheet has to be told the sheet's real grid** — `npc.gd` clamps
+    `frame_cols` to the art on disk and this scene has no such guard,
+    because it has no NPCs in it.
+  - **Both bystanders were statues.** Every villager sheet stores each mood
+    as a PAIR (idle 0/1, act 2/3, emote 4/5) and the scene pinned one cell
+    of each, so nobody breathed through the entire setup. They now cycle
+	their pair on `npc.gd`'s own 1.6fps idle cadence, off the scene's shared
+    clock so they never lock step with the pedals or the engine.
+  - **Both staged moves were slides.** Neither sheet had walk art at all, so
+    the pig blinked from where he stood onto a saddle 46px west and the
+    badger glided sideways to the wreck on a frozen front-facing cell. Both
+    sheets grew to the full 10-col + rows-1-3 walking contract
+    (`npc_schweinler_adult_gen` 6→10 cells, `npc_badger_gen` 8→10, both
+    480×192) and the scene drives `walk_side` by hand at `row * 10 + col`.
+    **Both moves run WEST, which is the direction side cells are drawn in,
+    so nothing ever flips.** Every previously-shipped cell is byte-identical
+    (the lift params default to 0), so `hall` and `town_thesis` cannot
+	regress — and since `npc.gd` gates walk clips on sheet HEIGHT, Ridley's
+	staged walk in the clinic-steps scene started animating for free.
+  Two staging fixes fell out of it: Schweinler CROSSES to the machine and
+  the rig dips as it takes his weight, and Ridley now runs all the way to
+  her instead of stopping 100px short behind the stopped machine — which
+  nobody could see under a static frame, and which his own last line
+  contradicts, since he reads the glass on her wrist.
 - **`prologue_fx.png` grew a second 16-cell row** (256×32: watch 16, poof
   17, motion lines 18) — row 0 stays byte-identical, and
   `WorldFx.sheet_sprite` now infers `vframes` from the sheet's height

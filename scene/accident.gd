@@ -1,19 +1,24 @@
 extends Node2D
 
 ## The accident, SHOWN (Prologue B; setup rework 2026-07-16, the impact
-## rework 2026-07-17) — a side-view set-piece bracketed by the bluff's two
-## calls, with CAUSE: Schweinler is roadside showing off the brand-new
-## machine to Ridley the badger, Ridley warns him it looks dangerous,
-## Schweinler climbs on anyway — and loses control the moment the engine
-## catches, exactly as Kitty happens to pedal around the bend. Wobble,
-## motion lines, the drift across the centerline — then the LOOP: a soft
-## flash, and she launches up-and-over in one cartoon arc (the spinning
-## `tumble` curl), the bike thrown down, landing into the still frame on
-## the road while the machine grinds past. Stylized motion, never a held
-## contact frame — the flip reads as impact, not as harm. Ridley RUNS to
-## the wreck as the sun goes; her watch makes the call2 that reaches
-## Basil's bluff. (Ridley carries what he saw into the clinic-steps
-## "perspective" speech.)
+## rework 2026-07-17, the FOREST TRACK 2026-07-30) — a side-view set-piece
+## bracketed by the bluff's two calls, with CAUSE: Schweinler is showing off
+## the brand-new machine to Ridley the badger on the dusk track through the
+## wood, Ridley warns him it looks dangerous, Schweinler climbs on anyway —
+## and loses control the moment the engine catches, exactly as Kitty happens
+## to pedal around the bend. Wobble, motion lines, the drift onto her side
+## of the track — then the LOOP: a soft flash, and she launches up-and-over
+## in one cartoon arc (the spinning `tumble` curl), the bike thrown down,
+## landing into the still frame in the dirt while the machine grinds past.
+## Stylized motion, never a held contact frame — the flip reads as impact,
+## not as harm. Ridley RUNS to the wreck as the sun goes; her watch makes
+## the call2 that reaches Basil's bluff. (Ridley carries what he saw into
+## the clinic-steps "perspective" speech.)
+##
+## It was a country ROAD until 2026-07-30, painted centerline and all, and
+## this kingdom has no roads — carts and machines run on rutted tracks
+## through the wood. The backdrop was rebuilt on the SAME geometry, so
+## every lane and tween below is untouched.
 ##
 ## No party, no map: plain sprites and its own Theater. Every beat either
 ## auto-runs on tweens/waits or advances on attack (probe-passable — the
@@ -29,17 +34,42 @@ const FX_LINES := 18
 const ATV_PARKED := 4                # the rider-less frame (stack cold)
 const KITTY_TUMBLE := 4              # the mid-air curl the arc spins
 
-## The lane (must match accident_bg's road band, y 154-200): Kitty rides the
-## NEAR side, the machine bolts down the FAR side and drifts into hers.
+## The lanes (must match accident_bg's track band, y 154-200): Kitty rides
+## the NEAR rut, the machine bolts down the FAR one and drifts into hers.
 const LANE_KITTY := 170.0
 const LANE_ATV := 159.0
 const IMPACT_X := 172.0
 
 const DIM_AFTERMATH := Color(0.68, 0.66, 0.86)   # the sun is gone
 
+## Frame indices into the two bystanders' 10x4 villager sheets — `row * 10 +
+## col`, the same layout entities/npcs/npc.gd cuts its SpriteFrames from.
+## These two are raw Sprite2Ds and not NPCs (no map, no TalkZone, nobody to
+## talk to), so the scene drives the clips by hand.
+##
+## Both sheets grew from a 6/8-cell POSE ROW to the full walking contract on
+## 2026-07-30. Before that this scene had no walk art at all, and its two
+## staged moves — the pig crossing to the machine, the badger running to the
+## wreck — could only be position tweens under a frozen frame, which is the
+## sliding-statue read. Ridley was also drawn through a SIXTY-FOUR px window
+## (`hframes = 6` against an 8-column sheet), so he sat 8px off his own
+## origin with a slice of the next pose's arm floating beside him.
+const POSE_IDLE := 0
+const POSE_ACT := 2                  # badger: the shrug · pig: the point
+const POSE_EMOTE := 4                # the laugh, both sheets
+const WALK_SIDE := 30                # row 3, six cells, drawn facing LEFT —
+const WALK_CELLS := 6                # and BOTH moves in this scene run left,
+const IDLE_FPS := 1.6                # so nothing ever flips
+const WALK_FPS := 10.0
+
 var _anim_t := 0.0
 var _kitty_riding := false
 var _atv_driving := false
+## Sprite2D -> the base cell of the two-frame pose it breathes on, or -1 while
+## a walk cycle owns the frame. Everything on a villager sheet is a PAIR; the
+## scene used to pin one cell of each and both bystanders stood dead still
+## through the whole setup.
+var _posed := {}
 
 @onready var theater: Theater = $Theater
 @onready var kitty: Sprite2D = $Kitty
@@ -49,16 +79,18 @@ var _atv_driving := false
 
 
 func _ready() -> void:
-	theater.fade.modulate.a = 1.0        # open on black; the roadside fades in
+	theater.fade.modulate.a = 1.0        # open on black; the wood fades in
 	kitty.position = Vector2(-40.0, LANE_KITTY)
-	# the setup trio stages HIGH, on the far shoulder — the dialog box owns
+	# the setup trio stages HIGH, on the far verge — the dialog box owns
 	# the bottom ~60px of the view, and the reveal beat needs the machine
 	# (and both pigs) visible above it; the mount tween drops the rig down
-	# onto the lane proper
+	# onto the track proper
 	atv.frame = ATV_PARKED
 	atv.position = Vector2(268.0, 147.0)
 	schw_stand.position = Vector2(314.0, 138.0)
 	ridley.position = Vector2(346.0, 137.0)
+	_pose(schw_stand, POSE_IDLE)
+	_pose(ridley, POSE_IDLE)
 	_run()
 
 
@@ -69,6 +101,34 @@ func _process(delta: float) -> void:
 		kitty.frame = int(_anim_t / 0.16) % 2
 	if _atv_driving:
 		atv.frame = int(_anim_t / 0.12) % 2
+	# the two bystanders breathe on their pose pair — one shared clock, so they
+	# are never in lockstep with the pedals or the engine
+	for s: Sprite2D in _posed:
+		var base: int = _posed[s]
+		if base >= 0:
+			s.frame = base + (int(_anim_t * IDLE_FPS) % 2)
+
+
+## Put a bystander on a pose and let it breathe there.
+func _pose(s: Sprite2D, base: int) -> void:
+	_posed[s] = base
+	s.frame = base
+
+
+## Walk a bystander to `to` on the walk_side cycle, then hand the frame back to
+## whatever pose it was breathing on. Straight-line and collision-free, exactly
+## like a Theater walk — there is no map in this scene to collide with.
+func _walk_to(s: Sprite2D, to: Vector2, speed: float, fps := WALK_FPS) -> void:
+	var was: int = _posed.get(s, POSE_IDLE)
+	_posed[s] = -1                       # the cycle owns the frame from here
+	var tw := create_tween()
+	tw.tween_property(s, "position", to, s.position.distance_to(to) / speed)
+	var t := 0.0
+	while tw.is_running():
+		await get_tree().process_frame
+		t += get_process_delta_time()
+		s.frame = WALK_SIDE + (int(t * fps) % WALK_CELLS)
+	_pose(s, was)
 
 
 func _run() -> void:
@@ -76,15 +136,25 @@ func _run() -> void:
 	await theater.clear(1.2)
 	# ---- the setup: pride, a warning, and a saddle he can't quite reach
 	await theater.say("Schweinler", "Feast your eyes, Ridley. Father had it shipped from the CAPITAL. The fastest machine in the kingdom.")
-	ridley.frame = 2                     # act pair: pointing at it
+	_pose(ridley, POSE_ACT)              # the shrug — a lot of... pipes
 	await theater.say("Ridley", "It's got a lot of... pipes. Schweinler, that thing looks DANGEROUS. Have you actually driven it?")
-	schw_stand.frame = 4                 # emote pair: the laugh
+	_pose(schw_stand, POSE_EMOTE)        # the laugh
 	await theater.say("Schweinler", "DRIVEN it? You don't DRIVE a machine like this. You POINT it. Watch.")
 	theater.close_dialog()
-	# he climbs on — the standing pig becomes the rider baked into the frames
-	await theater.wait(0.5)
+	# he climbs on — and he CROSSES TO IT first. Hiding the standing pig where
+	# he stood and lighting up the rider baked into the machine 46px west was
+	# one frame of teleport, and it read as a glitch rather than as a mount.
+	await theater.wait(0.35)
+	_pose(schw_stand, POSE_IDLE)
+	await _walk_to(schw_stand, Vector2(296.0, 141.0), 42.0)
+	await theater.wait(0.25)
 	schw_stand.visible = false
 	atv.frame = 0
+	var settle := create_tween()         # the rig takes his weight
+	settle.tween_property(atv, "position:y", 150.0, 0.10)
+	settle.tween_property(atv, "position:y", 147.0, 0.12) \
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	await settle.finished
 	var mount_tw := create_tween()
 	mount_tw.tween_property(atv, "position:y", LANE_ATV, 0.25) \
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
@@ -126,7 +196,7 @@ func _run() -> void:
 	_kitty_riding = false
 	kitty.frame = 2                      # the brace, eyes wide
 	await theater.wait(0.3)
-	# the last stretch runs uninterrupted: drift across the centerline
+	# the last stretch runs uninterrupted: the drift onto her side of the track
 	var tw3 := create_tween().set_parallel()
 	tw3.tween_property(atv, "position:x", IMPACT_X + 34.0, 0.6)
 	tw3.tween_property(atv, "position:y", LANE_KITTY, 0.6)
@@ -136,7 +206,7 @@ func _run() -> void:
 	lines.queue_free()
 	# ---- the LOOP: a soft flash on the clip, and she goes up-and-OVER —
 	# the spinning tumble curl arcing east past the machine, the bike
-	# dropped where she left it, landing into the still frame on the road.
+	# dropped where she left it, landing into the still frame in the dirt.
 	# One cartoon beat, never a held contact frame.
 	$Poof.position = Vector2(IMPACT_X, LANE_KITTY - 8.0)
 	$Poof.visible = true
@@ -166,7 +236,7 @@ func _run() -> void:
 	$Poof.visible = false
 	await up.finished
 	kitty.rotation = 0.0
-	kitty.frame = 3                      # down — still, on the road
+	kitty.frame = 3                      # down — still, in the dirt
 	if skid.is_running():
 		await skid.finished
 	await theater.wait(1.6)              # the silence holds
@@ -175,11 +245,14 @@ func _run() -> void:
 	# comes from there
 	var dusk := create_tween()
 	dusk.tween_property($Dim, "color", DIM_AFTERMATH, 1.6)
-	var run := create_tween()
-	run.tween_property(ridley, "position",
-			Vector2(IMPACT_X + 106.0, 152.0), 0.9)
-	await run.finished
-	ridley.frame = 0
+	# he RUNS — on the walk cycle, fast, and westward, which is the direction
+	# the side cells are drawn in. This was a straight position tween under a
+	# frozen front-facing cell: a badger gliding sideways to a wreck.
+	# He runs all the way TO her, past the stopped machine: he stopped 100px
+	# short of her before, which nobody could see under a static frame and
+	# which his own last line contradicts — he reads the glass on her wrist.
+	await _walk_to(ridley, Vector2(IMPACT_X + 38.0, 154.0), 80.0, 14.0)
+	_pose(ridley, POSE_ACT)              # arms out over her — nothing to do
 	await theater.wait(1.0)
 	await theater.say("Schweinler", "...I didn't see her. I swear I - the machine just - I didn't SEE her!")
 	await theater.say("Ridley", "...I'll get the doctor. Don't touch her. Don't touch ANYTHING.")

@@ -230,7 +230,19 @@ CanvasModulate tints ride on top.
     2px, with body, head and foot baseline identical. On a villager hopping one cell
     every ~3s that reads as a weight shift; on anything that stops and starts constantly
     it would not, so a future fast-moving NPC wants its cols 8-9 redrawn to walk f0.
-  - Who has walk rows: **hare, beaver, foxkid, mayor, mom**.
+  - Who has walk rows: **hare, beaver, foxkid, mayor, mom**, and since 2026-07-30
+    **adult Schweinler and the badger**.
+  - **A SIDE CELL MUST BE THE CHARACTER'S MARKINGS ROTATED, NOT THE ANIMAL'S.** The
+    badger's front cell carries two VERTICAL face stripes flanking a white blaze, so
+    his profile is ONE vertical band down the skull with the dark ear on top of it.
+    Drawn as a real badger's horizontal nose-to-ear stripe he is a different species,
+    and 2px of drift closes it over the crown and he reads as a hooded bird. The
+    other half of the identity is PROPORTION — in his front cell the head is bigger
+    than the trunk and the white belly covers most of the chest; invert either and
+    it is some other stocky animal in his colours.
+  - `_pig_curl` lays its dark edge only on EMPTY pixels, so a curly tail begun
+    exactly on the body's rim loses its root to the outline pass and hangs in space
+    (the shipped KID Schweinler side/back cells still do). Start it one px inside.
 - **Never `play_emote` a back-turned head** — it flips to a front face.
 
 ## A PROP'S UNDERLAY IS THE GROUND IT MOVED TO (2026-07-30)
@@ -343,6 +355,101 @@ and has no detail to lose. Corollaries, both paid for:
   from the root. A smooth `(1-u)^k` taper from the top row is a pennant, which is exactly
   what it shipped as first.
 
+## ONLY 100px OF A BUILDING IS EVER SEEN (2026-07-30)
+
+The camera is y-centred on the body over a 216-tall viewport, so it shows **108px above
+the player**, and a player standing at a door is ~8px south of the building's base line.
+**108 − 8 = 100.** Backing away does not help: the camera backs away with you. So on any
+building in this game, art above `base_y − 100` is drawn for nobody.
+
+**That is a rule about FURNITURE, not about SIZE.** The Academy keep was squashed until
+its whole silhouette fit and it read as a cottage; restored to full height, with the
+ridge running off the top of the frame, it reads as too big for the screen — which is
+what you want out of a keep, and is how every great tree in this project already works.
+What must live below the line is anything the player is meant to READ: the door, the
+lit windows, a rose window, a bell, a balcony, **and every chimney cap** — a plume whose
+flue is off screen is the phantom-smoke defect in the other direction. The keep's
+chimneys became BREASTS running the full height of the facade for exactly that reason,
+and they are worth more as depth than a ridge stack ever was.
+
+Corollary for the old build it replaced: `town_academy`'s twin spires sat at y≈14-42 and
+**were never once on screen**, which is a large part of why a building the overworld icon
+promises as a castle keep read as "a flat wall with a garden on top."
+
+## The menu of depth cues, in the order they pay (2026-07-30)
+
+Both the Academy keep and its two wings were reported as "very flat", and the diagnosis
+was the same for both: nothing overhung anything, so nothing cast a shadow on anything,
+so there was no second surface for the eye to find. In descending order of how much each
+buys at 384×216:
+
+1. **A BAY STANDING PROUD** — a porch, a chimney breast, a projecting entrance — plus
+   **the shadow it throws on the wall beside it** (LIGHT is NW, so the shadow goes east).
+   One object demonstrably in front of another beats any amount of surface texture.
+2. **A DEEP EAVE AND ITS SHADE BAND.** An eave that does not darken the wall under it is
+   not an overhang, it is a line. `_academy_props._shade_band` pulls whatever is already
+   drawn in a rect two steps down whichever of the known ramps it came from.
+3. **PANELS, NOT A FABRIC.** Half-timbering (`_timber_wall`) turns one plane into a grid
+   of small planes each with a lit top edge and a shadow under the rail above it. Braces
+   spring **UP and OUT** from the foot of a post; drawn the other way they read as rope
+   swags and the hall comes out with bunting on it.
+4. **STEPPED BUTTRESSES at the corners** — they break the silhouette, so the building
+   stops being a rectangle before you have read a single detail.
+5. **HOODS AND SILLS** on every opening, so glass sits in a hole rather than on a surface.
+6. A pitched roof with **verge boards, a ridge cap, and a dark butt line per shake
+   course**, instead of a flat band.
+
+## THREE WAYS TO SHIP NOTHING AT ALL (2026-07-30)
+
+All three render, dedupe and pass every lint that was looking at the time. Two of them
+put the user's ORIGINAL bug back while claiming to fix it.
+
+- **`Sprite.rect` on an INVERTED range draws nothing, and says nothing.** The
+  still-house's rebuilt flues were `_chimney(up, fx, 12, base - 12)` with `base = 22`,
+  i.e. `y1 = 10 < y0 = 12`: **eight pixels** of rain cap, no shaft under it, while
+  `_wing_anim` went on faithfully smoking from the same coordinate. That is smoke with
+  no chimney — the exact complaint the change existed to fix. `_academy_props._flue`
+  now asserts `y1 > y0`, because a flue is one of the few things in that file with a
+  shape it MUST have.
+- **A HIPPED ROOF LEAVES ITS FOOTPRINT'S BACK CORNERS EMPTY.** A trapezoid narrowing to
+  a short ridge is the correct drawing of a hip and the wrong building: measured 0%, 0%,
+  6% and 9% coverage across the wing block's top row, which is an **invisible wall** —
+  a solid cell rendering plain grass beside walkable grass. A long hall's ridge runs the
+  length of the building anyway, so drawing it as a **gable, full width, verge boards at
+  each end** is both the fix and the better architecture.
+- **A PLINTH RUN TO THE CANVAS EDGE WALKS OFF THE BUILDING.** The keep's art is 26 cells
+  wide over 22 cells of collision; `_ashlar(sp, 0, …, W - 1, …)` laid 32px of dressed
+  footing across open lawn at each end and stopped in a hard vertical cut. **Only the
+  perforated crowns may use a sprite's overhang** — that is what an overhang is for.
+
+**And the reason all three survived: the map was not in `_check_art.py`'s tables.** It
+was added to `MAPS` and `PROPS` mid-pass and caught the roof one on the very first run;
+it was still missing from `TILED` and `PLACEMENTS`, so "layout dims match the map",
+"atlas refs in range" and ".tres declares every tile" — the three that catch a footprint
+change that was not regenerated — were also dark. **A new map goes into all four tables
+in the commit that creates it.**
+
+## Two more silent traps (2026-07-30)
+
+- **A LIT PANE WITH A 2-ON-2-OFF THROW BAND DOWN ITS WHOLE HEIGHT IS AN ORANGE
+  BARCODE** — the most candy-coloured thing in a scene, and squarely in the "very kiddy"
+  failure mode. Firelight falls off: confine the throw to the pane's **top third** the
+  way `_tree_props._hearth_window` already does, and give the glass sparse dark leaded
+  bars instead. `_breathe` matches `WARM`/`WARMD` by VALUE, so the hearth breath is
+  unaffected either way.
+- **`Sprite.tri` decides "ramp or flat colour" with `isinstance(x, list)`.** Hand it a
+  hand-pinned ramp declared as a TUPLE of tuples and it stores the whole ramp as one
+  pixel; the failure surfaces hundreds of lines away in the PNG writer as
+  `TypeError: 'tuple' object cannot be interpreted as an integer`. Declare hand ramps as
+  **lists**. (`ball`/`capsule` go through `tone()` and index fine either way, which is
+  what makes this intermittent.)
+- **A map that is not in `_check_art.py`'s `MAPS` table is not passing — it is ABSENT,
+  and the summary still prints "all checks passed".** `assets/maps/academy.txt` — a
+  64×48 map with six Tier-3 props — was never in it. Adding it found a real hole in the
+  first run: the south border was open lawn from edge to edge and a body could walk off
+  the bottom of the map. **Add a new map to `MAPS` and `PROPS` in the same commit that
+  creates it.**
+
 ## Color law (the gotchas that cost real bugs)
 
 - `ramp()` hue-shifts darks toward violet. That law turns an orange seed RED, so:
@@ -356,7 +463,16 @@ and has no detail to lose. Corollaries, both paid for:
     stud; a shaded ball is not. Alembic's fountain finial is an alembic bulb and it
     spent its life as a **magenta blob on a stone plinth** for exactly this reason,
     in the middle of the square.
-  - **The rule is broken in ~20 places in `_interior_props.py` and ~12 in
+  - **It bit five more times in the Academy alone** (2026-07-30, all reported by the
+    user as "the buildings look flat / that's red"): the observatory's dome (`COPPER`
+    → a TAN AND RED MUSHROOM), the still-house's boiler (a wine barrel), the orrery's
+    brass sun (`BRASS[2]` = pure red — a red bead), its founder's plate
+    (`COPPER[3..4]` = red and magenta, the loudest thing in the court), and the keep's
+    whole timber frame (`TIMBER[3..5]` are brick, plum, plum — a RED hall). Fixed with
+    five hand-pinned ramps in `_academy_props.py`: `OAK` / `SHAKE` / `DAUB` / `VERDI` /
+    `COPPERD`. **VERDI is the one to copy**: copper left out for two hundred years IS
+    green, so the palette fix and the fiction were the same fix.
+- **The rule is broken in ~20 places in `_interior_props.py` and ~12 in
     `_town_props.py`** (found 2026-07-30; only the fountain fixed, since nothing else
     had been reported): lamp poles, lantern cages, hooks, valve wheels, spouts and screw
     heads in `BRASS[2..3]` / `COPPER[3..5]` are all drawing red and magenta. Worth a
