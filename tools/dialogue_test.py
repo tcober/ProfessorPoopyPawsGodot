@@ -72,6 +72,20 @@ def first_line(path):
     return [ln for ln in read(path).split("\n") if ln.startswith("> ")][0]
 
 
+def book_for(scene_stem):
+    """The book belonging to a scene, whichever side of the stage/dialogue split.
+
+    Hardcoding `sickroom.md` broke the day sickroom was split into a stage and a
+    dialogue file and its book became `sickroom_dialogue.md`. The tests have to
+    survive a scene being split, because splitting scenes is the thing they are
+    partly here to protect.
+    """
+    for name in (scene_stem + "_dialogue.md", scene_stem + ".md"):
+        if os.path.exists(os.path.join(ROOT, "docs", "dialogue", name)):
+            return "docs/dialogue/" + name
+    raise AssertionError("no book for scene %r — run `dialogue.py export`" % scene_stem)
+
+
 def ok(cond, label):
     print(("  PASS  " if cond else "  FAIL  ") + label)
     if not cond:
@@ -81,9 +95,9 @@ def ok(cond, label):
 # ---- the cases ---------------------------------------------------------------------
 
 def t_export_is_idempotent():
-    before = read("docs/dialogue/library.md")
+    before = read(book_for("library"))
     run("export")
-    ok(before == read("docs/dialogue/library.md"),
+    ok(before == read(book_for("library")),
        "export is idempotent (the book does not churn in git)")
 
 
@@ -93,7 +107,7 @@ def t_noop_apply_writes_nothing():
 
 
 def t_one_edit_lands_once():
-    p = "docs/dialogue/lanternwood.md"
+    p = book_for("lanternwood")
     write(p, read(p).replace("> Seconded. Carried. Minuted.",
                              "> Seconded. Carried. MINUTED."))
     run("apply")
@@ -105,7 +119,7 @@ def t_one_edit_lands_once():
 
 
 def t_reanchors_when_the_scene_shifts():
-    p = "docs/dialogue/hall.md"
+    p = book_for("hall")
     line = first_line(p)
     write(p, read(p).replace(line, line + " (edited)", 1))
     src = read("scene/hall.gd").split("\n")
@@ -118,7 +132,7 @@ def t_reanchors_when_the_scene_shifts():
 
 
 def t_refuses_a_shape_change():
-    p = "docs/dialogue/sickroom.md"
+    p = book_for("sickroom")
     rows = read(p).split("\n")
     i = [k for k, ln in enumerate(rows) if ln.startswith("> ")][2]
     del rows[i - 1:i + 1]                       # drop a heading and its line
@@ -132,7 +146,7 @@ def t_refuses_a_shape_change():
 
 
 def t_refuses_a_hard_wrap():
-    p = "docs/dialogue/accident.md"
+    p = book_for("accident")
     rows = read(p).split("\n")
     i = [k for k, ln in enumerate(rows) if ln.startswith("> ")][0]
     rows.insert(i + 1, "> a hard-wrapped continuation")
@@ -144,7 +158,7 @@ def t_refuses_a_hard_wrap():
 
 
 def t_speaker_heading_is_a_label():
-    p = "docs/dialogue/sickroom.md"
+    p = book_for("sickroom")
     line = first_line(p)
     write(p, read(p).replace("**BASIL**", "**FUJI**", 1)
                     .replace(line, line + " (reworded)", 1))
@@ -155,7 +169,7 @@ def t_speaker_heading_is_a_label():
 
 
 def t_bulk_rewrite():
-    p = "docs/dialogue/accident.md"
+    p = book_for("accident")
     write(p, re.sub(r"^> (.*)$", lambda m: "> Z" + m.group(1), read(p), flags=re.M))
     out = run("apply")
     ok("REFUSED" not in out and read("scene/accident.gd").count('"Z') >= 8,
@@ -176,9 +190,15 @@ def t_stage_directions_are_not_dialogue():
     d = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(d)
 
-    book = read("docs/dialogue/sickroom.md")
+    book_path = book_for("sickroom")
+    book = read(book_path)
     ok("*— " in book, "the book really does carry stage directions")
-    sections, _, _ = d.extract(os.path.join(ROOT, "scene", "sickroom.gd"))
+    # The SOURCE this book came from — `sickroom.gd` is the stage since the split
+    # and holds no dialogue at all, so naming it here compared a book against an
+    # empty extraction and passed for the wrong reason.
+    scene = os.path.join(ROOT, "scene",
+                         os.path.basename(book_path)[:-3] + ".gd")
+    sections, _, _ = d.extract(scene)
     live = [ln for s in sections for ln in s.lines]
     ok(len(d.parse_book(book)) == len(live),
        "stage directions are not counted as dialogue by parse_book")
@@ -250,7 +270,7 @@ def t_check_is_clean_at_rest():
 
 
 def t_check_catches_an_unapplied_edit():
-    p = "docs/dialogue/bluff.md"
+    p = book_for("bluff")
     line = first_line(p)
     write(p, read(p).replace(line, line + " !", 1))
     ok("unapplied edit" in run("check"), "check catches prose that was never applied")
