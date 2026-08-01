@@ -722,7 +722,7 @@ def _track_brackets(code, stack, opens_lines=False):
 # ---- the book ----------------------------------------------------------------------
 
 def _slug(func):
-    """GitHub's heading-anchor slug for a `## \`_func\`` heading."""
+    """GitHub's heading-anchor slug for a section heading."""
     return re.sub(r"[^a-z0-9-]", "", func.strip("_").replace("_", "-").replace(" ", "-").lower())
 
 
