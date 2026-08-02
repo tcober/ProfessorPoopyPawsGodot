@@ -184,6 +184,26 @@ def _wild_dist(m, wild, limit):
     return seen
 
 
+def _fountain_shadow(tn):
+    """Bake the basin's elliptical contact shadow into the plaza paving.
+
+    `bake_shadow` is intentionally rectangular because desks, benches and building
+    feet are opaque across their footprint. The fountain is transparent in all four
+    corners, so that helper leaves a conspicuous dark bar visible under the basin.
+    """
+    x0, y0, x1, y1 = tn.bbox("oO")
+    assert (x1 - x0 + 1, y1 - y0 + 1) == (3, 3)
+    cx, cy = x0 * T + 24, y0 * T + 34
+    for py in range(y0 * T + 24, (y1 + 1) * T):
+        for px in range(x0 * T, (x1 + 1) * T):
+            d = ((px - cx) / 22.0) ** 2 + ((py - cy) / 9.0) ** 2
+            if d > 1.0:
+                continue
+            base = tn.bg.get(px, py)
+            strength = 0.30 if d < 0.72 else 0.18
+            tn.bg.put(px, py, lerp(base[:3], VOID[:3], strength) + (255,))
+
+
 def build(map_name, scene_key, glow):
     """Paint one era of Alembic Town and finish it. Returns the TileScene.
 
@@ -225,7 +245,7 @@ def build(map_name, scene_key, glow):
                                frames=8),
                      hframes=8)
 
-    tn.bake_shadow("oO", 3)
+    _fountain_shadow(tn)
     tn.emit_prop("Fountain", "oO", town_fountain(STONE, frames=4), hframes=4)
     tn.emit_prop("Well", "uU", sprite_img(town_well(STONE), 32, 32))
     tn.emit_prop("Lamp", "lL", sprite_img(town_lamp(), 16, 32), each=True)

@@ -1897,10 +1897,20 @@ def tree_ring(deck, bark, f, salt=491, w=144, h=144, ry=44, hole=(26, 15),
                 continue
             a = _turns64(y - cy, x - cx) / 64.0            # 0..1 around the ring
             p = a * planks
-            band = int(p) % 2
-            c = deck[1] if band == 0 else deck[2]
-            if p - int(p) < 0.09:                          # the seam between two
+            board = int(p)
+            # Alternating every board made the whole disc a striped fan. Timber
+            # varies irregularly: keep most boards in the field tone and let a
+            # salted minority lift one step, with no absolute-position texture.
+            c = deck[2] if h2(board, salt, 503) % 5 == 0 else deck[1]
+            seam = p - board
+            if seam < 0.055:                               # the seam between two
                 c = deck[3]                                # boards, one step down
+            # Long radial boards still need ends. Stagger one narrow butt joint
+            # per board so the spokes read as carpentry rather than painted rays.
+            radius = _out(x, y) ** 0.5
+            joint = 0.68 + 0.09 * (h2(board, salt, 509) % 3)
+            if seam > 0.11 and abs(radius - joint) < 0.006:
+                c = deck[3]
             sp.set(x, y, c)
     # 3. THE CONCENTRIC RIM — two boards following the curve, and the SHADOW
     # COLLAR where the boards die into the bark. Both are drawn as bands in the

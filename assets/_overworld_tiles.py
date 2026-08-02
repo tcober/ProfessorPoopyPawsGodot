@@ -226,7 +226,8 @@ TERRAIN_CLS = {
     #    the terrain did not move with it, so it punched a three-cell GREEN LAWN through
     #    the middle of the court — the same failure as the shops' plank raft, two lines
     #    apart in this table. When a prop changes ground, its render class changes with
-    #    it; the basin art is opaque over its own cells either way.
+    #    it. The basin's transparent corners are why its shape-aware contact
+    #    shadow lives in `_alembic` instead of the rectangular struct pass.
     "cliff": "grass", "stairs": "road", "fountain": "road",
     "treecanopy": "grass", "treetrunk": "grass",
     # THE CANOPY STRATUM (2026-07-29) — a treehouse town's plank boardwalk as a
@@ -334,7 +335,7 @@ STRUCT_TERRAIN = {"well", "lamp", "stall", "fence", "town", "tree", "boulder",
                   "obelisk", "crystal", "castle", "peak", "giant_tree",
                   "homebody", "cotWbody", "cotEbody",
                   "weaponbody", "itembody", "innbody",
-                  "cliff", "fountain", "treetrunk",
+                  "cliff", "treetrunk",
                   # the culture kit: board, roost and lantern all want their
                   # feet stuck to the ground the same way the lamp does
                   # (each name is shared by the solid base and its walkable
