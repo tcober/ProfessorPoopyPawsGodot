@@ -171,6 +171,11 @@ TERRAIN_CLS = {
     "pines": "pines",
     # Lanternwood: the cluster icon + its gate mouth on the overworld, and
     # the zone map's cabins/conifers/lamps/pond riding snow underlays
+    # the culture kit's street furniture (2026-08-01): the notice board, the
+    # messenger roost and the hook lanterns all stand on Alembic's forest
+    # floor, so their underlay is the grass they moved onto — the fountain's
+    # lesson, applied before it bites this time
+    "notice": "grass", "roost": "grass", "hooklamp": "grass",
     "lanternwood": "snow", "snowdoor": "snow", "bigmountain": "mountain",
     "snowridge": "snow", "snowlamp": "snow", "pond": "snow",
     "gatepost": "snow",                 # the south gate's two piers
@@ -330,6 +335,11 @@ STRUCT_TERRAIN = {"well", "lamp", "stall", "fence", "town", "tree", "boulder",
                   "homebody", "cotWbody", "cotEbody",
                   "weaponbody", "itembody", "innbody",
                   "cliff", "fountain", "treetrunk",
+                  # the culture kit: board, roost and lantern all want their
+                  # feet stuck to the ground the same way the lamp does
+                  # (each name is shared by the solid base and its walkable
+                  # head twin, exactly the lamp/courtlamp idiom)
+                  "notice", "roost", "hooklamp",
                   "lanternwood", "bigmountain", "snowlamp", "gatepost",
                   "conifer", "conifer2",
                   "fujibody", "librarybody", "cabAbody", "cabBbody", "cabCbody",

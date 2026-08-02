@@ -352,8 +352,23 @@ for map_rel, props_rel in PROPS.items():
         parts = ln.split()
         if parts[0] == "mask":
             # a mask_band depth strip: explicit pixel rect, no map chars, and
-            # no footprint for the T3 coverage lint to measure
-            check(f"{props_rel} mask row well-formed", len(parts) == 5, ln)
+            # no footprint for the T3 coverage lint to measure — but the PNG
+            # itself is still a load-bearing file prop_spawner will load(), so
+            # verify it exists and its rect parses (2026-08-01: these rows
+            # used to be format-checked only, and a renamed or hand-cleaned
+            # mask PNG shipped silently as a missing-texture strip)
+            ok = len(parts) == 5
+            detail = ""
+            if ok:
+                mdims = png_size(os.path.join("assets", "tilesets", parts[1]))
+                if mdims is None:
+                    ok, detail = False, f"missing png {parts[1]}"
+                else:
+                    try:
+                        int(parts[2]); int(parts[3]); int(parts[4])
+                    except ValueError:
+                        ok, detail = False, f"non-integer rect {parts[2:5]}"
+            check(f"{props_rel} mask row well-formed", ok, detail or ln)
             continue
         ok = len(parts) >= 4 and parts[0] == "prop"
         if ok:

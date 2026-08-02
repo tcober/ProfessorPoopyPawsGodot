@@ -4,9 +4,10 @@ Alembic recipe (assets/_alembic.py).
 
 The map grid is a BYTE COPY of town.txt and `_check_art.py` enforces it, so every
 lane, every ladder, every ring deck and every plank is recognisable when the
-drained present arrives. Three things differ and they are all here: the PALETTE
+drained present arrives. Two things differ and they are both here: the PALETTE
 (town_fest — spring grass, cream plaster, sun-warmed boardwalk timber, festival
-magenta), the GLOW, and the Academy's door, which is OPEN.
+magenta) and the GLOW. (The Academy's open door went with the Academy when the
+college became its own scene — the way there is the north lane in both eras.)
 
 The festival glow is daylight MAGIC, not candlelight: the fountain is charmed, the
 great trees' windows are lit for the day, and the street lamps stay dark because

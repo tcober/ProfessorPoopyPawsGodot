@@ -42,8 +42,18 @@ BRASS = ramp((240, 188, 98), "violet", 4)
 # the law in the art-pipeline skill says "brass is 0/1 only" — but anything ROUND
 # needs a shading ramp, and the town fountain's alembic finial spent its life as a
 # magenta blob on a stone plinth for exactly this reason. Use this for those.
-BRASSD = ((242, 223, 167, 255), (240, 188, 98, 255),
-          (186, 134, 62, 255), (132, 88, 44, 255))
+BRASSD = [(242, 223, 167, 255), (240, 188, 98, 255),
+          (186, 134, 62, 255), (132, 88, 44, 255)]
+# COPPER WITH HONEST DARKS — the same law, the same fix, one ramp lower on the
+# hardware shelf. COPPER[3..5] resolve to (174,43,57)/(150,31,77)/(126,22,89):
+# red, wine and magenta, which is what painted the town's pipes, valves and
+# chimney flues candy for a month. Hand-pinned brown into the darks. It lived in
+# _academy_props (born fixing the still-house boiler) and moved here 2026-08-01
+# so _town_props/_overworld_props can reach it without an import cycle.
+# Hand ramps are LISTS, never tuples — Sprite.tri type-sniffs with
+# isinstance(x, list) and stores a tuple-of-tuples as one broken pixel.
+COPPERD = [(238, 198, 160, 255), (212, 162, 118, 255), (180, 126, 88, 255),
+           (142, 94, 70, 255), (102, 64, 58, 255), (66, 40, 48, 255)]
 STEEL = ramp((170, 168, 206), "violet", 4)
 COPPER = ramp((198, 112, 72), "violet", 6)
 IRON = ramp((104, 100, 124), "violet", 4)

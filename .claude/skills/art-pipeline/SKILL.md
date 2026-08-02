@@ -450,6 +450,56 @@ in the commit that creates it.**
   the bottom of the map. **Add a new map to `MAPS` and `PROPS` in the same commit that
   creates it.**
 
+## A CANVAS IS SIZED TO ITS MASS, NEVER THE MASS TO ITS CANVAS (2026-08-02)
+
+Every great tree in Alembic Town had a **FLAT TOP**. Reported as "the top of the trees
+are cropped in a bunch of weird ways", and that is exactly what it was: `great_crown`'s
+lobe tables were laid out against a 224×128 channel and spilled ~21px past the top, ~8
+left, ~11 right and ~10 below — and **`Sprite.set` discards out-of-range pixels
+silently**, so every one of those came back as a ruler-straight cut. Measured on the
+shipped PNG: a **123px flat cut across the top of the dome**, 38 and 46px down the
+sides, 84 across the hem. `edge()` cannot outline a silhouette with no empty pixel
+beside it, so the cuts had no outline either — a tree in a box, dead centre of screen,
+with forest still visible above the cut.
+
+- **The generator knows its own extents, so it should allocate its own canvas.** Hoist
+  the ellipse/limb tables above the `S(...)` call, take the union of their bounds, size
+  the canvas to fit with a 2px margin (1 for `edge()`, 1 spare), and draw through a
+  `PX()`/`PY()` pair that maps channel coordinates into the padded canvas. Nothing about
+  the authored look changes — only the parts that were never being drawn appear.
+- **Hand the pads back, because only the caller can place them.** `great_crown` returns
+  `(sp, pad_x, pad_t, pad_b)`. `pad_x` must be the **max of the two sides, not one
+  each**: `PropSpawner` centres a prop on its footprint's x, so an asymmetric canvas
+  slides the whole crown sideways off its own trunk.
+- **`anchor=top:` is SIGNED**, and a negative value is how art hangs above its footprint.
+  `prop_spawner.gd` used `-1` as its "unset" sentinel and silently bottom-anchored
+  anything negative; it carries an explicit `has_top` flag now. `_check_art.py` already
+  handled a signed `top`.
+- **ANCHOR A CROWN BY ITS HEM, NOT BY ITS HEAD.** The two vertical pads do not cost the
+  same. Hung from the channel's top row (`top=-pad_t`) the whole mass drops by `pad_b`
+  and the leaf hem swallows **the arch of the door in the trunk** — measured, and the
+  door is the one thing on a great tree the player has to read. Hung by the hem
+  (`top=-(pad_t + pad_b)`) everything from the deck down is pixel-for-pixel where it
+  always was and the growth all goes UP into the dome, which is the half that was
+  missing. Alembic's northernmost tree now runs off the top of the map, where
+  `limit_top = 0` cuts it at the **screen** edge — which reads as scale, not as damage.
+  That is the whole difference: a cut at the frame border is the Academy's own doctrine,
+  a cut floating mid-picture is a bug.
+- **The fix moves the wall up one level — check the caller's canvas too.** The Academy
+  blits its crowns INTO `academy_keep`'s sprite, so widening the crown just moved the
+  flat vertical cut onto the keep's own canvas edge, over open lawn. The keep now
+  computes its crowns **first** (step 0), derives `PAD` from the margin they report, and
+  every x in the builder is written `PAD + <building coordinate>` — so the building's
+  own numbers stay the numbers they were designed as and only the canvas grows (416 →
+  464 wide, still centred, so nothing moves in the world). `_keep_anim` became a
+  **closure over `PAD`** for the same reason `_wing_anim` is one: a smoke plume that
+  does not move with its chimney is this file's oldest bug.
+- **Assert it, don't lint it.** A crown that overflows renders, dedupes and passes every
+  check in `_check_art.py`. A border-pixel assert at the end of the builder is the
+  cheap, local guard, and a lint over prop PNGs can't have it — buildings, curtains and
+  trunk shafts legitimately run to their canvas edge, so the allowlist would be most of
+  the file. The rule only binds art with an **organic silhouette**.
+
 ## Color law (the gotchas that cost real bugs)
 
 - `ramp()` hue-shifts darks toward violet. That law turns an orange seed RED, so:
@@ -472,11 +522,18 @@ in the commit that creates it.**
     five hand-pinned ramps in `_academy_props.py`: `OAK` / `SHAKE` / `DAUB` / `VERDI` /
     `COPPERD`. **VERDI is the one to copy**: copper left out for two hundred years IS
     green, so the palette fix and the fiction were the same fix.
-- **The rule is broken in ~20 places in `_interior_props.py` and ~12 in
-    `_town_props.py`** (found 2026-07-30; only the fountain fixed, since nothing else
-    had been reported): lamp poles, lantern cages, hooks, valve wheels, spouts and screw
-    heads in `BRASS[2..3]` / `COPPER[3..5]` are all drawing red and magenta. Worth a
-    sweep of its own — and check it before copying any brass idiom out of those files.
+- **The 2026-08-01 sweep fixed the exterior half of this family**: `_town_props`'
+    lamp cage, pipes (`_pv`/`_ph`), `_valve`, the stall glint and the cabin stoop
+    lantern, plus `_overworld_props._chimney`, all moved to `BRASSD`/`COPPERD` —
+    and **`COPPERD` now lives in `_tilekit` beside `BRASSD`** (promoted from
+    `_academy_props`, which re-imports it; `_flue` is now just its inverted-rect
+    assert plus a delegate to the fixed `_chimney`). Scenes pick the fixes up at
+    their next regen — town/fest/academy/lanternwood are regenerated; **the
+    overworld's landmark chimneys are not yet**. **The rule is still broken in
+    ~20 places in `_interior_props.py`** (interiors were not in the sweep's
+    scope): hooks, spouts and screw heads in `BRASS[2..3]` / `COPPER[3..5]` are
+    still drawing red and magenta there — check before copying any brass idiom
+    out of that file.
 - Hand-pin anything the ramp would ruin (the bindle's warm burlap `SACKR` and wood
   `STICKR`).
 - **A white paw on a white cheek vanishes** without a shadow tint.

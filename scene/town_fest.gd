@@ -98,7 +98,7 @@ func _extra_setup() -> void:
 	PropSpawner.build("res://assets/tilesets/town_fest_props.txt", map, $World)
 	_collect_animated()
 	$ExitSouth.position = MapData.anchor_px(map, "exit_south")
-	$ExitSouth.body_entered.connect(_on_exit_south)
+	_wire_exit($ExitSouth, _on_exit_south)
 	_wall_gate_mouth()
 	_spawn_home_door()
 	# a reloaded town restores the location node — re-drop it if the beat
@@ -132,7 +132,9 @@ func _open_academy() -> void:
 	if loc == null:
 		return
 	loc.target_scene = "res://scene/hall.tscn"
-	_show_banner("THE RECITAL - THE ACADEMY, UP THE STAIR", BANNER_HOLD)
+	# "UP THE STAIR" until 2026-08-01 — the Academy left the town grid in the
+	# forest-floor rebuild, and the stair with it. The way there is the lane.
+	_show_banner("THE RECITAL - THE ACADEMY, UP THE NORTH LANE", BANNER_HOLD)
 
 
 ## TravelScene's per-scene travel hook: set the read-and-cleared router and let
@@ -142,19 +144,30 @@ func _on_travel(loc: OverworldLocation) -> void:
 		Game.hall_phase = "recital"
 
 
-## The gate-mouth road runs to the map's last row and the collision layer
-## only stamps grid cells — when the exit refuses (gate closed), nothing
-## stops a body walking off the south edge into the void. Wall it just
-## past the edge; the ExitSouth zone fires well before it when open.
+## The mouth roads run to the map's edge and the collision layer only stamps
+## grid cells — nothing stops a body walking off the map into the void. The
+## 80x56 rebuild gave the shared grid THREE mouths (south gate, the north lane
+## to the Academy's ground, the east lane for beat 5b), and this era wires an
+## exit on none of them but the south — so all three need the wall, same as
+## alembic_town._wall_mouths. The ExitSouth zone fires well before its wall
+## when the gate is open.
 func _wall_gate_mouth() -> void:
+	var size := MapData.size_px(map)
+	_wall(Vector2($ExitSouth.position.x, size.y + 4.0), Vector2(64.0, 8.0))
+	_wall(Vector2(MapData.anchor_px(map, "exit_north").x, -4.0), Vector2(64.0, 8.0))
+	_wall(Vector2(size.x + 4.0, MapData.anchor_px(map, "exit_se").y),
+			Vector2(8.0, 64.0))
+
+
+func _wall(at: Vector2, size: Vector2) -> void:
 	var wall := StaticBody2D.new()
 	wall.collision_layer = 1
 	var shape := CollisionShape2D.new()
 	var rect := RectangleShape2D.new()
-	rect.size = Vector2(64.0, 8.0)
+	rect.size = size
 	shape.shape = rect
 	wall.add_child(shape)
-	wall.position = Vector2($ExitSouth.position.x, MapData.size_px(map).y + 4.0)
+	wall.position = at
 	add_child(wall)
 
 
@@ -611,7 +624,7 @@ func _ribbon_return() -> void:
 # ---- the south gate -------------------------------------------------------------
 
 func _on_exit_south(body: Node) -> void:
-	if not body.is_in_group("player") or _busy:
+	if not _exit_ok(body):
 		return
 	# The headland is SPENT once the whirligig has flown (2026-07-25). This
 	# road re-enters bluff "meet", where every prologue_part_* flag is already

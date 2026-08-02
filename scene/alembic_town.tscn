@@ -39,7 +39,7 @@ tile_set = ExtResource("5_collision")
 position = Vector2(168, 280)
 script = ExtResource("2_loc")
 id = "home"
-display_name = "BASIL'S COTTAGE"
+display_name = "BASIL'S HOUSE"
 target_scene = "res://scene/downstairs.tscn"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Home"]

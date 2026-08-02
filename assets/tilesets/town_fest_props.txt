@@ -8,7 +8,10 @@ prop Fountain oO town_fest_fountain.png hframes=4
 prop Well uU town_fest_well.png
 prop Lamp lL town_fest_lamp.png each
 prop Stall m town_fest_stall.png
-prop Crown G town_fest_crown.png anchor=top:0 base_inset=-52 each
+prop Notice kK town_fest_notice.png
+prop Roost cC town_fest_roost.png hframes=4
+prop Hooklamp hH town_fest_hooklamp.png hframes=4 each
+prop Crown G town_fest_crown.png anchor=top:-38 base_inset=-52 each
 prop RingRail yR town_fest_ringrail.png anchor=top:0 each
 prop TrunkRing J town_fest_trunkring.png base_inset=19 each
 prop TreeTrunk Tt town_fest_treetrunk.png each

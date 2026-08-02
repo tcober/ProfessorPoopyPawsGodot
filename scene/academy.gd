@@ -46,7 +46,7 @@ func _extra_setup() -> void:
 	PropSpawner.build("res://assets/tilesets/academy_props.txt", map, $World)
 	_collect_animated()
 	$ExitSouth.position = MapData.anchor_px(map, "exit_south")
-	$ExitSouth.body_entered.connect(_on_exit_south)
+	_wire_exit($ExitSouth, _on_exit_south)
 	_wall_mouth()
 	Party.clamp_cameras(MapData.size_px(map))
 	Party.leader_changed.connect(_on_leader_changed)
@@ -58,7 +58,7 @@ func _extra_setup() -> void:
 ## _busy guard is the same one every exit takes — a fade is several frames long and a
 ## body keeps walking through the zone during it.
 func _on_exit_south(body: Node) -> void:
-	if not body.is_in_group("player") or _busy:
+	if not _exit_ok(body):
 		return
 	_busy = true
 	Game.town_spawn = "north"

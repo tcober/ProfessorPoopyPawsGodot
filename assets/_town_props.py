@@ -23,7 +23,7 @@ from _overworld_props import (_hip_roof, _window, _chimney, _steam, _coursed_wal
                               _hatch_px, DOORDARK, WARM, WARMD, CRYSTAL, BLOOM)
 from _propkit import S, ln, edge
 from _tilekit import (ramp, sprite_img, Img, TIMBER, BRASS, BRASSD, STEEL, IRON, COPPER,
-                      STONER, GLASS, MINT, VIOLETF, PAPER, PAPERD, RED, SPEC,
+                      COPPERD, STONER, GLASS, MINT, VIOLETF, PAPER, PAPERD, RED, SPEC,
                       WATER, STEAM, OUTLINE)
 
 # naturey-steampunk building accents (living canopy + alchemist apparatus)
@@ -62,19 +62,23 @@ def _vine(sp, pts):
         _leaf_dab(sp, x + 1, y)
 
 
+# The pipes, valves and flues are drawn from COPPERD, never COPPER: the violet
+# shadow law resolves COPPER[3..5] to red, wine and magenta, so every "copper"
+# fitting shaded with them was a candy scratch on the wall (the _flue lesson,
+# applied to the whole hardware family 2026-08-01).
 def _pv(sp, x, y0, y1):                           # 2px vertical copper pipe
-    sp.rect(x, y0, x + 1, y1, COPPER[2]); sp.rect(x, y0, x, y1, COPPER[1])
-    sp.rect(x + 1, y0, x + 1, y1, COPPER[4])
+    sp.rect(x, y0, x + 1, y1, COPPERD[2]); sp.rect(x, y0, x, y1, COPPERD[1])
+    sp.rect(x + 1, y0, x + 1, y1, COPPERD[4])
 
 
 def _ph(sp, x0, x1, y):                           # 2px horizontal copper pipe
-    sp.rect(x0, y, x1, y + 1, COPPER[2]); sp.rect(x0, y, x1, y, COPPER[1])
-    sp.rect(x0, y + 1, x1, y + 1, COPPER[4])
+    sp.rect(x0, y, x1, y + 1, COPPERD[2]); sp.rect(x0, y, x1, y, COPPERD[1])
+    sp.rect(x0, y + 1, x1, y + 1, COPPERD[4])
 
 
 def _valve(sp, x, y):                             # a copper valve wheel at a joint
-    sp.blob(x, y, 2.4, 2.4, COPPER[3]); sp.blob(x, y, 1.2, 1.2, COPPER[1])
-    sp.set(x, y, BRASS[2]); sp.set(x - 3, y, COPPER[1]); sp.set(x + 3, y, COPPER[4])
+    sp.blob(x, y, 2.4, 2.4, COPPERD[3]); sp.blob(x, y, 1.2, 1.2, COPPERD[1])
+    sp.set(x, y, BRASSD[1]); sp.set(x - 3, y, COPPERD[1]); sp.set(x + 3, y, COPPERD[4])
 
 
 def _clone(sp):
@@ -160,7 +164,10 @@ def _anim_building(facade, canopy, f, flues=(), streams=(), basins=(),
         for k in range(3):
             facade.set(x0 + (f * 4 + k * 5) % max(1, x1 - x0), y + dy, WATERL)
     for x0, x1, y in barrels:
-        facade.set(x0 + (f * 3) % max(1, x1 - x0), y + dy, WATERL)
+        # periodic in 4 frames, never `(f * 3) % width`: the barrel is 11 wide
+        # and 11 is coprime to both sheet lengths, so that march never closed
+        # and the glint jumped ~9px at every loop restart
+        facade.set(x0 + (f % 4) * 3 % max(1, x1 - x0), y + dy, WATERL)
     for nx, ny in drips:                                  # falling drips
         facade.set(nx, ny + dy + (f % 4), WATER)
     lvl = WIN_PULSE[f % len(WIN_PULSE)]                   # fire-lit windows: ONE
@@ -554,11 +561,14 @@ def town_lamp(salt=233, mantle=MINT):
     sp.rect(7, 8, 8, 27, IRON[2])
     sp.rect(7, 8, 7, 27, IRON[1])
     sp.rect(4, 0, 11, 0, BRASS[1])                         # cap
-    sp.rect(4, 1, 11, 7, BRASS[3])
+    # the cage is DARK brass round a lit mantle — it was BRASS[3], which the
+    # violet law resolves to pure magenta, and the 1px rim framing every mantle
+    # in two towns was the loudest colour on the street
+    sp.rect(4, 1, 11, 7, BRASSD[3])
     sp.rect(5, 1, 10, 6, mantle)                           # the mantle
     sp.set(6, 2, SPEC)
-    sp.set(3, 2, BRASS[2])
-    sp.set(12, 2, BRASS[2])                                # cage arms
+    sp.set(3, 2, BRASSD[2])
+    sp.set(12, 2, BRASSD[2])                               # cage arms
     edge(sp, 32)
     clipw(sp, 16)
     return sp
@@ -584,7 +594,7 @@ def town_stall(salt=241):
     sp.rect(gx, 11, gx + 2, 15, MINT)
     sp.rect(gx + 5, 9, gx + 7, 15, VIOLETF)
     sp.rect(gx + 10, 12, gx + 11, 15, BRASS[1])
-    sp.set(gx + 13, 13, BRASS[3])
+    sp.set(gx + 13, 13, BRASSD[2])
     sp.set(gx + 1, 10, PAPERD)
     sp.rect(5, 26, 7, 31, TIMBER[4])                       # legs
     sp.rect(w - 8, 26, w - 6, 31, TIMBER[4])
@@ -1568,8 +1578,9 @@ def town_cabin(roof, snow, salt=311, composite=True, frames=8, wide=False):
     lo.set(cx + 3, fy + 15, BRASS[0])                      # the latch
     lo.rect(cx - 4, h - 3, cx + 4, h - 2, WARMD)           # lamplight spill
     lo.set(cx, h - 3, WARM)
-    lo.rect(cx - 10, fy + 9, cx - 9, fy + 12, BRASS[2])    # stoop lantern
-    lo.rect(cx - 10, fy + 9, cx - 9, fy + 9, BRASS[1])
+    # BRASSD, never BRASS[2] — that tone is pure red, and it was the lantern body
+    lo.rect(cx - 10, fy + 9, cx - 9, fy + 12, BRASSD[2])   # stoop lantern
+    lo.rect(cx - 10, fy + 9, cx - 9, fy + 9, BRASSD[1])
     lo.set(cx - 10, fy + 10, WARM)
     edge(lo, h)
     anim = (lambda fa, ca, f2, dy=0: _anim_building(

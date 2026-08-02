@@ -24,6 +24,9 @@ var player: Node2D
 var _entry_locked := true
 var _busy := false
 var _banner_tw: Tween
+## [zone, handler] pairs registered by _wire_exit, so _deliver_standing can
+## re-deliver a gate the body is still standing in after a swallowed event.
+var _exits: Array = []
 ## Marker ids the body is currently standing on; cleared on body_exited so a
 ## marker can't re-fire until the body steps off and back onto it.
 var _standing: Dictionary = {}
@@ -64,10 +67,21 @@ func _ready() -> void:
 ## broken: step off a cabin banner onto the library arch inside its ~2s and
 ## nothing happens. The _standing latch makes this safe to call at will — a
 ## marker that fired properly is already latched and won't fire twice.
+##
+## RAW EXIT ZONES GET THE SAME TREATMENT (2026-08-01). The gate-mouth Area2Ds
+## the subclasses wire are not Locations, so they used to be exempt — and an
+## exit whose one body_entered landed during a banner was a gate that silently
+## stopped working until you stepped off it and back on (a shop banner holds
+## _busy for 2.2-4.4s, which is plenty to walk onto the south gate). Exits
+## registered through _wire_exit are re-delivered here; their handlers gate on
+## _exit_ok and their own latches, so a double delivery is harmless.
 func _deliver_standing() -> void:
 	for loc: OverworldLocation in locations.get_children():
 		if not _standing.get(loc.id, false) and loc.overlaps_body(player):
 			_on_location_entered(player, loc)
+	for e in _exits:
+		if is_instance_valid(e[0]) and (e[0] as Area2D).overlaps_body(player):
+			(e[1] as Callable).call(player)
 
 
 func _wire_locations() -> void:
@@ -160,6 +174,24 @@ func _show_banner(text: String, hold: float) -> void:
 	# The timer fires regardless, so _busy is always released; a superseded
 	# banner just loses its visual to the newer one.
 	await get_tree().create_timer(BANNER_IN + hold + BANNER_OUT).timeout
+
+
+## Wire a raw exit Area2D (a gate mouth) and register it for re-delivery. Use
+## this instead of connecting body_entered directly, or the exit goes silently
+## dead for any body whose one entered-event lands during a banner or the
+## entry fade.
+func _wire_exit(zone: Area2D, handler: Callable) -> void:
+	zone.body_entered.connect(handler)
+	_exits.append([zone, handler])
+
+
+## The gate every raw exit handler must pass: the right body, the entry fade
+## settled, and no banner/travel owning the scene. The ENTRY_LOCK term is what
+## stops "walked onto the town icon holding down" from bouncing straight back
+## to the overworld before the town's own fade has even finished — markers
+## always had that guard; the raw exits never did.
+func _exit_ok(body: Node) -> bool:
+	return body.is_in_group("player") and not _entry_locked and not _busy
 
 
 ## The shared south-gate exit: leave for the overworld, arriving back at this

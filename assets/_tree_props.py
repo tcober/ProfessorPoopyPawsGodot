@@ -52,7 +52,7 @@ assets/_gen_tileset_<canopytown>.py exactly the way _gen_tileset_lanternwood.py
 consumes _town_props: place()/place_each() for the Tier-1 opaque pieces,
 emit_prop() for the Tier-3 y-sorted ones.
 """
-import os, sys
+import math, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -708,66 +708,134 @@ def great_crown(f, bark, salt=451, w=96, h=48, lean=0.0, window=None):
 
     FOOTPRINT: `w // 16` x `h // 16`, EVERY CELL WALKABLE — this is deck you walk
     under leaves on.
-    ANCHOR: `emit_prop(name, chars, sprite_img(sp, w, h), top=0, base_inset=-16,
-    each=True)`. The `-16` is what pushes the sort key south of a body standing on
-    the north arc, so the leaves are in front of it. Without it the body walks
-    over its own canopy.
+    ANCHOR: `emit_prop(name, chars, sprite_img(sp, W, H), top=-pad_t,
+    base_inset=-16, each=True)` with `(sp, pad_x, pad_t, pad_b)` unpacked from the
+    return and `W, H = w + 2 * pad_x, h + pad_t + pad_b`. The `-16` is what pushes
+    the sort key south of a body standing on the north arc, so the leaves are in
+    front of it. Without it the body walks over its own canopy.
     COVERAGE: ~62% of the figure hidden on the deepest cell — comfortably inside
     the walk-behind visibility rule's 90% ceiling, and that margin IS the effect.
+
+    THE CANVAS IS SIZED TO THE MASS, NEVER THE OTHER WAY ROUND (2026-08-02), and
+    that is the fix for a tree that was coming out with a FLAT TOP. `w` x `h` is
+    the CHANNEL the lobes are laid out against, not the canvas: the crown is
+    deliberately bigger than its channel on every side, and `Sprite.set` discards
+    out-of-range pixels SILENTLY — so the four tables below were spilling ~21px
+    over the top, ~8 left, ~11 right and ~10 below, and every one of those came
+    out as a ruler-straight un-outlined cut through the leaves (`edge()` cannot
+    outline a silhouette that has no empty pixel beside it). Measured on the
+    shipped 224x128 town crown: a 123px flat cut across the top of the dome, 38
+    and 46px flat down the sides, 84 across the bottom — a tree in a box, dead
+    centre of the screen, with forest still visible above the cut.
+
+    So the ellipse tables are hoisted, the mass's own bbox is measured off them,
+    and the canvas is grown to hold it. The pads come back with the sprite because
+    only the caller can place them: `pad_x` is symmetric so a sprite centred on
+    its footprint stays centred, and `pad_t` becomes a NEGATIVE `anchor=top:` so
+    the channel still lands on the footprint's own top row and nothing in the
+    world moves. Every number here is derived, so this holds at any `(w, h)` —
+    the Academy's 144-wide crown was spilling ~15 left and ~18 right off the same
+    tables, and is fixed by the same arithmetic without a second set of constants.
     """
-    sp = S(w, h, salt)
     r = max(9.0, h * 0.30)
-    cx = w / 2.0 + lean
     # THE LIMBS FIRST, so the leaves close over them and the branches read as
     # emerging THROUGH the canopy rather than lying on top of it. That ordering is
     # the whole difference between a tree and a bush with sticks in it. Four of
     # them at four heights and reaches, because two symmetric limbs read as a
     # crossbar.
-    for sgn, ly, reach, rr in ((-1, 0.62, 0.42, 4.0), (1, 0.46, 0.36, 3.6),
-                               (-1, 0.34, 0.28, 3.0), (1, 0.74, 0.30, 3.2)):
-        sp.capsule(cx + sgn * 3, h * ly, cx + sgn * w * reach,
-                   h * (ly - 0.16), rr, 1.7, bark, end_sh=0.16)
+    LIMBS = ((-1, 0.62, 0.42, 4.0), (1, 0.46, 0.36, 3.6),
+             (-1, 0.34, 0.28, 3.0), (1, 0.74, 0.30, 3.2))
     # A DARK UNDER-RANK before the lit lobes: the leaves you see INTO. Without it
     # a lobe cluster is a single sheet of one green and reads as bubble wrap, which
     # is exactly what the first pass came out as. These are drawn low and wide and
     # then mostly buried, so what survives is the daylight BETWEEN the lit lobes
     # having something dark behind it — which is also what lets a body on the ring
     # deck show through the gaps as a silhouette instead of a hole.
-    for i, (lx, ly, k) in enumerate(((0.30, 0.74, 0.92), (0.70, 0.78, 0.90),
-                                     (0.50, 0.66, 0.86), (0.14, 0.62, 0.72),
-                                     (0.86, 0.64, 0.74))):
-        sp.ball(w * lx, h * ly, r * k, r * k * 0.80,
-                (f[3], f[4], f[4], f[5], f[5], f[5]), sh=0.10, power=2.1)
+    UNDER = ((0.30, 0.74, 0.92), (0.70, 0.78, 0.90), (0.50, 0.66, 0.86),
+             (0.14, 0.62, 0.72), (0.86, 0.64, 0.74))
     # THE LIT LOBES, in three ranks. Radius keyed to the crown's HEIGHT and never
     # stretched to fit the width — the law `_canopy_roof` states, for the same
     # reason: a stretched lobe is an ellipse and a mass of ellipses is a bush. The
     # sizes are deliberately UNEQUAL across a 0.72..1.34 range; equal lobes are the
     # bubble-wrap failure however many you draw.
+    LIT = ((0.48, 0.24, 1.34, 1.00), (0.24, 0.32, 0.88, 0.96),
+           (0.76, 0.30, 1.06, 0.98), (0.09, 0.54, 0.72, 0.88),
+           (0.91, 0.56, 0.80, 0.88), (0.36, 0.58, 1.14, 0.94),
+           (0.65, 0.62, 0.92, 0.92), (0.19, 0.78, 0.76, 0.80),
+           (0.82, 0.80, 0.70, 0.80), (0.52, 0.84, 0.98, 0.82))
+    # LEAF CLUSTERS ON THE LIMB TIPS. A limb that ends in a bare stub reads as
+    # broken; a small tuft at the end reads as a bough carrying foliage, and it is
+    # also what keeps the silhouette ragged out at the sides where the crown
+    # overhangs the bays.
+    TIPS = ((-1, 0.62, 0.42), (1, 0.46, 0.36), (1, 0.74, 0.30))
+
+    # ---- MEASURE THE MASS, THEN ALLOCATE THE CANVAS ---------------------------------
+    # Every filled form this builder draws is an axis-aligned ellipse or a capsule
+    # between two of them, and `ball`'s superellipse reaches exactly +-rx / +-ry
+    # (at ny = 0 the test is |nx| <= 1), so the union of these bounds IS the
+    # silhouette. Everything else — the under-arcs, the sun-catch dabs, the
+    # skylights, the window, `_leaf_dabs` — is drawn strictly inside a lobe, and
+    # `despeckle` only removes. MARGIN is the 1px `edge()` outline plus one.
+    MARGIN = 2
+    ch_x = w / 2.0 + lean                          # the channel's own centreline
+    bounds = []
+    for sgn, ly, reach, rr in LIMBS:
+        bounds.append((ch_x + sgn * 3, h * ly, rr, rr))
+        bounds.append((ch_x + sgn * w * reach, h * (ly - 0.16), 1.7, 1.7))
+    for lx, ly, k in UNDER:
+        bounds.append((w * lx, h * ly, r * k, r * k * 0.80))
+    for i, (lx, ly, k, flat) in enumerate(LIT):
+        bounds.append((w * lx + (h2(i, 5, salt) % 3) - 1,
+                       h * ly + (h2(i, 3, salt) % 3) - 1, r * k, r * k * flat))
+    for sgn, ly, reach in TIPS:
+        bounds.append((ch_x + sgn * w * reach, h * (ly - 0.16), r * 0.44, r * 0.38))
+    # pad_x is the MAX of the two sides, never one each: `PropSpawner` centres a
+    # prop on its footprint's x, so an asymmetric canvas would slide the whole
+    # crown sideways off its own trunk.
+    pad_x = int(math.ceil(max(MARGIN - min(b[0] - b[2] for b in bounds),
+                              max(b[0] + b[2] for b in bounds) + MARGIN - (w - 1),
+                              0.0)))
+    pad_t = int(math.ceil(max(MARGIN - min(b[1] - b[3] for b in bounds), 0.0)))
+    pad_b = int(math.ceil(max(max(b[1] + b[3] for b in bounds)
+                              + MARGIN - (h - 1), 0.0)))
+    W, H = w + 2 * pad_x, h + pad_t + pad_b
+
+    sp = S(W, H, salt)
+    # the channel's coordinates, moved into the padded canvas — every `w * u` and
+    # `h * v` below goes through these, so the art is pixel-identical to what the
+    # tables always described, minus the clipping
+    def PX(u):
+        return pad_x + w * u
+
+    def PY(v):
+        return pad_t + h * v
+
+    cx = PX(0.5) + lean
+    for sgn, ly, reach, rr in LIMBS:
+        sp.capsule(cx + sgn * 3, PY(ly), cx + sgn * w * reach,
+                   PY(ly - 0.16), rr, 1.7, bark, end_sh=0.16)
+    for lx, ly, k in UNDER:
+        sp.ball(PX(lx), PY(ly), r * k, r * k * 0.80,
+                (f[3], f[4], f[4], f[5], f[5], f[5]), sh=0.10, power=2.1)
     lobes = []
-    for i, (lx, ly, k, flat) in enumerate((
-            (0.48, 0.24, 1.34, 1.00), (0.24, 0.32, 0.88, 0.96),
-            (0.76, 0.30, 1.06, 0.98), (0.09, 0.54, 0.72, 0.88),
-            (0.91, 0.56, 0.80, 0.88), (0.36, 0.58, 1.14, 0.94),
-            (0.65, 0.62, 0.92, 0.92), (0.19, 0.78, 0.76, 0.80),
-            (0.82, 0.80, 0.70, 0.80), (0.52, 0.84, 0.98, 0.82))):
-        lobes.append((w * lx + (h2(i, 5, salt) % 3) - 1,
-                      h * ly + (h2(i, 3, salt) % 3) - 1,
+    for i, (lx, ly, k, flat) in enumerate(LIT):
+        lobes.append((PX(lx) + (h2(i, 5, salt) % 3) - 1,
+                      PY(ly) + (h2(i, 3, salt) % 3) - 1,
                       r * k, flat, 0.02 + 0.03 * (i % 4)))
     _leaf_mass(sp, f, lobes)
-    _leaf_dabs(sp, f, 3, 3, w - 4, int(h * 0.92), salt, n=max(16, w // 3))
+    # dabs over the WHOLE canvas, not the channel: they are gated on the pixel
+    # already being filled, so the box only has to reach the leaves — and after
+    # the padding the outermost lobes live out in the margin.
+    _leaf_dabs(sp, f, 1, 1, W - 2, int(PY(0.92)), salt, n=max(16, W // 3))
     # THE CROWN'S OWN SUN-CATCH, over the top of the per-lobe dabs. Broken for
     # the same reason they are — as one r*0.42 ellipse this was a second, larger
     # balloon laid over the raft.
     for k, (ox, oy, rk) in enumerate(((0.28, 0.17, 0.30), (0.38, 0.24, 0.22),
                                       (0.21, 0.27, 0.17), (0.45, 0.14, 0.13))):
-        sp.blob(w * ox, h * oy, r * rk, r * rk * 0.62, f[0])
-    sp.set(int(w * 0.28), int(h * 0.14), SPEC)
-    # LEAF CLUSTERS ON THE LIMB TIPS. A limb that ends in a bare stub reads as
-    # broken; a small tuft at the end reads as a bough carrying foliage, and it is
-    # also what keeps the silhouette ragged out at the sides where the crown
-    # overhangs the bays.
-    for sgn, ly, reach in ((-1, 0.62, 0.42), (1, 0.46, 0.36), (1, 0.74, 0.30)):
-        tx, ty = cx + sgn * w * reach, h * (ly - 0.16)
+        sp.blob(PX(ox), PY(oy), r * rk, r * rk * 0.62, f[0])
+    sp.set(int(PX(0.28)), int(PY(0.14)), SPEC)
+    for sgn, ly, reach in TIPS:
+        tx, ty = cx + sgn * w * reach, PY(ly - 0.16)
         sp.ball(tx, ty, r * 0.44, r * 0.38, f, sh=0.06, power=2.1)
         sp.blob(tx + r * 0.05, ty + r * 0.18, r * 0.26, r * 0.11, f[4])
         sp.blob(tx - r * 0.16, ty - r * 0.18, r * 0.14, r * 0.10, f[0])
@@ -804,7 +872,7 @@ def great_crown(f, bark, salt=451, w=96, h=48, lean=0.0, window=None):
             by = rr * (0.52 + 0.12 * (h2(i, 29 + k, salt) % 4))
             ox = (h2(i, 31 + k, salt) % 5) - 2
             oy = (h2(i, 37 + k, salt) % 5) - 2
-            cut.append((w * hx + ox, h * hy + oy, ax, by))
+            cut.append((PX(hx) + ox, PY(hy) + oy, ax, by))
         lo_x = int(min(c[0] - c[2] for c in cut)) - 2
         hi_x = int(max(c[0] + c[2] for c in cut)) + 3
         lo_y = int(min(c[1] - c[3] for c in cut)) - 2
@@ -830,7 +898,7 @@ def great_crown(f, bark, salt=451, w=96, h=48, lean=0.0, window=None):
     # level beside the door. A patch of bark goes behind it so a lit pane is never
     # floating on foliage.
     if window is not None:
-        wx, wy, hw, hh = int(w * 0.5) - 1, int(h * 0.86), 7, 7
+        wx, wy, hw, hh = int(PX(0.5)) - 1, int(PY(0.86)), 7, 7
         sp.blob(wx, wy, 13, 11, bark[3])
         sp.blob(wx, wy - 2, 11, 8, bark[2])
         for y in range(wy - hh, wy + hh + 1):
@@ -842,9 +910,22 @@ def great_crown(f, bark, salt=451, w=96, h=48, lean=0.0, window=None):
         for x in range(wx - hw, wx + hw + 1):
             sp.set(x, wy, window[4])
         sp.set(wx - hw - 1, wy - hh - 1, window[5])
-    edge(sp, h)
-    clipw(sp, w)
-    return sp
+    edge(sp, H)
+    clipw(sp, W)
+    # THE CANVAS HAS TO HOLD THE WHOLE SILHOUETTE, and it is worth an assert
+    # rather than a lint: this is the one failure mode here that renders, dedupes
+    # and passes every check in `_check_art.py` while putting a flat un-outlined
+    # cut through the middle of the screen's biggest object. If a future lobe or
+    # limb reaches past the measured bounds, say so at build time.
+    for x in range(W):
+        assert sp.px[0][x] is None and sp.px[H - 1][x] is None, (
+            f"great_crown({w}x{h}): leaves on the canvas border at x={x} — the "
+            f"mass outgrew its measured bounds and is being cut flat")
+    for y in range(H):
+        assert sp.px[y][0] is None and sp.px[y][W - 1] is None, (
+            f"great_crown({w}x{h}): leaves on the canvas border at y={y} — the "
+            f"mass outgrew its measured bounds and is being cut flat")
+    return sp, pad_x, pad_t, pad_b
 
 
 def tree_trunk(bark, ground, salt=401, cells=5, base=1, w=48):

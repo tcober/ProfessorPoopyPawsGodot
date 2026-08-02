@@ -238,6 +238,21 @@ no shaft and the smoke still rising off it. `_flue` asserts on that now.
 Full statement in DESIGN.md → "THE ALEMBIC ACADEMY, walkable"; the art kit is
 `assets/_academy_props.py` and the walk is covered by `tools/academy_probe.gd`.
 
+**THE 2026-08-01 SWEEP + THE CULTURE KIT.** A full bug sweep of Alembic Town and the
+Academy, then a visual pass. The orphaned `assets/_culture_props.py` family (unwired
+since the forest-floor rebuild) is LIVE again in both eras via the shared recipe: the
+**notice board** and **messenger owl roost** on the plaza's north rim (`kK`/`cC`), and
+six **hook lanterns** (`hH`) — one beside each great tree's ladder landing, two
+flanking the south gate; candles are honest fire, so they burn drained. The exterior
+red/magenta palette family was swept to `BRASSD`/`COPPERD` (now both in `_tilekit` —
+lamp cages, pipes, valves, chimney flues, stall glint, cabin stoop; interiors still
+pending, see the art-pipeline skill). Functional fixes: **raw exit zones now re-deliver
+after banners and respect the entry lock** (`TravelScene._wire_exit`/`_exit_ok` — a
+swallowed gate event used to leave the exit silently dead, and entering town holding
+down bounced straight back out), fest/thesis wall all THREE mouths, A13's School
+marker got a lane-wide shape and its banner says NORTH LANE (the stair is gone), the
+Academy's border mouth is exactly its road, and ~86 stale canopy-era PNGs are deleted.
+
 Designed but NOT built — both live in Alembic Town, and the grids they were waiting on
 have now settled: **Act 1 beat 4 — ASKING AROUND**, where the wander gate is not a crowd
 but **adult Sage and Basil's mother**, and the rumour that he walked into the deep wood

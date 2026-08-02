@@ -26,6 +26,7 @@ from _overworld_tiles import OverWorld, T, STRUCT_TERRAIN
 from _tilekit import sprite_img, VOID, IRON
 from _town_props import (town_cottage, town_shop, town_well, town_lamp,
                          town_stall, town_fountain, town_tree)
+from _culture_props import notice_board, owl_roost, hook_lantern, PAPER_STOCK
 from _tree_props import (tree_ring, ring_cells, ring_geom, trunk_face,
                          rope_ladder, understory, great_trunk, great_crown, BARK)
 
@@ -183,8 +184,12 @@ def _wild_dist(m, wild, limit):
     return seen
 
 
-def build(map_name, scene_key, glow, open_door=False):
-    """Paint one era of Alembic Town and finish it. Returns the TileScene."""
+def build(map_name, scene_key, glow):
+    """Paint one era of Alembic Town and finish it. Returns the TileScene.
+
+    (An `open_door` era knob lived here while the Academy was a building in
+    this grid; the college is its own scene now and the knob was dead code —
+    removed 2026-08-01. If a future era needs a third difference, add a knob.)"""
     tn = OverWorld(map_name, scene_key)
     ROOFB = tn.mat("roof_blue")
     ROOFG = tn.mat("roof_green")
@@ -226,6 +231,19 @@ def build(map_name, scene_key, glow, open_door=False):
     tn.emit_prop("Lamp", "lL", sprite_img(town_lamp(), 16, 32), each=True)
     tn.emit_prop("Stall", "m", sprite_img(town_stall(), 48, 32))
 
+    # ---- THE CULTURE KIT, re-wired (2026-08-01) --------------------------------------
+    # _culture_props shipped with the canopy town (414d59e) and was orphaned by the
+    # forest-floor rebuild — a whole authored furniture family that says the town
+    # CORRESPONDS, POSTS NOTICES and LIGHTS ITS OWN LAMPS, imported by nothing. The
+    # correspondence corner sits on the plaza's north rim (board west, roost east of
+    # the lane), and the hook lanterns hang beside every great tree's ladder landing
+    # and flank the south gate — a candle is honest fire, so they burn in BOTH eras.
+    tn.emit_prop("Notice", "kK",
+                 sprite_img(notice_board(DECK, PAPER_STOCK, IRON), 48, 32))
+    tn.emit_prop("Roost", "cC", owl_roost(DECK, FOL, IRON, frames=4), hframes=4)
+    tn.emit_prop("Hooklamp", "hH", hook_lantern(IRON, frames=4), hframes=4,
+                 each=True)
+
     # ---- THE FOUR GREAT TREES ---------------------------------------------------------
     # Derived from the map, never from a table: every tree is one `y` component, and
     # its bbox IS the ring block (12 x 9). Reading the geometry back out of the grid
@@ -244,10 +262,31 @@ def build(map_name, scene_key, glow, open_door=False):
     # That inset also puts the crown in front of a body on the ring's NORTH ARC, which
     # is the walk-behind this town is built around — so the mass stays PERFORATED. See
     # great_crown: solid leaves there make that body 100% invisible, measured.
+    #
+    # THE CROWN IS BIGGER THAN ITS CHANNEL ON ALL FOUR SIDES, so `great_crown`
+    # measures its own mass and hands back the margins it needed (2026-08-02).
+    # `CROWN_W` x `CROWN_H` is the channel the lobes are laid out against — the
+    # 14 x 6 footprint plus the two rows it hangs below — and the pads are the
+    # overhang that used to be silently CUT OFF at the canvas edge, which is what
+    # gave every tree in this town a flat top, flat sides and a flat hem.
+    #
+    # ANCHOR THE CROWN BY ITS HEM, NOT BY ITS HEAD. `pad_x` is free (the spawner
+    # centres a prop on its footprint, so the tree just overhangs its bays a
+    # little further, which is what this crown is FOR). The vertical margins are
+    # not symmetric in what they cost: hung from the channel's top row the whole
+    # mass drops by `pad_b` and the leaf hem swallows the arch of the door in the
+    # trunk — measured, and the door is the one thing on a great tree the player
+    # has to read. Hung by the hem, everything from the deck down is pixel-for-
+    # pixel where it has always been and the growth all goes UP into the dome,
+    # which is the half that was missing. The northernmost tree's new head runs
+    # off the top of the map, where `limit_top = 0` cuts it at the screen edge —
+    # the same cut the Academy's crowns take, and the one that reads as scale
+    # rather than as damage.
+    crown, cpx, cpt, cpb = great_crown(FOL, BARK, salt=451, w=CROWN_W, h=CROWN_H,
+                                       window=DECK)
     tn.emit_prop("Crown", "G",
-                 sprite_img(great_crown(FOL, BARK, salt=451, w=CROWN_W, h=CROWN_H,
-                                        window=DECK), CROWN_W, CROWN_H),
-                 each=True, top=0, base_inset=-52)
+                 sprite_img(crown, CROWN_W + 2 * cpx, CROWN_H + cpt + cpb),
+                 each=True, top=-(cpt + cpb), base_inset=-52)
     # THE RAIL'S NEAR ARC — Tier-3, and it has to be a y-sorted PROP rather than
     # upper-layer paint. Baked with the deck (where it lived until 2026-07-30) every
     # body on the ring draws OVER the handline, so you stand on the rail like it is a
@@ -446,7 +485,8 @@ def assert_all(tn, map_name):
     for chars, w, h, n in ((RING_CHARS, 12, 9, 4), ("G", 14, 6, 4), ("J", 4, 2, 4),
                            ("q1", 5, 4, 1), ("w2", 5, 4, 1),
                            ("xX", 5, 4, 1), ("pP", 5, 4, 1), ("iI", 5, 4, 1),
-                           ("Tt", 2, 2, 6)):
+                           ("Tt", 2, 2, 6),
+                           ("kK", 3, 2, 1), ("cC", 2, 2, 1), ("hH", 1, 2, 6)):
         cs = tn.comps(chars)
         assert len(cs) == n, (
             f"{map_name}.txt: {chars!r} has {len(cs)} components, want {n}")

@@ -64,9 +64,9 @@ func _extra_setup() -> void:
 	PropSpawner.build("res://assets/tilesets/town_props.txt", map, $World)
 	_collect_animated()
 	$ExitSouth.position = MapData.anchor_px(map, "exit_south")
-	$ExitSouth.body_entered.connect(_on_exit_south)
+	_wire_exit($ExitSouth, _on_exit_south)
 	$ExitNorth.position = MapData.anchor_px(map, "exit_north")
-	$ExitNorth.body_entered.connect(_on_exit_north)
+	_wire_exit($ExitNorth, _on_exit_north)
 	_wall_mouths()
 	Party.clamp_cameras(MapData.size_px(map))
 	# TravelScene gates its markers on `body != player` — re-aim it when the lead
@@ -82,7 +82,7 @@ func _on_travel(loc: OverworldLocation) -> void:
 
 ## Out the south lane, back to the overworld at the town icon.
 func _on_exit_south(body: Node) -> void:
-	if body.is_in_group("player"):
+	if _exit_ok(body):
 		_exit_to_overworld("town")
 
 
@@ -91,7 +91,7 @@ func _on_exit_south(body: Node) -> void:
 ## and this is the lane. The mouth is still walled past the trigger — the fade is
 ## several frames long and a body keeps walking through them.
 func _on_exit_north(body: Node) -> void:
-	if not body.is_in_group("player") or _busy:
+	if not _exit_ok(body):
 		return
 	_busy = true
 	await fade_out()

@@ -14,6 +14,9 @@ size = Vector2(16, 12)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
 size = Vector2(32, 16)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_lane"]
+size = Vector2(32, 12)
+
 [sub_resource type="CanvasItemMaterial" id="mat_add"]
 blend_mode = 1
 
@@ -69,7 +72,7 @@ display_name = "THE ALEMBIC ACADEMY"
 locked_text = "RECITAL IN PROGRESS. EVERY WARD IS ABLAZE."
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/School"]
-shape = SubResource("RectangleShape2D_door")
+shape = SubResource("RectangleShape2D_lane")
 
 [node name="Weapons" type="Area2D" parent="Locations"]
 script = ExtResource("2_loc")

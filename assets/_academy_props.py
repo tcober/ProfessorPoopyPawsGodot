@@ -37,7 +37,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from _core import h2
 from _propkit import S, ln, edge, split_rows
-from _tilekit import BRASS, BRASSD, COPPER, IRON, SPEC, GLASS, MINT, VIOLETF
+from _tilekit import (BRASS, BRASSD, COPPER, COPPERD, IRON, SPEC, GLASS, MINT,
+                      VIOLETF)
 from _overworld_props import CRYSTAL, DOORDARK, WARM, WARMD
 from _town_props import (_anim_building, _finish, _chimney, _coursed_wall,
                          _ph, _pv, _valve, clipw, _leaf_dab, _vine)
@@ -79,22 +80,22 @@ DAUB = [(240, 231, 212, 255), (224, 210, 192, 255), (202, 186, 180, 255),
 #    the darks instead of letting it swing to magenta.
 VERDI = [(172, 228, 208, 255), (124, 198, 178, 255), (86, 166, 152, 255),
          (58, 128, 124, 255), (40, 92, 98, 255), (26, 60, 74, 255)]
-COPPERD = [(238, 198, 160, 255), (212, 162, 118, 255), (180, 126, 88, 255),
-           (142, 94, 70, 255), (102, 64, 58, 255), (66, 40, 48, 255)]
+# COPPERD was born here (fixing the still-house boiler) and moved to _tilekit
+# on 2026-08-01, when the town's pipes, valves and flues needed it too — it is
+# imported above and re-exported by this module's old name on purpose.
 
 
 def _flue(sp, x, y0, y1, cast=None):
     """`_overworld_props._chimney` on an honest copper, plus the assert that would
     have caught the still-house.
 
-    TWO REASONS THIS EXISTS, and the second one is the important one.
+    ONE REASON LEFT (2026-08-01). It used to be two: the shared `_chimney` drew
+    its shaft in COPPER[2]/COPPER[4] and its cap shoulders in BRASS[3] — brick
+    and MAGENTA — so this fork existed to repaint it in COPPERD. That palette
+    has since moved INTO `_chimney` itself (and COPPERD into _tilekit), so all
+    that remains here is the assert:
 
-    1. The shared `_chimney` draws its shaft in `COPPER[2]` (197,89,59), its east
-       column in `COPPER[4]` (150,31,77) and two cap shoulders in `BRASS[3]`
-       (216,0,109) — brick and MAGENTA, the violet shadow law on a warm seed,
-       the same law `COPPERD` exists for.
-
-    2. `Sprite.rect` on an INVERTED range draws nothing, and says nothing. The
+    `Sprite.rect` on an INVERTED range draws nothing, and says nothing. The
        still-house shipped `_chimney(up, fx, 12, base - 12)` with `base = 22`, so
        `y1 = 10 < y0 = 12`: eight pixels of rain cap, no shaft under it at all,
        while `_wing_anim` went on faithfully smoking from the same coordinate.
@@ -107,18 +108,10 @@ def _flue(sp, x, y0, y1, cast=None):
         f"_flue: shaft y{y0}..y{y1} is inverted — Sprite.rect draws NOTHING on a "
         f"backwards range, so this is a rain cap floating over open air with a "
         f"smoke plume already aimed at it.")
-    if cast is not None:
-        for i in range(4):
-            for j in range(3 - (i + 1) // 2):
-                if sp.get(x + 4 + j, y1 - 3 + i) is not None:
-                    sp.set(x + 4 + j, y1 - 3 + i, cast[4])
-    sp.rect(x, y0 + 1, x + 3, y1, COPPERD[2])
-    sp.rect(x, y0 + 1, x, y1, COPPERD[1])
-    sp.rect(x + 3, y0 + 1, x + 3, y1, COPPERD[4])
-    sp.rect(x - 1, y0, x + 4, y0, BRASSD[1])
-    sp.set(x, y0, BRASSD[0])
-    sp.set(x - 1, y0 + 1, BRASSD[2])
-    sp.set(x + 4, y0 + 1, BRASSD[2])
+    # reason 1 retired 2026-08-01: the COPPERD/BRASSD palette moved INTO the
+    # shared _chimney (with COPPERD itself moving to _tilekit), so this is now
+    # the assert plus a delegate rather than a paint fork that can drift
+    _chimney(sp, x, y0, y1, cast=cast)
 
 
 def _ashlar(sp, x0, y0, x1, y1, stone, salt, course=8, joint=16, off=True):
@@ -551,15 +544,23 @@ def _sin(t):
     return math.sin(t)
 
 
-def _keep_anim(facade, canopy, f, dy=0):
+def _keep_anim(pad):
     """The keep's two stacks and its four lit windows. Coordinates are
     sprite-local to the UNPADDED art and `dy` is passed THROUGH to
     _anim_building, which is the contract every other _*_anim in the project
     keeps — see the note on _wing_anim, which broke it and drew smoke out of
-    thin air for exactly that reason."""
-    _anim_building(facade, canopy, f, dy=dy,
-                   flues=((148, 104), (264, 104)),
-                   windows=((110, 132, 25, 33), (282, 132, 25, 33)))
+    thin air for exactly that reason.
+
+    A CLOSURE over the facade's `pad`, for the same reason `_wing_anim` is one:
+    the keep's canvas is widened by however much its crowns overhang (2026-08-02),
+    every x below is measured off the building and not off the canvas, and a
+    smoke plume that does not move with its chimney is this file's oldest bug."""
+    def anim(facade, canopy, f, dy=0):
+        _anim_building(facade, canopy, f, dy=dy,
+                       flues=((148 + pad, 104), (264 + pad, 104)),
+                       windows=((110 + pad, 132, 25, 33),
+                                (282 + pad, 132, 25, 33)))
+    return anim
 
 
 def academy_keep(stone, bark, fol, ground, salt=221, composite=True, frames=8):
@@ -624,28 +625,42 @@ def academy_keep(stone, bark, fol, ground, salt=221, composite=True, frames=8):
     way down the facade to the plinth rather than perching on a ridge nobody can
     see, and which are worth more as depth than a ridge stack ever was.
     """
-    W, H, FY = 416, 192, 122
-    CX = 208                                     # the precinct's axis, x=496 on the map
+    # ---- 0. THE CROWNS FIRST, because they decide how wide the canvas has to be -------
+    # A great crown is bigger than the channel its lobes are laid out in, and at 144
+    # wide it spills ~15px past the left of that channel and ~18px past the right —
+    # `great_crown` measures its own mass and hands the margin back (2026-08-02).
+    # Drawn onto a canvas sized for the BUILDING those margins were being discarded,
+    # so both towers had a dead-straight vertical cut down their outer side, hanging
+    # over open lawn. So the building's own width is a constant and the CANVAS is that
+    # plus whatever the leaves need; every x below is measured off the building and
+    # shifted by `PAD`, which is why the constants are the only place this appears.
+    crowns = [great_crown(fol, bark, salt=451 + 30 * i, w=144, h=128,
+                          lean=-5.0 if i else 5.0) for i in range(2)]
+    CPX = max(c[1] for c in crowns)
+    PAD = CPX + 2
+
+    BW, H, FY = 416, 192, 122                    # the BUILDING's width, not the canvas'
+    W = BW + 2 * PAD
+    CX = W // 2                                  # the precinct's axis, x=496 on the map
     GY = H - 1
-    TCX = (72, W - 72)                           # the two trunk centrelines
-    WX0, WX1 = 104, 311                          # the hall's wall
+    TCX = (PAD + 72, W - PAD - 72)               # the two trunk centrelines
+    WX0, WX1 = PAD + 104, PAD + 311              # the hall's wall
     RIDGE_Y, EAVE_Y = 52, 122                    # the great pitch
     RIDGE_H, EAVE_H = 62, 128
     PX0, PX1 = CX - 40, CX + 40                  # the porch bay
     PORCH_APEX, PORCH_EAVE = 62, 116
-    BREAST = (150, 266)                          # the two chimney breasts
+    BREAST = (PAD + 150, PAD + 266)              # the two chimney breasts
     sp = S(W, H, salt)
 
     # ---- 1. THE STONE FOOTING, and it runs the WHOLE width -----------------------------
     # A timber building on the ground is a timber building rotting into the ground.
     # It also does the lint's work: the four facade rows are opaque edge to edge
     # whatever the trees do, so no solid cell can render as open lawn.
-    # ...AND IT STOPS AT THE BLOCK, not at the canvas. The art is 26 cells wide over
-    # 22 cells of collision, so a footing run to `W - 1` lays 32px of dressed stone
-    # across open walkable lawn at each end and then stops in a hard vertical cut
-    # against the grass — a kerb going nowhere. The crowns are the only thing that
-    # may use the overhang; they are perforated leaves, which is what an overhang is
-    # for.
+    # ...AND IT STOPS AT THE BLOCK, not at the canvas. The art is wider than the 22
+    # cells of collision, so a footing run to `W - 1` lays dressed stone across open
+    # walkable lawn at each end and then stops in a hard vertical cut against the
+    # grass — a kerb going nowhere. The crowns are the only thing that may use the
+    # overhang; they are perforated leaves, which is what an overhang is for.
     BX0, BX1 = (W - 22 * 16) // 2, W - 1 - (W - 22 * 16) // 2
     _ashlar(sp, BX0, H - 14, BX1, GY, stone, salt, course=6, joint=15)
     sp.rect(BX0, H - 14, BX1, H - 14, stone[0])
@@ -655,8 +670,8 @@ def academy_keep(stone, bark, fol, ground, salt=221, composite=True, frames=8):
 
     # ---- 2. THE HALL WALL: dark oak frame, limewashed panels ---------------------------
     _timber_wall(sp, WX0, FY, WX1, H - 15, OAK, DAUB, salt, posts=10)
-    _lancet(sp, 122, 132, 164, 12, OAK, stone)
-    _lancet(sp, 294, 132, 164, 12, OAK, stone)
+    _lancet(sp, PAD + 122, 132, 164, 12, OAK, stone)
+    _lancet(sp, PAD + 294, 132, 164, 12, OAK, stone)
 
     # ---- 3. THE GREAT PITCH ------------------------------------------------------------
     _pitch(sp, CX, RIDGE_Y, EAVE_Y, RIDGE_H, EAVE_H, SHAKE, salt, course=6)
@@ -804,10 +819,12 @@ def academy_keep(stone, bark, fol, ground, salt=221, composite=True, frames=8):
     # They are DELIBERATELY cut by the screen's top edge. Every great tree in this
     # project runs off the top and that is what sells the scale: the trees are the one
     # thing here you never see all of.
-    for i, tcx in enumerate(TCX):
-        crown = great_crown(fol, bark, salt=451 + 30 * i, w=144, h=128,
-                            lean=-5.0 if i else 5.0)
-        _blit_sp(sp, crown, tcx - 72, 0)
+    # Built back at step 0, because their overhang is what set `PAD`. The channel
+    # goes back on (tcx - 72, 0) so the leaves land exactly where they always did
+    # and the margin draws instead of being cut; the TOP margin falls off the
+    # canvas, which is the cut this section wants anyway.
+    for tcx, (crown, cpx, cpt, _cpb) in zip(TCX, crowns):
+        _blit_sp(sp, crown, tcx - 72 - cpx, -cpt)
 
     # ---- 10. THE GALLERIES, and the BELL — drawn OVER the leaves -----------------------
     # A hooped timber deck round each trunk, level with the hall's own eaves and butting
@@ -884,7 +901,8 @@ def academy_keep(stone, bark, fol, ground, salt=221, composite=True, frames=8):
 
     edge(sp, H)
     clipw(sp, W)
-    return _finish(sp, S(W, H, salt + 1), W, FY, H, composite, frames, _keep_anim)
+    return _finish(sp, S(W, H, salt + 1), W, FY, H, composite, frames,
+                   _keep_anim(PAD))
 
 
 def _wing_anim(still):

@@ -2983,6 +2983,17 @@ driven by its `assets/maps/*.txt` file.
   grid. The town is on the ground; each tree carries a round **RING DECK** near
   its crown — one walkable stratum island apiece, reached by a rope ladder, with
   a door and a lit window cut into the trunk.
+  **THE CULTURE KIT (2026-08-01, re-wired).** `assets/_culture_props.py` — the
+  furniture family that argues the town's industry is WORDS — is live in both
+  eras through the shared recipe: the layered **notice board** and the
+  **messenger owl roost** stand together on the plaza's north rim (bureaucracy
+  and correspondence, one corner), and six candle **hook lanterns** hang beside
+  every great tree's ladder landing and flank the south gate. A candle is honest
+  fire, so the lanterns burn in the drained present — the same argument as
+  Alder's "honest oil, honest fire," and the reason a lamplighter is a trade
+  this village still has. (The kit's trade signs and bottle windows were
+  absorbed into `town_shop` itself; the standalone pieces were orphaned by the
+  forest-floor rebuild until this pass.)
   **THE CANOPY IS NOT A FLOOR, IT IS FOUR ISLANDS, and that cost two rebuilds to
   learn.** The version before this one made both canopy storeys continuous
   boardwalk edge to edge. A town that is 100% floor renders as horizontal stripes

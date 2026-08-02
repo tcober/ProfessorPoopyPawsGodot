@@ -20,8 +20,9 @@ import os, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 from _core import lerp
-from _tilekit import (TIMBER, BRASS, STEEL, COPPER, IRON, STONER, GLASS, MINT,
-                      VIOLETF, PAPER, PAPERD, RED, SPEC, WATER, STEAM, ramp)
+from _tilekit import (TIMBER, BRASS, BRASSD, STEEL, COPPER, COPPERD, IRON,
+                      STONER, GLASS, MINT, VIOLETF, PAPER, PAPERD, RED, SPEC,
+                      WATER, STEAM, ramp)
 from _propkit import S, ln, edge, split_rows
 
 DOORDARK = (24, 18, 44, 255)      # an open doorway's inside
@@ -135,13 +136,16 @@ def _chimney(sp, x, y0, y1, cast=None):
                 px_, py_ = x + 4 + j, y1 - 3 + i
                 if sp.get(px_, py_) is not None:
                     sp.set(px_, py_, cast[4])
-    sp.rect(x, y0 + 1, x + 3, y1, COPPER[2])
-    sp.rect(x, y0 + 1, x, y1, COPPER[1])
-    sp.rect(x + 3, y0 + 1, x + 3, y1, COPPER[4])
-    sp.rect(x - 1, y0, x + 4, y0, BRASS[1])
-    sp.set(x, y0, BRASS[0])                                # lit cap edge
-    sp.set(x - 1, y0 + 1, BRASS[3])
-    sp.set(x + 4, y0 + 1, BRASS[3])
+    # honest copper, never COPPER[3..5]/BRASS[3] — the violet law resolves those
+    # to red, wine and magenta, and every roofline in Alembic wore them (this is
+    # _academy_props._flue's palette, promoted to the shared builder 2026-08-01)
+    sp.rect(x, y0 + 1, x + 3, y1, COPPERD[2])
+    sp.rect(x, y0 + 1, x, y1, COPPERD[1])
+    sp.rect(x + 3, y0 + 1, x + 3, y1, COPPERD[4])
+    sp.rect(x - 1, y0, x + 4, y0, BRASSD[1])
+    sp.set(x, y0, BRASSD[0])                               # lit cap edge
+    sp.set(x - 1, y0 + 1, BRASSD[2])
+    sp.set(x + 4, y0 + 1, BRASSD[2])
 
 
 def _steam(sp, x, y, drift=1, big=False):

@@ -409,10 +409,9 @@ but a **walkable cell under an opaque continuous mass makes the body vanish**, a
 fails it: `T3_HIDE_MAX = 0.90`, measured against the 22×38 figure at `cell_center`, not
 against the 16px cell (per-cell coverage can't tell a trunk from a leaf mass — both hit
 100%). Everything shipping hides ≤84.9%. **Fix = retype the cell solid, or perforate the
-art** — never lower the threshold. Currently FAILING on `town.txt`/`town_fest.txt` at
-`(41,18)`: the great trunk's 35px shaft erases anyone on the canopy walkway's centre `J`
-cell (100% hidden, 0 visible pixels in-engine). Known v1 defect, to be cured by the grid
-re-author.
+art** — never lower the threshold. (The lint's founding case — the canopy walkway's `J`
+cell at `(41,18)` erased by the great trunk's shaft — was cured by the 2026-07-30
+ring-islands re-author; the lint is green everywhere as of 2026-08-01.)
 
 ## Sibling map grids are byte-locked
 

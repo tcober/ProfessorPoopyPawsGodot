@@ -406,18 +406,27 @@ func _leaving() -> void:
 
 # ---- helpers ----------------------------------------------------------------------
 
-## Same wall as town_fest's: the gate-mouth road runs to the map edge and
-## the dash/call phases never wire the exit — without it a body can walk
-## off the south edge into the void.
+## Same walls as town_fest's: the 80x56 grid has THREE mouth roads running to
+## the map edge (south gate, north lane, east lane) and the thesis phases wire
+## an exit on none of them — without these a body can walk off the collision
+## grid into the void.
 func _wall_gate_mouth() -> void:
+	var size := MapData.size_px(map)
+	_wall(Vector2($ExitSouth.position.x, size.y + 4.0), Vector2(64.0, 8.0))
+	_wall(Vector2(MapData.anchor_px(map, "exit_north").x, -4.0), Vector2(64.0, 8.0))
+	_wall(Vector2(size.x + 4.0, MapData.anchor_px(map, "exit_se").y),
+			Vector2(8.0, 64.0))
+
+
+func _wall(at: Vector2, size: Vector2) -> void:
 	var wall := StaticBody2D.new()
 	wall.collision_layer = 1
 	var shape := CollisionShape2D.new()
 	var rect := RectangleShape2D.new()
-	rect.size = Vector2(64.0, 8.0)
+	rect.size = size
 	shape.shape = rect
 	wall.add_child(shape)
-	wall.position = Vector2($ExitSouth.position.x, MapData.size_px(map).y + 4.0)
+	wall.position = at
 	add_child(wall)
 
 

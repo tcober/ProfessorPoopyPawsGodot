@@ -38,7 +38,8 @@ static func build(props_path: String, map: Dictionary, world: Node2D) -> void:
 			spawned.append(_mask_strip(parts, world))
 			continue
 		assert(parts.size() >= 4 and parts[0] == "prop", "bad prop row: " + line)
-		var top := -1
+		var top := 0
+		var has_top := false
 		var base_inset := 0.0
 		var hframes := 1
 		var each := false
@@ -46,7 +47,12 @@ static func build(props_path: String, map: Dictionary, world: Node2D) -> void:
 			if opt == "each":
 				each = true
 			elif opt.begins_with("anchor=top:"):
+				# signed, and the sign matters: a NEGATIVE offset hangs the art
+				# above its footprint, which is how a great tree's crown gets to
+				# be taller than the cells it stands over (a `-1` sentinel for
+				# "unset" used to swallow that silently and bottom-anchor it).
 				top = int(opt.trim_prefix("anchor=top:"))
+				has_top = true
 			elif opt.begins_with("base_inset="):
 				base_inset = float(opt.trim_prefix("base_inset="))
 			elif opt.begins_with("hframes="):
@@ -72,7 +78,7 @@ static func build(props_path: String, map: Dictionary, world: Node2D) -> void:
 			spr.position = Vector2(rect.get_center().x, base_y - PLAYER_FEET)
 			# art anchors to the footprint: bottom on the south edge, or the
 			# sprite top at bbox_top + <top> px (the bed-cover crop case)
-			var art_top := rect.position.y + top if top >= 0 \
+			var art_top := rect.position.y + top if has_top \
 					else rect.end.y - tex.get_height()
 			spr.offset = Vector2(0.0, art_top + tex.get_height() / 2.0 - spr.position.y)
 			world.add_child(spr)
