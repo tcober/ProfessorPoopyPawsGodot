@@ -12,6 +12,14 @@ extends Object
 ## TileScene.assert_strata, which is what enforces the disjointness at build
 ## time). It defaults to "ground", so every map written before it is unchanged.
 
+## The one stratum allowed to touch two others — a rope ladder, a stair, anything
+## authored as the JOIN between two storeys rather than as a storey. `assert_strata`
+## in _tilekit.py enforces the "exactly two" half; what the game side needs it for is
+## the corollary: a link cell is a corridor by construction and never a place to
+## stand.
+const LINK_STRATUM := "link"
+
+
 static func load_map(path: String) -> Dictionary:
 	var legend := {}
 	var anchors := {}
@@ -124,6 +132,30 @@ static func terrain_at(map: Dictionary, cell: Vector2i) -> String:
 
 static func terrain_at_px(map: Dictionary, pos: Vector2) -> String:
 	return terrain_at(map, Vector2i(floori(pos.x / 16.0), floori(pos.y / 16.0)))
+
+
+## The pixel CENTRE-LINE of the contiguous horizontal run of same-terrain cells
+## through `pos` — the lane a body climbing a rope ladder is pinned to.
+##
+## Asked of the map rather than hardcoded to "ladders are two cells wide", for the
+## usual reason: a ladder that moves in the grid, or one authored three cells wide
+## for a great tree, brings its own centre with it and no scene has to be told.
+##
+## An unlegended or off-map cell answers with `pos.x` — its own run is nothing, and
+## walking the scan off the edge of the world would otherwise never terminate,
+## because off-map terrain is "" and so is the terrain it would be matching.
+static func terrain_run_center_x(map: Dictionary, pos: Vector2) -> float:
+	var cell := Vector2i(floori(pos.x / 16.0), floori(pos.y / 16.0))
+	var terrain := terrain_at(map, cell)
+	if terrain.is_empty():
+		return pos.x
+	var x0 := cell.x
+	while terrain_at(map, Vector2i(x0 - 1, cell.y)) == terrain:
+		x0 -= 1
+	var x1 := cell.x
+	while terrain_at(map, Vector2i(x1 + 1, cell.y)) == terrain:
+		x1 += 1
+	return float(x0 + x1 + 1) * 8.0
 
 
 static func size_px(map: Dictionary) -> Vector2:

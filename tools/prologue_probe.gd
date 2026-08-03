@@ -168,7 +168,7 @@ func _run() -> void:
 
 	# ---- the fountain proximity trigger -> the teasing + the theft ----------
 	# (the goose theft runs inside the festival cutscene now — budget covers
-	# the waddle-in, the snatch, and the bridge getaway)
+	# the take-off, the snatch, and the climb out over the rooftops)
 	var town_map: Dictionary = MapData.load_map("res://assets/maps/town_fest.txt")
 	_player().global_position = MapData.anchor_px(town_map, "basil_mark") + Vector2(0.0, -16.0)
 	var festival_done := func() -> bool: return game.flag("prologue_festival_done")
@@ -176,7 +176,7 @@ func _run() -> void:
 	_check("walking by the fountain fires the teasing", ok)
 	await _wait_frames(30)
 
-	# ---- the hidden goose in the orchard ------------------------------------
+	# ---- the hidden goose, up the great tree ---------------------------------
 	var town := current_scene
 	var town_box_closed := func() -> bool: return not town.theater.dialog.visible
 	var npcs := {}

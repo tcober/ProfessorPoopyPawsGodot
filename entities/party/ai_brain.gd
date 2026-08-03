@@ -109,15 +109,38 @@ func _latch_valid() -> bool:
 
 func _follow(to_leader: Vector2, intent: PartyMember.Intent) -> void:
 	var dist := to_leader.length()
-	if _moving:
-		if dist <= follow_distance:
-			_moving = false
+	# A FOLLOWER NEVER STOPS ON A LINK CELL (2026-08-02). The follow band is 34px and
+	# a rope ladder is far taller than that, so a follower catching up to a leader who
+	# has just climbed a great tree reaches "close enough" ON THE RUNGS — a storey
+	# short, and parked in the one kind of cell that is a corridor rather than a place,
+	# blocking the only lane off it until the leader happens to move again. Distance
+	# cannot express that; the map already does. Single-storey scenes — every scene
+	# but Alembic Town so far — have no link cells at all, so the hysteresis band is
+	# unchanged everywhere else.
+	if not _on_link():
+		if _moving:
+			if dist <= follow_distance:
+				_moving = false
+				return
+		elif dist < follow_resume:
 			return
-	elif dist < follow_resume:
-		return
 	_moving = true
 	var boost := catchup_boost if dist > boost_at else 1.0
 	intent.move = to_leader.normalized() * boost
+
+
+## Is the member standing on a cell that JOINS two storeys rather than being one?
+## Asked of the FEET, like every other question about which cell a body is in, and of
+## the map rather than a marker — a scene with no map has no strata and answers false.
+func _on_link() -> bool:
+	var scn := member.get_tree().current_scene
+	if scn == null:
+		return false
+	var m: Variant = scn.get("map")
+	if not (m is Dictionary) or (m as Dictionary).is_empty():
+		return false
+	return MapData.stratum_at_px(m as Dictionary,
+			member.global_position + PartyMember.FOOT_OFFSET) == MapData.LINK_STRATUM
 
 
 ## Abandoned out of sight — reappear a step behind the leader. The member's

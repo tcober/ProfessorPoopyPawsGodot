@@ -455,12 +455,11 @@ in the commit that creates it.**
 Every great tree in Alembic Town had a **FLAT TOP**. Reported as "the top of the trees
 are cropped in a bunch of weird ways", and that is exactly what it was: `great_crown`'s
 lobe tables were laid out against a 224×128 channel and spilled ~21px past the top, ~8
-left, ~11 right and ~10 below — and **`Sprite.set` discards out-of-range pixels
-silently**, so every one of those came back as a ruler-straight cut. Measured on the
-shipped PNG: a **123px flat cut across the top of the dome**, 38 and 46px down the
-sides, 84 across the hem. `edge()` cannot outline a silhouette with no empty pixel
-beside it, so the cuts had no outline either — a tree in a box, dead centre of screen,
-with forest still visible above the cut.
+left and ~11 right — and **`Sprite.set` discards out-of-range pixels silently**, so
+every one of those came back as a ruler-straight cut. Measured on the shipped PNG: a
+**123px flat cut across the top of the dome** and 38 and 46px down the sides. `edge()`
+cannot outline a silhouette with no empty pixel beside it, so the cuts had no outline
+either — a tree in a box, dead centre of screen, with forest still visible above the cut.
 
 - **The generator knows its own extents, so it should allocate its own canvas.** Hoist
   the ellipse/limb tables above the `S(...)` call, take the union of their bounds, size
@@ -468,20 +467,44 @@ with forest still visible above the cut.
   `PX()`/`PY()` pair that maps channel coordinates into the padded canvas. Nothing about
   the authored look changes — only the parts that were never being drawn appear.
 - **Hand the pads back, because only the caller can place them.** `great_crown` returns
-  `(sp, pad_x, pad_t, pad_b)`. `pad_x` must be the **max of the two sides, not one
-  each**: `PropSpawner` centres a prop on its footprint's x, so an asymmetric canvas
-  slides the whole crown sideways off its own trunk.
+  `(sp, pad_x, pad_t)`. `pad_x` must be the **max of the two sides, not one each**:
+  `PropSpawner` centres a prop on its footprint's x, so an asymmetric canvas slides the
+  whole crown sideways off its own trunk.
 - **`anchor=top:` is SIGNED**, and a negative value is how art hangs above its footprint.
   `prop_spawner.gd` used `-1` as its "unset" sentinel and silently bottom-anchored
   anything negative; it carries an explicit `has_top` flag now. `_check_art.py` already
   handled a signed `top`.
-- **ANCHOR A CROWN BY ITS HEM, NOT BY ITS HEAD.** The two vertical pads do not cost the
-  same. Hung from the channel's top row (`top=-pad_t`) the whole mass drops by `pad_b`
-  and the leaf hem swallows **the arch of the door in the trunk** — measured, and the
-  door is the one thing on a great tree the player has to read. Hung by the hem
-  (`top=-(pad_t + pad_b)`) everything from the deck down is pixel-for-pixel where it
-  always was and the growth all goes UP into the dome, which is the half that was
-  missing. Alembic's northernmost tree now runs off the top of the map, where
+- **THREE SIDES, NOT FOUR — A CROWN'S HEM IS A JOIN, NOT A SILHOUETTE, and padding it
+  is a SECOND bug** (reported as "gaps between the top of the trees and the trunks").
+  `trunk_face`'s top edge is dead straight and may not be one pixel taller (a taller
+  shaft makes a body on the ring's north arc 100% invisible — see that builder), so the
+  crown exists to swallow it. Pad the bottom and the job falls to the lowest lobe, whose
+  domed hem runs 108 at the trunk's edges to 125 at its centre — measured, it never
+  reaches the trunk's top edge at 128 anywhere, and bare deck shows between the leaves
+  and the bark on every tree. So the mass is trimmed at the channel's last row, and the
+  trim gets no dark line because **`edge()` outlines BEFORE it clears those rows** and
+  the mass continues below them.
+- **AND A CLEAN TRIM IS STILL ONLY AN ABUTMENT, which is the THIRD bug in the same
+  family** ("the log should flow under the tree top — it is cropping the bottom
+  unnaturally"). Two sprites that MEET along a line read as a cut however well the line
+  is placed. What reads as depth is one thing passing BEHIND another, so the upper
+  sprite has to carry the lower one's continuation: `great_crown` takes `shaft_w` and
+  draws `_shaft` at `trunk_face`'s exact half-width, and the trim then cuts through
+  **bark** over the trunk's columns — bark-at-127 meeting bark-at-128 is not a join at
+  all (same ramp, same width, same banding law).
+- **Draw that continuation OVER the finished mass, not under it.** Under is the
+  intuitive order and it is useless: the leaves are opaque down to the trim and bury
+  every pixel — measured 0 visible bark rows across the trunk's 60 columns. Over, with
+  a **hashed ragged top edge** and two bands of leaf-shadow on the bark below it, the
+  trunk emerges through the foliage. It costs **no** walk-behind coverage, which is what
+  makes it legal: it swaps leaf pixels for bark pixels and adds opacity nowhere.
+- **The general shape of the lesson**: pad a border that is a SILHOUETTE; trim one that
+  is a JOIN; and for a join, make sure one sprite actually **overlaps** the other rather
+  than stopping at it. Ask what is behind the edge — sky, or the thing this art is
+  supposed to be continuous with.
+- Anchoring follows from it: `top = -pad_t` puts the channel back on the footprint's own
+  top row, so the hem is pixel-for-pixel where it always was and all the growth goes UP
+  into the dome. Alembic's northernmost tree now runs off the top of the map, where
   `limit_top = 0` cuts it at the **screen** edge — which reads as scale, not as damage.
   That is the whole difference: a cut at the frame border is the Academy's own doctrine,
   a cut floating mid-picture is a bug.
@@ -494,11 +517,36 @@ with forest still visible above the cut.
   464 wide, still centred, so nothing moves in the world). `_keep_anim` became a
   **closure over `PAD`** for the same reason `_wing_anim` is one: a smoke plume that
   does not move with its chimney is this file's oldest bug.
-- **Assert it, don't lint it.** A crown that overflows renders, dedupes and passes every
-  check in `_check_art.py`. A border-pixel assert at the end of the builder is the
-  cheap, local guard, and a lint over prop PNGs can't have it — buildings, curtains and
-  trunk shafts legitimately run to their canvas edge, so the allowlist would be most of
-  the file. The rule only binds art with an **organic silhouette**.
+- **Assert the canvas, lint the seam.** For the overflow, a border-pixel assert at the
+  end of the builder is the cheap local guard — on the **top and sides only**, since the
+  hem is meant to be solid leaf — and a lint over prop PNGs can't do it: buildings,
+  curtains and trunk shafts legitimately run to their canvas edge, so the allowlist
+  would be most of the file. For the seam there is now a real lint (below).
+
+## THE JOIN LINT — `_check_art.py`'s `JOINS` table (2026-08-02)
+
+All three crown bugs happened at the same seam and every one of them passed every other
+check in the file. The z-order lints ask "is a body visible" and "does a solid cell look
+walkable"; nothing was looking at **two pieces of scenery that are supposed to be one
+object**. `JOINS` names those pairs — `{map: [(upper prop, lower prop, overlap px)]}` —
+and checks the lower prop's own **top row** as the seam, per component, pairing upper to
+lower by geometry so a tree moving in the map txt cannot silently pair with its
+neighbour. Two conditions:
+
+- **NO DAYLIGHT** — the upper art must be opaque for `overlap` rows above every seam
+  column. This is the gap.
+- **CONTINUATION** — the upper art's pixel just above the seam must be the **same pixel**
+  as the lower art's own top pixel, for ≥ `JOIN_SAME_MIN` of the columns. This is the
+  abutment, and exact equality is fair because the same ramp at the same half-width
+  under the same banding law produces the same colour per column; the hashed grooves are
+  what the threshold absorbs.
+
+Measured on all four of Alembic's trees: **58/61 columns (0.95)** with the crown carrying
+the shaft, **0/61 (0.00)** without it, and 61/61 daylight columns with the crown lifted
+14px. Both failure modes were re-introduced and confirmed to fail before the lint was
+called done — **a lint you have only ever seen pass is not evidence of anything.**
+`png_alpha` is now a narrowing of `png_pixels`, because "same material?" needs colour,
+not just coverage.
 
 ## Color law (the gotchas that cost real bugs)
 

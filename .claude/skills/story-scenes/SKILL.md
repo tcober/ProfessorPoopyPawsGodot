@@ -216,12 +216,41 @@ rests on playable solo Fuji in Lanternwood.** The adult Basil sandbox is reached
 | `scene/prologue_open.tscn` | title + era cards; ESC skips to the adult sandbox | — |
 | `scene/house_fest.tscn` | scripted SUNRISE — asleep → eyes open → window → curtains → sigh → control | — |
 | `scene/downstairs_fest.tscn` | Mom's good-morning by the hearth unlocks the front door | `prologue_saw_mom` |
-| `scene/town_fest.tscn` | the Founding Festival; the fountain-square teasing cutscene; the WANDER GATE (talk to any 3 of six talkables, then "I want to go home"); the BLESSING DOUBLE-BACK | `prologue_gate_open` |
+| `scene/town_fest.tscn` | the Founding Festival; the fountain-square teasing cutscene; **THE GOOSE** (below); the WANDER GATE (talk to any 3 of six talkables, then "I want to go home"); the BLESSING DOUBLE-BACK | `prologue_gate_open` |
 | `scene/bluff.tscn` phase `meet` | the whirligig quest: kid Kitty, the parts at the `part_*` anchors, the crank-up mash, the flight, then **THE IDEA** ("could it carry a flask?") | `prologue_part_*`, `prologue_whirligig_done` |
 | `scene/downstairs_fest.tscn` (flag phase) | **THE BREW** — walk-gate on the workbench top `E`, then a STIR mash cycling the flask through the four `Alchemy` tints | `prologue_potion_made` |
 | `scene/hall.tscn` phase `recital` | **THE RECITAL** — the flight with a flask pinned under the pod, four fireworks in the four COMPOUND colours | `prologue_recital` |
 
 Then the card "THREE SUMMERS LATER." → the bluff's `romance` phase.
+
+**THE GOOSE, RESTAGED A THIRD TIME (2026-08-02).** Staging one was an announced waddle to
+Sage's elbow, which read as anything but a theft. Staging two was the sneak FLY-BY: in
+from off-screen west, snatch mid-glide, out east over the town's river bridge. Then the
+80×56 forest-floor rebuild took the river, the bridge and the orchard out of the grid —
+and the beat kept running with none of them. The bird stood on the square in plain sight
+for the whole teasing scene and **blinked out of existence one beat before it flew in**,
+because the first thing `_goose_theft` did was teleport it off-camera to start from; Sage
+then sent the player over a bridge that no longer existed, to a hide-out that was now
+open lawn. Every symptom was one cause: *the flight was authored against a map, and the
+map moved.*
+
+Staging three removes the coupling instead of re-tuning it. **IT TAKES OFF FROM WHERE IT
+HAS BEEN STANDING** — nothing teleports, so nothing can vanish, and the setup pays off,
+because it has been loitering there eyeing the ribbons since before Basil arrived and the
+player can walk up and be told so. **AND IT GOES UP**, over the rooftops onto a
+neighbour's RING DECK: in a town whose north edge is four great trees, up is where a thief
+goes and the one direction you cannot follow at a walk. That makes the recovery a
+character beat rather than a fetch — the one cat in town who can't do magic gets the
+ribbon back by CLIMBING, and "nobody catches the goose" is true because nobody else would
+bother.
+
+Two things hold it in place, both in `town_fest.gd`. The exit is the ONLY part still
+measured off the camera (`_locked_view`), aimed at the hide anchor's own column, and it
+`assert`s off-frame. And the take-off `assert`s ON-frame — which is a real constraint on
+`npc_goose`, not a formality: the anchor must sit inside the locked window **and above
+the dialog box**, which owns the bottom third of the frame for the whole scene. A cell
+three rows south passed the first and failed the second, and a thief you cannot see
+loitering is not a setup.
 
 **The recital chain (2026-07-25)** pays off two shipped setups — Schweinler's fest-square
 taunt and the Academy door's `locked_text` "RECITAL IN PROGRESS" — and answers *why the

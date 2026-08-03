@@ -253,6 +253,24 @@ down bounced straight back out), fest/thesis wall all THREE mouths, A13's School
 marker got a lane-wide shape and its banner says NORTH LANE (the stair is gone), the
 Academy's border mouth is exactly its road, and ~86 stale canopy-era PNGs are deleted.
 
+**THE LADDER IS A LANE, AND THE GOOSE GOES UP IT (2026-08-02).** Two consequences of
+the forest-floor rebuild, both reported from play. **A rope ladder is now ONE LANE WIDE
+and you are on it or off it** — `PartyMember._climb` pins the body to the run's own
+centre line and takes only the SIGN of the vertical input (so a diagonal is simply
+*up*), the hop is refused on the rungs, and `_funnel` reaches the lane one cell out
+because the mouth is narrower than the ladder: the rungs sit inside the trunk's four
+columns, so a 12px body only fits through the middle 20px and walking at a great tree
+six pixels off centre used to stop you dead against bark. `AIBrain` gained the matching
+rule — **a follower never stops on a `link` cell**, because the 34px follow band is
+shorter than a ladder and it was settling a storey short, on the rungs. `tools/
+ladder_probe.gd` holds all of it. And **the goose theft was restaged a third time**: the
+2018-era fly-by came in from off-screen west and left over a river bridge this grid no
+longer has, so the bird visibly BLINKED OUT one beat before it flew in (the flight
+teleported it off-camera to start from) and Sage sent you over a bridge to an orchard
+that was now lawn. It takes off from where it has been standing now — in frame, above
+the dialog box, watched — and goes UP onto a neighbour's ring deck, which makes getting
+the ribbon back a beat about the boy who can't do magic CLIMBING.
+
 Designed but NOT built — both live in Alembic Town, and the grids they were waiting on
 have now settled: **Act 1 beat 4 — ASKING AROUND**, where the wander gate is not a crowd
 but **adult Sage and Basil's mother**, and the rumour that he walked into the deep wood

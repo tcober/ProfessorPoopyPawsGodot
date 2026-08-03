@@ -10,8 +10,9 @@ extends TravelScene
 ## (reworked 2026-07-15): three stinging villager talks → "I want to go
 ## home." → back through the FRONT DOOR to Mom downstairs, whose blessing
 ## by the hearth opens the south gate (the double-back — Mom stays home, no
-## duplicate festival Mom). The goose steals Sage's ribbon mid-cutscene and
-## hides in the orchard; finding it is a warmth beat that counts as a talk.
+## duplicate festival Mom). The goose steals Sage's ribbon mid-cutscene and goes
+## UP — onto a great tree's ring deck, up the rope ladder and nowhere else;
+## climbing after it is a warmth beat that counts as a talk.
 
 const MAP_PATH := "res://assets/maps/town_fest.txt"
 const LAYOUT_PATH := "res://assets/tilesets/town_fest_layout.txt"
@@ -41,16 +42,14 @@ const GATE_TALKS := 3
 ## Where the goose BODY must be for the cell pinned at its beak to sit on the
 ## ribbon it is stealing (the carried sprite hangs at +12,+2 — see below).
 const BEAK_OFF := Vector2(-9.0, -2.0)
-## How far clear of the locked view's left/right edge the flight begins and
-## ends. A goose cell is 48px wide, so FLY_IN_CLEAR already puts the whole
-## sprite off-frame for the teleport in; the exit carries further because the
-## hidden orchard respawn happens behind it.
-const FLY_IN_CLEAR := 48.0
-const FLY_OUT_CLEAR := 68.0
-## The swoop's shape, measured UP from the snatch point: in a touch high, dip
-## through the ribbon, climb away steeper than it came.
-const FLY_IN_LIFT := 10.0
-const FLY_OUT_LIFT := 24.0
+## The glide line, measured UP from the snatch point: it levels off a touch above
+## the ribbons and takes one on the way past rather than dropping onto it.
+const FLY_LIFT := 10.0
+## How far outside the locked view the flight ENDS. Since 2026-08-02 the exit is
+## the only part of the flight measured off the camera — the take-off happens at
+## the bird's own feet — and it needs the clearance because the hidden respawn
+## happens behind it. A goose cell is 48px, so this covers the whole sprite.
+const FLY_CLEAR := 68.0
 
 var _talked := {}
 var _gate_hinted := false
@@ -282,17 +281,18 @@ func _sage_lines() -> PackedStringArray:
 	if Game.flag("prologue_festival_done"):
 		return PackedStringArray([
 			"You're not REALLY mad, right? ...Basil?",
-			"And the GOOSE! You SAW it - it didn't even LAND! One swoop and my ribbon's gone. Get it back and I'll forgive your sulking forever.",
+			"And the GOOSE! It went UP with it. Straight up the great tree, like the tree was ITS tree. Get it back and I'll forgive your sulking forever.",
 		])
 	return PackedStringArray(["Watch THIS!"])
 
 
-## Three goose states (the theft rework, 2026-07-15): ribbon recovered — a
-## dignified goose back on the lane; hidden — the thief tucked behind the
-## orchard TreeCrown east of the river, just its head over the leaves (the
-## y-sorted crown covers the body; the stolen ribbon floats as the tell);
-## else — the pre-theft goose loitering on the lane, eyeing the ribbons
-## (the theft itself runs inside the festival cutscene).
+## Three goose states (the theft rework, 2026-07-15; rehoused 2026-08-02):
+## ribbon recovered — a dignified goose back on the square; hidden — the thief
+## round the back of a great tree's trunk on its RING DECK, thirty feet up, the
+## stolen ribbon still in its beak as the tell; else — the pre-theft goose
+## loitering on the square's west road a few cells off Sage, eyeing the ribbons,
+## and IN FRAME for the whole teasing cutscene, because the theft launches from
+## exactly there (see _goose_theft, and the anchor's own note in the map txt).
 func _spawn_goose() -> void:
 	var npc: NPC = NPCScene.instantiate()
 	npc.display_name = "Goose"
@@ -309,9 +309,11 @@ func _spawn_goose() -> void:
 		npc.lines = PackedStringArray([
 			"HONK?! (It nearly jumps out of its feathers.)",
 		])
-		# the anchor sits on the walkable bank cell (the anchor lint); the
-		# goose itself tucks one step east, under the y-sorted crown
-		npc.position = MapData.anchor_px(map, "goose_hide") + Vector2(16.0, 0.0)
+		# The anchor IS the deck cell it stands on now. The old +16px step east
+		# existed to tuck the body under a y-sorted orchard TreeCrown, and a ring
+		# deck has no crown over its east arc to tuck under — the trunk is the
+		# cover, and it is cover you have to climb a rope ladder to get behind.
+		npc.position = MapData.anchor_px(map, "goose_hide")
 		npc.talked.connect(_goose_startle)
 		var carried := WorldFx.sheet_sprite(FX_SHEET, 0)
 		carried.position = Vector2(7.0, -14.0)
@@ -438,23 +440,34 @@ func _festival_cutscene() -> void:
 	# ONE objective at a time (2026-07-25): the goose is the whole job here.
 	# "TALK TO THE TOWNSFOLK" used to fire on its heels and now waits for
 	# _ribbon_return(), which is the beat that actually ends this thread.
-	_show_banner("THE GOOSE FLED EAST - OVER THE BRIDGE", BANNER_HOLD)
+	_show_banner("THE GOOSE WENT UP THE GREAT TREE - CLIMB", BANNER_HOLD)
 
 
-## The goose FLIES BY (the sneak restage, 2026-07-18: the old announced
-## waddle-to-her-elbow read as anything but a theft): no narration, a swoop
-## in from off-screen WEST at ribbon height, the lowest of Sage's ribbons
-## snatched mid-glide — the SAME fx cell rides the beak and the orchard
-## hide-out — and out past the east edge toward the bridge before anyone
-## has finished blinking. Sage's reaction lands AFTER it's gone. Both
-## flight endpoints are outside the locked view, so the teleport in and the
-## hidden respawn are invisible — and since 2026-07-29 that is TRUE BY
-## CONSTRUCTION rather than true of this grid: the endpoints are measured
-## outward from _locked_view() around the body the cutscene parked, and the
-## snatch is measured off the ribbon's own stashed rest pixel. This block was
-## the most brittle thing in the town, triple-coupled to sage_pos, to the
-## camera's window at basil_mark, and to the map's east/west extents; all
-## three of those couplings are now read at run time from the map.
+## THE THEFT, RESTAGED FOR THE FOREST-FLOOR TOWN (2026-08-02). Three stagings
+## now, and the sequence is the lesson:
+##
+##  1. the announced waddle to her elbow (retired 2026-07-18) read as anything
+##     but a theft;
+##  2. the sneak FLY-BY that replaced it swooped in from off-screen WEST, took
+##     the ribbon mid-glide and climbed out east over the town's river bridge.
+##     Then the 80x56 rebuild took the river, the bridge AND the orchard out of
+##     this grid — and with them the loitering goose's cover. The bird stood on
+##     the square in plain sight for the whole teasing scene and then BLINKED
+##     OUT OF EXISTENCE one beat before it flew in, because the first thing the
+##     flight did was teleport it off-camera to start from.
+##
+## So it does not fly IN any more. IT TAKES OFF FROM WHERE IT HAS BEEN STANDING,
+## which is the fix and the better joke at once: it has been on the paving eyeing
+## those ribbons since before Basil got here — the player can walk up and be told
+## so, in as many words — and it goes while every character on screen is looking
+## at Schweinler. Nothing teleports, so nothing can vanish.
+##
+## The only part still measured off the camera is the EXIT, and the exit is UP,
+## aimed over the rooftops at the ring deck it will be found on. In a town whose
+## north edge is four great trees, up is where a thief goes and the one direction
+## you cannot follow at a walk — so "it went up the great tree" is something the
+## player WATCHED rather than something Sage asserts. The snatch is still read off
+## the ribbon's own stashed rest pixel, so Sage can stand anywhere.
 func _goose_theft() -> void:
 	var goose: NPC = _npcs["Goose"]
 	await theater.wait(0.6)               # the sulk hangs one beat
@@ -468,39 +481,44 @@ func _goose_theft() -> void:
 	# theft would desync the moment she moved. Reading rib's own rest instead
 	# means she can stand anywhere and the beak still crosses the ribbon.
 	var snatch: Vector2 = (rib.get_meta("rest") as Vector2) + BEAK_OFF
-	# THE FLIGHT: in from off-screen WEST, out past the east edge. Both x's are
-	# stepped outward from the locked view's own edges (was Vector2(200,306) in
-	# and Vector2(700,292) out — 48px and 68px clear of the x248/x632 this grid
-	# happens to produce); both y's hang off the snatch, so the dip stays a dip
-	# however high the ribbons float.
 	var view := _locked_view(player.global_position)
-	var from := Vector2(view.position.x - FLY_IN_CLEAR, snatch.y - FLY_IN_LIFT)
-	var to := Vector2(view.end.x + FLY_OUT_CLEAR, snatch.y - FLY_OUT_LIFT)
-	assert(from.x < view.position.x and to.x > view.end.x,
-			"the goose must enter and leave OFF-CAMERA")
-	goose.global_position = from
+	var from := goose.global_position
+	# Out the TOP of the frame on the hide-out's own column, so the line it leaves
+	# on is the line the player is about to walk. Off-camera by construction: the
+	# camera's window is thirteen tiles tall and the ring decks are at the map's
+	# north edge, so nothing aimed at one can end inside it.
+	var to := Vector2(MapData.anchor_px(map, "goose_hide").x,
+			view.position.y - FLY_CLEAR)
+	assert(not view.has_point(to), "the goose must leave the frame")
+	assert(view.has_point(from), "the goose must take off ON camera — see above")
 	goose.sprite.play("fly")
-	goose.sprite.flip_h = true            # fly cells face LEFT; east = flipped
+	goose.sprite.flip_h = true            # fly cells face LEFT; the run east = flipped
 	var tw := create_tween()
-	# glide in on a shallow dip so the beak crosses the ribbon's spot...
-	tw.tween_property(goose, "global_position", snatch, 0.75)
+	# Off the paving first: the heavy vertical scramble a goose actually leaves
+	# on, straight up onto the glide line rather than any kind of approach.
+	tw.tween_property(goose, "global_position",
+			Vector2(from.x + 6.0, snatch.y - FLY_LIFT), 0.55) \
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	# ...then the run east across the square, on which the ribbon simply IS.
+	tw.tween_property(goose, "global_position", snatch, 0.3)
 	tw.tween_callback(func() -> void:
 		rib.queue_free()                  # its bob tween dies with it
 		var carried := WorldFx.sheet_sprite(FX_SHEET, cell)
 		carried.position = Vector2(12.0, 2.0)   # the flying beak height
 		goose.add_child(carried))
-	# ...and climbs out east past the frame, ribbon trailing
-	tw.tween_property(goose, "global_position", to, 1.5)
+	# ...and away over the rooftops, climbing, gone before Sage turns round.
+	tw.tween_property(goose, "global_position", to, 1.2) \
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 	await tw.finished
 	await theater.wait(0.8)               # a beat; it is very gone
 	(_npcs["Sage"] as NPC).play_emote()
 	await theater.say("Sage", "...did that goose just steal my RIBBON!?")
-	await theater.say("Sage", "It went over the BRIDGE! Basil, you're the fast one!")
+	await theater.say("Sage", "It went UP! Over the shop and up the GREAT TREE. Basil - you're the one who CLIMBS.")
 	# DROP THE BOX before the caller's objective banner: the two share the
 	# bottom of the frame, and a beat that opens the dialog owes it a close —
 	# leaving Sage's last line up painted the banner out from under it
 	theater.close_dialog()
-	# respawn as the hidden orchard goose (the talkable startle state)
+	# respawn up the tree as the hidden goose (the talkable startle state)
 	Game.set_flag("prologue_goose_hidden")
 	goose.queue_free()
 	_npcs.erase("Goose")
@@ -578,10 +596,13 @@ func _free_home_location() -> void:
 		loc.queue_free()
 
 
-# ---- the orchard startle ----------------------------------------------------------
+# ---- the startle, up the tree -----------------------------------------------------
 
-## Found behind the tree, the goose startles, then hands the ribbon over as
-## if returning it was its own idea all along.
+## Found round the back of the trunk, thirty feet up somebody else's tree, the
+## goose startles and then hands the ribbon over as if returning it was its own
+## idea all along. Basil counts the rungs, because Basil counts things — Sage
+## made him count the ribbons an hour ago and he will be counting for the rest
+## of his life.
 func _goose_startle(goose: NPC) -> void:
 	if Game.flag("prologue_ribbon"):
 		return
@@ -589,7 +610,8 @@ func _goose_startle(goose: NPC) -> void:
 	await theater.hop(goose, 7.0)
 	goose.play_act()                       # the honk pair
 	await theater.say("Goose", "HONK!! ...honk. (...oh. It's you.)")
-	await theater.say("Basil", "You. Feathery crime. I believe you have my sister's ribbon.")
+	await theater.say("Basil", "You. Feathery crime. Do you have ANY idea how many rungs that was?")
+	await theater.say("Basil", "Forty-one. I counted. Hand it over.")
 	if goose.has_meta("ribbon"):
 		(goose.get_meta("ribbon") as Sprite2D).queue_free()
 		goose.remove_meta("ribbon")

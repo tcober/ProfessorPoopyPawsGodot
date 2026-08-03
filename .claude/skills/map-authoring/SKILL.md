@@ -278,6 +278,32 @@ the one stratum allowed to touch two others.
   be reachable **with the shaft treated as impassable**.
 - **`assert_reachable(*anchors, full=True)`** — pass every anchor a body can arrive on.
 
+**A LADDER IS ONE LANE WIDE AND YOU ARE ON IT OR OFF IT (2026-08-02).** The rungs are
+two cells across — 32px against a 12px collision box — and that shipped as ordinary
+8-way walking wearing the climb animation: twenty pixels of slop, so you could stroll up
+at an angle or shuffle sideways while the art insisted you were holding on with both
+paws. `PartyMember._climb` pins the body to the run's **centre line** (`MapData.
+terrain_run_center_x` — asked of the map, so a three-cell ladder brings its own centre)
+and takes only the **sign** of the vertical input, so a diagonal press is simply *up*.
+The hop is refused on the rungs. There is no state to enter or leave and nothing to wire
+per scene: feet on a `ropeladder` cell and the lane owns you. Two things that only showed
+up once a body was driven up one:
+
+- **THE MOUTH IS NARROWER THAN THE LADDER.** The rungs run inside the trunk's four
+  columns (they must — see above), so a 12px body only fits through the middle 20px of
+  the pair, and walking at a great tree six pixels off centre stops you dead against bark
+  with the rungs visible beside you. The lane reaches **one cell out** along the
+  direction pressed (`_funnel`); it needs a vertical press *and* the body's own feet
+  already over a rung column, which is why it cannot leak onto open ground — where every
+  map is one long run of the same terrain and a stray pull would drag every body to the
+  middle of it.
+- **A FOLLOWER NEVER STOPS ON A LINK CELL** (`AIBrain._on_link`, `MapData.LINK_STRATUM`).
+  The follow band is 34px and a ladder is taller, so a follower catching up to a leader
+  who has just climbed hit "close enough" ON THE RUNGS — a storey short, in the one kind
+  of cell that is a corridor rather than a place.
+
+`tools/ladder_probe.gd` holds all of it.
+
 **THE MASK BAND IS THE RAILING.** Never add a railing char. Draw the posts and the hemp
 handline into the fascia art's **top 12px** — `mask_band()` re-emits exactly those as a
 Tier-3 strip keyed at `run_top - 8`, so a body at the deck edge is drawn behind the rail

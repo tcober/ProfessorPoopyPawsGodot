@@ -690,7 +690,8 @@ def great_trunk(bark, ground, spans, salt=401, w=48, lean=0.0):
     return out
 
 
-def great_crown(f, bark, salt=451, w=96, h=48, lean=0.0, window=None):
+def great_crown(f, bark, salt=451, w=96, h=48, lean=0.0, window=None,
+                shaft_w=0):
     """THE CROWN a great trunk's top disappears into — the north arc of the ring
     deck runs UNDER this, so it is the one piece of the tree a body is allowed to
     stand inside.
@@ -709,33 +710,62 @@ def great_crown(f, bark, salt=451, w=96, h=48, lean=0.0, window=None):
     FOOTPRINT: `w // 16` x `h // 16`, EVERY CELL WALKABLE — this is deck you walk
     under leaves on.
     ANCHOR: `emit_prop(name, chars, sprite_img(sp, W, H), top=-pad_t,
-    base_inset=-16, each=True)` with `(sp, pad_x, pad_t, pad_b)` unpacked from the
-    return and `W, H = w + 2 * pad_x, h + pad_t + pad_b`. The `-16` is what pushes
-    the sort key south of a body standing on the north arc, so the leaves are in
-    front of it. Without it the body walks over its own canopy.
+    base_inset=-16, each=True)` with `(sp, pad_x, pad_t)` unpacked from the return
+    and `W, H = w + 2 * pad_x, h + pad_t`. The `-16` is what pushes the sort key
+    south of a body standing on the north arc, so the leaves are in front of it.
+    Without it the body walks over its own canopy.
     COVERAGE: ~62% of the figure hidden on the deepest cell — comfortably inside
     the walk-behind visibility rule's 90% ceiling, and that margin IS the effect.
 
     THE CANVAS IS SIZED TO THE MASS, NEVER THE OTHER WAY ROUND (2026-08-02), and
     that is the fix for a tree that was coming out with a FLAT TOP. `w` x `h` is
     the CHANNEL the lobes are laid out against, not the canvas: the crown is
-    deliberately bigger than its channel on every side, and `Sprite.set` discards
-    out-of-range pixels SILENTLY — so the four tables below were spilling ~21px
-    over the top, ~8 left, ~11 right and ~10 below, and every one of those came
-    out as a ruler-straight un-outlined cut through the leaves (`edge()` cannot
-    outline a silhouette that has no empty pixel beside it). Measured on the
-    shipped 224x128 town crown: a 123px flat cut across the top of the dome, 38
-    and 46px flat down the sides, 84 across the bottom — a tree in a box, dead
-    centre of the screen, with forest still visible above the cut.
+    deliberately bigger than its channel, and `Sprite.set` discards out-of-range
+    pixels SILENTLY — so the four tables below were spilling ~21px over the top,
+    ~8 left and ~11 right, and every one of those came out as a ruler-straight
+    un-outlined cut through the leaves (`edge()` cannot outline a silhouette that
+    has no empty pixel beside it). Measured on the shipped 224x128 town crown: a
+    123px flat cut across the top of the dome and 38 and 46px flat down the sides
+    — a tree in a box, dead centre of the screen, with forest still visible above
+    the cut. So the ellipse tables are hoisted, the mass's own bbox is measured
+    off them, and the canvas is grown to hold it on THREE sides. `pad_x` is
+    symmetric so a sprite centred on its footprint stays centred, and `pad_t`
+    becomes a NEGATIVE `anchor=top:` so the channel still lands on the footprint's
+    own top row and nothing in the world moves. Every number is derived, so it
+    holds at any `(w, h)` — the Academy's 144-wide crown spills ~15 left and ~18
+    right off the same tables and needs no constants of its own.
 
-    So the ellipse tables are hoisted, the mass's own bbox is measured off them,
-    and the canvas is grown to hold it. The pads come back with the sprite because
-    only the caller can place them: `pad_x` is symmetric so a sprite centred on
-    its footprint stays centred, and `pad_t` becomes a NEGATIVE `anchor=top:` so
-    the channel still lands on the footprint's own top row and nothing in the
-    world moves. Every number here is derived, so this holds at any `(w, h)` —
-    the Academy's 144-wide crown was spilling ~15 left and ~18 right off the same
-    tables, and is fixed by the same arithmetic without a second set of constants.
+    ...AND THE BOTTOM IS NOT ONE OF THE THREE. It is trimmed flat at the channel's
+    last row, on purpose, and that is the opposite rule for a reason: the crown's
+    bottom is not a SILHOUETTE, it is a JOIN. `trunk_face`'s top edge is dead
+    straight (it is a cut shaft, and it may not be one pixel taller — see there),
+    and the crown exists to swallow it, so the two have to meet along a straight
+    line. Padding this side to fit the mass — which the first cut of this fix did —
+    hands that job to the lowest LOBE, whose hem is a dome running 108 at the
+    trunk's edges to 125 at its centre: it never reaches 128 anywhere, and every
+    tree in the town opened a gap between its leaves and its trunk with the deck
+    showing through. The trim gets no outline because `edge()` outlines BEFORE it
+    clears these rows and the mass continues below them.
+
+    `shaft_w` IS WHAT MAKES THE TRIM INVISIBLE, and without it this builder can
+    only ever ABUT the trunk (2026-08-02, the third report in this family: "the log
+    should flow under the tree top — it is cropping the bottom unnaturally"). Two
+    sprites that merely meet along a line read as a cut however well the line is
+    placed; what reads as depth is one sprite passing BEHIND the other. So the
+    crown carries the trunk's own continuation: `_shaft` at `trunk_face`'s exact
+    half-width (`shaft_w * 0.47`), drawn FIRST so the leaves close over it, running
+    down to the hem row. Now the trim cuts through BARK over the trunk's columns
+    and through leaf only outside them, and bark-at-127 meeting bark-at-128 is not
+    a join at all — same ramp, same width, same banding law. The leaf edge you
+    actually see is the lowest lobe's own curve with trunk emerging from under it,
+    which is the thing the docstring in `_alembic` has claimed since the rebuild
+    ("a tree does not end, it disappears into its own foliage") and which nothing
+    was drawing. It costs no walk-behind coverage where the leaves already reach —
+    the bark goes UNDER them — and the skylights are punched afterwards, so they
+    still open all the way through.
+
+    Callers whose trunk is drawn into the SAME canvas as the crown (the Academy's
+    keep) already overlap by construction and must leave `shaft_w` at 0.
     """
     r = max(9.0, h * 0.30)
     # THE LIMBS FIRST, so the leaves close over them and the branches read as
@@ -796,9 +826,8 @@ def great_crown(f, bark, salt=451, w=96, h=48, lean=0.0, window=None):
                               max(b[0] + b[2] for b in bounds) + MARGIN - (w - 1),
                               0.0)))
     pad_t = int(math.ceil(max(MARGIN - min(b[1] - b[3] for b in bounds), 0.0)))
-    pad_b = int(math.ceil(max(max(b[1] + b[3] for b in bounds)
-                              + MARGIN - (h - 1), 0.0)))
-    W, H = w + 2 * pad_x, h + pad_t + pad_b
+    # ...and NO pad below: the hem is the join with the trunk face, not silhouette.
+    W, H = w + 2 * pad_x, h + pad_t
 
     sp = S(W, H, salt)
     # the channel's coordinates, moved into the padded canvas — every `w * u` and
@@ -891,6 +920,49 @@ def great_crown(f, bark, salt=451, w=96, h=48, lean=0.0, window=None):
                         for c in cut)
                 if 1.0 < d <= 1.6 and sp.get(x, y) is not None:
                     sp.set(x, y, f[4] if (x + y) % 2 else f[5])
+    # ---- THE TRUNK COMING UP THROUGH THE LEAVES ------------------------------------
+    # This is what stops the tree reading as CROPPED at the hem, and it has to be
+    # drawn HERE — over the finished mass — not under it. Drawn first (which is the
+    # intuitive order, and what the first attempt did) the leaves are opaque all the
+    # way down to the trim and bury every pixel of it: measured, 0 rows of bark
+    # visible over the trunk's 60 columns. Two sprites that merely MEET along a line
+    # read as a cut however well the line is placed; what reads as depth is one
+    # thing passing behind another, and here the only way to get that is to let the
+    # leaf edge over the trunk be RAGGED and put bark in what it uncovers.
+    #
+    # It costs nothing in walk-behind coverage, which is the reason it is allowed at
+    # all: this swaps leaf pixels for bark pixels and adds no opacity anywhere, and
+    # the only walkable row the crown covers (the ring's north arc) is already solid
+    # leaf here. `trunk_face` itself may not grow to do this job — a taller shaft
+    # makes a body on that row 100% invisible, measured, see there.
+    if shaft_w:
+        half = shaft_w * 0.47                  # `trunk_face`'s own half-width, so
+        sy1 = int(PY(1.0)) - 1                 # bark-at-the-hem meets bark-at-128
+        tmp = S(W, H, salt)                    # with no join to see: one ramp, one
+        _shaft(tmp, bark, cx, max(0, sy1 - int(h * 0.42)), sy1,
+               half * 0.96, half, salt)        # width, one banding law
+        for x in range(max(0, int(cx - half) - 2), min(W, int(cx + half) + 3)):
+            # WHERE THE LEAVES PART, per column. Deeper mid-trunk so the shaft reads
+            # as coming forward out of the mass, broken on a hash every 3px so the
+            # boundary is a leaf edge and not a moulding, and never shallower than
+            # 6px or the whole effect is inside the outline.
+            t = min(1.0, max(0.0, (x - (cx - half)) / (2.0 * half)))
+            deep = 13.0 + 8.0 * (1.0 - abs(2.0 * t - 1.0) ** 2.0)
+            deep += (h2(x // 3, 11, salt) % 7) - 3
+            top = int(sy1 - max(6.0, deep))
+            for y in range(top, sy1 + 1):
+                p = tmp.get(x, y)
+                if p is not None:
+                    sp.set(x, y, p)
+            # ...and the leaves throw their shadow ON it. Without this the bark just
+            # changes material at the boundary; with it, something is in front of
+            # something. Same argument as `_alembic._shade_under` makes for the deck
+            # over the trunk below, and two hard bands for the same reason (bark is
+            # banded, never dithered).
+            for k, step in ((0, 2), (1, 2), (2, 1), (3, 1)):
+                p = sp.get(x, top + k)
+                if p in bark:
+                    sp.set(x, top + k, bark[min(5, bark.index(p) + step)])
     # THE LIT WINDOW, stamped LAST so the leaves cannot bury it. It belongs to the
     # crown rather than to `trunk_face` because the shaft segment is only two cells
     # tall — see that builder for why it must not be taller — and because the sketch
@@ -910,22 +982,23 @@ def great_crown(f, bark, salt=451, w=96, h=48, lean=0.0, window=None):
         for x in range(wx - hw, wx + hw + 1):
             sp.set(x, wy, window[4])
         sp.set(wx - hw - 1, wy - hh - 1, window[5])
-    edge(sp, H)
-    clipw(sp, W)
+    edge(sp, H)                 # outlines FIRST, then clears rows >= H — so the
+    clipw(sp, W)                # hem's flat trim comes out with no dark line on it
     # THE CANVAS HAS TO HOLD THE WHOLE SILHOUETTE, and it is worth an assert
     # rather than a lint: this is the one failure mode here that renders, dedupes
     # and passes every check in `_check_art.py` while putting a flat un-outlined
     # cut through the middle of the screen's biggest object. If a future lobe or
-    # limb reaches past the measured bounds, say so at build time.
+    # limb reaches past the measured bounds, say so at build time. THREE SIDES —
+    # the last row is the trunk join and is meant to be solid leaf (see above).
     for x in range(W):
-        assert sp.px[0][x] is None and sp.px[H - 1][x] is None, (
-            f"great_crown({w}x{h}): leaves on the canvas border at x={x} — the "
-            f"mass outgrew its measured bounds and is being cut flat")
+        assert sp.px[0][x] is None, (
+            f"great_crown({w}x{h}): leaves on the canvas TOP at x={x} — the mass "
+            f"outgrew its measured bounds and is being cut flat")
     for y in range(H):
         assert sp.px[y][0] is None and sp.px[y][W - 1] is None, (
-            f"great_crown({w}x{h}): leaves on the canvas border at y={y} — the "
-            f"mass outgrew its measured bounds and is being cut flat")
-    return sp, pad_x, pad_t, pad_b
+            f"great_crown({w}x{h}): leaves on a canvas SIDE at y={y} — the mass "
+            f"outgrew its measured bounds and is being cut flat")
+    return sp, pad_x, pad_t
 
 
 def tree_trunk(bark, ground, salt=401, cells=5, base=1, w=48):

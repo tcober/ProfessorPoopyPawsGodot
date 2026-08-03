@@ -124,7 +124,7 @@ func _physics_process(delta: float) -> void:
 			# cooldown wasted with it); brains also shouldn't teleport a body
 			# that's mid-knockback or mid-swing.
 			_gather_intent()
-			_process_move()
+			_process_move(delta)
 		STATE_HURT:
 			velocity = _knockback
 			_knockback = _knockback.move_toward(Vector2.ZERO, knockback_speed * 4.0 * delta)
@@ -157,49 +157,23 @@ func _gather_intent() -> void:
 		brain.think(get_physics_process_delta_time(), intent)
 
 
-func _process_move() -> void:
+func _process_move(delta: float) -> void:
 	if _airborne:
 		# Launch momentum plus a bit of mid-air steering with the held direction.
 		# Clamped to the leap speed: steering turns or brakes the arc, but
 		# holding the jump direction can't stack past jump_speed into a glide.
 		var steer := intent.move.normalized() * air_steer if intent.move != Vector2.ZERO else Vector2.ZERO
 		velocity = (_jump_dir * jump_speed + steer).limit_length(jump_speed)
+	elif _on_ladder():
+		_climb(delta)
+	elif intent.move != Vector2.ZERO:
+		velocity = intent.move.limit_length(MOVE_CLAMP) * speed
+		_funnel(delta)
+		_update_facing(intent.move)
+		_play_directional("walk")
 	else:
-		if intent.move != Vector2.ZERO:
-			velocity = intent.move.limit_length(MOVE_CLAMP) * speed
-			_update_facing(intent.move)
-			# ON A ROPE LADDER YOU CLIMB, YOU DO NOT WALK — IF THE BODY HAS THE ART.
-			# The clip is gated on the SpriteFrames actually carrying it: `play()`
-			# on a missing animation is an error every physics frame plus a frozen
-			# pose, so a body without the row falls back to the walk it had before
-			# — wrong-looking but playable, the right failure for something that
-			# wanders onto a ladder in a scene nobody staged. Every playable body
-			# carries the row now (kid Basil's sheet grew it on 2026-07-30; the
-			# student rides player_frames.tres and always had it), so the gate is
-			# insurance for the next sheet, not a live fallback.
-			#
-			# Alembic's great trees are reached by ladder, and a body crossing
-			# those cells played walk_up —
-			# arms at its sides, feet doing a stroll — which read as a cat SLIDING
-			# up the rungs. The clip is back-view only and has no side or down
-			# variant, because you always face the ladder: it is played by name
-			# rather than through _play_directional, and the facing is FORCED UP so
-			# a body that drifts a pixel sideways cannot flip to a walk_side.
-			if _on_ladder() and sprite.sprite_frames.has_animation("climb_up"):
-				facing = Vector2.UP
-				sprite.flip_h = false
-				sprite.play("climb_up")
-			else:
-				_play_directional("walk")
-		else:
-			velocity = Vector2.ZERO
-			# standing still ON the ladder holds the climb's first frame rather
-			# than dropping to an idle, which would read as letting go
-			if _on_ladder() and sprite.sprite_frames.has_animation("climb_up"):
-				sprite.play("climb_up")
-				sprite.pause()
-			else:
-				_play_directional("idle")
+		velocity = Vector2.ZERO
+		_play_directional("idle")
 
 	# A brain takes aim before it pulls the trigger.
 	if intent.face != Vector2.ZERO:
@@ -209,22 +183,100 @@ func _process_move() -> void:
 		_on_attack_intent()
 	elif intent.secondary:
 		_on_secondary_intent()
-	elif intent.jump and not _airborne:
+	# You do not hop off a rope ladder thirty feet up. The lane below owns the
+	# body's x while it climbs and the hop does not, so a leap from the rungs
+	# would drift sideways for 0.4s and then snap back on landing.
+	elif intent.jump and not _airborne and not _on_ladder():
 		_start_jump()
 
 
-## Is this body standing on a rope-ladder cell?
+## A ROPE LADDER IS ONE LANE WIDE AND YOU ARE ON IT OR OFF IT (2026-08-02).
 ##
-## Asked of the MAP, not of a collision layer or a marker Area2D, for the same
-## reason every other geometry question in this codebase is: the map txt is the one
-## source both paint and physics come from, so a ladder that moves in the grid moves
-## here too with no scene edit. The scene reference is cached on first use — this
-## runs twice a physics frame per member — and re-resolved whenever the scene
-## changes, because Party.spawn() rebuilds every body at every scene change but the
-## member itself outlives the lookup.
+## The rungs are two cells across — 32px, against a 12px collision box — so
+## "walk normally, play the climb clip" left twenty pixels of side-to-side slop on
+## every ladder in the game. A body could stroll up at an angle, hug one stile the
+## whole way, or shuffle sideways while the climb animation insisted it was holding
+## on with both paws: a wide plank with a picture of a ladder on it.
 ##
-## Scenes with no `map` (the cutscene stages, the meadow's own loader) simply answer
-## false, which is why this duck-types the property instead of requiring TravelScene.
+## So the ladder DRIVES the body while the body is on it — vertical only, pinned to
+## the run's own centre line. There is no state to enter or leave and no marker,
+## zone or scene wiring anywhere: put your feet on a `ropeladder` cell and the lane
+## owns you, take them off and it doesn't. That is the same contract _on_ladder()
+## already had for the climb ART, now extended to the movement it was drawn for.
+func _climb(delta: float) -> void:
+	# The SIGN of the held direction, never its normalized component: on a one-lane
+	# climb a diagonal press is simply "up", and taking .y off a normalized vector
+	# would climb at 71% speed for a reason the player cannot see.
+	var dir := signf(intent.move.y)
+	# The lane is PULLED, not snapped — stepping on from the ground below slides
+	# the body into the middle of the rungs over a frame or two instead of popping
+	# it there. Dividing by delta makes that pull exact: it arrives on the centre
+	# line and stops dead, with none of the residual creep a proportional gain
+	# leaves behind.
+	var lane := MapData.terrain_run_center_x(_scene_map(), global_position + FOOT_OFFSET)
+	velocity = Vector2(clampf((lane - global_position.x) / maxf(delta, 0.0001),
+			-speed, speed), dir * speed)
+	# The clip is gated on the SpriteFrames actually carrying it: `play()` on a
+	# missing animation is an error every physics frame plus a frozen pose, so a
+	# sheet without the row falls back to the walk it had before — wrong-looking but
+	# playable, the right failure for a body that wanders onto a ladder in a scene
+	# nobody staged. Every playable body carries the row (kid Basil's sheet grew it
+	# on 2026-07-30; the student rides player_frames.tres and always had it), so the
+	# gate is insurance for the next sheet, not a live fallback.
+	if not sprite.sprite_frames.has_animation("climb_up"):
+		_update_facing(Vector2.UP)
+		_play_directional("walk" if dir != 0.0 else "idle")
+		return
+	# The climb is BACK-VIEW ONLY and has no side or down variant, because you
+	# always face the ladder. It is played by name rather than through
+	# _play_directional, and the facing is forced so nothing can flip it to a
+	# walk_side — which used to happen, and read as a cat sliding up the rungs.
+	facing = Vector2.UP
+	sprite.flip_h = false
+	sprite.play("climb_up")
+	# Standing still on the rungs holds the climb's first frame rather than
+	# dropping to an idle, which would read as letting go.
+	if dir == 0.0:
+		sprite.pause()
+
+
+## THE MOUTH IS NARROWER THAN THE LADDER, so the lane reaches one cell out.
+##
+## A rope ladder runs down INSIDE the trunk's four columns — it has to, or you could
+## step sideways off rung eight onto ground thirty feet below — which leaves the two
+## rung cells with solid timber either side. A 12px-wide body therefore only fits
+## through the middle 20px of that 32px pair, and walking at the foot of a great tree
+## six pixels off centre does not start a climb: it stops you dead against bark, with
+## the rungs plainly visible beside you and nothing to tell you why.
+##
+## So a body stepping TOWARD a rung cell from the one directly above or below it is
+## slid into the mouth on the way. Both halves of that sentence are load-bearing, and
+## together they are why this cannot leak onto open ground — where every map is one
+## long horizontal run of the same terrain and a stray pull would drag every body to
+## the middle of it:
+##
+##  - it needs a vertical press, so walking east-west past a ladder foot never fires;
+##  - the cell it tests is the one the body's OWN feet are about to enter, so the body
+##    is already standing over a rung column by the time it can fire at all.
+func _funnel(delta: float) -> void:
+	var dir := signf(intent.move.y)
+	if dir == 0.0:
+		return
+	var m := _scene_map()
+	if m.is_empty():
+		return
+	var ahead := global_position + FOOT_OFFSET + Vector2(0.0, dir * 16.0)
+	if MapData.terrain_at_px(m, ahead) != "ropeladder":
+		return
+	velocity.x = clampf(
+			(MapData.terrain_run_center_x(m, ahead) - global_position.x)
+			/ maxf(delta, 0.0001), -speed, speed)
+
+
+## The scene's map, cached on first use — _on_ladder runs twice a physics frame per
+## member — and re-resolved whenever the scene changes, because Party.spawn()
+## rebuilds every body at every scene change but the member itself outlives the
+## lookup.
 var _ladder_scene: Node = null
 var _ladder_map: Dictionary = {}
 
@@ -242,18 +294,33 @@ var _ladder_map: Dictionary = {}
 const FOOT_OFFSET := Vector2(0.0, 8.0)
 
 
+## Is this body standing on a rope-ladder cell?
+##
+## Asked of the MAP, not of a collision layer or a marker Area2D, for the same
+## reason every other geometry question in this codebase is: the map txt is the one
+## source both paint and physics come from, so a ladder that moves in the grid moves
+## here too with no scene edit.
+##
+## Scenes with no `map` (the cutscene stages, the meadow's own loader) simply answer
+## false, which is why _scene_map duck-types the property instead of requiring
+## TravelScene.
 func _on_ladder() -> bool:
+	var m := _scene_map()
+	if m.is_empty():
+		return false
+	return MapData.terrain_at_px(m, global_position + FOOT_OFFSET) == "ropeladder"
+
+
+## The current scene's parsed map, or {} for a scene that has none.
+func _scene_map() -> Dictionary:
 	var scn := get_tree().current_scene
 	if scn == null:
-		return false
+		return {}
 	if scn != _ladder_scene:
 		_ladder_scene = scn
 		var m: Variant = scn.get("map")
 		_ladder_map = m if m is Dictionary else {}
-	if _ladder_map.is_empty():
-		return false
-	return MapData.terrain_at_px(_ladder_map,
-			global_position + FOOT_OFFSET) == "ropeladder"
+	return _ladder_map
 
 
 func _start_jump() -> void:

@@ -90,9 +90,10 @@ static var BEATS: Array[Dictionary] = [
 	},
 	{
 		# goose_hidden as well as festival_done: festival_done alone re-spawns
-		# the goose on the LANE with its pre-theft lines, which is incoherent
-		# next to Sage complaining her ribbon is gone.
-		name = "A4 - THE GOOSE IN THE ORCHARD",
+		# the goose in the SQUARE with its pre-theft lines, which is incoherent
+		# next to Sage complaining her ribbon is gone. Lands you on the forest
+		# floor — the goose is up a great tree and the rope ladder is the beat.
+		name = "A4 - THE GOOSE UP THE TREE",
 		scene = "res://scene/town_fest.tscn",
 		roster = KID, lead = &"kid_basil", state = {},
 		flags = FEST_WANDER + ["prologue_goose_hidden"],

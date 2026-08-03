@@ -63,6 +63,17 @@ because lone edges read as twitching.**
 The cooldown decays in the brain's own `_physics_process`; `think()` pauses during
 kit/hurt states.
 
+**A FOLLOWER NEVER STOPS ON A LINK CELL (2026-08-02).** FOLLOW's stop band is 34px and a
+rope ladder is far taller than that, so a follower catching up to a leader who has just
+climbed one of Alembic's great trees reached "close enough" **ON THE RUNGS** — a storey
+short of its leader, parked in the one kind of cell that is a corridor rather than a
+place, and a wall in the only lane off it until the leader happened to move again.
+Distance cannot express that; the map already does, so `_follow` refuses to latch
+`_moving = false` while `_on_link()` (`MapData.LINK_STRATUM`, asked of the FEET). Every
+single-storey map has no link cells at all, so the band is unchanged everywhere else.
+Before this, `party_probe` phase 3 passed only because the follower got **stuck** below
+the deck, went off-screen and was teleported home — the climb itself never worked.
+
 ### The catch-up teleport
 
 Fires only **>130px AND OFF-SCREEN** (live camera's `get_screen_center_position()` +

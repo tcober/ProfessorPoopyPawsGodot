@@ -38,11 +38,13 @@ def png_size(rel):
     return struct.unpack(">II", data[16:24])
 
 
-def png_alpha(rel):
-    """Decode an 8-bit RGB(A) non-interlaced PNG -> (w, h, alpha rows).
-    Stdlib-only, mirror of _core's writer; used by the T3 coverage lint to
-    measure how much of a footprint cell the y-sorted prop art actually
-    covers."""
+def png_pixels(rel):
+    """Decode an 8-bit RGB(A) non-interlaced PNG -> (w, h, nch, raw rows).
+    Stdlib-only, mirror of _core's writer. `png_alpha` narrows this to the
+    alpha plane for the coverage lints; the JOIN lint needs the COLOURS too,
+    because "are these two sprites the same material at the seam" is the only
+    cheap mechanical test for a join being a continuation and not an
+    abutment."""
     import zlib
     data = open(os.path.join(ROOT, rel), "rb").read()
     assert data[:8] == b"\x89PNG\r\n\x1a\n", f"{rel}: not a PNG"
@@ -85,6 +87,13 @@ def png_alpha(rel):
                                       else b if pb <= pc else c)) & 255
         rows.append(line)
         prev = line
+    return w, h, nch, rows
+
+
+def png_alpha(rel):
+    """(w, h, alpha rows) — used by the T3 coverage lints to measure how much
+    of a footprint cell the y-sorted prop art actually covers."""
+    w, h, nch, rows = png_pixels(rel)
     if nch == 3:
         return w, h, [[255] * w for _ in range(h)]
     return w, h, [[line[i * 4 + 3] for i in range(w)] for line in rows]
@@ -628,6 +637,128 @@ for map_rel in PROPS:
           + ", ".join(f"{c} {n} {f * 100:.0f}%" for c, n, f in sorted(hidden)[:6])
           + " — retype it solid (and give it a walkable TWIN elsewhere if the "
             "cell has to be crossed), or perforate the art")
+
+# ---- JOINS: two sprites that are meant to be ONE OBJECT (2026-08-02) ------------------
+# The three bugs that produced this lint were all at the SAME seam — Alembic's great
+# trees, where the crown prop and the trunk-face prop have to read as one tree — and
+# every one of them rendered, deduped and passed every check above:
+#
+#   1. the crown's leaf mass was CUT FLAT by its own canvas (a tree in a box);
+#   2. fixing that by padding the canvas moved the hem UP off the trunk, and bare deck
+#      showed in the daylight between them;
+#   3. closing that gap left the two sprites ABUTTING along a line, which reads as a
+#      crop however exactly the line is placed.
+#
+# Nothing in this file was looking at seams. The z-order lints ask "is a body visible"
+# and "does a solid cell look walkable"; they cannot see two pieces of scenery that are
+# supposed to be continuous and are not. So: name the pairs, and check them.
+#
+# The lower prop's own top row is the SEAM. Two things must hold along it:
+#
+#   NO DAYLIGHT   — for every column of the seam, the upper art must be opaque for
+#                   `overlap` rows above it. This is bug 2, and it is what the eye
+#                   reads as a gap.
+#   CONTINUATION  — the upper art's pixel just above the seam must be the SAME PIXEL as
+#                   the lower art's own top pixel, for most columns. That is bug 3, and
+#                   it is the whole difference between "the crown carries the trunk's
+#                   shaft behind its leaves" and "the leaves stop where the trunk
+#                   starts". Same ramp + same half-width + same banding law => the same
+#                   colour falls out per column, so exact equality is a fair test; the
+#                   grooves are hashed on y and legitimately differ, which is what the
+#                   threshold is for. MEASURED on all four of Alembic's trees: 58/61
+#                   columns (0.95) with the crown carrying the shaft, 0/61 (0.00)
+#                   without it. Both failure modes were re-introduced and confirmed to
+#                   fail this lint before it was called done.
+JOINS = {
+    "maps/town.txt": [("Crown", "TrunkRing", 6)],
+    "maps/town_fest.txt": [("Crown", "TrunkRing", 6)],
+}
+JOIN_SAME_MIN = 0.60
+
+
+def t3_art_placements(mm, prop):
+    """(frame w, png h, nch, rows, [(art x, art y), ...]) for a prop — one art
+    origin per component, mirroring scene/prop_spawner.gd exactly (the same
+    math t3_covered_cells uses: centred on the component's x, bottom on its
+    south edge unless anchor=top, which is SIGNED)."""
+    pw, ph, nch, rows = png_pixels(os.path.join("assets", "tilesets", prop["png"]))
+    fw = pw // prop["hframes"]
+    places = []
+    for comp in t3_components(mm, prop["chars"], prop["each"]):
+        x0 = min(c[0] for c in comp)
+        x1 = max(c[0] for c in comp)
+        y0 = min(c[1] for c in comp)
+        y1 = max(c[1] for c in comp)
+        ax = (x0 + x1 + 1) * ZONE_TILE / 2.0 - fw / 2.0
+        ay = y0 * ZONE_TILE + prop["top"] if prop["top"] is not None \
+            else (y1 + 1) * ZONE_TILE - ph
+        places.append((int(round(ax)), int(round(ay))))
+    return fw, ph, nch, rows, sorted(places)
+
+
+def _texel(rows, nch, w, h, x, y):
+    """The opaque pixel at (x, y) as an RGB tuple, or None off-canvas/clear."""
+    if not (0 <= x < w and 0 <= y < h):
+        return None
+    line = rows[y]
+    if nch == 4 and line[x * 4 + 3] == 0:
+        return None
+    return tuple(line[x * nch:x * nch + 3])
+
+
+def join_faults(mm, props, upper_name, lower_name, overlap):
+    """[(detail string), ...] for one declared join — empty when the two props
+    read as one object at every seam in the map."""
+    by = {p["name"]: p for p in props}
+    if upper_name not in by or lower_name not in by:
+        return [f"no prop named {upper_name!r}/{lower_name!r} in the manifest"]
+    ufw, uph, unch, urows, uplaces = t3_art_placements(mm, by[upper_name])
+    lfw, lph, lnch, lrows, lplaces = t3_art_placements(mm, by[lower_name])
+    out = []
+    for (lx, ly) in lplaces:
+        # the upper piece this lower one belongs to: spans its centre column and
+        # sits above it. Pairing by geometry rather than by index, so a tree
+        # moving in the map txt cannot silently pair a crown with its neighbour.
+        centre = lx + lfw // 2
+        cands = [(uy, ux) for (ux, uy) in uplaces
+                 if ux <= centre < ux + ufw and uy < ly]
+        if not cands:
+            out.append(f"the {lower_name} at ({lx},{ly}) has no {upper_name} over it")
+            continue
+        uy, ux = max(cands)
+        seam = [x for x in range(lfw)
+                if _texel(lrows, lnch, lfw, lph, x, 0) is not None]
+        if not seam:
+            continue                     # nothing on the lower art's top row
+        gaps, same = [], 0
+        for x in seam:
+            wx = lx + x
+            above = [_texel(urows, unch, ufw, uph, wx - ux, ly - 1 - k - uy)
+                     for k in range(overlap)]
+            if any(p is None for p in above):
+                gaps.append(wx)
+            elif above[0] == _texel(lrows, lnch, lfw, lph, x, 0):
+                same += 1
+        if gaps:
+            out.append(f"daylight over the {lower_name} at ({lx},{ly}): "
+                       f"{len(gaps)}/{len(seam)} seam columns show through "
+                       f"(x={gaps[0]}..{gaps[-1]}) — the {upper_name} does not "
+                       f"reach it")
+        elif same < JOIN_SAME_MIN * len(seam):
+            out.append(f"the {upper_name}/{lower_name} seam at ({lx},{ly}) is an "
+                       f"ABUTMENT: only {same}/{len(seam)} columns continue the "
+                       f"same material — the upper sprite has to carry the lower "
+                       f"one's own art behind it, not stop on top of it")
+    return out
+
+
+print("joins (two sprites, one object):")
+for map_rel, pairs in JOINS.items():
+    for upper, lower, overlap in pairs:
+        bad = join_faults(maps[map_rel], T3_PROPS.get(map_rel, []),
+                          upper, lower, overlap)
+        check(f"{map_rel} {upper} reads as one object with {lower}", not bad,
+              "; ".join(bad[:3]))
 
 # ---- collision tileset ---------------------------------------------------------------
 print("collision tileset:")

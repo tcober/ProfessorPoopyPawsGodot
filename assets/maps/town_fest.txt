@@ -114,6 +114,19 @@
 ; cols 35-36 — and the `school` anchor sits in its mouth, so town_thesis's dash ends
 ; at a place you walk into rather than at a building that is no longer in this grid.
 ;
+; THE GOOSE'S TWO ANCHORS ARE A BEFORE AND AN AFTER, and both are era-only (this grid's
+; twin, town.txt, carries no cast anchors at all). `npc_goose` is where it LOITERS through
+; the whole teasing cutscene — the square's west road, five cells off Sage and her three
+; floating ribbons — and the theft takes off from exactly there instead of teleporting it
+; off-camera first, so it has to be somewhere the camera can SEE. Two constraints, both
+; measured against the window locked at `basil_mark`: inside that window at all
+; (town_fest asserts it), and ABOVE the dialog box, which owns the bottom third of the
+; frame for the whole scene. A cell three rows further south passed the first test and
+; failed the second, and a thief you cannot see loitering is not a setup.
+; `goose_hide` is on the EAST ARC of the third great tree's ring deck, round the back of
+; the trunk, thirty feet up and reachable by that tree's rope ladder and nothing else.
+; The cell SOUTH of it must stay walkable — that is where anything talking to it stands.
+;
 ; THE THREE SHOPS ARE 5x4, THE SAME ENVELOPE AS A COTTAGE, and that is deliberate. They
 ; were `tree_hut`s at 3x4 — a cone of thatch over a barrel of withy staves, which is the
 ; right building for a BOUGH and a tiki hut on a forest floor: one tan value throughout,
@@ -179,8 +192,8 @@ anchor schw_pos 40 42
 anchor npc_sheep 17 44
 anchor npc_owl 50 44
 anchor npc_mouse 28 45
-anchor npc_goose 45 46
-anchor goose_hide 53 40
+anchor npc_goose 27 43
+anchor goose_hide 51 9
 anchor creep_gate 35 50
 anchor creep_cross 22 47
 anchor creep_lane 22 40

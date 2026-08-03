@@ -823,7 +823,7 @@ def academy_keep(stone, bark, fol, ground, salt=221, composite=True, frames=8):
     # goes back on (tcx - 72, 0) so the leaves land exactly where they always did
     # and the margin draws instead of being cut; the TOP margin falls off the
     # canvas, which is the cut this section wants anyway.
-    for tcx, (crown, cpx, cpt, _cpb) in zip(TCX, crowns):
+    for tcx, (crown, cpx, cpt) in zip(TCX, crowns):
         _blit_sp(sp, crown, tcx - 72 - cpx, -cpt)
 
     # ---- 10. THE GALLERIES, and the BELL — drawn OVER the leaves -----------------------

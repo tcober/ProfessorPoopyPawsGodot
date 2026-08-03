@@ -389,9 +389,14 @@ mock him for exactly that, no nickname.)*
    reads on sight) teases; kid Schweinler makes it public and mean. The
    goose steals the lowest of SAGE's ribbons mid-cutscene (the FLY-BY
    restage 2026-07-18 — the announced waddle-in read as anything but a
-   theft): no warning, a swoop in from off-screen west at ribbon height,
-   the snatch mid-glide, out past the east edge — and only then Sage:
-   "...did that goose just steal my RIBBON!?").
+   theft; rehoused for the forest-floor town 2026-08-02): it has been
+   standing on the square eyeing those ribbons since before Basil got here,
+   in frame for the whole teasing, and it goes while every character on
+   screen is looking at Schweinler. No warning and no narration — a heavy
+   take-off from where it stands, the snatch on the way past, and away over
+   the rooftops UP into the great trees, which is the one direction you
+   cannot follow at a walk. Only then Sage: "...did that goose just steal my
+   RIBBON!?").
 3. **Wander gate — the pout** *(playable)*: the player is turned loose in the
    festival town. Townsfolk dialog is well-meaning but every line stings
    ("everyone blooms eventually, dear"). Talking to a few + reaching the south
@@ -2163,15 +2168,37 @@ hearth sets `prologue_gate_open`; the downstairs front door refuses (softlock
 guard) until she's heard. The **goose ribbon chase** minigame was retired the
 same day (goose_chase.gd deleted): the goose now STEALS a ribbon inside the
 festival cutscene — restaged 2026-07-18 as the sneak FLY-BY (the announced
-waddle-in read as anything but a theft): no narration, a swoop in from
-off-screen west on the sheet's new fly cells 6-7 (a scene-local "fly" clip;
-npc.gd keeps `frame_cols = 6`), the lowest ribbon swapped to a carried
-goose-child at a mid-glide tween callback (the same-fx-cell contract), out
-past the east edge, and only THEN Sage's "...did that goose just steal my
-RIBBON!?" — it HIDES behind the orchard TreeCrown east of the
-river (`goose_hide` anchor + one step east — head over the leaves, the stolen
-ribbon floating as the tell); finding and startling it is the warmth beat
-(`prologue_goose_hidden` → talk → `prologue_ribbon`). One minigame remains:
+waddle-in read as anything but a theft): no narration, on the sheet's new fly
+cells 6-7 (a scene-local "fly" clip; npc.gd keeps `frame_cols = 6`), the lowest
+ribbon swapped to a carried goose-child at a mid-glide tween callback (the
+same-fx-cell contract), and only THEN Sage's "...did that goose just steal my
+RIBBON!?".
+
+**AND RESTAGED A THIRD TIME FOR THE FOREST-FLOOR TOWN (2026-08-02), which is
+the one that has to hold.** The fly-by came in from off-screen WEST and left
+east over the town's river bridge — and the 80x56 rebuild took the river, the
+bridge and the orchard out of the grid, taking the loitering goose's cover with
+them. The bird stood on the square in plain sight for the whole teasing scene
+and then BLINKED OUT OF EXISTENCE one beat before it flew in, because the first
+thing the flight did was teleport it off-camera to start from; Sage then sent
+the player over a bridge that no longer exists, to a tree that was now open
+lawn. So: **IT TAKES OFF FROM WHERE IT HAS BEEN STANDING.** Nothing teleports,
+so nothing can vanish, and the setup pays off — it has been on the paving
+eyeing those ribbons since before Basil arrived, and the player can walk up and
+be told so in as many words. Its anchor is constrained twice over, both against
+the camera window the cutscene locks: inside it at all, and ABOVE the dialog
+box, which owns the bottom third of the frame for the whole scene.
+
+**AND IT GOES UP.** In a town whose north edge is four great trees, up is where
+a thief goes and the one direction you cannot follow at a walk: it climbs out
+over the rooftops and is found on a neighbour's RING DECK, thirty feet up,
+round the back of the trunk, reachable by that tree's rope ladder and nothing
+else — invisible from the ground, and the stolen ribbon still in its beak as
+the tell. Which makes the recovery a character beat rather than a fetch: the
+one cat in town who cannot do magic gets the ribbon back by CLIMBING, and
+Sage's "nobody catches the goose" is true because nobody else would bother.
+Finding and startling it is the warmth beat (`prologue_goose_hidden` → talk →
+`prologue_ribbon`). One minigame remains:
 the **crank-up mash** at
 the whirligig flight (mash E to fill a meter, the rotor spins up with it).
 GOTCHA (2026-07-12): a coroutine polling input on `process_frame` must use
@@ -2312,22 +2339,22 @@ tab; probe now 36 checks):
 	(`frame = 2`) the window opened on the right edge of the shrug cell, so
 	a detached arm and paw floated beside him. **A raw `Sprite2D` on a cast
 	sheet has to be told the sheet's real grid** — `npc.gd` clamps
-    `frame_cols` to the art on disk and this scene has no such guard,
-    because it has no NPCs in it.
+	`frame_cols` to the art on disk and this scene has no such guard,
+	because it has no NPCs in it.
   - **Both bystanders were statues.** Every villager sheet stores each mood
-    as a PAIR (idle 0/1, act 2/3, emote 4/5) and the scene pinned one cell
-    of each, so nobody breathed through the entire setup. They now cycle
+	as a PAIR (idle 0/1, act 2/3, emote 4/5) and the scene pinned one cell
+	of each, so nobody breathed through the entire setup. They now cycle
 	their pair on `npc.gd`'s own 1.6fps idle cadence, off the scene's shared
-    clock so they never lock step with the pedals or the engine.
+	clock so they never lock step with the pedals or the engine.
   - **Both staged moves were slides.** Neither sheet had walk art at all, so
-    the pig blinked from where he stood onto a saddle 46px west and the
-    badger glided sideways to the wreck on a frozen front-facing cell. Both
-    sheets grew to the full 10-col + rows-1-3 walking contract
-    (`npc_schweinler_adult_gen` 6→10 cells, `npc_badger_gen` 8→10, both
-    480×192) and the scene drives `walk_side` by hand at `row * 10 + col`.
-    **Both moves run WEST, which is the direction side cells are drawn in,
-    so nothing ever flips.** Every previously-shipped cell is byte-identical
-    (the lift params default to 0), so `hall` and `town_thesis` cannot
+	the pig blinked from where he stood onto a saddle 46px west and the
+	badger glided sideways to the wreck on a frozen front-facing cell. Both
+	sheets grew to the full 10-col + rows-1-3 walking contract
+	(`npc_schweinler_adult_gen` 6→10 cells, `npc_badger_gen` 8→10, both
+	480×192) and the scene drives `walk_side` by hand at `row * 10 + col`.
+	**Both moves run WEST, which is the direction side cells are drawn in,
+	so nothing ever flips.** Every previously-shipped cell is byte-identical
+	(the lift params default to 0), so `hall` and `town_thesis` cannot
 	regress — and since `npc.gd` gates walk clips on sheet HEIGHT, Ridley's
 	staged walk in the clinic-steps scene started animating for free.
   Two staging fixes fell out of it: Schweinler CROSSES to the machine and
@@ -3123,6 +3150,31 @@ driven by its `assets/maps/*.txt` file.
 	  timber joins its ring to nothing, and `assert_strata`'s "every link component
 	  borders exactly two strata" is satisfied by the ring alone, so it does not
 	  catch it. Alembic asserts the ground cell below each ladder explicitly.
+	- **A LADDER IS ONE LANE WIDE AND YOU ARE ON IT OR OFF IT (2026-08-02).** The
+	  rungs are two cells across — 32px, against a 12px collision box — and for two
+	  days that was ordinary 8-way walking wearing the climb animation: twenty
+	  pixels of side-to-side slop, so you could stroll up at an angle, hug one stile
+	  the whole way, or shuffle sideways while the art insisted you were holding on
+	  with both paws. A wide plank with a picture of a ladder on it.
+	  `PartyMember._climb` now pins the body to the run's own CENTRE LINE (asked of
+	  the map, so a three-cell ladder brings its own centre with it) and takes only
+	  the SIGN of the vertical input, so a diagonal press is simply *up* rather than
+	  a climb at 0.71 speed. The hop is refused on the rungs, because the lane owns
+	  x and a leap does not. Nothing here is a state to enter or leave and no scene
+	  is wired for it: put your feet on a `ropeladder` cell and the lane owns you.
+	  Two consequences that were not obvious until a body was driven up one:
+	  **THE MOUTH IS NARROWER THAN THE LADDER**, because the rungs sit inside the
+	  trunk's four columns, so a 12px body only fits through the middle 20px of the
+	  32px pair and walking at a great tree six pixels off centre does not start a
+	  climb — it stops you dead against bark with the rungs plainly visible beside
+	  you. The lane therefore reaches ONE CELL out along the direction you are
+	  pressing (`_funnel`), which cannot leak onto open ground because it needs a
+	  vertical press *and* the body's own feet already over a rung column.
+	  And **A FOLLOWER NEVER STOPS ON A LINK CELL** (`AIBrain._on_link`): the follow
+	  band is 34px, a ladder is taller than that, so a follower catching up to a
+	  leader who has just climbed reached "close enough" ON THE RUNGS — a storey
+	  short, parked in the one kind of cell that is a corridor rather than a place.
+	  Distance cannot express that; the strata already do.
   - **THE MASK BAND IS THE RAILING.** Do not add a railing char. A rail on a
 	walkable deck cell fails two z-order lints by construction; baked on the lower
 	layer it reads as *standing on the rail* (the 2026-07-19 fence lesson); as a

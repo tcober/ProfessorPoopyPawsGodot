@@ -283,30 +283,38 @@ def build(map_name, scene_key, glow):
     # is the walk-behind this town is built around — so the mass stays PERFORATED. See
     # great_crown: solid leaves there make that body 100% invisible, measured.
     #
-    # THE CROWN IS BIGGER THAN ITS CHANNEL ON ALL FOUR SIDES, so `great_crown`
-    # measures its own mass and hands back the margins it needed (2026-08-02).
-    # `CROWN_W` x `CROWN_H` is the channel the lobes are laid out against — the
-    # 14 x 6 footprint plus the two rows it hangs below — and the pads are the
-    # overhang that used to be silently CUT OFF at the canvas edge, which is what
-    # gave every tree in this town a flat top, flat sides and a flat hem.
+    # THE CROWN IS BIGGER THAN ITS CHANNEL, so `great_crown` measures its own mass
+    # and hands back the margins it needed (2026-08-02). `CROWN_W` x `CROWN_H` is
+    # the channel the lobes are laid out against — the 14 x 6 footprint plus the
+    # two rows it hangs below — and the pads are the overhang that used to be
+    # silently CUT OFF at the canvas edge, which is what gave every tree in this
+    # town a flat top and flat sides. `cpx` is free (the spawner centres a prop on
+    # its footprint, so the tree just overhangs its bays a little further, which is
+    # what this crown is FOR), and `-cpt` puts the channel back on the footprint's
+    # own top row, so the leaves are where they always were and the growth all goes
+    # up into the dome.
     #
-    # ANCHOR THE CROWN BY ITS HEM, NOT BY ITS HEAD. `pad_x` is free (the spawner
-    # centres a prop on its footprint, so the tree just overhangs its bays a
-    # little further, which is what this crown is FOR). The vertical margins are
-    # not symmetric in what they cost: hung from the channel's top row the whole
-    # mass drops by `pad_b` and the leaf hem swallows the arch of the door in the
-    # trunk — measured, and the door is the one thing on a great tree the player
-    # has to read. Hung by the hem, everything from the deck down is pixel-for-
-    # pixel where it has always been and the growth all goes UP into the dome,
-    # which is the half that was missing. The northernmost tree's new head runs
-    # off the top of the map, where `limit_top = 0` cuts it at the screen edge —
-    # the same cut the Academy's crowns take, and the one that reads as scale
-    # rather than as damage.
-    crown, cpx, cpt, cpb = great_crown(FOL, BARK, salt=451, w=CROWN_W, h=CROWN_H,
-                                       window=DECK)
+    # THE HEM IS NOT PADDED, AND THAT IS THE POINT. It is trimmed flat at the
+    # channel's last row so it meets `trunk_face`'s own dead-straight top edge,
+    # which sits exactly `CROWN_H` below this footprint on all four trees, with the
+    # arch of the door 4px under that. Pad it and the job falls to the lowest lobe,
+    # whose domed hem tops out at 125 and never reaches the trunk at all — which
+    # opened a visible gap of bare deck between the leaves and the bark on every
+    # tree in the town. See `great_crown`.
+    #
+    # The northernmost tree's new head runs off the top of the map, where
+    # `limit_top = 0` cuts it at the SCREEN edge — the same cut the Academy's
+    # crowns take, and the one that reads as scale rather than as damage.
+    # `shaft_w` is what turns the hem from an ABUTMENT into an OVERLAP: the crown
+    # carries the trunk's own continuation behind its leaves, at `trunk_face`'s
+    # exact half-width, so the trim cuts through bark over the trunk's columns and
+    # the two sprites are one shaft. Without it the trunk stops dead against a
+    # green line and reads as cropped, however well that line is placed.
+    crown, cpx, cpt = great_crown(FOL, BARK, salt=451, w=CROWN_W, h=CROWN_H,
+                                  window=DECK, shaft_w=TRUNK_W)
     tn.emit_prop("Crown", "G",
-                 sprite_img(crown, CROWN_W + 2 * cpx, CROWN_H + cpt + cpb),
-                 each=True, top=-(cpt + cpb), base_inset=-52)
+                 sprite_img(crown, CROWN_W + 2 * cpx, CROWN_H + cpt),
+                 each=True, top=-cpt, base_inset=-52)
     # THE RAIL'S NEAR ARC — Tier-3, and it has to be a y-sorted PROP rather than
     # upper-layer paint. Baked with the deck (where it lived until 2026-07-30) every
     # body on the ring draws OVER the handline, so you stand on the rail like it is a
