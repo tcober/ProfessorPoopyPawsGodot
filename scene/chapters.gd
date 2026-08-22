@@ -340,9 +340,18 @@ static var BEATS: Array[Dictionary] = [
 	},
 	{
 		# ebb_done deliberately UNSET — that flag is the whole of Lanternwood's
-		# night dressing, so this is the same town by day
+		# night dressing, so this is the same town by day.
+		#
+		# town_defended IS set, and it has to be: _defence_due() is
+		# `fuji_kit_made and not town_defended`, and KIT_ARMED carries
+		# fuji_kit_made. Without it this row — the one that exists to be a quiet
+		# town to walk around in — armed THE DEFENCE OF LANTERNWOOD instead:
+		# three slimes, a combat HUD, and the south gate refusing to open until
+		# they were dead. It also suppressed Mayor Hollis, since _spawn_mayor
+		# returns early while a defence is due.
 		name = "LANTERNWOOD (DAY)", scene = "res://scene/lanternwood.tscn",
-		roster = ADULTS, lead = &"basil", state = {}, flags = ["prologue_done"] + KIT_ARMED,
+		roster = ADULTS, lead = &"basil", state = {},
+		flags = ["prologue_done", "town_defended"] + KIT_ARMED,
 	},
 ]
 

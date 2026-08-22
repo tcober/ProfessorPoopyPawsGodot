@@ -158,18 +158,6 @@ func _wall_gate_mouth() -> void:
 			Vector2(8.0, 64.0))
 
 
-func _wall(at: Vector2, size: Vector2) -> void:
-	var wall := StaticBody2D.new()
-	wall.collision_layer = 1
-	var shape := CollisionShape2D.new()
-	var rect := RectangleShape2D.new()
-	rect.size = size
-	shape.shape = rect
-	wall.add_child(shape)
-	wall.position = at
-	add_child(wall)
-
-
 ## Basil's own front door (the blessing double-back, 2026-07-15): while he
 ## wants to go home and the gate is still shut, stepping on the home door
 ## re-enters the fest downstairs where Mom waits by the hearth. Any other

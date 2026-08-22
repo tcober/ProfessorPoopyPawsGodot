@@ -47,6 +47,7 @@ func _ready() -> void:
 	TiledMap.build(_layout_path(), {"lower": $Tiles, "upper": $TilesUpper})
 	PaintedMap.build_collision(map, $Collision)
 	MapData.clamp_camera(player.get_node("Camera2D"), MapData.size_px(map))
+	_pin_locations()
 	_wire_locations()
 	_place_player()
 	_extra_setup()
@@ -57,6 +58,40 @@ func _ready() -> void:
 	# A body that pushed into a marker during the entry fade already fired its
 	# body_entered (swallowed by the lock) and won't re-fire — deliver it now.
 	_deliver_standing()
+
+
+## A DOOR MARKER IS ITS MAP ANCHOR, DERIVED — never a number typed into a .tscn
+## (2026-08-04). Every other piece of geometry in this project already works this
+## way (the exits, the dock, the mayor, every spawn) for the reason the map format
+## exists at all: paint, collision and logic all come from the one file, so nothing
+## can drift. Location markers were the last hand-placed thing, and they had.
+##
+## Found by measuring all 13 travel scenes' markers against the anchors whose names
+## they already share. **Fourteen of them were wrong, in three scenes**, and the two
+## worst classes both look like "the door is broken" rather than "the door is 8px
+## off":
+##
+##  - ON A SOLID CELL — Alembic's `weapons` (a ring deck's edge) and `items` (inside
+##    the forest wall), and Lanternwood's `library` and `cabin_c`. A trigger no body
+##    can stand on can never fire, so those four doors did not exist. The library is
+##    the one that matters: Fuji SPAWNS from its anchor correctly on the way out and
+##    then cannot walk back in.
+##  - IN ANOTHER PART OF TOWN — Lanternwood's `fuji_home` was 24 rows from its
+##    anchor and `cabin_a` a third of the map away; Alembic's whole set was left on
+##    canopy-era coordinates by the forest-floor rebuild, announcing shop names in
+##    empty grass. Basil's own front door was 128px off, which silently broke the
+##    door-mouth arrival contract: `_place_player` lands him ON the `home` anchor and
+##    latches `_standing`, so the latch was guarding a zone he was not in.
+##
+## Nothing caught any of it. `_check_art`'s placement lint reads only nodes parented
+## to `World`, and these live under `Locations`. It has a companion rule now.
+##
+## An id with no matching anchor keeps its authored position, so a marker that is
+## deliberately not a map feature stays hand-placeable.
+func _pin_locations() -> void:
+	for loc: OverworldLocation in locations.get_children():
+		if map.anchors.has(loc.id):
+			loc.position = MapData.anchor_px(map, loc.id)
 
 
 ## Re-deliver the marker the body is ALREADY standing in. Godot fires
@@ -204,6 +239,32 @@ func _exit_to_overworld(marker: String) -> void:
 	Game.overworld_spawn = marker
 	await fade_out()
 	get_tree().change_scene_to_file("res://scene/overworld.tscn")
+
+
+## A backstop wall just off the map edge, at `at`, `size` px.
+##
+## THE SAME WALL EVERY GATE MOUTH IN THIS PROJECT GETS. A mouth road runs to the grid's
+## last row and the collision layer only stamps grid CELLS, so past the mouth there is
+## nothing at all — and the exit zone is not a substitute, because a zone that has
+## already fired holds `_busy` for a fade's worth of frames and a body keeps walking
+## during it. Alembic's north and east mouths have no trigger at all yet.
+##
+## It lived here as five verbatim copies of the same nine lines — alembic_town,
+## town_fest and town_thesis each carried an identical private `_wall()`, and
+## lanternwood and academy each open-coded it a sixth and seventh time inside their own
+## mouth function. Every one of those scenes already extends this class. The GEOMETRY
+## stays with each scene, because which mouths a map has is a fact about that map; only
+## the body-building moves.
+func _wall(at: Vector2, size: Vector2) -> void:
+	var wall := StaticBody2D.new()
+	wall.collision_layer = 1
+	var shape := CollisionShape2D.new()
+	var rect := RectangleShape2D.new()
+	rect.size = size
+	shape.shape = rect
+	wall.add_child(shape)
+	wall.position = at
+	add_child(wall)
 
 
 ## Fade to black; callers change scene once it resolves.

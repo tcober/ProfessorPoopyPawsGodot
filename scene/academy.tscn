@@ -39,7 +39,7 @@ tile_set = ExtResource("5_collision")
 [node name="Locations" type="Node2D" parent="."]
 
 [node name="Hall" type="Area2D" parent="Locations"]
-position = Vector2(496, 184)
+position = Vector2(488, 184)
 script = ExtResource("2_loc")
 id = "hall"
 display_name = "THE GREAT HALL"
@@ -67,7 +67,7 @@ display_name = "THE GREAT ORRERY"
 shape = SubResource("RectangleShape2D_door")
 
 [node name="Observatory" type="Area2D" parent="Locations"]
-position = Vector2(184, 392)
+position = Vector2(200, 392)
 script = ExtResource("2_loc")
 id = "observatory"
 display_name = "THE OBSERVATORY"
@@ -77,7 +77,7 @@ locked_text = "THE DOME IS CRANKED HALF OPEN. IT HAS BEEN HALF OPEN A LONG TIME.
 shape = SubResource("RectangleShape2D_door")
 
 [node name="Stillhouse" type="Area2D" parent="Locations"]
-position = Vector2(840, 392)
+position = Vector2(824, 392)
 script = ExtResource("2_loc")
 id = "stillhouse"
 display_name = "THE STILL-HOUSE"

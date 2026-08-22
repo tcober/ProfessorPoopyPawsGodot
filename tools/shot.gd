@@ -89,7 +89,23 @@ func _run() -> void:
 		# scene/chapters.gd is deliberately autoload-free so it can be load()ed
 		# here; it is the same table the in-game chapter selector reads
 		var table: GDScript = load("res://scene/chapters.gd")
-		var b: Dictionary = table.BEATS[beat]
+		# BEATS holds the GROUP HEADINGS too, and a group row has no `scene`. Indexing
+		# one used to throw inside this coroutine — which does not unwind a SceneTree
+		# tool — so the run neither shot anything nor exited: it sat at 100% of a core
+		# until something killed it, and a batch of shots behind it never started.
+		# Bounds-check and group-check, and say which index was asked for.
+		var beats: Array = table.BEATS
+		if beat >= beats.size():
+			push_error("shot.gd: beat:%d is past the end of the table (%d rows)"
+					% [beat, beats.size()])
+			quit(1)
+			return
+		var b: Dictionary = beats[beat]
+		if not b.has("scene"):
+			push_error("shot.gd: beat:%d is the group heading \"%s\", not a beat"
+					% [beat, b.get("group", "?")])
+			quit(1)
+			return
 		scene_path = b["scene"]
 		root.get_node("Game").call("reset_story")
 		for f: String in b["flags"]:

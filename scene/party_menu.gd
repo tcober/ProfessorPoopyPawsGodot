@@ -75,10 +75,28 @@ func is_open() -> bool:
 	return _ui != null
 
 
+## IS THERE A PARTY TO OPEN A PARTY MENU ON? This autoload processes ALWAYS and in
+## every scene, so `I` used to open the menu on the TITLE SCREEN — where the roster
+## has never been spawned, every sheet is empty, and `SAVE GAME` on row 5 wrote a
+## perfectly valid save whose `scene` was res://scene/title.tscn. One keypress on the
+## boot screen overwrote the player's run with a save that loads straight back to the
+## boot screen, and the summary line under CONTINUE then said "TITLE - LV1".
+##
+## The predicate is the party itself rather than a scene whitelist: `Party.members` is
+## filled by Party.spawn() and emptied by set_roster(), so it is exactly "is there a
+## body in the world right now", which is also the only state this menu can describe.
+func _has_party() -> bool:
+	for m in Party.members:
+		if is_instance_valid(m):
+			return true
+	return false
+
+
 func _process(delta: float) -> void:
 	if _ui == null:
 		if Input.is_action_just_pressed("menu") \
-				and not Overlay.any_open(get_tree(), self):
+				and not Overlay.any_open(get_tree(), self) \
+				and _has_party():
 			_open()
 		return
 

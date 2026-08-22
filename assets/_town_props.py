@@ -1412,6 +1412,109 @@ def bridge_fascia(bridge, salt=353, band=12):
     return sp
 
 
+def town_shade_tree(f, trunk, grass, salt=307):
+    """THE TOWN'S REAL TREE: a (lower, upper) pair on 64x112 over a 2x3
+    footprint whose top TWO rows are WALKABLE and whose bottom row is the
+    solid trunk — so you walk in under the canopy and the leaves cross your
+    head. Replaces `town_tree` on Alembic's forest floor.
+
+    WHY IT WAS REBUILT (reported from play, 2026-08-04: "should be able to
+    walk behind trees" / "clips over the tree trunk"). `town_tree` is 32x48
+    over a 2x2 FULLY SOLID block — measured against the 22x38 figure it is
+    the same size as the player. Two complaints, one cause: there is no cell
+    inside it to stand on, so walk-behind is impossible; and because the art
+    is barely taller than a cat, a body standing legally on the row south of
+    it covers the whole thing. A tree you cannot get behind and cannot help
+    covering is a bush.
+
+    THE SHAPE IS THE CONIFER'S, AND THE REASONING IS THE ONE THING TO CARRY
+    AWAY. `town_conifer` gets away with three walkable crown rows because a
+    spruce TAPERS: at the top tier it is 10px of bough against a 22px figure,
+    so a body among the branches still reads. A broadleaf CROWN IS A BALL and
+    is widest exactly where a spruce is narrowest, so copying the conifer's
+    row split verbatim buries a body 100% — the walk-behind-visibility lint's
+    founding case, and it fails at `T3_HIDE_MAX = 0.90`.
+
+    So the mass goes where there are no cells at all. The art is 112 tall over
+    a 48px footprint: the top 64px is pure OVERHANG, hanging above the block
+    the way a great tree's crown does, and it carries the whole dense canopy.
+    What is left on the two walkable rows is bare shaft and the hem's fringe —
+    a body there is behind leaves from the shoulders up and plainly visible
+    below, which is the read, and it measures well inside the lint.
+
+    AND THE CROWN IS WIDER THAN ITS BLOCK, which is where most of the
+    walk-behind actually comes from. 64px of art over a 32px footprint hangs
+    one full cell into the grass either side; those cells are ordinary walkable
+    ground the lint never looks at, so a body crossing them passes under the
+    leaf fringe for free. Two cells is the documented safe overhang (a hidden
+    RUN of two is forgiven, three is condemned) and one is well inside it.
+
+    The split is cut at the crown's hem, not at the footprint: the crown rides
+    the higher y-sort key so a body ON the walkable rows is drawn behind BOTH
+    the canopy and the shaft — correct, because a body north of a trunk is
+    behind it — while a body pressed against the solid row, or standing south
+    of the tree, out-keys both and draws in front."""
+    W, H = 64, 112
+    CX = 32
+    sp = S(W, H, salt)
+    o1 = salt % 3 - 1                                      # per-salt lobe drift
+    o2 = (salt // 3) % 3 - 1
+    # ---- the canopy's shadow pooled at the foot (grass ramp, so it dedupes
+    # against whatever fabric phase the cell beneath happens to carry)
+    sp.blob(CX, 105, 18.0, 5.5, grass[4])
+    sp.blob(CX, 105, 11.0, 3.5, grass[5])
+    # ---- the shaft: root flare, then one taper running up into the leaves
+    sp.capsule(CX, 106, CX - 10, 109, 3.0, 1.5, trunk)     # root flare, west
+    sp.capsule(CX, 106, CX + 10, 109, 3.0, 1.5, trunk)     # root flare, east
+    sp.capsule(CX, 108, CX, 44, 6.0, 3.5, trunk)
+    sp.capsule(CX, 64, CX - 14, 44, 3.0, 1.5, trunk)       # limbs into the crown
+    sp.capsule(CX, 60, CX + 15, 42, 3.0, 1.5, trunk)
+    for y in range(48, 106):                               # bark grooves
+        hw = int(3.5 + (y - 44) / 26.0)
+        for x in range(CX - hw, CX + hw + 1):
+            if (x + y // 5) % 4 == 0:
+                sp.set(x, y, trunk[3])
+    sp.rect(CX - 6, 66, CX - 6, 102, trunk[1])             # west rim light
+    # ---- the crown. Five lobes, dense at the top and thinning to a hem near
+    # y=62 — everything below that row is shaft, which is what keeps the two
+    # walkable rows legible. Radii are held inside x 2..61 on purpose: `Sprite.set`
+    # discards out-of-range pixels SILENTLY, and a lobe table that spills past its
+    # canvas comes back as a ruler-straight cut with no outline on it (the
+    # great-crown flat-top bug, 2026-08-02). Asserted at the tail.
+    for cx, cy, rx, ry, sh in ((CX - 14 + o1, 30, 15.0, 14.0, 0.10),
+                               (CX + 14 + o2, 27, 15.0, 14.0, 0.02),
+                               (CX + o1, 15, 14.0, 12.0, 0.13),
+                               (CX - 8 + o2, 45, 15.0, 13.0, -0.05),
+                               (CX + 10 + o1, 46, 14.0, 12.0, -0.09)):
+        sp.ball(cx, cy, rx, ry, f, sh=sh, power=2.2)
+    sp.blob(CX - 4 + o2, 22, 4.0, 2.4, f[4])               # lobe seam shadows
+    sp.blob(CX + 8 + o1, 34, 3.5, 2.0, f[4])
+    sp.blob(CX, 57, 15.0, 4.0, f[4])                       # crown under-rim
+    sp.blob(CX, 61, 9.0, 2.6, f[5])
+    sp.blob(CX - 17 + o1, 10, 4.5, 2.6, f[0])              # NW sun-catch
+    sp.set(CX - 19 + o1, 8, SPEC)
+    if salt % 3 == 1:
+        sp.set(CX + 13 + o2, 18, BLOOM)                    # a surviving bloom
+        sp.set(CX - 9 + o1, 39, BLOOM)
+    sp.despeckle(2, 1)
+    edge(sp, H)
+    for y in range(sp.n):                                  # clip lobe drift back
+        for x in range(W, sp.n):                           # into the sprite
+            sp.px[y][x] = None
+    # THE CANVAS ASSERT (the great-crown lesson): the mass must not touch the
+    # top or side borders, or `edge()` has nothing to outline into and the
+    # silhouette ships with a straight cut across it. The BOTTOM row is exempt —
+    # the shaft and its shadow are meant to run to the footprint's south edge.
+    for x in range(W):
+        assert sp.px[0][x] is None, f"town_shade_tree: crown spills off the top at x={x}"
+    for y in range(H):
+        assert sp.px[y][0] is None and sp.px[y][W - 1] is None, (
+            f"town_shade_tree: art touches a side border at y={y}")
+    # Cut at the hem, NOT at the footprint boundary — see the docstring.
+    from _propkit import split_rows
+    return split_rows(sp, 66)
+
+
 def town_tree(f, trunk, grass, salt=301):
     """A town tree: (lower, upper) pair on 32x48 for a 2x3 FULLY SOLID
     footprint — a body-height tree is too small for a walk-behind corridor

@@ -277,8 +277,12 @@ print("z-order:")
 # lints DO run on them, which is what you want. Only the claim was wrong.
 # maps/bluff.txt is genuinely empty up there: its one prop (the windswept tree) is
 # a Tier-3 sprite and nothing else is drawn over a body.
+# maps/hall.txt left this table with the 2026-08-04 opera restage: the great
+# hall has no south wall a body can press (the house is solid ambiance down to
+# the border) and no walk-behind bake — everything that ever draws over a body
+# there is y-sorted (the stage riser, the curtain leg, the floating candles).
 UPPER_REQUIRED = {"maps/overworld.txt", "maps/overworld_bright.txt",
-                  "maps/house.txt", "maps/downstairs.txt", "maps/hall.txt",
+                  "maps/house.txt", "maps/downstairs.txt",
                   "maps/sickroom.txt", "maps/library.txt"}
 # 24x24 travel chibi, figure <=1 tile tall
 CHIBI_MAPS = {"maps/overworld.txt", "maps/overworld_bright.txt"}
@@ -798,6 +802,37 @@ for rel, map_rel in PLACEMENTS.items():
         if m.legend[m.at(tx, ty)]["solid"]:
             bad.append((name, tx, ty))
     check(f"{rel} entities on walkable cells", not bad, str(bad))
+
+# ---- door markers agree with the map's own anchors --------------------------------
+# THIS RULE EXISTS BECAUSE THE CHECK ABOVE READ ONLY `parent="World"` (2026-08-04).
+# Alembic Town's six door Area2Ds live under `Locations`, so they were never scanned
+# at all — and the forest-floor rebuild moved every building in the grid while the
+# markers stayed on the canopy-era coordinates. All six ended up wrong: two were
+# buried in SOLID cells (a ring deck's edge and the forest wall), which means those
+# two shops could never announce, because no body can stand where the trigger is.
+# "entities on walkable cells" passed the whole time with two entities inside rock.
+#
+# A hardcoded position is the defect, not merely a wrong number: the map txt is the
+# one source both paint and logic come from, so a marker whose id names an anchor
+# must BE that anchor. Scenes derive it at load now (`alembic_town._pin_locations`),
+# and this fails the build if a .tscn ever drifts from the grid again.
+print("door markers:")
+for rel, map_rel in PLACEMENTS.items():
+    m = maps[map_rel]
+    src = open(os.path.join(ROOT, rel)).read()
+    bad = []
+    for name, x, y, lid in re.findall(
+            r'\[node name="(\w+)" type="Area2D" parent="Locations"\]\n'
+            r'position = Vector2\((-?[\d.]+), (-?[\d.]+)\)\n'
+            r'script = ExtResource\("[^"]+"\)\nid = "(\w+)"', src):
+        if lid not in m.anchors:
+            continue          # not a map feature — hand-placed on purpose
+        ax, ay = m.anchors[lid]
+        want = (ax * ZONE_TILE + ZONE_TILE / 2.0, ay * ZONE_TILE + ZONE_TILE / 2.0)
+        if abs(float(x) - want[0]) > 0.5 or abs(float(y) - want[1]) > 0.5:
+            bad.append(f"{lid} at ({x},{y}) but anchor {lid} is at "
+                       f"({want[0]:.0f},{want[1]:.0f})")
+    check(f"{rel} door markers sit on their map anchors", not bad, "; ".join(bad))
 
 # ---- sheet dimensions -----------------------------------------------------------------
 SHEETS = {

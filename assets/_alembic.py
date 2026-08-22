@@ -25,7 +25,7 @@ from _core import h2, lerp
 from _overworld_tiles import OverWorld, T, STRUCT_TERRAIN
 from _tilekit import sprite_img, VOID, IRON
 from _town_props import (town_cottage, town_shop, town_well, town_lamp,
-                         town_stall, town_fountain, town_tree)
+                         town_stall, town_fountain, town_shade_tree)
 from _culture_props import notice_board, owl_roost, hook_lantern, PAPER_STOCK
 from _tree_props import (tree_ring, ring_cells, ring_geom, trunk_face,
                          rope_ladder, understory, great_trunk, great_crown, BARK)
@@ -397,10 +397,38 @@ def build(map_name, scene_key, glow):
                         lx0 * T, top * T)
 
     # ---- walk-behind trees: TWO y-sorted World props per {T,t} component -------------
-    lo, up = town_tree(tn.FOREST, tn.TRUNK, tn.GRASS)
-    tn.emit_prop("TreeTrunk", "Tt", sprite_img(lo, 32, 48), each=True)
-    tn.emit_prop("TreeCrown", "Tt", sprite_img(up, 32, 48), each=True,
-                 top=0, base_inset=-16)
+    # 2x3 blocks: two WALKABLE crown rows over one solid trunk row. The art is
+    # 64x112 — twice the footprint's height and twice its width — so 64px of dense
+    # canopy hangs above the block and a full cell of leaf hangs into the grass
+    # either side. `top=-64` puts the crown half's canvas on exactly the row the
+    # bottom-anchored trunk half starts on, so the two compose as one tree; the
+    # sign is load-bearing (prop_spawner carries an explicit has_top flag for it).
+    # BARK, NOT `tn.TRUNK` — the same hand-pinned ramp the great trees use, and the
+    # reason is the `ramp()` violet law again (the Academy's five pinned ramps, the
+    # BRASSD precedent). The town's derived trunk material is (77,85,150) at its
+    # lit end and (17,37,55) at its dark one: a ramp with NO warm tone in it at all.
+    # On the old 32x48 tree that was ten pixels of shaft buried under the crown and
+    # nobody ever saw it; at this size it is a 12x60 BLUE PILLAR standing in the
+    # middle of the clearing. Sharing BARK also makes a small tree and a great tree
+    # the same species of wood, which is what a forest town wants.
+    lo, up = town_shade_tree(tn.FOREST, BARK, tn.GRASS)
+    tn.emit_prop("TreeTrunk", "Tt", sprite_img(lo, 64, 112), each=True)
+    tn.emit_prop("TreeCrown", "Tt", sprite_img(up, 64, 112), each=True,
+                 top=-64, base_inset=-16)
+
+    # ---- tree authoring guard (the lanternwood spruce guard, same reasoning) ---------
+    # `assert_all`'s component table already pins every {T,t} block to 2x3. What it
+    # cannot see is WHICH rows are which: the whole point of the rebuild is that the
+    # top two rows are walkable crown and only the bottom row is solid trunk, and a
+    # tree typed the other way up renders perfectly while being a 3-row wall you can
+    # stand on the roof of.
+    for _comp in tn.comps("Tt"):
+        _x0, _y0, _x1, _y1 = tn.comp_bbox(_comp)
+        for _cx, _cy in _comp:
+            _want_solid = _cy == _y1                       # only the trunk row
+            assert tn.m.legend[tn.m.at(_cx, _cy)]["solid"] == _want_solid, (
+                f"{tn.name}.txt: tree cell ({_cx},{_cy}) should be "
+                f"{'solid trunk' if _want_solid else 'walkable crown'}")
 
     # ---- THE UNDERSTORY: the forest floor this town stands on ------------------------
     # THE TOWN IS THE FLOOR NOW, so the floor has to be a forest floor everywhere and
@@ -513,7 +541,7 @@ def assert_all(tn, map_name):
     for chars, w, h, n in ((RING_CHARS, 12, 9, 4), ("G", 14, 6, 4), ("J", 4, 2, 4),
                            ("q1", 5, 4, 1), ("w2", 5, 4, 1),
                            ("xX", 5, 4, 1), ("pP", 5, 4, 1), ("iI", 5, 4, 1),
-                           ("Tt", 2, 2, 6),
+                           ("Tt", 2, 3, 6),
                            ("kK", 3, 2, 1), ("cC", 2, 2, 1), ("hH", 1, 2, 6)):
         cs = tn.comps(chars)
         assert len(cs) == n, (

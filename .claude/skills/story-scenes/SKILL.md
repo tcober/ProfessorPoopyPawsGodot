@@ -63,9 +63,10 @@ convention — **door banners are caps-only.**
 the player, and re-locks.
 
 **A walk-gate must be UNAVOIDABLE for its objective.** A point-rect is walkable *around*
-(hall aisles, the fountain ring) and reads as a hang. Use:
+(the fountain ring, any open floor) and reads as a hang. Use:
 
-- a full-width room band (hall row 8, sickroom row 6), or
+- a full-width room band (the hall's stage rows and its pit row 11, sickroom
+  row 6), or
 - the whole square zone (both town phases use the fest cutscene's 96×96 fountain zone),
 
 then stage the last steps with `walk_via` waypoints.
@@ -342,8 +343,15 @@ night after the kiss; `call2` opens late and AWAITS the fall before a single lin
   every burst and spark — is by construction outside the dim and burns full strength
   against it; *that*, not the blend mode, is where the brightness comes from. No line
   announces the lights going down (the narration purge).
-  - Each burst `_house_wash()`es its own colour back over the walls and the eighteen
+  - Each burst `_house_wash()`es its own colour back over the walls and the thirty
     backs on its **own** tween, so it can never kill and hang an awaited `_house_set`.
+  - **THE FLOATING CANDLES are excluded from the snapshot** (2026-08-04, the
+    great-hall rebuild): they are lights, not lit things, and the recital douses
+    them on their own tweens (`_candle_douse` in a north-south wave beside the
+    awaited `_house_set(HOUSE_DOWN)`; `_candle_relight` under "Stop. STOP.") — one
+    modulate cannot serve two owners, the `_flask_pulse` lesson from the other
+    side. Their 4-frame flicker is hall.gd's own `_process` (interior scenes have
+    no TravelScene `_collect_animated`).
   - The ring grows via **`_burst_scale`** — and `scale` multiplies a `Sprite2D`'s
     `offset` too, so divide the lift by the scale or the ring flies 80px up the wall.
   - The flask's readability pulse is a LOOPED `modulate` tween that **must be killed

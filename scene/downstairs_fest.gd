@@ -127,7 +127,7 @@ func _spawn_mom() -> void:
 	else:
 		_mom.lines = PackedStringArray([
 			"Morning Sunshine!",
-			"It's the Founding Festival, sweetheart. Everyone's out",
+			"It's the Founding Festival, sweetheart. Everyone's out.",
 			"I think I saw Sage out there. Go play with your friends!",
 		])
 	# by the hearth, flour on her paws
@@ -161,19 +161,21 @@ func _on_mom_talked(_npc: NPC) -> void:
 func _mom_blessing() -> void:
 	theater.lock_party()
 	_mom.play_idle()
-	await theater.say("Mom", "Oh, sweetheart. I heard about the square.")
+	await theater.say("Mom", "Basil, what's the matter?")
 	player.sprite.play("sad")
-	await theater.say("Mom", "Listen to me. Magic is common as dandelions.")
+	await theater.say("Basil", "Maybe I'm just not magic like everyone else...")
+	await theater.say("Mom", "Listen to me. Magic is common as dandelions. You've got science!")
 	_mom.play_emote()
-	await theater.say("Mom", "You? You take things apart to see WHY. You put them back together BETTER. That is rarer than any ribbon trick.")
+	await theater.say("Mom", "You made me that amazing remedy last time I was sick didn't you?")
+	await theater.say("Mom", "You'll always be magic to me sweetheart.")
 	await theater.say("Basil", "...You have to say that. You're my mom.")
-	await theater.say("Mom", "And moms are always right. It's the law.")
-	await theater.say("Mom", "Now scoot. Sulk somewhere sunny - the meadow's good for it. Out the south gate. Home before the lamps.")
+	await theater.say("Mom", "And moms are always right.")
+	await theater.say("Mom", "Now scoot. Sulk somewhere sunny. Ride your bike out to the coast or something.")
 	theater.close_dialog()
 	player.sprite.play("idle_down")
 	Game.set_flag("prologue_gate_open")
 	theater.unlock_party()
-	theater.hint("THE SOUTH GATE IS OPEN - THE MEADOW")
+	theater.hint("THE SOUTH GATE IS OPEN")
 
 
 # ---- the brew ---------------------------------------------------------------------

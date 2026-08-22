@@ -271,6 +271,25 @@ that was now lawn. It takes off from where it has been standing now — in frame
 the dialog box, watched — and goes UP onto a neighbour's ring deck, which makes getting
 the ribbon back a beat about the boy who can't do magic CLIMBING.
 
+**THE GREAT HALL IS THE FF6 OPERA SHOT (2026-08-04, rebuilt from the ground up).**
+`hall.tscn`'s room is 24×21, one screen wide, and **the only walkable ground is the
+full-bleed STAGE and the pit strip at its foot — everything south is ambiance**: three
+amphitheatre tiers of high-backed pews wall to wall, THIRTY live bobbing audience backs
+nudged onto baked pew ARCS (`AUD_ARC` in hall.gd married to `HOUSE_ARC` in the gen), a
+radial gloom rounding the corners, the runner falling to a door glint nobody walks to.
+The proscenium's law came off the reference photo: **the opening is dark and the frame
+is gold** — glittering midnight backdrop, gilt multi-order arch, mint rose window
+(visible ONLY from the podium), two-layer velvet valance with a clock cartouche, gold
+owls in lit niches, and 48px MASKING FLATS spanning both wings over solid `w` cells
+(walk-behind lint 7 forbids hiding a controllable body; the flee TWEEN passes through
+the velvet instead). **The FLOATING CANDLES are the room's magic** — Tier-3 hframes=4
+tapers flickered by `_process`, excluded from the houselights snapshot, DOUSED in a
+north-south wave for the recital's act (`_candle_douse` beside `_house_set(HOUSE_DOWN)`)
+and relit at "Stop. STOP." Both walk-gates and both probes derive from the map and
+survived unedited; the hall left `_check_art.py`'s `UPPER_REQUIRED` (no Tier-2 art
+remains — everything over a body is y-sorted). Full statement in DESIGN.md → the
+`scene/hall.gd` scene-inventory block.
+
 Designed but NOT built — both live in Alembic Town, and the grids they were waiting on
 have now settled: **Act 1 beat 4 — ASKING AROUND**, where the wander gate is not a crowd
 but **adult Sage and Basil's mother**, and the rumour that he walked into the deep wood

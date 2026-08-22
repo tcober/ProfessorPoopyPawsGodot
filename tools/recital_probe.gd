@@ -160,8 +160,10 @@ func _run() -> void:
 	var aisle_open := func() -> bool: return in_hall.call() and _party_free()
 	ok = await _mash_until(aisle_open, 3000)
 	_check("the recital hands over the walk up the aisle", ok)
-	# the band across row 6 — the open strip south of the apron riser, the only
-	# row touching it (the stage is a sealed region nobody walks onto)
+	# the band across the pit row south of the apron riser — the only row
+	# touching it (the stage is a sealed region nobody walks onto); derived
+	# from the D bbox, so the 2026-08-04 great-hall rebuild moved it with
+	# the map and this probe never needed an edit
 	var apron: Rect2 = MapData.bbox_rect(hall_map, "D")
 	_player().global_position = Vector2(apron.get_center().x, apron.end.y + 8.0)
 	var recital := func() -> bool: return game.flag("prologue_recital")

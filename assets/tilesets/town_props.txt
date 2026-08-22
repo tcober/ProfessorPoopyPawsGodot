@@ -15,4 +15,4 @@ prop Crown G town_crown.png anchor=top:-24 base_inset=-52 each
 prop RingRail yR town_ringrail.png anchor=top:0 each
 prop TrunkRing J town_trunkring.png base_inset=19 each
 prop TreeTrunk Tt town_treetrunk.png each
-prop TreeCrown Tt town_treecrown.png anchor=top:0 base_inset=-16 each
+prop TreeCrown Tt town_treecrown.png anchor=top:-64 base_inset=-16 each

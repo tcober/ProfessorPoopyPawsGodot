@@ -72,13 +72,5 @@ func _on_exit_south(body: Node) -> void:
 ## but a zone that has already fired holds `_busy` for a fade's worth of frames and a
 ## body keeps walking during it.
 func _wall_mouth() -> void:
-	var size := MapData.size_px(map)
-	var wall := StaticBody2D.new()
-	wall.collision_layer = 1
-	var shape := CollisionShape2D.new()
-	var rect := RectangleShape2D.new()
-	rect.size = Vector2(64.0, 8.0)
-	shape.shape = rect
-	wall.add_child(shape)
-	wall.position = Vector2($ExitSouth.position.x, size.y + 4.0)
-	add_child(wall)
+	_wall(Vector2($ExitSouth.position.x, MapData.size_px(map).y + 4.0),
+			Vector2(64.0, 8.0))

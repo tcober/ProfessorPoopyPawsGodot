@@ -18,7 +18,7 @@ import os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from _core import h2, lerp
+from _core import h2, lerp, Img
 from _palette import ramp
 from _interior import (TIMBER, BRASS, STEEL, COPPER, IRON, GLASS, MINT,
                        VIOLETF, PAPER, PAPERD, RED, SPEC, WATER, STEAM)
@@ -33,6 +33,14 @@ FLAME_CORE = (255, 244, 200, 255)
 SUN = (255, 240, 196, 255)
 SKYLINE = (58, 38, 92, 255)
 FIREBOX = (14, 9, 22, 255)
+# Candle wax, hand-pinned (a warm ivory seed under the violet law goes pink)
+# — a LIST, never a tuple of tuples (Sprite.tri type-sniffs isinstance(list)).
+WAX = [(248, 240, 214, 255), (226, 208, 180, 255), (190, 168, 152, 255)]
+# The great hall's floating-candle flicker — the same mean-zero cycle
+# _culture_props.CANDLE_FLICK drives the hook lanterns with (kept local:
+# the interior kit never imports the exterior one). All the flicker's terms
+# are affine in it, so none can climb, drift or brighten over the loop.
+CANDLE_FLICK = (0, 1, 0, -1)
 
 
 # ====================================================================================
@@ -1130,8 +1138,11 @@ def stage_front(w, h, salt=77):
     at stage width). The upper band is the stage boards' lit south lip — it
     overlaps the dais row behind, so a performer's feet read as ON the
     platform edge; below it a panelled riser face drops to a dark contact
-    lip. Kept fully opaque across its footprint row on purpose: the solid D
-    cells must never dedupe to open floor (the T3 coverage rule)."""
+    lip. A run of CANDLE FOOTLIGHTS burns along the lip (2026-08-04, the
+    grand-hall restage) — little wax stubs in brass cups every couple of
+    feet, the opera-apron read, and honest fire like every other light in
+    the hall. Kept fully opaque across its footprint row on purpose: the
+    solid D cells must never dedupe to open floor (the T3 coverage rule)."""
     sp = S(w, h, salt)
     sp.rect(0, h - 26, w - 1, h - 26, TIMBER[0])              # lit stage lip
     sp.rect(0, h - 25, w - 1, h - 21, TIMBER[1])              # board ends
@@ -1144,6 +1155,11 @@ def stage_front(w, h, salt=77):
         sp.rect(px2, h - 16, px2 + 14, h - 7, TIMBER[2])
         sp.rect(px2, h - 16, px2 + 14, h - 16, TIMBER[4])     # inset shadow
         sp.rect(px2, h - 7, px2 + 14, h - 7, TIMBER[1])       # catch-light
+    for fx in range(14, w - 8, 24):                           # the footlights
+        sp.rect(fx - 1, h - 27, fx + 1, h - 27, BRASS[1])     # brass cup
+        sp.set(fx, h - 28, WAX[1])                            # wax stub
+        sp.set(fx, h - 29, FLAME_IN)                          # the flame
+        sp.set(fx, h - 30, FLAME)
     sp.rect(0, h - 3, w - 1, h - 1, TIMBER[4])                # contact lip
     edge(sp)
     return sp
@@ -1179,27 +1195,56 @@ def curtain_leg(w, h, red, salt=83):
     return sp
 
 
-def bench(w, h, salt=71):
-    """A tiered lecture bench (the workbench counter-walk pattern): a plank
-    seat + back on stout legs. Audience NPCs stand on the walkable row behind
-    it so their legs tuck under the seat — the seated-in-the-gallery read;
-    only the bottom row is solid."""
-    sp = S(w, h, salt)
-    sp.rect(1, 8, w - 2, 8, TIMBER[0])                        # seat top edge
-    sp.rect(1, 9, w - 2, 12, TIMBER[1])                       # seat plank
-    for gx in range(4, w - 4, 10):
-        sp.rect(gx, 10, gx + 5, 10, TIMBER[2])               # grain
-    sp.rect(1, 13, w - 2, 13, TIMBER[2])
-    sp.rect(1, 14, w - 2, 14, TIMBER[4])                      # front lip
-    sp.rect(2, 2, w - 3, 3, TIMBER[2])                        # low backrest
-    sp.rect(2, 2, w - 3, 2, TIMBER[1])
-    sp.rect(2, 4, w - 3, 4, TIMBER[4])
-    for px2 in (3, w - 6):                                    # backrest posts
-        sp.rect(px2, 4, px2 + 1, 8, TIMBER[3])
-    for px2 in (3, w - 6):                                    # legs (floor between)
-        sp.rect(px2, 15, px2 + 3, h - 3, TIMBER[3])
-        sp.rect(px2 + 3, 15, px2 + 3, h - 3, TIMBER[4])
-        sp.rect(px2, h - 4, px2 + 3, h - 3, TIMBER[4])
-    sp.rect(6, h - 8, w - 7, h - 7, TIMBER[3])                # stretcher
-    edge(sp)
-    return sp
+def floating_candle(salt=91, frames=4):
+    """A FLOATING CANDLE — the great hall's light, and its whole thesis made
+    visible: a bare wax taper hanging in the air on nothing at all, because
+    the hall's own magic holds it there. (Which is exactly why they go out
+    for the boy who hasn't any — see scene/hall.gd's candle douse.) No chain,
+    no bracket, no pan: the missing hardware IS the statement, the same way
+    the hook lantern's wrought-iron hook is _culture_props' statement in the
+    other direction.
+
+    A 4px taper with a melted rim and one drip bead (salt-placed, so the
+    three hang-heights don't ship as three clones), and a flame whose tip
+    rises AND leans on the same mean-zero CANDLE_FLICK number — the
+    hook-lantern law: a flame that only changes height pumps, and a flame
+    that only leans wags. Frame 0 is the art as drawn.
+
+    RETURNS a horizontal frame-sheet Img of 16*frames x 24 for emit_prop
+    (hframes=frames). The scene cycles the frames (hall.gd's _process — the
+    interior scenes have no TravelScene _animated scanner).
+
+    FOOTPRINT: one cell, ALWAYS — each=True stretches one sprite across a
+    fused component, so the generator asserts every candle char component is
+    exactly one cell. Over the nave the cell is WALKABLE and the manifest
+    hangs the art 2-3 rows up with a negative anchor=top (a body walks under
+    it); over the vault band the cell is solid wall and the art sits
+    bottom-anchored in its own cell."""
+    assert frames < 2 or frames % len(CANDLE_FLICK) == 0, \
+        "a flickering candle's sheet must hold whole flicker cycles"
+    out = Img(16 * max(1, frames), 24)
+    for f in range(max(1, frames)):
+        sp = S(16, 24, salt)
+        k = CANDLE_FLICK[f % len(CANDLE_FLICK)]
+        # the taper
+        sp.rect(6, 10, 9, 20, WAX[1])                         # body
+        sp.rect(6, 10, 6, 20, WAX[0])                         # lit west edge
+        sp.rect(9, 10, 9, 20, WAX[2])                         # shaded east edge
+        sp.rect(5, 9, 10, 9, WAX[0])                          # melted rim, proud
+        sp.set(5, 10, WAX[1])
+        sp.set(10, 10, WAX[2])
+        dx = 5 if h2(salt, 3) % 2 else 10                     # one drip bead
+        dy = 13 + h2(salt, 7) % 5
+        sp.rect(dx, 11, dx, dy, WAX[0] if dx == 5 else WAX[2])
+        sp.set(dx, dy + 1, WAX[1])
+        sp.set(7, 9, WAX[2])                                  # the wick's scorch
+        # the flame — two px at the shoulders, one at the tip
+        sp.rect(7, 6, 8, 8, FLAME_IN)
+        sp.set(7, 7, FLAME_CORE)
+        sp.set(8, 8, FLAME)
+        tipy, tipx = 4 - k, 7 + k
+        sp.set(tipx, tipy, FLAME_IN)
+        sp.set(tipx, tipy - 1, FLAME)
+        edge(sp, 24)
+        out.blit_cell(sp, f * 16, 0)
+    return out

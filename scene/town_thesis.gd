@@ -418,18 +418,6 @@ func _wall_gate_mouth() -> void:
 			Vector2(8.0, 64.0))
 
 
-func _wall(at: Vector2, size: Vector2) -> void:
-	var wall := StaticBody2D.new()
-	wall.collision_layer = 1
-	var shape := CollisionShape2D.new()
-	var rect := RectangleShape2D.new()
-	rect.size = size
-	shape.shape = rect
-	wall.add_child(shape)
-	wall.position = at
-	add_child(wall)
-
-
 func _npc(nm: String, sheet: Texture2D, cols: int, pos: Vector2) -> NPC:
 	var npc: NPC = NPCScene.instantiate()
 	npc.display_name = nm

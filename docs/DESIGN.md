@@ -436,12 +436,15 @@ mock him for exactly that, no nickname.)*
    looking down over the rail. Professor Strix reads the note against his
    name ("no aptitude") and gives him the floor anyway. Schweinler: *"What's
    he going to do, WIND something at us?"* Basil: *"...Yes."* — and **the
-   houselights go down** *(2026-07-28)*. Nobody announces it; the room
-   darkening around a ten-year-old with a flask is the line. Kitty cranks,
+   houselights go down** *(2026-07-28; since the 2026-08-04 great-hall
+   rebuild the room ITSELF does it: the floating candles go out in a
+   north-to-south wave, the hall's own magic leaving the air over a boy
+   with no spark in him)*. Nobody announces it; the room darkening around
+   a ten-year-old with a flask is the line. Kitty cranks,
    the loaded whirligig climbs over the house — the glowing payload in its
    pod now the only light in the hall — and it throws four
    fireworks in the four reagent colours, each one washing its own colour
-   back across the walls and the eighteen backs. The gallery that will one
+   back across the walls and the thirty backs. The gallery that will one
    day laugh him out of this room leans back as one instead, and Kitty whoops
    from the front row (which is the promise she makes again, and calls a
    promise, in the romance below). Strix: *"It is POTIONS is what it is."*
@@ -521,28 +524,31 @@ decision: the old look is rejected wholesale); only the beats are canon:
    was CUT 2026-07-18): she's at her off-screen wheel workshop wrestling
    a busted axle — WHY she never makes the front row; the promise breaks
    for a mundane, maker-shaped reason, told in her call1 apology.
-5. **The lecture** *(cutscene, Academy hall interior; restaged 2026-07-18
-   as a COLLEGE hall with a full stage; curtain pass later the same
-   day)*: a raised north STAGE closed by the apron riser, dressed as a
-   true proscenium — a scalloped theater-red VALANCE across the opening,
-   a slim east drape, and the y-sorted WEST CURTAIN LEG the stage is
-   entered behind — Basil comes on from STAGE RIGHT, appearing from
-   behind the curtain, and presents front-center from BEHIND THE PODIUM
-   (the desk idiom hides his legs), the judging panel behind their long
-   desk stage-left on the same line. The house is three TIERED bench rows
-   of audience seen from BEHIND (back cells — rows of heads facing the
-   stage). The re-enchantment thesis leads with the theme ("You call my
+5. **The lecture** *(cutscene, THE GREAT HALL; rebuilt 2026-08-04 as the
+   FF6 opera shot — full statement under `scene/hall.gd` in the scene
+   inventory)*: a full-bleed raised STAGE under a gilt proscenium and a
+   glittering midnight backdrop, sealed by the apron riser with its
+   candle footlights; the mint rose window burns over the podium, visible
+   only from up there — the grandest view of the hall belongs to the
+   scene that destroys him in it. Basil comes on from STAGE RIGHT,
+   stepping out of a 48px velvet MASKING FLAT, and presents front-center
+   from BEHIND THE PODIUM (the desk idiom hides his legs), the judging
+   panel behind their desk stage-left on the same line. The house is
+   three amphitheatre tiers of high-backed pews packed wall to wall,
+   THIRTY audience seen from BEHIND (back cells — rows of heads curved
+   around the act), floating candles burning over all of it. The re-enchantment thesis leads with the theme ("You call my
    flasks 'potions.' They are chemistry."); Schweinler heckles from the
-   east aisle; the naming — and the whole hall ROARS: the panel cracks up
+   front pew's east corner, the one face in a house of backs; the naming — and the whole hall ROARS: the panel cracks up
    face-first while every audience head bobs on its own looped tween,
    periods staggered so the tiers RIPPLE. Basil tries once — "But...
    I..." — and hands Schweinler the encore ("'BUT'?! HA! HE SAID BUTT!"),
    the head goes down (`bow_head`, held), and he's already retreating AS
-   they laugh: the flee back behind the west curtain leg is AUTOMATIC —
-   his body giving up — a SLOW head-bowed trudge (the `defeat_walk`
-   cells, 2026-07-18) with the chant rolling over the walk, and the
-   curtain swallows him completely (his modulate fades over the last
-   steps — the figure is wider than the drape, no tail left showing).
+   they laugh: the flee into the west wing is AUTOMATIC — his body giving
+   up — a SLOW head-bowed trudge (the `defeat_walk` cells, 2026-07-18)
+   with the chant rolling over the walk, and the masking flat swallows
+   him completely (the flee tween carries him THROUGH the velvet to the
+   frame's own west edge, the modulate fade riding the last steps — no
+   tail left showing).
    Card: "THAT EVENING." ("THE NAME STUCK." was cut in the card purge).
 6. **Bluff call1** *(the bluff at dusk, `scene/bluff.gd` phase `call1`)*:
    Basil climbs to the lip of the same headland where she kissed him and
@@ -677,15 +683,15 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
    **AS SHIPPED IT DIVERGES FROM THE DESIGN BELOW IN TWO WAYS, both deliberate:**
    - **The fight is in the STREET, not on a road north of town.** "THE DEFENCE
 	 OF LANTERNWOOD": she comes back out of her own library and the lanes are
-     not empty. It costs no new zone, it puts the new terraces to work (she
-     fights UP them), and a town turning dangerous is a stronger beat than a
-     road being dangerous. Three enemies, no respawns, a level on the second
-     kill, a tonic left in the snow. `scene/lanternwood.gd::_start_defence`.
+	 not empty. It costs no new zone, it puts the new terraces to work (she
+	 fights UP them), and a town turning dangerous is a stronger beat than a
+	 road being dangerous. Three enemies, no respawns, a level on the second
+	 kill, a tonic left in the snow. `scene/lanternwood.gd::_start_defence`.
    - **The book is chosen off the THREE STACKS that already exist**, not from a
-     new set of anchors — each shelf yields a different tome (husbandry / the
+	 new set of anchors — each shelf yields a different tome (husbandry / the
 	 grain tithes / enchantment theory), so "which book" is answered by WALKING
-     somewhere. The one she takes goes straight into her WEAPON slot and is
-     remembered in `Game.fuji_tome`.
+	 somewhere. The one she takes goes straight into her WEAPON slot and is
+	 remembered in `Game.fuji_tome`.
    Everything else landed as written: the dose off shelf three, the dead wand
    bored out over TWO visits, and the first book she reaches for put back
    unbroken. Flags: `fuji_dose_found` / `fuji_darts_made` / `fuji_tome_taken` /
@@ -722,8 +728,8 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
 	 of her science, and it costs her the last object that let her pretend
 	 otherwise. Stage it slow, stop her halfway, and make the player press
 	 again to finish it. (The bluff's explode → gather → refit is shipped;
-     this is its inverse — one whole thing deliberately ruined to get one
-     working thing, which is the same trade Basil made with the watch.)
+	 this is its inverse — one whole thing deliberately ruined to get one
+	 working thing, which is the same trade Basil made with the watch.)
    - **THE BOOK — the player's choice, and her socket vessel forever**
 	 (Ladder 2, "the socket has a VESSEL"). Three or four spines in the
 	 stacks; stats identical, name and flavour and cast-tint hers for the
@@ -758,19 +764,19 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
 	 who goes and gets him**: she is the only other person alive who
 	 answered the drained world the way he did, and she has no idea yet.
    - **Her whole kit is a librarian's.** The shelf gave her the dose, the
-     wand became the pipe, the weapon is a book. Nothing is invented and
-     nothing is found in a chest — it is one room she already had, used
-     correctly. **Hold this rule if the kit ever grows.**
+	 wand became the pipe, the weapon is a book. Nothing is invented and
+	 nothing is found in a chest — it is one room she already had, used
+	 correctly. **Hold this rule if the kit ever grows.**
    - Narration purge applies: no narrator boxes, and this beat wants no
-     time card at all — leg (a) runs the same night she reads the thesis.
+	 time card at all — leg (a) runs the same night she reads the thesis.
    - **Implementation, and it is cheap:** no second character and no
 	 "unarmed Fuji" entity. `fuji.gd::_process_kit` gates the tome on
-     `book_chosen` and the blow-pipe on `wand_bored`; leg (a) is the
-     shipped body with two flags off. Flags: `fuji_chased`, `dose_found`,
-     `wand_bored`, `book_chosen` (+ `Game.fuji_tome: StringName` for which
-     one) → `kit_made`. `reset_story()` must clear all of it, including
-     `fuji_tome`, for the same reason it blanks the gun loadout. Probe
-     work extends **`tools/library_probe.gd`**, not the prologue probe.
+	 `book_chosen` and the blow-pipe on `wand_bored`; leg (a) is the
+	 shipped body with two flags off. Flags: `fuji_chased`, `dose_found`,
+	 `wand_bored`, `book_chosen` (+ `Game.fuji_tome: StringName` for which
+	 one) → `kit_made`. `reset_story()` must clear all of it, including
+	 `fuji_tome`, for the same reason it blanks the gun loadout. Probe
+	 work extends **`tools/library_probe.gd`**, not the prologue probe.
 3b. **THE MOTION — Mayor Hollis, the moot hall, and the launch** *(BUILT
    2026-07-29 — `scene/lanternwood.gd::_the_motion`)*. The beat that closes
    the boat hook and, more importantly, answers **"why does she go?"** with
@@ -799,8 +805,8 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
 	 take THAT"* — and Fuji notices it is his, out loud.
    - **He asks for a record, not a rescue.** "You write down what you find.
 	 All of it. For the minutes." A librarian is being asked to catalogue the
-     restoration of magic by a clerk who will probably never read it, and
-     that is the most Lanternwood sentence in the game.
+	 restoration of magic by a clerk who will probably never read it, and
+	 that is the most Lanternwood sentence in the game.
 
    Flags: `town_defended` (already set by the defence) puts him in the street
    → `mayor_briefed` + `boat_ready`. Stepping onto the pier then casts off:
@@ -825,39 +831,39 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
    wander gate is not a crowd — it is **his sister and his mother**, and the
    generic townsfolk exist to fail her first so that those two land.
    - **ADULT SAGE, in THE CRACKED FLASK.** Already canon: the sister who
-     teased him for having no magic now survives selling *potions*, his kind
-     of craft, and has never once said so out loud. She is the one person in
+	 teased him for having no magic now survives selling *potions*, his kind
+	 of craft, and has never once said so out loud. She is the one person in
 	 the town who knows the name "Basil" instantly — and **she will not say
-     the other one.** Play it as a shopkeeper being brisk with a customer:
-     she answers about stock, about the shelves, about anything, and the one
-     question she doesn't answer is the one Fuji asked. **The tell is that a
-     stranger with an unbound paper knows her brother's real name**, which
-     nobody has used in twenty years, and it takes Sage a moment to
-     understand what that means. She still doesn't say where he is. **She
-     sends Fuji to their mother**, which is the cowardice and the kindness in
-     the same sentence.
+	 the other one.** Play it as a shopkeeper being brisk with a customer:
+	 she answers about stock, about the shelves, about anything, and the one
+	 question she doesn't answer is the one Fuji asked. **The tell is that a
+	 stranger with an unbound paper knows her brother's real name**, which
+	 nobody has used in twenty years, and it takes Sage a moment to
+	 understand what that means. She still doesn't say where he is. **She
+	 sends Fuji to their mother**, which is the cowardice and the kindness in
+	 the same sentence.
    - **BASIL'S MOTHER.** Old now. The hearth she gave him a good-morning at
-     in Prologue A's `downstairs_fest` is the same room, twenty-odd years
-     colder. She is the emotional floor of the act and she gets the fewest
-     lines. **She is the one who knows where he went, because a mother is**
-     — and what she has is not an address, it is the last thing she heard.
-     The rule for her scene: **she must not ask Fuji to bring him home.**
-     She asks something much smaller and worse, and Fuji says yes to it.
+	 in Prologue A's `downstairs_fest` is the same room, twenty-odd years
+	 colder. She is the emotional floor of the act and she gets the fewest
+	 lines. **She is the one who knows where he went, because a mother is**
+	 — and what she has is not an address, it is the last thing she heard.
+	 The rule for her scene: **she must not ask Fuji to bring him home.**
+	 She asks something much smaller and worse, and Fuji says yes to it.
    - **THE RUMOUR, and it is the direction.** Somebody — the innkeeper, a
-     hunter, a kid — heard that he **walked into the deep wood east of the
-     meadow and did not come out.** Not a warning: a piece of gossip
-     delivered casually by someone who thinks it is a story about a lunatic.
-     That is the Simon & Marcy register and it is also the map: the deep wood
-     is on the road to the HOME TREE (beat 6), so the rumour and the route
-     are the same fact.
+	 hunter, a kid — heard that he **walked into the deep wood east of the
+	 meadow and did not come out.** Not a warning: a piece of gossip
+	 delivered casually by someone who thinks it is a story about a lunatic.
+	 That is the Simon & Marcy register and it is also the map: the deep wood
+	 is on the road to the HOME TREE (beat 6), so the rumour and the route
+	 are the same fact.
    - **ASSET NOTE:** adult Sage and an aged Mom both need new sheets —
-     `npc_sage_gen.png` is the KID and `npc_mom_gen.png` is the kid-era
-     mother, twenty years younger than this scene. Draw both at 10 columns
-     (back + side), per the 2026-07-29 villager contract.
+	 `npc_sage_gen.png` is the KID and `npc_mom_gen.png` is the kid-era
+	 mother, twenty years younger than this scene. Draw both at 10 columns
+	 (back + side), per the 2026-07-29 villager contract.
    - **BUILD ORDER NOTE:** this beat lives inside Alembic Town, which is
-     mid-rebuild into the treehouse town. **Do not author it until those
-     grids have settled** — the whole beat is anchors and NPC placement in
-     the two files being re-authored.
+	 mid-rebuild into the treehouse town. **Do not author it until those
+	 grids have settled** — the whole beat is anchors and NPC placement in
+	 the two files being re-authored.
 5. **The road east** *(playable)*: Fuji's overworld travel; **Whisker Meadow
    is where the kit gets its room to breathe** — the meadow that was a
    childhood idyll in Prologue A now crawls with curdled-magic slimes, and
@@ -875,17 +881,17 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
    burned along it.** They went out in one night. That is the whole design and
    it does three jobs at once:
    - **It makes the Ebb personal in geography rather than in dialogue.** The
-     forest is not evil and never was. It is dangerous because *the lights
-     went out*, and the road it used to be is still under your feet.
+	 forest is not evil and never was. It is dangerous because *the lights
+	 went out*, and the road it used to be is still under your feet.
    - **It is the non-overlap rule made a place** (standing rule 8: the game
-     must never be completable with either system alone). Only a spell lights
-     a room — and Fuji has no spells. So the Holloway must be crossed by
-     *science*: she has honest fire, and honest fire owes magic nothing. The
-     lesson she was handed in Lanternwood is the lesson that gets her through.
-     Hold this: **do not let the answer be a found lantern.** She should have
-     to make the light, the way she made the darts.
+	 must never be completable with either system alone). Only a spell lights
+	 a room — and Fuji has no spells. So the Holloway must be crossed by
+	 *science*: she has honest fire, and honest fire owes magic nothing. The
+	 lesson she was handed in Lanternwood is the lesson that gets her through.
+	 Hold this: **do not let the answer be a found lantern.** She should have
+	 to make the light, the way she made the darts.
    - **It is where "he walked in and never came out" resolves into a door.**
-     The far end of the Holloway is the HOME TREE's roots.
+	 The far end of the Holloway is the HOME TREE's roots.
 
    Tone: Over the Garden Wall, hard. Folkloric, funny in the wrong places,
    nobody in the scene finding any of it remarkable. No monster with a
@@ -948,17 +954,17 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
 	 bonuses — but not "no magic": the levels, the spells already LEARNED
 	 (magic that is already back in the world, living in two bodies), Fuji's
 	 tome and darts, and Basil's brass gun. *Science is magic's equal*,
-     proved at the exact moment the rocks are gone. This is what the whole
-     compound/ammo layer was built for and why it must stay relevant all
-     game — **but frame it as both halves at once, never as the scene where
+	 proved at the exact moment the rocks are gone. This is what the whole
+	 compound/ammo layer was built for and why it must stay relevant all
+	 game — **but frame it as both halves at once, never as the scene where
 	 the gun turns out to have been the real answer** (see Themes, "The
 	 thesis"). He is out-BUILT by a chemist and out-UNDERSTOOD by a
-     librarian, simultaneously.
+	 librarian, simultaneously.
   4. **He loses to what he is.** Not out-fought so much as refused: hoarded
-     magic does not answer someone who only ever wanted to own it. The
-     vestiges go where they were always going.
+	 magic does not answer someone who only ever wanted to own it. The
+	 vestiges go where they were always going.
   5. **The Return.** The crystal, made whole, lets go — the Ebb runs
-     backwards out to every horizon (built by inverting `ebb.gd`).
+	 backwards out to every horizon (built by inverting `ebb.gd`).
 - **The last Remnant** (proposal, author's call — now the *closing* beat
   rather than the final boss, which the Regent occupies): the summit has
   one too, the shape everything the world lost settled into. It is not
@@ -1165,6 +1171,13 @@ statement of it. Keep it true:**
   working. And the institution's answer — *"It is POTIONS is what it is."* — is
   the world refusing the synthesis twenty years before it needs it. The whole
   theme is already built; it just has not been named until now.
+- **THE CANDLES ARE THE MAGIC, AND THEY GO OUT FOR THE BOY WHO HASN'T ANY**
+  (2026-08-04, the great-hall rebuild): the hall is lit by floating candles
+  the room's own magic holds in the air — no chains, no brackets, the
+  missing hardware is the statement — and when the kid with no spark takes
+  the floor, they douse in a wave and the only light left in the building
+  is a flask of chemistry. The thesis staged in light, twenty years before
+  anybody argues it; and at "Stop. STOP." the room relights around him.
 
 **THE EXCHANGE GOES BOTH WAYS.** Basil learns magic (below) — so **Fuji must
 learn science**, or the game quietly argues that science was a ladder to the
@@ -1332,13 +1345,13 @@ because it turns out the systems already built it.
   Garden Wall** is the second touchstone: melancholy, folkloric, funny without ever
   being cute.
   - **NOT the candy-kingdom register.** No random whimsy, no quirk for its own sake, no
-    gag that costs nothing. If a joke could be cut with no loss, it was the wrong joke.
+	gag that costs nothing. If a joke could be cut with no loss, it was the wrong joke.
 	"Very kiddy" is this project's failure mode, in writing and in art alike.
   - **Absurd premises are played completely straight.** The goose that stole the ribbon
-    is funny because nobody in the scene finds it funny. A character's species is never
-    winked at.
+	is funny because nobody in the scene finds it funny. A character's species is never
+	winked at.
   - The register is why the narration purge and the card purge work: this tone cannot
-    survive a narrator explaining it.
+	survive a narrator explaining it.
 - **Final Fantasy:** progression systems, emotional storytelling, eventual party members
   (the sympathizers), set-piece dungeons.
 - **Zelda: ALttP:** zone gameplay — top-down 4-directional action combat, dungeons,
@@ -1920,53 +1933,83 @@ chapter, in flow order:
   bedroom tileset/map/props with a dawn-dim CanvasModulate that snaps bright
   when Basil bolts up; Dr. Feathers the bird (fx) at the window, the panic,
   hop out of bed, the stair cuts to the dash.
-- **`scene/hall.gd/.tscn`** + `maps/hall.txt` + `_gen_tileset_hall.py` — the
-  Academy lecture hall on the interior Room kit (the `hall` palette: plum
-  panelling / rose floor / chalk-mint; its mat key is now `wall`, not
-  `timber`, since Room needs `wall`). New reusable interior props in
-  `_interior_props.py`: **chalkboard** (corkboard skeleton + a
-  `_pixfont`-stamped "RE-ENCHANTMENT" scrawl), **lectern** (desk y-sorted
-  pattern), **bench** (workbench counter-walk — audience NPCs stand on the
-  walkable top row so their legs tuck = the seated-gallery read). The Dean is
-  **Professor Strix the owl** (the childhood note-taker, grown into the
-  Academy); the naming plays out, the gallery chants, card "THAT EVENING."
-  (2026-07-18 card purge: "THE NAME STUCK." was commentary, cut).
-  2026-07-15: the hall gained its **judging panel** — a `desk()` on a
-  one-row solid `J` footprint (the desktop plane hides the panel's legs;
-  lamp flame chalk-mint, 96px since the college restage), Dean +
-  stork/badger/sheep at `judge_1..4`, and the gallery packed to
-  **eighteen** (three per bench, six benches, `aud_1..18`).
-  **2026-07-18 COLLEGE restage** (supersedes the 2026-07-17 stage pass;
-  map now 24×18): the whole north band is a raised STAGE closed by the
-  **apron riser** (`D` solid row + the full-width `stage_front()` y-sorted
-  entity in `_interior_props.py` — opaque across its footprint per the T3
-  coverage rule), reachable only through its WEST WING — Basil spawns
-  there (stage right), the walk-in gate is the band across the stage rows
-  just west of the podium (unavoidable: the wing corridor is the only
-  route), and the flee exits the same wing. The podium (the lectern on
-  its own one-row `lLLl` counter-walk footprint) stays front-CENTER —
-  Basil presents from the tuck row BEHIND it; the panel desk sits
-  stage-LEFT (east). The house is three TIERS of B/E benches, eighteen
-  audience with `frame_cols=8` playing their **back cells** (sheep/mouse/
-  badger sheets grew cols 6-7 back frames — `play_emote` would flip a
-  back-turned head to a front face, so the gallery laugh is a **looped
-  `position:y` bob per head** (`_laugh_bob`), periods staggered to
-  ripple; only the front-facing panel + Dean emote). **The curtain pass
-  (2026-07-18, later the same day)**: the stage opening is dressed as a
-  true proscenium — a scalloped theater-red VALANCE + slim east drape
-  baked Tier-1 into the front-wall art (`_stage_dressing()` in the hall
-  gen: lower-layer paint over solid wall rows can never occlude a tuck-row
-  head; the lobes only kiss the chalkboard's top frame, the title stays
-  legible), and the **west CURTAIN LEG** (`curtain_leg()` in
-  `_interior_props.py`, `CURT = ramp((152,38,54))`) a y-sorted T3 entity
-  on its one solid `c` cell beside the wing (art 24×64, origin y60 —
-  beats every stage body's node y ≤ ~58, so the walk-on "appears from
-  behind the curtain" and the flee is swallowed back behind it; its
-  contact row hides behind the opaque StageFront, so no bake_shadow).
-  Under the eruption Basil tries once — "But... I..." — Schweinler's
-  encore ("'BUT'?! HA! HE SAID BUTT!"), the held `bow_head`, and only
-  then the flee AS the laugh rolls — the chant lines play over the
-  automatic walk → bluff call1.
+- **`scene/hall.gd/.tscn`** + `maps/hall.txt` + `_gen_tileset_hall.py` — THE
+  GREAT HALL of the Academy, rebuilt from the ground up 2026-08-04 as **the
+  FF6 OPERA SHOT in the wizard-school register** (the Dolby-stage reference:
+  a giant gilt proscenium, an enormous curtain, the crowd a dark fan of
+  backs). 24×21 on the interior Room kit, exactly one screen WIDE — the
+  camera's x is pinned dead centre, every shot symmetric — with the vertical
+  overflow as the scroll. **THE ONLY WALKABLE GROUND IS THE STAGE AND THE
+  PIT STRIP AT ITS FOOT; everything south is AMBIANCE** — three
+  amphitheatre TIERS of high-backed pews packed wall to wall on a two-row
+  rhythm, drawn as baked ARCS centred on the podium (`HOUSE_ARC`) with a
+  quantized RADIAL gloom rounding the room's corners off, the processional
+  runner continuing through them as solid shaded paint down to a gloom band
+  where the great doors are a glint nobody ever walks to. THIRTY live
+  audience NPCs perch on unreachable walkable E islands (backs to camera,
+  cols 6-7), nudged onto their tier's own arc (`AUD_ARC`, married to the
+  generator's constant), every head 16px from the next, each bobbing on its
+  own `_laugh_bob` tween.
+  **THE PROSCENIUM (rows 0-7)**: the reference's one structural lesson is a
+  value flip — **the opening is dark and the frame is gold**. A near-black
+  offstage shell; inside the great basket arch a glittering MIDNIGHT
+  backdrop against which the mint ROSE WINDOW and the RE-ENCHANTMENT
+  chalkboard are the lights in the dark (the rose is visible ONLY from the
+  podium — the kid on the pit floor never sees it; the grandest thing in
+  the room belongs to the beat that destroys him under it); a 12px gilt
+  multi-order ARCH (lit stone, studded gold band, deep red piping); two
+  piers with gold-trimmed arrises, each carrying a lit NICHE with a little
+  gold OWL of the Academy, set high beside the arch where the masking legs
+  can't hide them; the two-layer velvet VALANCE (dark under-swag hanging
+  deeper than the lit over-swag, gold fringe on both hems, tassels at the
+  gathers, a tiny gilt clock cartouche at centre) tucked INSIDE the frame;
+  and grand baked TAILS falling the full height of each pier face.
+  **THE STAGE IS FULL-BLEED**: the timber platform (hand-pinned oak
+  `STAGEB` — `ramp()`'s violet law shipped it terracotta first) runs off
+  both sides of the frame into offstage darkness, the house below sitting
+  narrower between its own walls — the proscenium projecting past the room.
+  The ward-mint lit pool rides the boards; the Academy SEAL is inlaid
+  behind the podium — the spot the boy is not allowed to stand on and the
+  adult is destroyed on. The riser (`stage_front(352)`, opaque per the T3
+  coverage rule) carries CANDLE FOOTLIGHTS along its lip.
+  **THE FLOATING CANDLES** are the hall's light and its thesis made
+  visible: bare wax tapers hanging on nothing (`floating_candle` in
+  `_interior_props.py`, hframes=4 mean-zero flicker cycled by hall.gd's
+  `_process`), five chars of them — over the vault, the pit at three hang
+  heights, and the house — plus a drift of static glints in the midnight
+  backdrop and baked sconces on the nave pilasters. They are deliberately
+  OUTSIDE the houselights snapshot: for the recital's act **the room
+  itself douses them** — `_candle_douse()` runs a north-to-south wave in
+  parallel with `_house_set(HOUSE_DOWN)`, the hall's own magic leaving the
+  air over a ten-year-old with no spark in him, and every candle relights
+  under "Stop. STOP." Nobody announces either (the narration purge).
+  **EVERYBODY ENTERS AND LEAVES FROM THE WINGS**: the twin CURTAIN LEGS
+  are 48px MASKING FLATS (`curtain_leg(48,96)`, Tier-3 wider than their
+  one-cell blocks) spanning their whole wings, continuous with the baked
+  tails above — one unbroken curtain from valance to boards. The cells
+  under each leg are SOLID `w` wingbacks (a walkable cell under an opaque
+  mass is a body deleted — walk-behind lint 7 — so the swallow is done by
+  geometry, not by hiding a controllable body): the adult spawns at the
+  west curtain's edge, and the flee is a Theater TWEEN (collision-exempt
+  by design) that carries him THROUGH the velvet to `wing_exit` at the
+  frame's west edge, the modulate fade riding the last steps. The kid's
+  recital enters by the little SIDE DOOR baked into the west wall at the
+  pit — the unbilled entrance, which is the point. The judging panel
+  (Dean + stork/badger/sheep, `DESK_TUCK`-lifted onto the row's south edge
+  so their heads ride clear of the desktop plane) sits stage-LEFT behind
+  the 80px desk; Schweinler heckles from the front pew's east corner, the
+  one face in a house of backs. The podium (lectern, `lLLl` counter-walk)
+  stays front-CENTER on the midline; the naming's walk-gate band west of
+  it and the recital's full-width pit-row gate both derive from the map
+  (`bbox_rect("L")`/`bbox_rect("D")`) and survived the rebuild unedited —
+  as did both probes. Under the eruption Basil tries once — "But... I..."
+  — Schweinler's encore ("'BUT'?! HA! HE SAID BUTT!"), the held
+  `bow_head`, and only then the flee AS the laugh rolls — the chant lines
+  play over the automatic walk → bluff call1. Card "THAT EVENING."
+  (2026-07-18 card purge: "THE NAME STUCK." was commentary, cut). The
+  hall left `_check_art.py`'s UPPER_REQUIRED table with this restage: it
+  has no south wall a body can press and no walk-behind bake — everything
+  that ever draws over a body is y-sorted.
 - **`scene/sickroom.gd/.tscn`** + `maps/sickroom.txt` +
   `_gen_tileset_sickroom.py` + the `sickroom` palette (pale lavender walls,
   one warm bedside lamp) — Kitty in the bed (the `npc_kitty_bed` sprite:
@@ -2243,9 +2286,10 @@ control was inserted BETWEEN beats.
   `prologue_scolded` flags the steps beat's end (a pollable state for the
   probe). **GATE GEOMETRY (the review pass):** a gate must be
   UNAVOIDABLE for its objective, or the beat soft-stalls with no re-prompt
-  — a point-rect is walkable around (the hall's side aisles, the
-  fountain's ring roads). The shapes that work: a FULL-WIDTH room band on
-  an open row every route crosses (hall row 8, sickroom row 6), a
+  — a point-rect is walkable around (the fountain's ring roads, any open
+  floor). The shapes that work: a FULL-WIDTH room band on an open row
+  every route crosses (the hall's stage rows for the naming and its pit
+  row 11 for the recital, sickroom row 6), a
   generous zone at an open target (the bluff lip's 48×32), or the whole
   objective zone (the fest cutscene's 96×96 fountain-square zone). The
   last steps from wherever the gate fired are then staged with `walk_via`
@@ -2630,7 +2674,7 @@ actually cycle; hand-drawn sheets can still drop in later against "Asset Specs" 
   construction OUTSIDE the dim and burns full strength against it, so the
   fireworks got brighter without touching their blend (they stay MIX; see
   the additive gotcha below). Each burst also `_house_wash()`es its own
-  colour back over the walls and the eighteen backs for a beat, which is
+  colour back over the walls and the thirty backs for a beat, which is
   what makes it read as a light source rather than a sprite ·
   `scene/dialog_box.gd/.tscn` + `scene/theater.gd/.tscn` (the narrative
   kit) · `entities/npcs/npc.gd/.tscn` (interact-to-talk) ·

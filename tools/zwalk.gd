@@ -83,6 +83,9 @@ var _prop_box: Array = []   ## Tier-3 art rects + sort keys — see _read_prop_b
 var _ref := {}              ## the body's UNOCCLUDED silhouette, measured in the open
 var _fails: Array = []
 var _debug := false
+## Set when the run REFUSED — it could not measure this scene at all. Distinct from
+## "found nothing", and the caller must not overwrite its exit code with 0.
+var _refused := false
 
 
 func _initialize() -> void:
@@ -117,7 +120,24 @@ func _run() -> void:
 	change_scene_to_file(scene_path)
 	for i in 70:                       # ride out the entry fade AND its lock
 		await process_frame
-	_map = current_scene.map
+	# A LINT THAT CANNOT RUN MUST NOT EXIT 0. A GDScript runtime error does not
+	# unwind — "Invalid access to property 'map' on a null instance" prints, hands
+	# back null and CARRIES ON — so a scene that failed to load used to walk the
+	# whole harness over nulls, derive no spots, find no faults and report success.
+	# Three scenes were in that state (the overworld, the lab, the library) and the
+	# suite called all three green. Refuse loudly instead: the whole value of this
+	# tool is that a silent pass means something.
+	if current_scene == null:
+		push_error("zwalk: '%s' did not load — nothing was linted" % scene_path)
+		quit(1)
+		return
+	var scene_map: Variant = current_scene.get("map")
+	if not (scene_map is Dictionary) or (scene_map as Dictionary).is_empty():
+		push_error(("zwalk: %s exposes no `map` — this tool derives every spot from "
+				+ "the grid, so there is nothing to lint here") % scene_path)
+		quit(1)
+		return
+	_map = scene_map
 	# PIN THE SCENE BUSY FOR THE WHOLE WALK. Teleporting a body across a town
 	# drags it through every travel marker, every door and both lift landings, and
 	# the first one that fires changes the scene and frees the body out from under
@@ -128,7 +148,11 @@ func _run() -> void:
 	var families := _positions()
 	if _lint:
 		await _lint_all(families)
-		quit(1 if not _fails.is_empty() else 0)
+		# NOT an unconditional quit: _lint_all refuses (and sets its own exit code)
+		# when it could not measure anything, and re-quitting here would paper a
+		# refusal back over with 0 — the exact silent pass the refusals exist to end.
+		if not _refused:
+			quit(1 if not _fails.is_empty() else 0)
 		return
 	for name in families:
 		var spots: Array = families[name]
@@ -172,6 +196,11 @@ func _lint_all(families: Dictionary) -> void:
 	_read_prop_boxes()
 	var party := root.get_node("Party")
 	var body: Node2D = party.leader
+	if not is_instance_valid(body):
+		push_error("zwalk: this scene spawned no party body — nothing was linted")
+		_refused = true
+		quit(1)
+		return
 	var sprite := _sprite_of(body)
 	# HIDE EVERY OTHER PARTY BODY for the whole run. The follower walks toward the
 	# leader between captures, and its pixels would land in the window as noise.
@@ -183,11 +212,32 @@ func _lint_all(families: Dictionary) -> void:
 	_ref = await _silhouette(body, sprite, _open_cell())
 	print("reference silhouette: %d px, bbox %d,%d..%d,%d (relative to origin)"
 			% [_ref["n"], _ref["x0"], _ref["y0"], _ref["x1"], _ref["y1"]])
-	assert(_ref["n"] > 250, "the reference silhouette is too small to trust — "
-			+ "the body was probably occluded where it was measured")
+	if int(_ref["n"]) <= 250:
+		# Was an assert, which printed and then let the run end with NO summary and
+		# exit 0 — a scene reporting nothing looked exactly like a scene reporting
+		# nothing wrong. The library measured a reference of ZERO px this way: its
+		# open cell is not open, so every comparison after it was against nothing.
+		push_error(("zwalk: the reference silhouette is %d px — the body is occluded "
+				+ "where this scene's open cell was chosen, so nothing here can be "
+				+ "measured against it") % int(_ref["n"]))
+		_refused = true
+		quit(1)
+		return
 	for name in families:
 		print("\n--- %s: %d spots" % [name, (families[name] as Array).size()])
 		for spot: Dictionary in families[name]:
+			# `_busy` only silences a TravelScene. An INTERIOR wires its door
+			# straight to body_entered, so teleporting the body across the room
+			# walks it through that door, changes the scene and frees it — and
+			# every remaining capture then measured a dead object and came back
+			# clean. Stop on the spot rather than finish a run that means nothing.
+			if not is_instance_valid(body):
+				push_error(("zwalk: the body was freed during '%s' — a door or "
+						+ "trigger fired mid-walk, so this run is INCOMPLETE and "
+						+ "its silence means nothing") % name)
+				_refused = true
+				quit(1)
+				return
 			var got := await _silhouette(body, sprite, spot)
 			_judge(name, spot, got)
 	_drop_pass_behinds()
@@ -342,10 +392,18 @@ func _far(p: PackedByteArray, q: PackedByteArray, o: int) -> bool:
 ## step you pass through. Applied here as a post-pass over the findings rather than
 ## inside _judge, because a spot cannot know whether its NEIGHBOURS came out blank
 ## until they have all been captured.
+## THE CELL PATTERN MUST TOLERATE EVERY FAMILY'S LABEL, and for a long time it did
+## not. `pressed` labels its spot "press %d,%d h%d" — the run HEIGHT trails the cell —
+## so a pattern anchoring the coordinates directly against " — THE BODY IS INVISIBLE"
+## matched `notch`, `below` and `props` and silently missed EVERY pressed spot. The
+## exemption above is therefore the one thing it must never be: family-dependent. An
+## isolated pressed cell was reported as a hard finding while the identical situation
+## in props was correctly waved through, which is how a sweep of fourteen scenes came
+## back with sixteen "the body is invisible" failures of which fourteen were this.
 func _drop_pass_behinds() -> void:
 	var dark := {}                       # Vector2i -> the finding's index
 	var rx := RegEx.new()
-	rx.compile("(\\d+),(\\d+) — THE BODY IS INVISIBLE")
+	rx.compile("(\\d+),(\\d+)(?: h\\d+)? — THE BODY IS INVISIBLE")
 	for i in _fails.size():
 		var m := rx.search(_fails[i])
 		if m != null:

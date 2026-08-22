@@ -38,7 +38,7 @@ tile_set = ExtResource("5_collision")
 [node name="Locations" type="Node2D" parent="."]
 
 [node name="Library" type="Area2D" parent="Locations"]
-position = Vector2(328, 152)
+position = Vector2(392, 168)
 script = ExtResource("2_loc")
 id = "library"
 display_name = "THE LANTERNWOOD LIBRARY"
@@ -48,7 +48,7 @@ target_scene = "res://scene/library.tscn"
 shape = SubResource("RectangleShape2D_door")
 
 [node name="FujiHome" type="Area2D" parent="Locations"]
-position = Vector2(168, 248)
+position = Vector2(152, 632)
 script = ExtResource("2_loc")
 id = "fuji_home"
 display_name = "FUJI'S FAMILY HOME"
@@ -58,7 +58,7 @@ locked_text = "SHUT TIGHT. A KETTLE-WARM LIGHT LEAKS UNDER THE DOOR."
 shape = SubResource("RectangleShape2D_door")
 
 [node name="CabinA" type="Area2D" parent="Locations"]
-position = Vector2(504, 216)
+position = Vector2(136, 328)
 script = ExtResource("2_loc")
 id = "cabin_a"
 display_name = "A SNOW-BANKED CABIN"
@@ -68,7 +68,7 @@ locked_text = "THE DOOR IS BOLTED AGAINST THE COLD."
 shape = SubResource("RectangleShape2D_door")
 
 [node name="CabinB" type="Area2D" parent="Locations"]
-position = Vector2(520, 328)
+position = Vector2(616, 344)
 script = ExtResource("2_loc")
 id = "cabin_b"
 display_name = "A WOODCUTTER'S CABIN"
@@ -88,7 +88,7 @@ locked_text = "THE DOOR IS SHUT. THE MAYOR CONDUCTS HIS BUSINESS IN THE STREET."
 shape = SubResource("RectangleShape2D_door")
 
 [node name="CabinC" type="Area2D" parent="Locations"]
-position = Vector2(248, 360)
+position = Vector2(264, 472)
 script = ExtResource("2_loc")
 id = "cabin_c"
 display_name = "A QUIET CABIN"

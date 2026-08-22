@@ -1,96 +1,154 @@
-; The Alembic Academy lecture hall — Prologue B "the naming" (24x18 tiles,
-; 384x288 px; the camera pans the 72px overflow, clamped to the map). A
-; 20-tile room in void (2-tile side margins), the plum-panelled / rose-floor
-; Academy palette. Restaged 2026-07-18 as a COLLEGE lecture hall with a
-; full STAGE: the whole north band (rows 3-4) is a raised platform closed
-; off by the STAGE APRON riser (D — a one-row y-sorted StageFront entity,
-; fully opaque across its footprint), so the stage is its own SEALED region:
-; the riser runs the full room width and rows 3-4 have NO walkable link to
-; the house at all. Nobody ever walks on or off it — Basil SPAWNS up there
-; (player_spawn, stage right behind the curtain leg) and FADES OUT up there
-; (wing_exit) when the laughing starts. Prologue A's recital, twenty years
-; earlier, is staged on the house floor for exactly that reason: the boy is
-; not allowed up on the platform, so he sets up on row 6 with the faculty
-; looking down over the rail (see scene/hall.gd). The speaker's PODIUM (lectern
-; L, walkable l twins under its overhanging top corners) stands
-; front-CENTER, Basil presenting from the tuck row BEHIND it (the desk
-; idiom — the podium plane hides his legs). The JUDGING PANEL's desk (J,
-; one-row y-sorted entity) flanks stage-LEFT (east), the professors on the
-; tuck row behind it. FRONT (north) wall: the great CHALKBOARD (Q) with
-; the RE-ENCHANTMENT thesis, tall windows (W) flanking. THE HOUSE: three
-; TIERED rows of benches (B solid base / E walkable top — the counter-walk
-; read, audience NPCs stand on E so their legs tuck under the seat), three
-; to a bench, six benches, ALL FACING THE STAGE — the audience is rows of
-; BACKS (npc back cells, sheet cols 6-7). The south doors (-) are the
-; house's own — Prologue B never uses them, Prologue A's recital comes in
-; through them (`door`, on the centre-aisle column). STAGE DRESSING (2026-07-18, the
-; curtain pass): a theater-red WEST CURTAIN LEG (c — a y-sorted entity on
-; its one solid cell beside the wing, so a body on the tuck row is hidden
-; BEHIND it: Basil "appears from behind the curtain" walking on, and the
-; flee swallows him back behind it) + a scalloped VALANCE and a slim east
-; drape baked into the front-wall art (Tier 1 — the chalkboard stays
-; legible under the lobes). Feature chars place props in
-; assets/_gen_tileset_hall.py; the same grid is the collision. Anchors put
-; the cast where the cutscene needs them.
+; THE GREAT HALL of the Alembic Academy — Prologue B "the naming" and Prologue
+; A's recital (24x21 tiles, 384x336 px; the map is exactly one screen WIDE, so
+; the camera's x is pinned dead centre and every shot is symmetric — and the
+; STAGE BAND IS FULL-BLEED: the platform runs off both sides of the frame,
+; its wings vanishing into offstage darkness behind the masking legs, while
+; the house below sits narrower between its own walls — the proscenium
+; projecting past the room, the opera-house geometry). Rebuilt
+; 2026-08-04 from the ground up as the FF6 OPERA SHOT in the wizard-school
+; register: THE ONLY WALKABLE GROUND IS THE STAGE AND THE PIT STRIP AT ITS
+; FOOT — everything south of them is AMBIANCE, a packed house of pew backs
+; and heads falling away into gloom, with floating candles hanging over all
+; of it. A stone vault whose pointed arch runs off the top of the frame, a
+; rose window in the tympanum, and candles that are honest fire — the same
+; claim the hook lanterns make.
+;
+; THE STAGE IS A SEALED REGION — the one thing the rebuild must never break.
+; The whole north band (rows 8-9) is a raised timber platform closed off by
+; the STAGE APRON riser (D — a one-row y-sorted StageFront entity, fully
+; opaque across its footprint, candle footlights along its lip) running the
+; FULL room width at row 10, so rows 8-9 have NO walkable link to the pit at
+; all. Nobody ever walks on or off it — Basil SPAWNS up there at the west
+; curtain's edge (player_spawn) and FLEES up there (wing_exit — a walkable
+; anchor at the frame's west edge PAST the leg; the flee is a Theater tween,
+; which ignores collision by design, so it carries him THROUGH the velvet).
+; The w cells under and beside each masking leg are SOLID: a walkable cell
+; under an opaque mass is a body deleted (walk-behind lint 7), so nobody
+; can ever stand where the curtain would erase them — painted as shadowed
+; boards so the invisible-wall lint stays honest too. wing_exit's (1,8) is
+; deliberately an unreachable one-cell island: it exists to give the flee
+; tween a legal walkable anchor past the velvet, nothing ever walks to it. Prologue A's recital, twenty years earlier, is
+; staged on the PIT strip (rows 11-12) for exactly that reason: the boy is
+; not allowed up on the platform, so he sets up below the apron with the
+; faculty looking down — the `door` anchor now opens the beat at the pit's
+; WEST END, by the little service door baked into the wall there (everybody
+; enters and leaves this room from the wings: the adult through the west
+; curtain leg, the kid through the side door — the great doors at the back
+; are scenery in the gloom band; nobody walks the house). The speaker's PODIUM (lectern L, walkable l twins under its
+; overhanging top corners) stands front-CENTER on the map's own midline,
+; Basil presenting from the tuck row (row 8) BEHIND it (the desk idiom).
+; The JUDGING PANEL's desk (J) flanks stage-LEFT (east), the professors on
+; the tuck row behind it.
+;
+; THE VAULT (rows 0-7, 128px of north wall): plum ashlar, two great PIERS
+; flanking the stage opening, the pointed arch between them (its crown sits
+; above y=28, so from the podium — the only place a body ever stands this far
+; north — it is cut by the frame border: the keep doctrine, scale not damage),
+; the mint ROSE WINDOW in the tympanum (visible ONLY from the podium: the kid
+; on the pit floor never sees it — the hall is bigger than he is allowed to
+; know), the great CHALKBOARD (Q) under it with the RE-ENCHANTMENT thesis, a
+; theater-red VELVET SWAG across the opening with tails down the piers, and a
+; drift of baked tympanum candles.
+;
+; THE FLOATING CANDLES: ^ over the vault band (solid, bottom-anchored in
+; their own wall cells); * / + / % over the WALKABLE stage-front strip at
+; high / mid / low hang (anchor=top negative — the art floats 2-3 rows above
+; its own cell and a body walks under it); & over the HOUSE (solid cells —
+; they hang above the audience's heads, pure ambiance, and still douse).
+; Every candle char component must be EXACTLY ONE CELL (each=True stretches
+; one sprite across a fused component) — asserted in the generator.
+;
+; THE HOUSE IS NOT A FLOOR (2026-08-04, the opera lesson): three tiers of
+; high-backed pews packed WALL TO WALL on a two-row rhythm (B solid base /
+; E walkable-island top — E cells exist so the THIRTY audience NPCs have legal
+; anchor cells and tuck behind the next tier's back; no body can ever REACH
+; them, the pit's south edge is solid), the processional runner continuing
+; down the centre as SOLID shaded paint (r — deliberately darker than the
+; walkable g rug, so the invisible-wall lint stays honest), and the gloom
+; band (n) where the house falls into the dark and the great doors glint.
+; THIRTY audience pack the tiers shoulder to shoulder (heads 16px apart, the
+; FF6 crowd), every one a live NPC so the whole house can bob with laughter
+; or an eruption; hall.gd nudges each onto the tier's own ARC (AUD_ARC).
+; Feature chars place props in assets/_gen_tileset_hall.py; the same grid is
+; the collision. Anchors put the cast where the cutscene needs them.
 legend V void solid
 legend # wall solid
-legend W window solid
 legend Q board solid
 legend L lectern solid
 legend l lectern walk
-legend p picture solid
-legend P plant solid
 legend D dais solid
 legend B bench solid
 legend E benchtop walk
 legend J paneldesk solid
 legend c curtain solid
+legend w wingback solid
 legend . floor walk
 legend g rug walk
-legend - door walk
-anchor player_spawn 4 3
-anchor wing_exit 3 3
-anchor lectern_spot 11 3
-anchor judge_1 14 3
-anchor judge_2 16 3
-anchor judge_3 17 3
-anchor judge_4 18 3
-anchor schweinler_spot 18 8
-anchor door 11 15
-anchor aud_1 4 8
-anchor aud_2 6 8
-anchor aud_3 8 8
-anchor aud_4 12 8
-anchor aud_5 14 8
-anchor aud_6 16 8
-anchor aud_7 4 11
-anchor aud_8 6 11
-anchor aud_9 8 11
-anchor aud_10 12 11
-anchor aud_11 14 11
-anchor aud_12 16 11
-anchor aud_13 4 14
-anchor aud_14 6 14
-anchor aud_15 8 14
-anchor aud_16 12 14
-anchor aud_17 14 14
-anchor aud_18 16 14
+legend r rugdim solid
+legend n gloom solid
+legend * candle walk
+legend + candle2 walk
+legend % candle3 walk
+legend & candle4 solid
+legend ^ sconce solid
+anchor player_spawn 5 8
+anchor wing_exit 1 8
+anchor lectern_spot 11 8
+anchor judge_1 14 8
+anchor judge_2 16 8
+anchor judge_3 17 8
+anchor judge_4 18 8
+anchor schweinler_spot 20 14
+anchor door 4 12
+anchor aud_1 4 14
+anchor aud_2 5 14
+anchor aud_3 6 14
+anchor aud_4 7 14
+anchor aud_5 8 14
+anchor aud_6 15 14
+anchor aud_7 16 14
+anchor aud_8 17 14
+anchor aud_9 18 14
+anchor aud_10 19 14
+anchor aud_11 4 16
+anchor aud_12 5 16
+anchor aud_13 6 16
+anchor aud_14 7 16
+anchor aud_15 8 16
+anchor aud_16 15 16
+anchor aud_17 16 16
+anchor aud_18 17 16
+anchor aud_19 18 16
+anchor aud_20 19 16
+anchor aud_21 4 18
+anchor aud_22 5 18
+anchor aud_23 6 18
+anchor aud_24 7 18
+anchor aud_25 8 18
+anchor aud_26 15 18
+anchor aud_27 16 18
+anchor aud_28 17 18
+anchor aud_29 18 18
+anchor aud_30 19 18
 map
-VVVVVVVVVVVVVVVVVVVVVVVV
-VV####################VV
-VV#pWWW#QQQQQQ#WWWp##VVV
-VV#......g....g.....#VVV
-VV#c......lLLlJJJJJJ#VVV
-VV#DDDDDDDDDDDDDDDDD#VVV
-VV#................P#VVV
-VV#.BBBBB...BBBBB...#VVV
-VV#.EEEEE...EEEEE...#VVV
-VV#.................#VVV
-VV#.BBBBB...BBBBB...#VVV
-VV#.EEEEE...EEEEE...#VVV
-VV#.................#VVV
-VV#.BBBBB...BBBBB...#VVV
-VV#.EEEEE...EEEEE...#VVV
-VV#........--.......#VVV
-VV#########--#########VV
+########################
+########################
+########################
+########################
+########################
+#####^############^#####
+#######^QQQQQQ##^#######
+########################
+#.www..............wwww#
+#wwc......lLLlJJJJJ.cww#
+#DDDDDDDDDDDDDDDDDDDDDD#
+VV#...%...gg*g...%...#VV
+VV#.+.....gggg.....+.#VV
+VV#BBBBBBBrrrrBBBBBBB#VV
+VV#EEEEEEErrrrEEEEEEE#VV
+VV#BB&BBBBrrrrBBBB&BB#VV
+VV#EEEEEEEr&rrEEEEEEE#VV
+VV#BBBBB&BrrrrB&BBBBB#VV
+VV#EEEEEEErrrrEEEEEEE#VV
+VV#nnnnnnnnnnnnnnnnnn#VV
 VVVVVVVVVVVVVVVVVVVVVVVV

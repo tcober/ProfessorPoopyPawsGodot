@@ -138,15 +138,8 @@ func _extra_setup() -> void:
 ## same guard both Alembic maps carry, and new here because the lane used to
 ## dead-end in open snow instead of running out through the pines.
 func _wall_gate_mouth() -> void:
-	var wall := StaticBody2D.new()
-	wall.collision_layer = 1
-	var shape := CollisionShape2D.new()
-	var rect := RectangleShape2D.new()
-	rect.size = Vector2(64.0, 8.0)
-	shape.shape = rect
-	wall.add_child(shape)
-	wall.position = Vector2($ExitSouth.position.x, MapData.size_px(map).y + 4.0)
-	add_child(wall)
+	_wall(Vector2($ExitSouth.position.x, MapData.size_px(map).y + 4.0),
+			Vector2(64.0, 8.0))
 
 
 ## Out the south gate lane, back to the overworld at the Lanternwood icon.

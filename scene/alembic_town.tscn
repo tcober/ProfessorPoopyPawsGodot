@@ -36,7 +36,7 @@ tile_set = ExtResource("5_collision")
 [node name="Locations" type="Node2D" parent="."]
 
 [node name="Home" type="Area2D" parent="Locations"]
-position = Vector2(168, 280)
+position = Vector2(152, 168)
 script = ExtResource("2_loc")
 id = "home"
 display_name = "BASIL'S HOUSE"
@@ -46,7 +46,7 @@ target_scene = "res://scene/downstairs.tscn"
 shape = SubResource("RectangleShape2D_door")
 
 [node name="CottageW" type="Area2D" parent="Locations"]
-position = Vector2(120, 440)
+position = Vector2(184, 680)
 script = ExtResource("2_loc")
 id = "cottage_w"
 display_name = "A NEIGHBOR'S COTTAGE"
@@ -56,7 +56,7 @@ locked_text = "BOLTED. A KETTLE WHISTLES SOMEWHERE INSIDE."
 shape = SubResource("RectangleShape2D_door")
 
 [node name="CottageE" type="Area2D" parent="Locations"]
-position = Vector2(264, 472)
+position = Vector2(1032, 680)
 script = ExtResource("2_loc")
 id = "cottage_e"
 display_name = "THE DOCTOR'S OFFICE"
@@ -66,7 +66,7 @@ locked_text = "DARK WINDOWS. THE OLD STORK RETIRED YEARS AGO. NOBODY CAME AFTER.
 shape = SubResource("RectangleShape2D_door")
 
 [node name="Weapons" type="Area2D" parent="Locations"]
-position = Vector2(360, 264)
+position = Vector2(312, 520)
 script = ExtResource("2_loc")
 id = "weapons"
 display_name = "THE BRASS FANG"
@@ -76,7 +76,7 @@ locked_text = "SHUTTERED. THE GRINDSTONE SITS COLD."
 shape = SubResource("RectangleShape2D_door")
 
 [node name="Items" type="Area2D" parent="Locations"]
-position = Vector2(616, 264)
+position = Vector2(744, 504)
 script = ExtResource("2_loc")
 id = "items"
 display_name = "THE CRACKED FLASK"
@@ -86,7 +86,7 @@ locked_text = "CLOSED. TONICS GLINT ON THE DARK SILL."
 shape = SubResource("RectangleShape2D_door")
 
 [node name="Inn" type="Area2D" parent="Locations"]
-position = Vector2(632, 408)
+position = Vector2(840, 824)
 script = ExtResource("2_loc")
 id = "inn"
 display_name = "THE COPPER KETTLE"

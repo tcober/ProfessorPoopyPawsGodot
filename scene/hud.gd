@@ -21,7 +21,15 @@ const AMMO_EMPTY := 1
 @export var ammo_texture: Texture2D
 @export var beaker_texture: Texture2D
 
-const FOLLOWER_DIM := 0.55
+## THE FOLLOWER'S ROW IS DARKENED, NOT MADE TRANSPARENT, and the difference is the
+## whole readability of the row. Dimming with `modulate.a` let the GROUND show through
+## the hearts: over Whisker Meadow's grass a full row came out muddy brown, over
+## Lanternwood's snow it came out mauve — so the follower's HP was both unreadable and
+## a different colour in every scene, and a full row read as a dead one, which is the
+## single worst thing a health bar can do. Scaling RGB instead keeps the hearts opaque
+## and keeps red reading as red, and it holds against any background because the
+## background is no longer part of the colour.
+const FOLLOWER_DIM := Color(0.62, 0.5, 0.55, 1.0)
 
 var _bound: Array = []   # party members, row-for-row with heart_rows
 
@@ -67,7 +75,8 @@ func _on_leader_swap(_leader: PartyMember) -> void:
 
 func _refresh_dim() -> void:
 	for i in mini(_bound.size(), heart_rows.size()):
-		heart_rows[i].modulate.a = 1.0 if _bound[i] == Party.leader else FOLLOWER_DIM
+		heart_rows[i].modulate = (Color.WHITE if _bound[i] == Party.leader
+				else FOLLOWER_DIM)
 
 
 func _on_health_changed(current: int, max_health: int, row: HBoxContainer) -> void:
