@@ -1,0 +1,55 @@
+; MOM'S BEDROOM — Prologue A0 "The Fever" (24x14 tiles, 384x224 px; the
+; view clamps to 384x216). Behind the plank door in the great room's west
+; wall (downstairs_bare.txt's ' cells), on the sickroom recipe: a SMALL
+; dense diorama room floating in void (8-tile interior, ~7-tile side
+; margins) — but this one is a HOME, not a ward. The house's own warm
+; timber walls over a dusty-rose weave, and every wall stretch occupied:
+; the grey day WINDOW (overcast — the fever days are the one stretch of
+; the bright era with no sun in it) | a small shelf of tonic cups and
+; jars (k) | the wall CLOCK over the nightstand | the BED with its warm
+; quilt, Mom propped on the pillow, pulled up against the EAST wall —
+; because the door is in the EAST wall (- cells, the great room on the
+; other side of it), so Basil is at her bedside the moment he is through
+; it. On the floor: SAGE'S CHAIR at the west bedside, the far side from
+; the door (she has been in it all day — the chair says so, nobody
+; does), a rose rug at the bed's foot, the NIGHTSTAND (t) with the
+; candle that is the room's one light, a potted plant. Mom lies in the
+; bed (mom_bed + a code offset centers her on the pillow, the sickroom
+; idiom). Feature chars place props in assets/_gen_tileset_momroom.py.
+; bedside / mom_bed are LOAD-BEARING (both fever beats walk to them).
+; The door is the arrival/exit split turned sideways: arrival at
+; player_spawn (col 15, inside), exit zone on the - cells (col 16, the
+; mouth) — they can never overlap, so no re-fire suppression.
+legend V void solid
+legend # wall solid
+legend W window solid
+legend B bedframe solid
+legend b bed walk
+legend o clock solid
+legend k shelf solid
+legend h chair solid
+legend t nightstand solid
+legend P plant solid
+legend . floor walk
+legend g rug walk
+legend - door walk
+anchor player_spawn 15 6
+anchor door 16 7
+anchor exit_door 16 6
+anchor bedside 13 6
+anchor mom_bed 13 5
+map
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVV##########VVVVVVV
+VVVVVVV#WWkoBBBB#VVVVVVV
+VVVVVVV#..ktBBBB#VVVVVVV
+VVVVVVV#P...BbbB#VVVVVVV
+VVVVVVV#P..h.gg.-VVVVVVV
+VVVVVVV#.....gg.-VVVVVVV
+VVVVVVV#........#VVVVVVV
+VVVVVVV##########VVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV

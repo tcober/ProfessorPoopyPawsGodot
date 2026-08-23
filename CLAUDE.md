@@ -69,7 +69,8 @@ These hold everywhere, in every session:
 6. **Nothing narrative is ever recovered from git** — the build-fresh doctrine. Rebuild
    from DESIGN.md instead.
 7. **Byte-locked twins move together:** `town.txt` ↔ `town_fest.txt`, `overworld.txt` ↔
-   `overworld_bright.txt`. Edit one, edit the other in the same commit.
+   `overworld_bright.txt`, `downstairs.txt` ↔ `downstairs_bare.txt`. Edit one, edit
+   the other in the same commit.
 8. **The game must never be completable with either system alone.** Magic and science
    are non-overlapping by construction — only a spell revives or lights a room, only the
    gun answers the drowse-immune machines. Hold this every time a new enemy or gate is
@@ -103,7 +104,8 @@ The story is playable end-to-end from boot through the Ebb night, and **rests on
 playable solo Fuji in Ebb-night Lanternwood**. `scene/title.tscn` is the boot scene;
 `prologue_open`'s ESC skip jumps to the adult Basil sandbox (and sets `ebb_done`).
 
-Built: Prologue A "The Whirligig" (incl. the recital chain) · Prologue B "Professor
+Built: **Prologue A0 "The Fever"** (2026-08-22, below) · Prologue A "The Whirligig"
+(incl. the recital chain) · Prologue B "Professor
 Poopy Paws" · the Ebb night · the library research gate (Act 1 beat 2) · **Act 1 beat 3
 "THE KIT"** (`library_phase = "kit"` — `_kit_dose` / `_kit_wand` / `_kit_book`, gated in
 `fuji.gd` on the real flags `fuji_dose_found` / `fuji_darts_made` / `fuji_tome_taken` →
@@ -111,6 +113,30 @@ Poopy Paws" · the Ebb night · the library research gate (Act 1 beat 2) · **Ac
 beat 3b "THE MOTION"** and **the crossing** (below) · the combat core (compounds, status
 ailments, the 2-member party) · the RPG layer (levels, gear, satchel, save/load) · the
 five-lands overworld, Alembic Town, Lanternwood, Whisker Meadow.
+
+**PROLOGUE A0 "THE FEVER" (2026-08-22)** — the cold open, before the festival:
+where the chemistry came from. Mom is ill, the doctor's mending "doesn't take
+for long" ("Is there anything else?" / **"Not in my bag."**), and the boy who
+can't cast goes and READS — the Academy reading room's search gate (the fancy
+enchantment shelf must fail him TWICE before the plain still-room shelf gives
+up half a page, which he COPIES, because he can't borrow it), then the simmer
+at the family hearth (ONE colour warming cold→amber; the four reagents stay
+A12's), one night's sleep for her, and the lab corner built by morning.
+Three new maps: **`momroom`** (her bedroom behind the west-wall plank door,
+the sickroom recipe played warm), **`academy_library`** (deliberately the
+Lanternwood library's exact shape, 20 years early), and
+**`downstairs_bare`** — a NEW BYTE-LOCKED TWIN of `downstairs.txt` (rule 7):
+same grid + anchors, east corner bare (crates where the boiler will stand;
+the flask shelf is already there as Mom's preserve shelf).
+`scene/downstairs_fever.gd` picks which map it loads on
+`prologue_remedy_made` — the corner getting built IS the beat. Both twins
+carry **MOM'S DOOR** (`'` cells): walkable in bare, a closed plank door
+forever in the built room. New sheet `npc_mom_bed_gen` (the kitty_bed rig on
+the mom palette). Seven flags, `Chapters.FEVER_DONE`, carried by every
+festival beat; `prologue_open` now hands to `house_fever.tscn`, and A0-8's
+"TWO SUMMERS LATER." card lands on the untouched festival morning.
+`tools/fever_probe.gd` (31 checks) covers the chapter and ends exactly where
+`prologue_probe` begins. Full statement: DESIGN.md → PROLOGUE A0.
 
 **NPCs WALK NOW (2026-07-29).** A villager sheet's row 0 is unchanged, but **rows 1-3
 are an optional walk cycle** — one direction per row, six cells each, side drawn LEFT,
@@ -290,6 +316,45 @@ survived unedited; the hall left `_check_art.py`'s `UPPER_REQUIRED` (no Tier-2 a
 remains — everything over a body is y-sorted). Full statement in DESIGN.md → the
 `scene/hall.gd` scene-inventory block.
 
+**MUSIC + THE AUTUMN TITLE SCREEN (2026-08-22).** Four looping SNES-register tracks
+out of `assets/_gen_music.py` — the art doctrine applied to audio: stdlib-only
+synthesis of hand-written note tables, regenerate → lint-free → `--headless
+--import`, loop-folded tails so the seam is inaudible. `scene/music.gd` (autoload
+`Music`, LAST in the order, references no other autoload) picks the track by
+polling the current scene's path: unmapped scenes keep what's playing (the SNES
+door rule), `""` fades to silence (the accident, the Ebb quake, the cold-open
+cards). And `scene/title.tscn` was rebuilt to the opening-screen sketch:
+`assets/_gen_title_art.py` bakes the autumn corridor and the stacked cream title
+(`title_bg.png`, registered in `_check_art`), adult Basil's real `walk_down` ambles
+into the camera on the leaf carpet, falling leaves replaced the snow, and the menu
+sits bottom-left. **SFX (2026-08-22):** `assets/_gen_sfx.py` + autoload `Sfx`
+(just before Music) — `ui_*` verbs in the title screen and all three modals, a
+door whump on every travel, and **Star-Fox talk blips**: three synthesized voice
+timbres pitched per speaker (`sfx.gd VOICES`, unlisted names hash to a stable
+pitch), one blip per third letter, punctuation silent; the dialog box looks Sfx
+up by PATH (the kit rule). Full statement: DESIGN.md → "Music".
+
+**THE 2026-08-22 CLUNK SWEEP.** Four fixes reported from play, one of them story-sized.
+**THE AMBUSH (Act 1 beat 3 leg (a)) is BUILT** — it was the missing link: nothing in
+play ever routed the library door to phase "kit", so the story dead-ended on the thesis.
+Now `thesis_found` without `fuji_kit_made` puts two unkillable slimes in Lanternwood's
+upper lane (anchors `ambush_e`/`ambush_w`), plays the failed reach once ("...I have a
+stick. I am pointing a stick at you.", sets `fuji_chased`), and the arch routes "kit"
+for exactly that window (`lanternwood.gd::_on_travel`); the kit-night speech skips on
+re-entry. **The home door is a press, not a floor tile** — all three eras' zones hang
+over the trunk face (24×8 at `home+(8,-8)`), because a zone on the ring deck's only
+through-row yanked in anybody crossing their own deck; TravelScene resyncs stale
+`_standing` latches at entry-lock end. **Schweinler CLIMBS now** — the creep's last leg
+used to be one floor-to-deck diagonal tween (a pig levitating over the fascia); it walks
+the lanes to the new `creep_foot` anchor, climbs the rungs' centre line both ways
+(back-facing down, `turn=false`), and the bag sits at the deck lip (`BAG_OFF (8,16)`,
+also the ladder head — the one cell Basil can't leave home without crossing), not on
+the rungs. **The tree lanes** knit the four ladder feet into the road web (both town
+twins, same commit) and the west cottage moved up beside the weapons shop under trees
+1-2 — small homes below the tree houses; its old site is a flower garden. Plus the
+editor-warning sweep (shadowed `show`/`skew` renamed, integer divisions made explicit,
+`@warning_ignore` only in `tools/zwalk.gd` where int division is the intent).
+
 Designed but NOT built — both live in Alembic Town, and the grids they were waiting on
 have now settled: **Act 1 beat 4 — ASKING AROUND**, where the wander gate is not a crowd
 but **adult Sage and Basil's mother**, and the rumour that he walked into the deep wood
@@ -300,7 +365,7 @@ along it, and is not any more. See DESIGN.md beats 4 / 5b.
 Next, per DESIGN.md "Build order": **KO + FOCUS** → vestiges (gated to Act 2's first
 obelisk) → the Return.
 
-**Press `0` anywhere in a debug build** for the dev chapter selector — all 42 beats,
+**Press `0` anywhere in a debug build** for the dev chapter selector — all 52 beats,
 staged with roster/phase/spawn/flags. Adding a beat is one row in `scene/chapters.gd`.
 
 ## Commands

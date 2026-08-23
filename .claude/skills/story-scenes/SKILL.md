@@ -165,6 +165,14 @@ gates.
   appearing nowhere near the door.) `_standing` / `_home_armed` suppress the re-fire until
   the body steps off once; interior front-door spawns and exits x-center on the 2-cell
   door bbox.
+- **A DOOR ON A THOROUGHFARE HANGS ITS ZONE OVER THE WALL FACE (2026-08-22).** Basil's
+  trunk door opens off the ring deck's only through-row, and a zone sitting on the
+  walkable cells yanked in anybody just crossing their own deck. All three eras' home
+  doors now use a 24×8 rect at `home + (8,-8)` — over the trunk face, so only a press
+  UP into the door fires it, and the arrival spot no longer overlaps the zone (probes
+  that need to fire it teleport to `home + (8,-8)` and let depenetration seat the
+  body). TravelScene resyncs stale `_standing` latches from real overlaps when the
+  entry lock lifts, so a pre-latch on a zone the body isn't in can't hold a door shut.
 - **`body_entered` fires ONCE per entry.** Any marker event `TravelScene` swallows — the
   entry lock, or `_busy` while a banner plays — is gone for good, and the marker sits
   dead until the body steps off and back on. A travel door that silently refuses reads as
@@ -194,6 +202,8 @@ CanvasModulate. This is the standing idiom — prefer it to a new scene file.
 | `Game.hall_phase` | `scene/hall.gd` | `recital` (kid) · the naming (adult) |
 | `Game.library_phase` | `scene/library.gd` | `ebb` · `research` · `kit` |
 | flag-gated | `scene/downstairs_fest.gd` | the brew phase, gated on `prologue_whirligig_done and not prologue_potion_made` |
+| flag-gated | `scene/downstairs_fever.gd` | four beats on the fever flags — and **the ART is routed too**: it loads `downstairs_bare.txt` until `prologue_remedy_made` and the built `downstairs.txt` after (the phase-router rule applied to dressing; the swap only ever happens across a scene change) |
+| flag-gated | `scene/momroom.gd` | the bedside (`not prologue_doctor_heard`) · she drinks (`prologue_remedy_made and not prologue_mom_better`) |
 
 **`Game.library_phase == ""` still MEANS `"ebb"`** — it is the boot default a bare scene
 load lands on. So the town door **always names its phase explicitly**, or walking in the
@@ -206,9 +216,34 @@ earlier scene.
 
 ## Scene index
 
-Flow: `prologue_open` → Prologue A → Prologue B → the Ebb night → **the story currently
-rests on playable solo Fuji in Lanternwood.** The adult Basil sandbox is reached only via
+Flow: `prologue_open` → **Prologue A0 "The Fever"** → Prologue A → Prologue B → the
+Ebb night → **the story currently rests on playable solo Fuji in Lanternwood.** The adult Basil sandbox is reached only via
 `prologue_open`'s ESC skip (which also sets `ebb_done`).
+
+### Prologue A0 — "The Fever" (kid Basil, bright era — the cold open, 2026-08-22)
+
+Where the chemistry came from. Ends on "TWO SUMMERS LATER." into the festival
+morning; `tools/fever_probe.gd` (31 checks) drives it end-to-end and stops
+exactly where `prologue_probe` starts. Full statement: DESIGN.md → PROLOGUE A0.
+
+| Scene | Beat | Owns |
+| --- | --- | --- |
+| `scene/house_fever.tscn` | the quiet house — wake with NO sunrise (curtains stay shut), one line, control | `prologue_fever` |
+| `scene/downstairs_fever.tscn` | THE DOCTOR LEAVING — "Not in my bag."; Sage against her mother's door; the BARE great room (crates, no boiler) | `prologue_doctor_gone` |
+| `scene/momroom.tscn` | THE BEDSIDE — "some things are longer than a mending", from her side of it | `prologue_doctor_heard` |
+| `scene/town_fever.tscn` | the grey morning — the fest grid under an overcast tint; two neighbours about their own small warm magic, neither about his mother | — |
+| `scene/academy_library.tscn` | THE SEARCH GATE — enchantment-theory must fail him TWICE before the still-room shelf gives up the recipe, COPIED at the desk ("Write it down.") | `prologue_wrong_shelf`, `prologue_herbal_found` |
+| `scene/downstairs_fever.tscn` | THE SIMMER — mom's kettle at the family hearth; ONE colour cold→amber (the four reagents are A12's) | `prologue_remedy_made` |
+| `scene/momroom.tscn` | SHE DRINKS — the worst thing she has ever had in her mouth, and one night's sleep; the door out plays "THAT NIGHT." | `prologue_mom_better` |
+| `scene/downstairs_fever.tscn` | THE MIDDLE OF THE NIGHT — the room loads the BUILT map now; "What are you making." / "I don't know yet." → "TWO SUMMERS LATER." | — |
+
+Three staging notes that are rules here: **Mom's door** is derived from the
+`'` bbox in both downstairs twins (never an anchor — the built map's door is
+solid and the anchor lint rejects solid anchors); interior exit doors gate on
+`_busy` as well as `_leaving`, because `_busy` is how `tools/zwalk.gd` pins a
+scene still; and the reading room's zones must never overlap (the plaque
+started life a cell from stack_c's aisle and ate its interact — zones are
+32×20 rects, keep their centres ≥32px apart).
 
 ### Prologue A — "The Whirligig" (kid Basil, bright era)
 
@@ -288,6 +323,7 @@ Then "YEARS LATER." → the Ebb.
 | `scene/library.tscn` phase `ebb` | **FUJI'S FIRST APPEARANCE** — wand-made coffee whose sparks keep missing the kettle; **THE SYNC** (the third cast lands ON the quake and she's briefly certain she did it); the fourth cast makes NOTHING | — |
 | `scene/lanternwood.tscn` | `_ebb_night_town()` — three villagers comparing charms that all died at once (Bramble / Alder / Pip). Talking to all three sets the gate | `asked_around` |
 | `scene/library.tscn` phase `research` | **THE RESEARCH GATE** = Act 1 beat 2. The card "SOME WEEKS LATER.", then control straight back — a GATE, not a cutscene. The accession LEDGER vs the THREE STACKS; the twelfth spine is Basil's unbound, unstamped thesis | `ledger_read`, `thesis_found` |
+| `scene/lanternwood.tscn` | **THE AMBUSH** = Act 1 beat 3 leg (a) (2026-08-22, the missing link — nothing else ever routed the door to "kit" in play). While `thesis_found` holds and the kit is unmade: two slimes in the upper lane (anchors `ambush_e`/`ambush_w`, spawned outside detect range — the beat is her SEEING them, nothing may reach a locked body), the failed reach ("...I have a stick."), hint GET BACK INSIDE. The arch routes "kit" for the window; the slimes are unkillable and hold the south gate via `_alive`; the mayor stays in. Staged once | `fuji_chased` |
 | `scene/library.tscn` phase `kit` | **THE KIT** = Act 1 beat 3, the deliberate inverse of the recital chain (*idea → brew → it flies* becomes *ambush → improvise → the darts fly*). A 3-part wander gate on furniture that already exists: `_kit_dose` (shelf THREE, husbandry — how to put a large animal down to trim its hooves), `_kit_wand` (the dead wand bored out into the pipe), `_kit_book` (the book the player picks — stats identical, and it is her VESTIGE SOCKET VESSEL for the whole game). `_kit_check` sets the composite | `fuji_dose_found`, `fuji_darts_made`, `fuji_tome_taken` → `fuji_kit_made` |
 | `scene/lanternwood.tscn` | **THE DEFENCE OF LANTERNWOOD** — the first real fight in the game, and Fuji's alone. Teaches the drowse setup properly: dart → dart → it drops → tome it | `town_defended` |
 | `scene/lanternwood.tscn` | **THE MOTION** = Act 1 beat 3b. `_the_motion()`. The lanes go clear, the hall door opens, and **Mayor Hollis** — an old elk who is the town's mayor and its clerk in one body — comes out with a slate. She tells him about the unstamped thesis; what frightens him is not the magic, it is *a document that is not in the record*. He moves that the town send somebody, gets no second because there is nobody in the street, **seconds himself**, minutes it, and hands her the launch (it burns coal — Alder's shipped "honest oil, honest fire" line, paid off). His one condition is that she write down what she finds, **for the minutes**. He calls her "Librarian" all scene and uses her name once, at the end | `mayor_briefed`, `boat_ready` |

@@ -669,9 +669,9 @@ func _firework(tint: Color, ground: Vector2, dx: float, apex: float) -> void:
 		var dur: float = ring["dur"]
 		# rings after the first are rotated half a step, so no two ever line up
 		# into one thicker star
-		var skew := 0.0 if r == 0 else PI / float(n)
+		var half_step := 0.0 if r == 0 else PI / float(n)
 		for i in n:
-			var ang := TAU * float(i) / float(n) + skew
+			var ang := TAU * float(i) / float(n) + half_step
 			_spark(mote.position, apex, tint, ang, reach, dur)
 	await burst.finished
 	mote.queue_free()

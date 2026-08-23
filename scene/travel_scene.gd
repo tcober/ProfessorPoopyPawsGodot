@@ -55,6 +55,15 @@ func _ready() -> void:
 	tw.tween_property(fade, "modulate:a", 0.0, ENTRY_FADE)
 	await get_tree().create_timer(ENTRY_LOCK).timeout
 	_entry_locked = false
+	# A pre-latched marker guards the arrival spot (the door-mouth contract) —
+	# but a latch whose zone the body is NOT actually inside will never see a
+	# body_exited, and would hold its marker shut forever. Resync from the real
+	# overlaps (the _on_leader_changed rule) BEFORE re-delivering: a body still
+	# pressed into its arrival door keeps the latch (no bounce-back), a body
+	# clear of it hands the door back.
+	for loc: OverworldLocation in locations.get_children():
+		if _standing.get(loc.id, false) and not loc.overlaps_body(player):
+			_standing[loc.id] = false
 	# A body that pushed into a marker during the entry fade already fired its
 	# body_entered (swallowed by the lock) and won't re-fire — deliver it now.
 	_deliver_standing()
@@ -173,6 +182,7 @@ func _on_location_exited(body: Node2D, loc: OverworldLocation) -> void:
 
 func _travel(loc: OverworldLocation) -> void:
 	_busy = true
+	Sfx.door()
 	_on_travel(loc)
 	_show_banner(loc.display_name, BANNER_HOLD)
 	await fade_out()

@@ -53,7 +53,10 @@ func _place_player() -> void:
 	if spawn == "home":
 		# Land ON the door marker — feet on the ring deck right under the arch
 		# (the old tile-and-a-half drop read as appearing nowhere near the door).
-		# _standing suppresses the marker until he steps off it once.
+		# The zone itself hangs OVER the trunk face now (a press UP into the
+		# door, never a stroll across the deck's through-row), so the latch
+		# only matters while an exit-hold keeps the body pressed against it;
+		# TravelScene resyncs it from the real overlap when the entry lock lifts.
 		Party.place(MapData.anchor_px(map, "home"))
 		_standing["home"] = true
 	elif spawn == "north":

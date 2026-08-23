@@ -200,9 +200,12 @@ func _run() -> void:
 	_check("three stings -> wants home, gate still shut",
 			game.flag("prologue_want_home") and not game.flag("prologue_gate_open"))
 	await _wait_frames(30)
-	# the home door re-opens while he wants home: step on it -> downstairs
-	# (the zone sits ON the door mouth since 2026-07-17 — no drop offset)
-	_player().global_position = MapData.anchor_px(town_map, "home")
+	# the home door re-opens while he wants home: press INTO it -> downstairs.
+	# The zone hangs over the trunk face since 2026-08-22 (a press UP into the
+	# door, so crossing the deck can't yank a body inside) — teleport a few px
+	# into the face and let depenetration seat the body flush against it,
+	# overlapping the raised zone (the zwalk seating idiom).
+	_player().global_position = MapData.anchor_px(town_map, "home") + Vector2(8.0, -8.0)
 	var back_down := func() -> bool: return _scene_is("res://scene/downstairs_fest.tscn")
 	ok = await _mash_until(back_down, 900)
 	_check("the home door re-opens into the downstairs", ok)
@@ -355,7 +358,9 @@ func _run() -> void:
 	# call -> house_thesis
 	ok = await _mash_until(_party_free, 3000)
 	_check("the night-before hands over the walk home", ok)
-	_player().global_position = MapData.anchor_px(town_map, "home") + Vector2(0.0, 26.0)
+	# the doorstep gate hangs over the ring deck's lip now — read BAG_OFF off
+	# the live scene rather than re-typing the number (gotcha 10)
+	_player().global_position = MapData.anchor_px(town_map, "home") + current_scene.BAG_OFF
 	var in_wake := func() -> bool: return _scene_is("res://scene/house_thesis.tscn")
 	ok = await _mash_until(in_wake, 6000)
 	_check("plant beat -> the 8:57 wake-up", ok)

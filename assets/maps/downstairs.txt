@@ -13,8 +13,16 @@
 ; (the desk pattern): their top row (T/E) is walkable so a body tucks in
 ; behind the tabletop, legs hidden by the y-sorted art; only the bottom
 ; row (t/B) is solid. The FRONT DOOR to the overworld is in the south
-; wall — an open doorway spilling daylight onto a stone stoop. This file is
-; BOTH the collision grid and the room layout:
+; wall — an open doorway spilling daylight onto a stone stoop. MOM'S DOOR
+; (2026-08-22, Prologue A0 "The Fever") is the plank door set into the WEST
+; wall (' cells, col 2 rows 6-7 — a gap in the side wall beside the
+; kitchen): SOLID here — a closed door, forever — and WALKABLE in
+; the byte-locked twin downstairs_bare.txt, the pre-lab room the fever
+; chapter plays in. THE TWO GRIDS ARE TWINS: identical except the east lab
+; corner (pipes/boiler/bench here; bare wall/crates there) and this door's
+; walk bit — every anchor exists in both, because scene/downstairs_fever.gd
+; swaps which map it loads on a story flag. Edit one, edit the other in the
+; same commit. This file is BOTH the collision grid and the room layout:
 ; assets/_gen_tileset_downstairs.py places its props from the feature chars,
 ; so moving a feature here moves it in the game.
 legend V void solid
@@ -38,20 +46,22 @@ legend . floor walk
 legend g rug walk
 legend s stair walk
 legend - door walk
+legend ' momdoor solid
 anchor stair_arrival 11 5
 anchor front_door 11 9
 anchor exit_door 11 11
 anchor exit_up 11 1
 anchor kitty_pos 20 7
+anchor momdoor_out 3 6
 map
 VVVVVVVVVVVVVVVVVVVVVVVV
 VVVVVVVVVV#ss#VVVVVVVVVV
 VV#HHHWWkk#ss#ppoyyy##VV
 VV#HHHWWCC#ss#FFFyyy##VV
-VV#HHH##CC#ss#FFFyyyP#VV
-VV#...............AAP#VV
-VV#...gTTg.....rr.AA.#VV
-VV#...gttg.....rrEEEE#VV
+VV#HHHP#CC#ss#FFFyyy##VV
+VV#...P...........AA.#VV
+VV'...gTTg.....rr.AA.#VV
+VV'...gttg.....rrEEEE#VV
 VV#...gggg.......BBBB#VV
 VV#..................#VV
 VV#########--#########VV

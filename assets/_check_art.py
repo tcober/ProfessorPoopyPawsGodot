@@ -110,6 +110,9 @@ MAPS = [
     "maps/academy.txt",
     "maps/house.txt",
     "maps/downstairs.txt",
+    "maps/downstairs_bare.txt",
+    "maps/momroom.txt",
+    "maps/academy_library.txt",
     "maps/hall.txt",
     "maps/sickroom.txt",
     "maps/library.txt",
@@ -189,6 +192,15 @@ TILED = {
     "maps/downstairs.txt": ("tilesets/downstairs_layout.txt",
                             "tilesets/downstairs_tiles.png",
                             "tilesets/downstairs_tiles.tres"),
+    "maps/downstairs_bare.txt": ("tilesets/downstairs_bare_layout.txt",
+                                 "tilesets/downstairs_bare_tiles.png",
+                                 "tilesets/downstairs_bare_tiles.tres"),
+    "maps/momroom.txt": ("tilesets/momroom_layout.txt",
+                         "tilesets/momroom_tiles.png",
+                         "tilesets/momroom_tiles.tres"),
+    "maps/academy_library.txt": ("tilesets/academy_library_layout.txt",
+                                 "tilesets/academy_library_tiles.png",
+                                 "tilesets/academy_library_tiles.tres"),
     "maps/overworld.txt": ("tilesets/overworld_layout.txt",
                            "tilesets/overworld_tiles.png",
                            "tilesets/overworld_tiles.tres"),
@@ -283,6 +295,8 @@ print("z-order:")
 # there is y-sorted (the stage riser, the curtain leg, the floating candles).
 UPPER_REQUIRED = {"maps/overworld.txt", "maps/overworld_bright.txt",
                   "maps/house.txt", "maps/downstairs.txt",
+                  "maps/downstairs_bare.txt", "maps/momroom.txt",
+                  "maps/academy_library.txt",
                   "maps/sickroom.txt", "maps/library.txt"}
 # 24x24 travel chibi, figure <=1 tile tall
 CHIBI_MAPS = {"maps/overworld.txt", "maps/overworld_bright.txt"}
@@ -336,6 +350,9 @@ print("props manifests:")
 PROPS = {
     "maps/house.txt": "tilesets/house_props.txt",
     "maps/downstairs.txt": "tilesets/downstairs_props.txt",
+    "maps/downstairs_bare.txt": "tilesets/downstairs_bare_props.txt",
+    "maps/momroom.txt": "tilesets/momroom_props.txt",
+    "maps/academy_library.txt": "tilesets/academy_library_props.txt",
     "maps/town.txt": "tilesets/town_props.txt",
     "maps/town_fest.txt": "tilesets/town_fest_props.txt",
     "maps/lanternwood.txt": "tilesets/lanternwood_props.txt",
@@ -785,6 +802,11 @@ PLACEMENTS = {
     "scene/town_fest.tscn": "maps/town_fest.txt",
     "scene/town_thesis.tscn": "maps/town_fest.txt",
     "scene/house_thesis.tscn": "maps/house.txt",
+    "scene/house_fever.tscn": "maps/house.txt",
+    "scene/downstairs_fever.tscn": "maps/downstairs_bare.txt",
+    "scene/momroom.tscn": "maps/momroom.txt",
+    "scene/academy_library.tscn": "maps/academy_library.txt",
+    "scene/town_fever.tscn": "maps/town_fest.txt",
     "scene/hall.tscn": "maps/hall.txt",
     "scene/sickroom.tscn": "maps/sickroom.txt",
     "scene/library.tscn": "maps/library.txt",
@@ -894,6 +916,7 @@ SHEETS = {
     "assets/accident_atv_gen.png": (5 * ZONE_CELL, ZONE_CELL),
     "assets/accident_bike_down_gen.png": (ZONE_CELL, ZONE_CELL),
     "assets/accident_bg.png": (384, 216),
+    "assets/title_bg.png": (384, 216),
     # thesis-day cast (Prologue B) + Mom (the A pacing pass). Mom got the walk
     # rows so she can WORK her kitchen instead of standing in it.
     "assets/npc_mom_gen.png": (10 * ZONE_CELL, 4 * ZONE_CELL),

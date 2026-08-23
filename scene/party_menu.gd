@@ -126,6 +126,7 @@ func _open() -> void:
 	_note = ""
 	_build()
 	_swallow = Overlay.SWALLOW
+	Sfx.ui_open()
 	get_tree().paused = true
 
 
@@ -142,6 +143,7 @@ func _close() -> void:
 
 func _back() -> void:
 	_note = ""
+	Sfx.ui_back()
 	match _mode:
 		M_MEMBER:
 			_close()
@@ -203,6 +205,7 @@ func _step(dir: int) -> void:
 	if n <= 0:
 		return
 	_note = ""
+	Sfx.ui_move()
 	match _mode:
 		M_MEMBER:
 			_member = wrapi(_member + dir, 0, n)
@@ -219,21 +222,32 @@ func _accept() -> void:
 		M_MEMBER:
 			if _roster().is_empty():
 				return
+			Sfx.ui_accept()
 			_mode = M_SLOT
 			_slot = 0
 		M_SLOT:
 			if _slot == SAVE_ROW:
-				_note = ("SAVED." if SaveGame.save(get_tree())
-					else "COULD NOT WRITE THE SAVE.")
+				if SaveGame.save(get_tree()):
+					_note = "SAVED."
+					Sfx.ui_chime()
+				else:
+					_note = "COULD NOT WRITE THE SAVE."
+					Sfx.ui_refuse()
 			elif _slot == ITEMS_ROW:
+				Sfx.ui_accept()
 				_mode = M_ITEM
 			else:
+				Sfx.ui_accept()
 				_mode = M_PICK
 			_choice = 0
 		M_PICK:
 			_equip()
+			Sfx.ui_accept()
 		M_ITEM:
-			_use()
+			if _use():
+				Sfx.ui_accept()
+			else:
+				Sfx.ui_refuse()
 	_sync()
 
 
@@ -261,28 +275,31 @@ func _equip() -> void:
 	_mode = M_SLOT
 
 
-func _use() -> void:
+## True when the item was actually drunk — _accept keys the accept/refuse
+## sound off it, so a "NOT HERE" note can never arrive with a happy blip.
+func _use() -> bool:
 	var id := _member_id()
 	if id == &"" or _candidates.is_empty():
-		return
+		return false
 	var it: Item = _candidates[_choice]
 	var body := _body(id)
 	if body == null:
 		_note = "NOT HERE TO DRINK IT."
-		return
+		return false
 	var health = body.get("health")
 	if health == null:
-		return
+		return false
 	if health.current_health >= health.max_health:
 		_note = "%s IS ALREADY WELL." % _name_of(id)
-		return
+		return false
 	if not Game.take_item(it.id):
-		return
+		return false
 	health.current_health = mini(health.current_health + it.heal, health.max_health)
 	health.health_changed.emit(health.current_health, health.max_health)
 	_note = "%s DRINKS THE %s." % [_name_of(id), it.display_name]
 	if Game.item_count(it.id) <= 0:
 		_choice = maxi(_choice - 1, 0)
+	return true
 
 
 ## Re-apply a sheet to the live body after gear changed, so a +VIT hat raises

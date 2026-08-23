@@ -31,10 +31,13 @@ const SHEET_BADGER := preload("res://assets/npc_badger_gen.png")
 
 const FX_BAG := 10
 const FX_PRINT := 11
-## Where Schweinler leaves the bag and where Basil steps on it — ONE spot
-## (the doorstep lane, just south of the door arch), relative to the "home"
-## anchor: the morning bag must sit exactly where the night phase left it.
-const BAG_OFF := Vector2(0.0, 38.0)
+## Where Schweinler leaves the bag and where Basil steps on it — ONE spot,
+## relative to the "home" anchor: the morning bag must sit exactly where the
+## night phase left it. Since the canopy rebuild the doorstep is a RING DECK,
+## and this is its lip cell — the ladder head, the one cell Basil cannot
+## leave home without crossing. (The old +38 was the ground-cottage lane and
+## landed the bag ON the ladder rungs, two storeys of nonsense below his door.)
+const BAG_OFF := Vector2(8.0, 16.0)
 ## The pace of the leaving trudge, px/s. It used to be implied — a fixed 4.6s
 ## tween onto a hardcoded Vector2(440, 545) — which meant the SPEED was a
 ## function of where the map's south edge happened to be. Now the endpoint is
@@ -122,31 +125,35 @@ func _phase_plant() -> void:
 	# player's own, down to the doorstep call
 	theater.face(player, Vector2.DOWN)
 	await theater.wait(ENTRY_FADE + 0.4)
-	await theater.say("Basil", "Notes stacked. Chalk lined up. Diagrams pinned STRAIGHT. Nothing left to fuss with.")
-	await theater.say("Basil", "Home. Sleep. Tomorrow I become a professor.")
+	await theater.say("Basil", "I can't believe I'm going to actually graduate from wizard school having never performed a single spell.")
+	await theater.say("Basil", "Home. Sleep.")
 	theater.close_dialog()
 	_show_banner("HOME - GET SOME SLEEP", BANNER_HOLD)
-	await theater.walk_gate(MapData.anchor_px(map, "home") + Vector2(0.0, 26.0),
+	# the goal rect hangs over the ring deck's lip, so the player's own climb
+	# up the ladder fires it on arrival at the top
+	await theater.walk_gate(MapData.anchor_px(map, "home") + BAG_OFF,
 			Vector2(40.0, 24.0))
+	# a step up onto the deck proper — the call is taken on his own doorstep,
+	# not balanced on the top rung
+	await theater.walk(player, MapData.anchor_px(map, "home") + Vector2(8.0, 4.0), 40.0)
 	# the bookend call (2026-07-16 Kitty thread): on his own doorstep, the
 	# watch SHE MADE raised to his muzzle — the same look_watch gesture as
 	# the bluff's first blink and the dusk calls, opposite emotional poles
 	theater.face(player, Vector2.DOWN)
 	player.sprite.play("look_watch")
 	await theater.wait(0.5)
-	await theater.say("Kitty", "Say it again. One more time. I want to hear it.")
-	await theater.say("Basil", "...Tomorrow I present my thesis. Not one drop of magic to my name, and they still have to hand me the robes.")
-	await theater.say("Kitty", "Because you EARNED them. Every wiggle-fingers in that hall calls your work 'potions.' Let them. You and I know what it really is.")
-	await theater.say("Basil", "Chemistry. Measured, repeatable, REAL. ...Say THAT part again tomorrow if I wobble.")
-	await theater.say("Kitty", "Front row, center. I'll shut the workshop early. The whooping is PREPARED.")
+	await theater.say("Kitty", "Hi")
+	await theater.say("Basil", "Tomorrow is the day...")
+	await theater.say("Kitty", "You've got this. I know it!")
+	await theater.say("Kitty", "It sucks only students and professors get to attend. I'll be there in spirit. Whooping you psychically.")
 	await theater.say("Basil", "Please don't whoop. ...The watch you made me says it's past midnight, you know.")
-	await theater.say("Kitty", "That watch keeps PERFECT time. It's the cat wearing it who runs late. Bed! You'll be brilliant tomorrow - you always are, once you stop being scared.")
+	await theater.say("Kitty", "That watch keeps PERFECT time. It's the cat wearing it who runs late. Bed! You'll be brilliant tomorrow.")
 	await theater.say("Basil", "...Goodnight, Kitty.")
 	theater.close_dialog()
 	player.sprite.play("idle_down")
 	theater.face(player, Vector2.UP)
-	await theater.walk(player, MapData.anchor_px(map, "home") + Vector2(0.0, 12.0), 40.0)
-	player.visible = false            # inside; the yard goes quiet
+	await theater.walk(player, MapData.anchor_px(map, "home"), 40.0)
+	player.visible = false            # inside; the deck goes quiet
 	await theater.wait(0.8)
 	var schw: NPC = _npc("Schweinler", SHEET_SCHW, 6, MapData.anchor_px(map, "exit_south"))
 	# no narrator over the creep (the 2026-07-18 purge): the sleeping town
@@ -165,24 +172,35 @@ func _phase_plant() -> void:
 	#
 	# creep_head is the 2026-07-29 addition and it is the canopy's whole cost
 	# here: Basil lives UP A TREE now, so the bag has to be carried up a
-	# ladder to reach his doorstep, and a straight tween from the floor to the
-	# deck would walk Schweinler through the fascia band. It also makes the
-	# beat better — the sneer had to climb.
+	# ladder to reach his doorstep. It also makes the beat better — the sneer
+	# had to climb.
 	await theater.walk_via(schw, [
 			MapData.anchor_px(map, "creep_gate"),
 			MapData.anchor_px(map, "creep_cross"),
 			MapData.anchor_px(map, "creep_lane"),
 			MapData.anchor_px(map, "creep_head"),
-			MapData.anchor_px(map, "home") + Vector2(0.0, 26.0)], 44.0)
-	schw.play_idle()
-	# the bag — dropped at BAG_OFF, right where the morning step will land
+			_ladder_foot()], 44.0)
+	# UP THE LADDER — pinned to the rungs' own centre line and dead vertical,
+	# slower than the slink (the old single leg was a straight floor-to-deck
+	# diagonal: a pig levitating over the fascia, exactly the float the
+	# strata forbid). walk_up carries the whole leg, which is the climb.
+	await theater.walk(schw, _ladder_top(), 30.0)
+	# one step onto the deck, clear of the lip the bag is about to own
+	await theater.walk(schw, MapData.anchor_px(map, "home") + Vector2(-16.0, 4.0), 36.0)
+	schw.face_dir(Vector2.RIGHT)
+	# the bag — dropped at BAG_OFF, the deck lip, right where the morning
+	# step will land: he cannot leave home without crossing it
 	var bag := _fx_at(FX_BAG, MapData.anchor_px(map, "home") + BAG_OFF)
-	await theater.say("Schweinler", "Heh heh heh. A little CONGRATULATIONS for the no-magic wonder and his little POTIONS.")
+	await theater.say("Schweinler", "Heh heh heh. A little congratulations for the graduate.")
 	schw.play_emote()
 	await theater.say("Schweinler", "Enjoy your big lecture tomorrow, Basil. Oink - hahaha!")
 	# back out the way he crept in — the SAME corners, reversed, so the two
 	# routes can never drift apart into two different opinions of where the
-	# lanes are
+	# lanes are. The descent keeps the back-facing walk (turn=false): a
+	# front-facing glide down the rungs is the float all over again.
+	await theater.walk(schw, _ladder_top(), 36.0)
+	schw.face_dir(Vector2.UP, true)
+	await theater.walk(schw, _ladder_foot(), 34.0, false)
 	await theater.walk_via(schw, [
 			MapData.anchor_px(map, "creep_head"),
 			MapData.anchor_px(map, "creep_lane"),
@@ -206,16 +224,16 @@ func _phase_dash() -> void:
 	# the bag is already THERE — planted last night, waiting through the line
 	var bag := _fx_at(FX_BAG, MapData.anchor_px(map, "home") + BAG_OFF)
 	await theater.wait(ENTRY_FADE + 0.3)
-	await theater.say("Basil", "The lecture! I OVERSLEPT! First lecture as a professor and I overslept!")
-	# the step is SHOWN: he bolts south, straight onto it (the box stays OPEN
-	# across the walk — the probe's dialog-closed predicate must not flip
-	# before the squelch)
-	await theater.walk(player, MapData.anchor_px(map, "home") + Vector2(0.0, 22.0), 72.0)
+	await theater.say("Basil", "The lecture! I OVERSLEPT!!")
+	# the step is SHOWN: he bolts for the ladder, straight onto it (the box
+	# stays OPEN across the walk — the probe's dialog-closed predicate must
+	# not flip before the squelch)
+	await theater.walk(player, MapData.anchor_px(map, "home") + BAG_OFF, 72.0)
 	# the squelch is PLAYED, not narrated (2026-07-18): the landing hop is
 	# the flinch off the bag, and his own line names what his paw just learned
 	await theater.hop(player, 6.0)
 	await theater.say("Basil", "Ew. EW. Squishy. Why was that SQUISHY?!")
-	await theater.say("Basil", "...I do not have time to think about what that was.")
+	await theater.say("Basil", "...I don't have time.")
 	await theater.say("Basil", "Gotta go gotta go GOTTA GO!")
 	theater.close_dialog()
 	# the bag lingers a beat underfoot and fades, instead of blinking away
@@ -252,7 +270,7 @@ func _on_reach_school(body: Node2D) -> void:
 		return
 	_dashing = false
 	theater.lock_party()
-	await theater.say("Basil", "Made it. Okay. Deep breath. You are a professor. You belong here.")
+	await theater.say("Basil", "Made it. Okay. Deep breath. You belong here.")
 	theater.close_dialog()
 	await fade_out()
 	get_tree().change_scene_to_file("res://scene/hall.tscn")
@@ -321,11 +339,11 @@ func _phase_steps() -> void:
 	await theater.say("Ridley", "The doctor won't say it plain, so: how is she?")
 	await theater.say("Basil", "...")
 	await theater.wait(0.6)
-	await theater.say("Ridley", "That bad. ...You know what? Sitting out here like the sky fell on YOU - that's pretty selfish.")
+	await theater.say("Ridley", "That bad. ...You know what? Sitting out here like the sky fell on YOU...that's pretty selfish.")
 	player.sprite.play("hurt")
 	await theater.wait(0.4)
 	player.sprite.play("sit")
-	await theater.say("Ridley", "YOU weren't the one who got run over. SHE'S the one in the bed. And you're over here feeling sorry for YOURSELF?")
+	await theater.say("Ridley", "You weren't the one who got run over. She's the one in the bed. And you're over here feeling sorry for yourself?")
 	await theater.say("Ridley", "...I'm just saying. Perspective. Anyway. Feel better!")
 	theater.close_dialog()
 	# he says his piece and walks off — nobody stops him, back down the same
@@ -363,8 +381,7 @@ func _leaving() -> void:
 	player.sprite.flip_h = false
 	await theater.wait(1.2)
 	await theater.say("Basil", "...Goodbye.")
-	await theater.say("Basil", "I would have loved being yours. Your chemist. Your neighbor. Anything.")
-	await theater.say("Basil", "I wish I could have been welcome here.")
+	await theater.say("Basil", "I wish I could have belonged here...")
 	theater.close_dialog()
 	await theater.wait(1.0)
 	# then he turns away and trudges out the lamp-flanked gate — the turn is a
@@ -431,3 +448,15 @@ func _npc(nm: String, sheet: Texture2D, cols: int, pos: Vector2) -> NPC:
 func _fx_at(cell: int, pos: Vector2) -> Sprite2D:
 	# ground clutter (the bag) — a World decal so bodies pass in front of it
 	return WorldFx.decal($World, FX_SHEET, cell, pos)
+
+
+## The two ends of Basil's rope ladder, derived off the map rather than
+## typed: the rung pair hangs with its centre line on the seam 8px east of
+## the "home" / "creep_foot" anchor columns. The top IS the deck lip — which
+## is also BAG_OFF: the prank and the ladder share that cell on purpose.
+func _ladder_top() -> Vector2:
+	return MapData.anchor_px(map, "home") + BAG_OFF
+
+
+func _ladder_foot() -> Vector2:
+	return MapData.anchor_px(map, "creep_foot") + Vector2(8.0, 0.0)

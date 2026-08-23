@@ -1505,6 +1505,51 @@ def kitty_bed(s, mood="rest", bob=0):
     whiskers_kid_down(s, bob - 6)
 
 
+MOMBED_OUTS = outs_for((MOM_FUR, OUT_DARK), (WHITE, OUT_LIGHT),
+                       (LINEN, OUT_LIGHT), (MOM_SCARF, OUT_DARK))
+
+
+def mom_bed(s, mood="rest", bob=0):
+    """Mom propped up against the headboard (Prologue A0 "The Fever"):
+    head + gowned shoulders only — the bed's own art carries everything
+    below (the kitty_bed recipe, same chibi scale). The sage headscarf
+    stays on — it is her identity the way the bandage is Kitty's — but
+    tied SOFT, the knot slumped to one side. [rest (asleep), act (awake,
+    weak), emote (the warm look)]."""
+    hy = 22 + bob
+    # ears out from under the slumped scarf
+    s.tri((CX - 6, hy - 10), hy - 4, CX - 8, CX - 3, MOM_FUR)
+    s.tri((CX + 6, hy - 9), hy - 4, CX + 3, CX + 8, MOM_FUR, sh=0.14)
+    s.ball(CX, hy, 7.6, 6.8, MOM_FUR, power=2.4, wrap=0.28, curve=0.26)
+    # the scarf, tied soft: the band a row lower than her working knot
+    s.rect(CX - 7, hy - 7, CX + 6, hy - 4, MOM_SCARF[1])
+    s.rect(CX - 7, hy - 4, CX + 6, hy - 4, MOM_SCARF[2])
+    s.rect(CX + 5, hy - 6, CX + 8, hy - 3, MOM_SCARF[0])      # the slumped knot
+    s.ball(CX, hy + 4.4, 4.8, 2.9, WHITE, power=2.2, wrap=0.10, curve=0.10)
+    s.rect(CX - 1, hy + 2, CX, hy + 2, NOSE)
+    ey = hy - 2
+    if mood == "rest":
+        _closed(s, CX - 5, ey, happy=False)
+        _closed(s, CX + 3, ey, happy=False)
+        s.line([(CX - 1, hy + 5), (CX, hy + 5)], MOUTH)
+    elif mood == "act":                             # awake, weak — but HER
+        _eye(s, CX - 5, ey, EYE_Y, EYE_YL)
+        _eye(s, CX + 3, ey, EYE_Y, EYE_YL)
+        s.line([(CX - 1, hy + 4), (CX, hy + 4)], MOUTH)
+    else:                                           # emote — the warm look
+        _closed(s, CX - 5, ey)
+        _closed(s, CX + 3, ey)
+        s.rect(CX - 1, hy + 4, CX, hy + 5, MAW)
+        s.set(CX - 6, hy + 2, BLUSH)
+        s.set(CX + 5, hy + 2, BLUSH)
+    # gowned shoulders; the bed cover takes everything below
+    s.capsule(CX - 8, hy + 11, CX + 8, hy + 11, 3.6, 3.4, LINEN, sh=0.08)
+    s.rect(CX - 1, hy + 10, CX + 1, hy + 14, LINEN[2])        # gown vee
+    s.despeckle(passes=1)
+    s.outline(MOMBED_OUTS, OUT_DARK)
+    whiskers_kid_down(s, bob - 6)
+
+
 RIMLESS = (198, 214, 226, 255)                     # the stork's half-moon specs
 
 
@@ -4266,6 +4311,17 @@ kitty_bed(kb2[0][3], "vacant", bob=-1)
 kitty_bed(kb2[0][4], "polite")
 kitty_bed(kb2[0][5], "polite", bob=-1)
 write_cells(os.path.join(HERE, "npc_kitty_bed_gen.png"), kb2, CELL)
+
+# Mom in the sickbed (Prologue A0 "The Fever"): [rest x2, weak-awake act x2,
+# warm emote x2] — the kitty_bed rig on the mom palette, scarf tied soft
+mb = [[new() for _ in range(6)]]
+mom_bed(mb[0][0], "rest")
+mom_bed(mb[0][1], "rest", bob=-1)
+mom_bed(mb[0][2], "act")
+mom_bed(mb[0][3], "act", bob=-1)
+mom_bed(mb[0][4], "emote")
+mom_bed(mb[0][5], "emote", bob=-1)
+write_cells(os.path.join(HERE, "npc_mom_bed_gen.png"), mb, CELL)
 
 # College-age Kitty (the bluff romance + her fountain-rim stall):
 # [idle x2, tinker x2, beam x2, BACK x2, SIDE x2] — the back/side pair is

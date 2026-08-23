@@ -18,10 +18,22 @@ const CHAR_TIME := 0.025
 ## skips instantly).
 const SWALLOW_MS := 140
 
+## The Star Fox voice: one syllable-blip as every BLIP_EVERY-th character
+## lands. Punctuation and spaces stay silent, so the rhythm follows the words
+## and a "..." line says nothing at all.
+const BLIP_EVERY := 3
+const BLIP_SILENT := " .,!?-'\";:()"
+
 var _typing := false
 var _awaiting := false
 var _reveal := 0.0
 var _accept_after := 0
+var _speaker := ""
+var _blip_gate := 0
+
+## Looked up by PATH, never the autoload identifier — this box is part of the
+## narrative kit, and --script probes must be able to compile it cold.
+@onready var _sfx: Node = get_node_or_null(^"/root/Sfx")
 
 @onready var text: Label = $Text
 @onready var name_label: Label = $NameLabel
@@ -44,6 +56,7 @@ func say(speaker: String, line: String) -> void:
 	text.text = line
 	text.visible_characters = 0
 	_reveal = 0.0
+	_blip_gate = 0
 	_typing = true
 	_awaiting = true
 	arrow.visible = false
@@ -75,6 +88,7 @@ func _process(delta: float) -> void:
 	if _typing:
 		_reveal += delta
 		text.visible_characters = int(_reveal / CHAR_TIME)
+		_blip()
 		if text.visible_characters >= text.text.length():
 			_finish_typing()
 	if not _awaiting or Time.get_ticks_msec() < _accept_after:
@@ -86,7 +100,24 @@ func _process(delta: float) -> void:
 			_finish_typing()
 		else:
 			_awaiting = false
+			if _sfx:
+				_sfx.talk_advance()
 			advanced.emit()
+
+
+## One voice syllable per few landed characters, in the speaker's own pitch
+## (Sfx.VOICES). A press that reveals the whole line goes through
+## _finish_typing, so a skipped line never machine-guns its backlog of blips.
+func _blip() -> void:
+	if _sfx == null:
+		return
+	var vis := mini(text.visible_characters, text.text.length())
+	if vis <= _blip_gate or vis <= 0:
+		return
+	if BLIP_SILENT.contains(text.text[vis - 1]):
+		return
+	_blip_gate = vis + BLIP_EVERY - 1
+	_sfx.talk_blip(_speaker)
 
 
 func _finish_typing() -> void:
@@ -96,10 +127,11 @@ func _finish_typing() -> void:
 
 
 func _set_speaker(speaker: String) -> void:
-	var show := speaker != ""
-	name_plate.visible = show
-	name_label.visible = show
-	if show:
+	_speaker = speaker
+	var named := speaker != ""
+	name_plate.visible = named
+	name_label.visible = named
+	if named:
 		name_label.text = speaker
 		# plate hugs the name: monospace advance 6 + 5px padding each side
 		name_plate.offset_right = name_plate.offset_left + speaker.length() * 6 + 10

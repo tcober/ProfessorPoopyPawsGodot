@@ -86,7 +86,9 @@ func _place_player() -> void:
 		# Land ON the door mouth — feet on the lane right under the arch (the
 		# old tile-and-a-half drop read as appearing nowhere near the door).
 		Party.place(MapData.anchor_px(map, "home"))
-		_home_armed = false            # standing on the door zone; arm on exit
+		# the zone hangs over the trunk face (a press UP into the door), so
+		# the arrival spot is outside it and the door stays armed — disarming
+		# here would wait on a body_exited that can never fire
 	elif Game.flag("prologue_festival_done"):
 		Party.place(MapData.anchor_px(map, "player_start"))
 	else:
@@ -170,8 +172,11 @@ func _spawn_home_door() -> void:
 	door.collision_mask = 2
 	var shape := CollisionShape2D.new()
 	var rect := RectangleShape2D.new()
-	rect.size = Vector2(24.0, 16.0)
+	# hangs over the trunk face: only a press UP into the door fires it, so
+	# crossing the deck's through-row never yanks a body inside
+	rect.size = Vector2(24.0, 8.0)
 	shape.shape = rect
+	shape.position = Vector2(8.0, -8.0)
 	door.add_child(shape)
 	door.position = MapData.anchor_px(map, "home")
 	add_child(door)

@@ -17,7 +17,8 @@ probe, or a `tools/shot.gd` screenshot.
 
 | Probe | Checks | Covers |
 | --- | --- | --- |
-| `tools/prologue_probe.gd` | 56 | the whole Prologue A+B+Ebb chain — slow, handoff changes only |
+| `tools/prologue_probe.gd` | 56 | the whole Prologue A+B+Ebb chain — slow, handoff changes only. It starts at `house_fest`, so the fever chapter is NOT in it — `fever_probe` ends exactly where this one begins, and together they cover the chain from the title cards |
+| `tools/fever_probe.gd` | 31 | **PROLOGUE A0 "THE FEVER"** end-to-end — the wake, the doctor beat on the BARE downstairs twin (crates in, boiler out), the front door refusing before the bedside, Mom's door, the reading room's two-visit search gate (the still-room must REFUSE first), the simmer mash, the drink, and the one check that is the whole feature: after the night card the same scene file loads the BUILT map (Boiler node in, Crates node out) and closes into `house_fest` |
 | `tools/recital_probe.gd` | 13 | the recital chain's three legs, alone, in ~2min |
 | `tools/library_probe.gd` | 28 | the library scene alone (ebb + research phases) |
 | `tools/status_probe.gd` | 50 | statuses, mixing rules, loadout across a scene change |
@@ -150,7 +151,7 @@ Eyeball any scene without launching the game. Args:
 ## The dev chapter selector
 
 **Press `0` ANYWHERE** — title, cutscene, mid-meadow — for a paused two-column menu of
-all 39 story beats. Pick one and land in it with roster / phase / spawn / flags staged.
+all 51 story beats. Pick one and land in it with roster / phase / spawn / flags staged.
 
 `scene/dev_menu.gd` (autoload `DevMenu`, third after `Game` / `Party`; overlay built in
 code on CanvasLayer 100, `PROCESS_MODE_ALWAYS`, all-polled input, the whole thing behind

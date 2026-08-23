@@ -196,11 +196,11 @@ func _brew() -> void:
 	# be a hard crash rather than a missing line, so the greeting is guarded
 	if _mom != null:
 		_mom.play_emote()
-		await theater.say("Mom", "BASIL. And a friend. Wipe your paws, both of - is that a PROPELLER?")
-		await theater.say("Kitty", "It's a whirligig. It flies. I'm Kitty.")
-		await theater.say("Basil", "Mom, I need the bench.")
+		await theater.say("Mom", "BASIL. And a friend. Wipe your paws, both of you? What is that?")
+		await theater.say("Kitty", "It's a whirligig. I made it. It flies. I'm Kitty.")
+		await theater.say("Mom", "Nice to meet you Kitty.")
+		await theater.say("Basil", "Let's use my lab.")
 		_mom.play_act()
-		await theater.say("Mom", "...You have that face. Go on, then. Not the good pot.")
 	theater.close_dialog()
 	_kitty_to_bench()                      # un-awaited: it plays out under the gate
 	theater.hint("THE WORKBENCH - THE EAST CORNER")
@@ -212,9 +212,10 @@ func _brew() -> void:
 	theater.face(player, Vector2.DOWN)     # tucked in BEHIND the counter, the
 	                                       # workbench art drawing over his legs
 	_kitty.play_act()
-	await theater.say("Basil", "Everyone at that recital is going to make a colour appear in the air.")
-	await theater.say("Basil", "I can't. But I know four things that make a colour when they get hot enough.")
-	await theater.say("Kitty", "And you can't set them off... but my whirligig can carry them up where nobody has to hold them.")
+	await theater.say("Basil", "Everyone at that recital has magic.")
+	await theater.say("Basil", "I don't. But I know how to do cool things.")
+	await theater.say("Kitty", "You are going to shoot those out of my whirlygig!?")
+	await theater.say("Basil", "That's the idea, but first we need to put it together.")
 	theater.close_dialog()
 	# the stir: the four reagents go in one at a time, and the flask takes the
 	# colour of whichever is on top
@@ -280,8 +281,7 @@ func _spawn_kitty() -> void:
 	                                       # brew she isn't stood still
 	_kitty.position = Vector2(208.0, 152.0)
 	_kitty.lines = PackedStringArray([
-		"Your mother is TERRIFYING. I love her.",
-		"Crank's wound. Say when.",
+		"Your mother is so sweet. I love her.",
 	])
 	$World.add_child(_kitty)
 
@@ -297,7 +297,7 @@ func _on_exit_door(body: Node) -> void:
 	if not body.is_in_group("player") or _busy:
 		return
 	if not Game.flag("prologue_saw_mom"):
-		_door_hint("Can't just LEAVE. Mom knows when I leave. Mom knows everything.")
+		_door_hint("Can't just leave. Need to say goodbye to mom.")
 		return
 	# softlock guard: he came home FOR Mom — the door refuses until the
 	# blessing opens the gate

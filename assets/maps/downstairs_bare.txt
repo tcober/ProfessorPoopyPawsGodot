@@ -1,0 +1,61 @@
+; Basil's ground floor BEFORE THE LAB — Prologue A0 "The Fever" (24x14
+; tiles; the view clamps to 384x216). THE BYTE-LOCKED TWIN of
+; downstairs.txt: the same grid, the same anchors, and the same kitchen —
+; hearth, sink window, dish shelf, rug + pedestal table, the loft stair —
+; but the east end is NOT a lab yet. Where the pipe manifold will hang
+; there is bare plank wall; where the boiler will stand there is a stack
+; of crates (q); where the workbench will go, low crates and preserve jars
+; (u); the flask shelf (F) is here already as MOM'S PRESERVE SHELF — the
+; same art, and the point: he doesn't buy a lab, he repurposes the house.
+; The armchair and both plants stay — this is a home.
+;
+; MOM'S DOOR (' cells, set into the WEST wall — a gap in the side wall
+; beside the kitchen) is WALKABLE here — the fever chapter walks through
+; it into scene/momroom.tscn. In downstairs.txt it is the same art,
+; SOLID: a closed plank door, forever.
+;
+; scene/downstairs_fever.gd loads THIS map until prologue_remedy_made and
+; downstairs.txt after it — the corner getting built is the beat. Every
+; anchor below must exist in downstairs.txt too (and does). Edit one grid,
+; edit the other in the same commit.
+legend V void solid
+legend # wall solid
+legend H hearth solid
+legend W window solid
+legend k shelf solid
+legend C counter solid
+legend p picture solid
+legend o clock solid
+legend F flasks solid
+legend q cratestack solid
+legend u cratepair solid
+legend t table solid
+legend T tabletop walk
+legend r armchair solid
+legend P plant solid
+legend . floor walk
+legend g rug walk
+legend s stair walk
+legend - door walk
+legend ' momdoor walk
+anchor stair_arrival 11 5
+anchor front_door 11 9
+anchor exit_door 11 11
+anchor exit_up 11 1
+anchor kitty_pos 20 7
+anchor momdoor_out 3 6
+map
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVV#ss#VVVVVVVVVV
+VV#HHHWWkk#ss#ppo#####VV
+VV#HHHWWCC#ss#FFF#####VV
+VV#HHHP#CC#ss#FFF#####VV
+VV#...P...........qq.#VV
+VV'...gTTg.....rr.qq.#VV
+VV'...gttg.....rr....#VV
+VV#...gggg.......uu..#VV
+VV#..................#VV
+VV#########--#########VV
+VVVVVVVVVVV--VVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV

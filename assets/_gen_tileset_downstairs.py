@@ -21,7 +21,7 @@ from _interior_props import (window, rug, hearth, sink_counter,
                              dish_shelf, flask_shelf, boiler_frames,
                              fire_frames, pipe_wall, workbench, table,
                              armchair, potted_plant, framed_picture,
-                             wall_clock)
+                             wall_clock, interior_door)
 
 room = Room("downstairs", "downstairs", flag_px, (255, 186, 110), lit_blend=0.62)
 
@@ -111,6 +111,11 @@ room.place("p", framed_picture(32, 16, DAWN, salt=42))
 room.place("o", wall_clock())
 room.place("F", flask_shelf(48, 32))
 room.place("y", pipe_wall(48, 48))
+# MOM'S DOOR (Prologue A0): the plank door set into the WEST wall — SOLID in
+# this map (a closed door, forever), WALKABLE in the downstairs_bare twin,
+# where the fever chapter walks through it into momroom.tscn. Same art both
+# eras; the room's own wall ramp carries the silhouette edge over the bay.
+room.place("'", interior_door(16, 32, room.WALLR))
 # free-standing furniture is Tier 3 (bodies pass both north and south of
 # it): only the contact shadows bake here; the art rides y-sorted World
 # entities spawned from downstairs_props.txt (scene/prop_spawner.gd), like

@@ -43,7 +43,7 @@ static func resolve(damage: int, source: Node, target: Node) -> int:
 		out = roundi(out * (1.0 + float(atk.stat("mig")) / MIG_DIV))
 	var def := _sheet_of(sheets, target)
 	if def != null and not def.neutral:
-		out = maxi(1, out - def.stat("grd") / GRD_DIV)
+		out = maxi(1, out - int(def.stat("grd") / float(GRD_DIV)))
 	return maxi(0, out)
 
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scene/alembic_town.gd" id="1_town"]
 [ext_resource type="Script" path="res://scene/overworld_location.gd" id="2_loc"]
@@ -10,6 +10,9 @@
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
 size = Vector2(16, 12)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_treedoor"]
+size = Vector2(24, 8)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
 size = Vector2(32, 16)
@@ -43,10 +46,11 @@ display_name = "BASIL'S HOUSE"
 target_scene = "res://scene/downstairs.tscn"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Home"]
-shape = SubResource("RectangleShape2D_door")
+position = Vector2(8, -8)
+shape = SubResource("RectangleShape2D_treedoor")
 
 [node name="CottageW" type="Area2D" parent="Locations"]
-position = Vector2(184, 680)
+position = Vector2(216, 520)
 script = ExtResource("2_loc")
 id = "cottage_w"
 display_name = "A NEIGHBOR'S COTTAGE"

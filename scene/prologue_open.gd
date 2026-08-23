@@ -1,9 +1,10 @@
 extends Node2D
 
 ## The game's opening (2026-07-12): title card over black, the era cards, then
-## Prologue A begins — kid Basil, alone on the roster, waking AT HOME on
-## festival morning (scene/house_fest.tscn; the home-start pacing pass — the
-## player walks down, sees Mom, and steps into the festival themselves). ESC
+## Prologue A0 "The Fever" begins — kid Basil, alone on the roster, waking
+## AT HOME in the cold pre-dawn (scene/house_fever.tscn: the doctor's voice
+## downstairs, the chapter that answers where the chemistry came from; it
+## hands to the festival morning on its own "TWO SUMMERS LATER." card). ESC
 ## skips the whole prologue straight into the adult combat build (the
 ## dev/impatience hatch; a real chapter-select can replace it later).
 
@@ -21,7 +22,7 @@ func _run() -> void:
 	await theater.card("Alembic Town.  The Founding Festival.", 2.0)
 	await theater.card("Years and years ago.", 1.8)
 	Party.set_roster([&"kid_basil"])
-	get_tree().change_scene_to_file("res://scene/house_fest.tscn")
+	get_tree().change_scene_to_file("res://scene/house_fever.tscn")
 
 
 func _process(_delta: float) -> void:

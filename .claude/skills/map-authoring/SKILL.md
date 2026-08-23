@@ -446,6 +446,10 @@ Some maps exist as era pairs that must stay in lockstep, cell for cell:
 - `town.txt` ↔ `town_fest.txt` (drained ↔ bright era; the fest copy only changes
   palette and the Academy door's `open_door=True`).
 - `overworld.txt` ↔ `overworld_bright.txt`.
+- `downstairs.txt` ↔ `downstairs_bare.txt` (built lab ↔ the pre-lab room of
+  Prologue A0; same grid + anchors, only the east corner's feature chars and
+  the mom door's walk bit differ — `scene/downstairs_fever.gd` swaps between
+  them on `prologue_remedy_made`, so a drifted anchor is a mid-story crash).
 
 Edit one, edit the other in the same commit, or the eras silently diverge.
 

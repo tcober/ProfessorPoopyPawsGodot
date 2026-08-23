@@ -1,0 +1,3 @@
+; y-sorted World props from assets/maps/momroom.txt — see scene/prop_spawner.gd
+prop Chair h momroom_chair.png
+prop Nightstand t momroom_nightstand.png

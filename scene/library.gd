@@ -302,6 +302,13 @@ func _kit_night() -> void:
 	theater.fade.modulate.a = 1.0
 	await theater.wait(0.5)
 	await theater.clear(1.0)
+	# Re-entry mid-kit (the lane is still out there and she can duck back in)
+	# skips the resolve speech — it only makes sense said once.
+	if Game.flag("fuji_dose_found") or Game.flag("fuji_darts_made") \
+			or Game.flag("fuji_tome_taken"):
+		theater.unlock_party()
+		theater.hint("SHELF THREE   THE COUNTER   PICK A BOOK", 3.0)
+		return
 	await theater.say("Fuji", "Right. He's across an ocean and the road there has things on it.")
 	await theater.say("Fuji", "And I have... a dead stick and a library card.")
 	theater.close_dialog()
@@ -533,7 +540,7 @@ func _cast(n: int, hits: int) -> void:
 		MapData.anchor_px(map, "mess_a") + Vector2(-8.0, 10.0),
 	]
 	for i in n:
-		var to_kettle := i % 2 == 0 and i / 2 < hits
+		var to_kettle := i % 2 == 0 and i < hits * 2
 		var target := kettle if to_kettle else wilds[i % wilds.size()]
 		_launch_spark(tip, target, to_kettle)
 		await theater.wait(0.22)
@@ -652,8 +659,8 @@ func _zone(id: String, at: Vector2, action: Callable) -> void:
 ## bbox for the first walkable cell in its column (the north-wall pieces sit
 ## above a solid wall row, the floor pieces sit straight on the floor).
 func _look_cell(x: float, bottom: float) -> Vector2:
-	var cx := int(x) / 16
-	var ty := int(bottom) / 16
+	var cx := int(x / 16.0)
+	var ty := int(bottom / 16.0)
 	while ty < map.rows and MapData.is_solid(map, Vector2i(cx, ty)):
 		ty += 1
 	return Vector2(cx * 16 + 8, ty * 16 + 8)

@@ -5,8 +5,8 @@ the probe inventory, `tools/shot.gd`'s args, and all the harness gotchas.
 
 The standing rule: **verify the scene you changed, not the whole chapter.**
 `prologue_probe.gd` takes minutes and is for handoff-chain changes and final checks only
-— prefer the per-scene probe (`library_probe`, `recital_probe`, `status_probe`,
-`rpg_probe`, `save_probe`, `defence_probe`, `party_probe`) or a `shot.gd` screenshot.
+— prefer the per-scene probe (`library_probe`, `recital_probe`, `fever_probe`,
+`status_probe`, `rpg_probe`, `save_probe`, `defence_probe`, `party_probe`) or a `shot.gd` screenshot.
 
 The four that cost the most debugging time:
 

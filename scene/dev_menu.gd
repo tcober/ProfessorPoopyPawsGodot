@@ -86,6 +86,7 @@ func _process(delta: float) -> void:
 	# current scene, so unpausing on ESC would hand the same still-pressed ESC
 	# to prologue_open's skip in that very frame.
 	if Input.is_action_just_pressed("chapter_select"):
+		Sfx.ui_back()
 		_close()
 		return
 
@@ -108,6 +109,7 @@ func _process(delta: float) -> void:
 func _open() -> void:
 	_build()
 	_swallow = Overlay.SWALLOW
+	Sfx.ui_open()
 	get_tree().paused = true
 
 
@@ -120,6 +122,7 @@ func _close() -> void:
 
 
 func _launch(beat: Dictionary) -> void:
+	Sfx.ui_accept()
 	_close()
 	# reset first: set_flag is one-way, so a BACKWARDS jump would otherwise
 	# carry a later chapter's flags into an earlier scene
@@ -148,7 +151,7 @@ func _build() -> void:
 
 	_lay_out_rows()
 	if not _items[_cursor]["selectable"]:
-		_step(1)
+		_step(1, true)           # settling the cursor on open is not a move
 	_sync()
 
 
@@ -196,13 +199,15 @@ func _sync() -> void:
 	_bar.position = Vector2(COL_X[it["col"]] - 2, TOP + int(it["row"]) * ROW_H)
 
 
-func _step(dir: int) -> void:
+func _step(dir: int, quiet := false) -> void:
 	var n := _items.size()
 	var i := _cursor
 	for _k in n:
 		i = wrapi(i + dir, 0, n)
 		if _items[i]["selectable"]:
 			_cursor = i
+			if not quiet:
+				Sfx.ui_move()
 			_sync()
 			return
 
@@ -221,4 +226,5 @@ func _jump_column() -> void:
 			best = i
 	if best >= 0:
 		_cursor = best
+		Sfx.ui_move()
 		_sync()

@@ -24,5 +24,10 @@ The rules that bite here:
    `party_menu`. A new one must be in `Overlay.MODALS`.
 
 Autoload order (`project.godot`): `Game` → `Party` → `DevMenu` → `MixMenu` →
-`PartyMenu`. `Game` must stay first — everything else reads story state off it.
+`PartyMenu` → `Sfx` → `Music`. `Game` must stay first — everything else reads story
+state off it. `Music` picks its track by scene path (`music.gd SCENE_TRACKS`) — a new
+scene that wants music is one entry there, never a call from the scene. One-shot
+sounds come from `Sfx` (`scene/sfx.gd`): menus call its `ui_*` verbs, travel calls
+`door()`, and the dialog box blips speakers through `talk_blip()` — looked up by
+PATH there, because the narrative kit never names an autoload.
 Boot scene is `res://scene/title.tscn`.

@@ -148,6 +148,22 @@ SCENES = {
             "floor": (150, 158, 190, 255),      # cool slate-blue boards
         },
     },
+    "momroom": {        # Mom's bedroom (Prologue A0 "The Fever"): the house's
+        "shadow": "violet",                 # own warm timber over a dusty-rose
+        "accent": (255, 214, 150, 255),     # weave; one candle against the chill
+        "mats": {
+            "wall": (168, 118, 82, 255),    # the family timber (house/downstairs)
+            "floor": (150, 96, 110, 255),   # dusty-rose weave
+        },
+    },
+    "academy_library": {    # the Academy reading room (Prologue A0), bright
+        "shadow": "violet",                 # era under a grey sky: oak stacks,
+        "accent": (150, 240, 214, 255),     # cream-oak panelling, mint glass
+        "mats": {
+            "wall": (196, 172, 128, 255),   # cream-oak panelling
+            "floor": (176, 146, 100, 255),  # warm sandstone flags
+        },
+    },
     "library": {        # Fuji's Lanternwood library, the night of the Ebb:
         "shadow": "violet",                 # a candle-lit timber-and-plum den —
         "accent": (255, 188, 102, 255),     # firelight amber, the one warmth

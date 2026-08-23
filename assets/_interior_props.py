@@ -1248,3 +1248,118 @@ def floating_candle(salt=91, frames=4):
         edge(sp, 24)
         out.blit_cell(sp, f * 16, 0)
     return out
+
+
+# ====================================================================================
+# Prologue A0 "The Fever" (2026-08-22): the mom door, the pre-lab crates,
+# the bedside nightstand
+# ====================================================================================
+
+
+def interior_door(w, h, wallr, flip=False, salt=93):
+    """MOM'S DOOR — a closed plank door set into a SIDE wall (16x32 on one
+    wall column, two rows). The side wall's dark outer edge continues over
+    the bay in the room's own wall ramp so the silhouette never breaks;
+    inside it a head jamb, a vertical-board leaf on two strap hinges, a
+    brass latch on the room side, a threshold at the foot. Quiet on
+    purpose. Fully opaque — place() blits it over a floor underlay, and
+    any transparent pixel would show weave against the void. Drawn for a
+    WEST wall; `flip=True` mirrors it onto an EAST wall — momroom's side
+    of the same door. The great-room art serves both its twins: WALKABLE
+    in downstairs_bare.txt (the fever chapter presses through it into
+    Mom's room) and SOLID in downstairs.txt (a closed door, forever)."""
+    sp = S(w, h, salt)
+    x1, y1 = w - 1, h - 1
+    # the west silhouette vs the void: the side wall's own dark edge, unbroken
+    sp.rect(0, 0, 0, y1, wallr[5])
+    sp.rect(1, 0, 1, y1, wallr[4])
+    # head jamb and threshold: timber caps closing the wall gap
+    sp.rect(2, 0, x1, 2, TIMBER[3])
+    sp.rect(2, 0, x1, 0, TIMBER[1])            # lit cap edge
+    sp.rect(2, 3, x1, 3, TIMBER[5])            # reveal shadow under the head
+    sp.rect(2, h - 3, x1, y1, TIMBER[3])
+    sp.rect(2, h - 3, x1, h - 3, TIMBER[1])    # lit threshold edge
+    sp.rect(2, y1, x1, y1, TIMBER[5])          # floor junction
+    # the room-side post, against the floor
+    sp.rect(w - 2, 4, x1, h - 4, TIMBER[3])
+    sp.rect(x1, 4, x1, h - 4, TIMBER[5])
+    # the leaf: vertical boards hung in the gap, hinge edge lit
+    sp.rect(2, 4, w - 3, h - 4, TIMBER[2])
+    sp.rect(2, 4, 2, h - 4, TIMBER[1])         # lit hinge-side edge
+    sp.rect(w - 3, 4, w - 3, h - 4, TIMBER[4])  # reveal against the post
+    for bx in (6, 10):                          # board seams
+        sp.rect(bx, 5, bx, h - 5, TIMBER[3])
+    # two strap hinges reaching in off the wall side
+    for hy in (8, h - 11):
+        sp.rect(3, hy, 9, hy + 1, IRON[2])
+        sp.set(9, hy, IRON[3])
+        sp.set(3, hy, IRON[1])
+    # the brass latch on the room side (tones 0/1 only — the violet law)
+    sp.rect(11, h // 2 - 1, 12, h // 2, BRASS[1])
+    sp.set(11, h // 2 - 1, BRASS[0])
+    if flip:                                    # mirror within the w window
+        for row in sp.px:                       # (the Sprite square is wider)
+            row[:w] = row[w - 1::-1]
+    return sp
+
+
+def crates(w, h, low=False, salt=97):
+    """Stacked household crates with preserve jars riding on top — what the
+    lab corner holds before it is a lab (downstairs_bare, Prologue A0). Two
+    footprints: the tall stack (32x40 art on the boiler's 2x2 cells) and the
+    low pair (`low=True`, 32x24 art on the workbench's west cells). Y-sorted
+    entities — a body walks the row north of both."""
+    sp = S(w, h, salt)
+
+    def crate(x0, y0, cw, ch):
+        sp.rect(x0, y0, x0 + cw - 1, y0 + ch - 1, TIMBER[2])
+        sp.rect(x0, y0, x0 + cw - 1, y0, TIMBER[1])           # lit top edge
+        sp.rect(x0, y0 + ch - 1, x0 + cw - 1, y0 + ch - 1, TIMBER[4])
+        sp.rect(x0, y0, x0, y0 + ch - 1, TIMBER[1])           # corner boards
+        sp.rect(x0 + cw - 1, y0, x0 + cw - 1, y0 + ch - 1, TIMBER[4])
+        sp.rect(x0 + 1, y0 + ch // 2, x0 + cw - 2, y0 + ch // 2, TIMBER[3])
+        ln(sp, x0 + 1, y0 + 1, x0 + cw - 2, y0 + ch - 2, TIMBER[3])  # brace
+
+    def jar(x0, y0):
+        sp.rect(x0, y0 + 2, x0 + 3, y0 + 6, GLASS)
+        sp.rect(x0, y0 + 4, x0 + 3, y0 + 6, RED)              # the preserves
+        sp.rect(x0, y0 + 1, x0 + 3, y0 + 1, PAPER)            # waxed-cloth lid
+        sp.set(x0, y0 + 2, SPEC)
+
+    if low:
+        crate(1, h - 12, 14, 12)
+        crate(17, h - 10, 14, 10)
+        jar(4, h - 20)
+        jar(20, h - 18)
+    else:
+        crate(1, h - 14, 15, 14)                              # bottom course
+        crate(16, h - 12, 15, 12)
+        crate(5, h - 26, 14, 12)                              # the one on top
+        jar(22, h - 20)
+        jar(8, h - 34)
+    edge(sp)
+    return sp
+
+
+def nightstand(w, h, salt=99):
+    """A one-cell bedside table carrying the candle that lights Mom's room —
+    the fever chapter's one honest flame. Y-sorted entity (16x22 art on a
+    16x16 footprint: the flame rides above the cell)."""
+    sp = S(w, h, salt)
+    ty = h - 12
+    sp.rect(1, ty, w - 2, ty + 1, TIMBER[1])                  # top
+    sp.rect(1, ty + 2, w - 2, ty + 3, TIMBER[2])
+    sp.rect(1, ty + 4, w - 2, ty + 4, TIMBER[4])              # apron
+    for px_ in (2, w - 4):
+        sp.rect(px_, ty + 5, px_ + 1, h - 2, TIMBER[3])       # legs
+        sp.rect(px_ + 1, ty + 5, px_ + 1, h - 2, TIMBER[4])
+    # the candle: a stub of wax on a saucer, flame lit
+    cx = w // 2 - 1
+    sp.rect(cx - 2, ty - 1, cx + 3, ty - 1, BRASS[1])         # saucer
+    sp.rect(cx, ty - 5, cx + 1, ty - 2, WAX[0])
+    sp.set(cx + 1, ty - 3, WAX[1])
+    sp.set(cx, ty - 6, FLAME_IN)                              # the flame
+    sp.set(cx, ty - 7, FLAME)
+    sp.set(cx, ty - 8, FLAME_CORE)
+    edge(sp)
+    return sp

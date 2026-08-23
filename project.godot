@@ -22,6 +22,8 @@ Party="*res://scene/party.gd"
 DevMenu="*res://scene/dev_menu.gd"
 MixMenu="*res://scene/mix_menu.gd"
 PartyMenu="*res://scene/party_menu.gd"
+Sfx="*res://scene/sfx.gd"
+Music="*res://scene/music.gd"
 
 [display]
 

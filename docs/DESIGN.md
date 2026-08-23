@@ -260,7 +260,12 @@ that nobody in the scene finds the animal remarkable.
   cowardice and the kindness in one sentence. Needs a new adult sheet;
   `npc_sage_gen.png` is the kid.
 - **Basil and Sage's mother** — the warm grey matron of Prologue A's
-  `downstairs_fest` hearth, and **old now**. Act 1 beat 4 gives her the
+  `downstairs_fest` hearth, and **old now**. **The fever (Prologue A0) is
+  hers**: the illness magic could only keep mending, the remedy her
+  nine-year-old copied out of a still-room book, and the reason the lab
+  corner exists. Her one line about it afterwards is the blessing's
+  "You made me that amazing remedy last time I was sick didn't you?" —
+  she has never stopped citing it, and never once called it potions. Act 1 beat 4 gives her the
   emotional floor of the act and the fewest lines in it: she is the one who
   knows where he went, because a mother is, and what she has is not an
   address but the last thing she heard. **She must not ask Fuji to bring him
@@ -368,6 +373,112 @@ that nobody in the scene finds the animal remarkable.
   memory — the one who recalls where Basil went), festival townsfolk,
   Bramble / Alder / Pip (the Ebb-night Lanternwood street), and
   Dr. Feathers the bird (kept — beloved wake-up gag).
+
+### PROLOGUE A0 — "THE FEVER" (kid Basil · Alembic Town, bright era — BUILT 2026-08-22)
+
+The cold open, and the answer to the question the whole character stands on:
+**where did the chemistry come from?** Before the festival, before Kitty,
+before the whirligig ever flies — his mother is ill, magic falls short of it,
+and a nine-year-old who cannot cast at all goes and READS. The chapter is
+~10 minutes, seven playable rooms, and it ends on the "TWO SUMMERS LATER."
+card that lands on the festival morning (Prologue A beat 1, untouched).
+
+It dramatizes a line that was already shipped and pointed at nothing — Mom's
+blessing in `downstairs_fest.gd`: *"You made me that amazing remedy last time
+I was sick didn't you?"* After this chapter the player PLAYED that remedy.
+
+**The doctrine it walks (and must keep walking):**
+
+- **Magic mends; it doesn't nurse.** Dr. Ciconia DID come, DID mend her —
+  twice — and she is still down, because mending an illness is not ending
+  it. *"Some things are longer than a mending."* Nothing here contradicts
+  the sickroom verdict (magic mends bone, blood, fever); it is the same
+  fact from underneath. Nobody in the scene says what it means.
+- **The remedy is not a heal and never becomes an item.** It is a decoction
+  — water, bark, time — that buys one night's sleep, not a cure. A limited
+  good, which is exactly what MEND turns out to be for the adult at the end
+  of the game. It never touches the satchel, the compounds or the RESTORE
+  school, so "a compound will never heal anybody" stays airtight.
+- **A0 is the origin of the METHOD; A12 stays the origin of the IDEA.** In
+  this chapter he FOLLOWS a recipe — measured, repeated, written down. The
+  brew (A12) is where he first invents. Different verbs, two summers apart;
+  the recital chain's meaning is untouched.
+- **The commons, unspoken.** The Academy's reading room is barred to him
+  ("MEMBERS OF THE FACULTY AND ENROLLED STUDENTS"); the door happens to be
+  open; the shelf that saves his mother is the plain still-room shelf
+  nobody at that school respects. Sage — eight, effortlessly gifted —
+  spends the chapter casting the little warm charm over and over, and it
+  keeps working until it stops. Both halves keeping one woman going,
+  neither enough alone, and no line points at any of it.
+
+**The beats** (all staged, all in `scene/chapters.gd` as A0-1 … A0-8):
+
+1. **The quiet house** (`house_fever.tscn` — the loft, cold pre-dawn, the
+   curtains stay shut): he wakes because there is an adult voice
+   downstairs at the wrong hour. One line. Control.
+2. **The doctor leaving** (`downstairs_fever.tscn` on the BARE great room —
+   see below): Ciconia's *"It takes. It just doesn't take for long."* /
+   *"I'll come Thursday."* / *"It's Monday."* / *"It is."* — and the plant
+   the whole chapter cashes: *"Is there anything else?" / "Not in my
+   bag."* A nine-year-old hears "somewhere else, then." Sage, on the floor
+   against her mother's door: *"It worked until it stopped. I can do it
+   again."* / *"...Do it again."*
+3. **Her room** (`momroom.tscn`, NEW — behind the plank door set into the
+   great room's west wall, the sickroom recipe played warm): the bedside. She
+   is kind, he is nine, and there is nothing to do. *"Is your sister
+   still doing her charm at me? Tell her it's lovely." / "It isn't
+   working." / "It's lovely."*
+4. **The grey morning** (`town_fever.tscn` — the fest town's grid under an
+   overcast tint): the walk up the north lane. Two neighbours, each about
+   their own small warm magic, neither about his mother.
+5. **The reading room** (`academy_library.tscn`, NEW — deliberately the
+   Lanternwood library's exact shape: three stacks, aisles, the desk, the
+   clock; twenty years before Fuji searches its mirror, and neither scene
+   says so): THE SEARCH GATE. Enchantment-theory has to fail him twice —
+   nine hundred pages of wards for THINGS, none of it for a person —
+   before he looks at the plain still-room shelf by the desk. He cannot
+   borrow the book, so he COPIES the half page at the desk: *"Write it
+   down. Write it down, write it down—"* (the gesture that comes back at
+   the recital, in Hollis's minutes, and in the unstamped thesis).
+6. **The simmer** (`downstairs_fever.tscn` again, dusk): mom's kettle, the
+   good pot, the family hearth — there is no bench yet, which is the point
+   of the room he is standing in. ONE colour warming from cold to amber
+   (the four reagents are A12's). *"Water. Bark. Time. And it has to be
+   exactly this much, for exactly this long."*
+7. **She drinks** (`momroom.tscn`): *"That is the worst thing I have ever
+   had in my mouth." / "It's supposed to be." / "Is it." / "It doesn't
+   say. I think it just is."* She sleeps. Properly, this time.
+8. **The middle of the night** (`downstairs_fever.tscn`, and the room now
+   loads the BUILT lab art — the corner happened while she slept): Sage
+   from the stairs, in a blanket: *"What are you making." / "I don't know
+   yet."* → "TWO SUMMERS LATER." → the festival morning.
+
+**THE BARE TWIN.** `assets/maps/downstairs_bare.txt` is a byte-locked twin
+of `downstairs.txt` — identical grid and anchors except the east corner
+(bare wall and household crates where the pipes, boiler and bench will
+stand; the flask shelf is already there as MOM'S PRESERVE SHELF, because he
+doesn't buy a lab, he repurposes the house). `scene/downstairs_fever.gd`
+picks which map it loads on `prologue_remedy_made` — the corner getting
+built IS the beat, and the swap happens across a scene change, never
+mid-scene. **Edit one grid, edit the other in the same commit.** Both maps
+carry MOM'S DOOR (the `'` cells, a gap in the WEST wall beside the
+kitchen): walkable in the bare twin,
+and in `downstairs.txt` a closed plank door, forever — it is still there
+in every later era of the room, and nobody mentions it.
+
+Flags, in order: `prologue_fever` → `prologue_doctor_gone` →
+`prologue_doctor_heard` → `prologue_wrong_shelf` → `prologue_herbal_found`
+→ `prologue_remedy_made` → `prologue_mom_better` (the whole ladder is
+`Chapters.FEVER_DONE`, which every festival beat now carries).
+`tools/fever_probe.gd` (31 checks) drives the chapter end-to-end and ends
+exactly where `tools/prologue_probe.gd` begins.
+
+**Deliberately unanswered here:** whether the fever ever comes back. The
+mother is alive and old in Act 1 beat 4; what this chapter establishes is
+only that her health is a thing that has failed before, that magic's answer
+was "wait", and that Basil's first chemistry was FOR somebody. (Recorded
+intent 2026-08-22: she eventually dies, and Kitty is there to console the
+older Basil — an Act 2+ beat, not designed yet.)
 
 ### PROLOGUE A — "THE WHIRLIGIG" (kid Basil · Alembic Town, bright era)
 
@@ -680,7 +791,20 @@ starts in LANTERNWOOD, not Alembic Town, and the cold open is SHIPPED.)*
    ocean stays deliberately unanswered until it can land.
 3. **THE KIT — "she has to go outside"** *(BUILT 2026-07-28 — the deliberate
    MIRROR of Prologue A's recital chain)*.
-   **AS SHIPPED IT DIVERGES FROM THE DESIGN BELOW IN TWO WAYS, both deliberate:**
+   **AS SHIPPED IT DIVERGES FROM THE DESIGN BELOW IN THREE WAYS, all deliberate:**
+   - **Leg (a) is staged in her own square, not out the north gate** (built
+	 2026-08-22 — it was the missing link: until then nothing ever routed the
+	 library door to phase "kit" outside the dev menu, and the story simply
+	 stopped after the thesis). THE AMBUSH: while `thesis_found` holds and the
+	 kit is unmade, two slimes stand in the upper lane when she steps out of
+	 the library (spawned outside detect range — the beat is her SEEING them),
+	 her reach for a spell gets the Ebb night's nothing one more time ("...I
+	 have a stick. I am pointing a stick at you."), and the hint sends her
+	 back through the one door that helps. The library arch routes "kit" for
+	 exactly that window (`lanternwood.gd::_on_travel`); the slimes are
+	 unkillable by construction (her kit does not exist) and hold the south
+	 gate shut through the defence's own `_alive` count. Sets `fuji_chased`
+	 so the staged beat plays once; the slimes stand the whole window.
    - **The fight is in the STREET, not on a road north of town.** "THE DEFENCE
 	 OF LANTERNWOOD": she comes back out of her own library and the lanes are
 	 not empty. It costs no new zone, it puts the new terraces to work (she
@@ -3537,6 +3661,56 @@ to come.)
 | `town`         | mossy lanes / dusky lavender plaster (drained era) | candle amber       | teal        |
 | `town_fest`    | spring grass / cream plaster (festival era — Prologue A) | festival magenta + living mint glow | teal |
 | `meadow`       | minty teal greens (mossy 2026-07 register) | candy hot-pink flowers     | teal        |
+
+## Music (2026-08-22)
+
+Four looping tracks, composed as hand-written note tables and synthesized to WAV by
+`assets/_gen_music.py` — the art pipeline's doctrine applied to audio: stdlib-only
+Python, deterministic, never hand-edited after the fact, regenerate → `godot
+--headless --import`. The register is early-90s Square: pulse lead with delayed
+vibrato, triangle harp/bass, a soft detuned pad, echo on a musical delay, 32000 Hz
+(the SNES's own rate). Each track renders its loop plus a 4-second tail and FOLDS
+the tail back onto the head, so bar 1 already carries the last bar's reverb and the
+seam is inaudible; the WAV embeds a smpl loop chunk AND the generator writes a
+`.import` pinning `loop_mode=Forward` (either alone loops in Godot — the `.import`
+is only written when missing, so Godot's uid fill-in survives regeneration).
+
+| Track | The tune | Where it plays |
+| --- | --- | --- |
+| `title_theme` | "Golden Hour" — a prelude-style two-octave harp arpeggio over the lament-bass descent (A G F E D C B E), Am 72bpm | the title screen |
+| `overworld_theme` | "Wide Is the World" — heroic dotted-rhythm travel theme, walking bass, brushed noise kit, F 108bpm | overworld (both eras), Whisker Meadow |
+| `town_theme` | "Kettle and Vine" — a gentle waltz, G 3/4 100bpm | Alembic Town, the Academy, the hall, every interior, the prologue towns, the bluff |
+| `ebb_theme` | "The Quiet" — a music-box fragment lost in a one-beat echo over a bare-fifth drone, Em 58bpm | Lanternwood, the library |
+
+**Which track plays is a pure function of the current scene.** `scene/music.gd`
+(autoload `Music`, last in the order) polls `current_scene` against its
+`SCENE_TRACKS` table every frame and crossfades over 1.4s. A scene NOT in the table
+keeps whatever is playing — the SNES door rule, which is how the town theme follows
+you into a house — and an empty-string entry fades to silence for the beats music
+would undercut (the accident, the Ebb quake, the cold-open cards). Story scenes
+that ever need a hand on the fader call `Music.play()` / `Music.stop()`. The
+autoload references no other autoload (the `--script` compile-poisoning rule) and
+processes while paused, so the pause modals don't stop the band.
+
+**Sound effects (2026-08-22).** `assets/_gen_sfx.py` synthesizes the one-shot set by
+the same doctrine — mono, NON-looping (the pinned `.import` says `loop_mode=0` where
+the music pins Forward), regenerate → `--headless --import`. `scene/sfx.gd` (autoload
+`Sfx`, registered just before `Music`; references no other autoload; processes while
+paused) owns a six-player round-robin pool and the mix in its `SOUNDS` table. The
+menu verbs — `ui_move` / `ui_accept` / `ui_back` / `ui_open` / `ui_chime` /
+`ui_refuse` — are wired through the title screen and all three paused modals (the
+chime doubles for "a new compound exists" on the mixing bench, and a refusal never
+arrives with a happy blip: `party_menu._use()` reports whether anything was drunk);
+`Sfx.door()` plays on every `TravelScene._travel`. **The talk blips are the Star Fox
+trick**: three synthesized syllable timbres (`voice_a` the standard cat, `voice_b`
+the lighter voices, `voice_c` the gruff old-animal reed — a blip reads as a voice
+because the pitch FALLS across the syllable and a quiet upper partial sits in for a
+formant), cast per speaker through `pitch_scale` by the `VOICES` table. Unlisted
+speakers hash their name to a stable pitch so a one-scene stranger keeps one voice;
+±6% per-blip jitter is what reads as speech. The dialog box blips as every third
+LETTER lands — punctuation and spaces stay silent, so the rhythm follows the words
+and a "..." line says nothing — and it looks `Sfx` up by PATH, never the autoload
+identifier, because the box is part of the narrative kit.
 
 ## Asset Specs (sprite sheets to provide)
 

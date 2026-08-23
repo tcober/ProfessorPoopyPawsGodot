@@ -127,6 +127,8 @@ func _extra_setup() -> void:
 	Party.leader_changed.connect(_on_leader_changed)
 	if Game.flag("ebb_done"):
 		_ebb_night_town()
+	if _ambush_due():
+		_start_ambush()
 	if _defence_due():
 		_start_defence()
 	_spawn_mayor()
@@ -164,12 +166,18 @@ func _on_exit_south(body: Node) -> void:
 ## boot default library.gd reads as the Ebb-night cutscene, and walking in
 ## the front door must never replay it. The research beat opens once the
 ## street has told her everything it can (every neighbour asked) and closes
-## once she has the thesis.
+## once she has the thesis — and from the thesis until the kit is on her
+## belt, the door opens onto the WORKBENCH (the ambush window: the lanes
+## sent her back in with a supply list, see _start_ambush).
 func _on_travel(loc: OverworldLocation) -> void:
 	if loc.id != "library":
 		return
-	Game.library_phase = "research" if Game.flag("asked_around") \
-			and not Game.flag("thesis_found") else "open"
+	if _ambush_due():
+		Game.library_phase = "kit"
+	elif Game.flag("asked_around") and not Game.flag("thesis_found"):
+		Game.library_phase = "research"
+	else:
+		Game.library_phase = "open"
 
 
 ## The night the magic left, from the street: night falls over the snow
@@ -210,6 +218,56 @@ func _ebb_night_town() -> void:
 		"Did you FEEL it?! The ground went rrrRUMBLE and my glow-marble just... stopped.",
 		"Papa says the magic's only hiding. It is NOT hiding. I checked under the ice. TWICE.",
 	], Rect2i(10, 39, 13, 2))
+
+
+# ---- THE AMBUSH (Act 1 beat 3 leg (a), 2026-08-22) ----------------------------------
+# The missing link between the thesis and the kit: she has a destination and
+# owns nothing that can hurt anything, and until now nothing in the street SAID
+# so — the door just went back to being a door and the story stopped. Now the
+# first curdled slimes reach her own square the night she reads the paper, her
+# wand gives the Ebb night's nothing one more time, and the only door that
+# helps is the one she just came out of. While this window holds, the library
+# arch routes to phase "kit" (_on_travel) — the room becomes the workbench.
+
+## The thesis is read and the kit is not made: the lanes are not hers yet.
+func _ambush_due() -> bool:
+	return Game.flag("thesis_found") and not Game.flag("fuji_kit_made")
+
+
+## Two slimes in the upper lane, spawned OUTSIDE detect range (112px against
+## the slime's 90) on purpose: the beat is her SEEING them, not surviving
+## them — nothing may reach a locked, posed body. They are unkillable by
+## construction (her kit does not exist yet), so they hold the south gate
+## shut through the same _alive count the defence uses, and they are gone
+## with the scene when she comes back out armed.
+func _start_ambush() -> void:
+	for a in ["ambush_e", "ambush_w"]:
+		var slime := SlimeScene.instantiate()
+		slime.position = MapData.anchor_px(map, a)
+		$World.add_child(slime)
+		_alive += 1
+	if not Game.flag("fuji_chased"):
+		_ambush_beat()
+
+
+## The reach for a spell, and the Ebb night's fourth cast re-run with
+## something in the lane. Her party sheet has no wand-cast pose (the library
+## used an NPC puppet for that), so the lines carry the reach; the held beat
+## between them is the nothing.
+func _ambush_beat() -> void:
+	theater.lock_party()
+	await theater.wait(1.4)
+	theater.face(player, Vector2.RIGHT)
+	await theater.say("Fuji", "...The snow is moving. The snow is moving TOWARD me.")
+	await theater.say("Fuji", "Stay back! I'm warning you! I have a wand!")
+	theater.close_dialog()
+	await theater.wait(1.3)
+	await theater.say("Fuji", "...I have a stick. I am pointing a stick at you.")
+	await theater.say("Fuji", "Inside - inside - INSIDE -")
+	theater.close_dialog()
+	Game.set_flag("fuji_chased")
+	theater.unlock_party()
+	theater.hint("GET BACK INSIDE", 2.6)
 
 
 # ---- THE DEFENCE OF LANTERNWOOD (Act 1, 2026-07-28) ---------------------------------
@@ -282,7 +340,7 @@ func _on_defender_kill() -> void:
 ## and spawned by _finish_defence the moment the lanes are clear, so his stepping
 ## out is a beat rather than furniture. Idempotent: both callers may fire.
 func _spawn_mayor() -> void:
-	if _mayor != null or _defence_due():
+	if _mayor != null or _defence_due() or _ambush_due():
 		return
 	var lines: PackedStringArray
 	if Game.flag("mayor_briefed"):

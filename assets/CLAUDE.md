@@ -7,6 +7,13 @@ All art is drawn by stdlib-only Python. Never hand-edit a generated PNG — edit
 generator and re-run it. `docs/reference/` is concept art only, parked behind a
 `.gdignore`.
 
+The same doctrine covers audio: `_gen_music.py` synthesizes the four looping
+tracks in `assets/audio/` from hand-written note tables, and `_gen_sfx.py` the
+one-shot menu/dialogue set — mono, non-looping, including the three Star-Fox
+talk-blip voice timbres that `scene/sfx.gd` pitches per speaker (see DESIGN.md →
+"Music"). Edit the generator, never a WAV, and `--headless --import` after
+regenerating.
+
 The three rules that break things most often:
 
 1. **Regenerate → lint → import**, always in that order:
@@ -20,4 +27,7 @@ The three rules that break things most often:
    both paint and collision, and that is the only reason they can't drift.
 
 Byte-locked twins must move together: `maps/town.txt` ↔ `maps/town_fest.txt`,
-`maps/overworld.txt` ↔ `maps/overworld_bright.txt`.
+`maps/overworld.txt` ↔ `maps/overworld_bright.txt`, and `maps/downstairs.txt` ↔
+`maps/downstairs_bare.txt` (same grid + anchors; only the east lab corner and
+the mom door's walk bit differ — scene/downstairs_fever.gd swaps between them
+on a story flag).

@@ -38,13 +38,24 @@ const ADULTS: Array[StringName] = [&"basil", &"fuji"]
 ## Anything routed into a combat scene from here on needs KIT_ARMED.
 const KIT_ARMED := ["fuji_darts_made", "fuji_tome_taken", "fuji_kit_made"]
 
+## Everything Prologue A0 "The Fever" leaves behind — the cold open that now
+## precedes the festival. Every A-beat below carries it, so a dev jump into
+## the festival stages a world where the fever chapter already happened
+## (inert to those scenes today, and the same shape as KIT_ARMED: name the
+## ladder once or someone forgets a rung).
+const FEVER_DONE := ["prologue_fever", "prologue_doctor_gone",
+		"prologue_doctor_heard", "prologue_wrong_shelf",
+		"prologue_herbal_found", "prologue_remedy_made",
+		"prologue_mom_better"]
+
 ## Prologue A's town flag ladder, named once — town_fest.gd's dressing is the
 ## densest flag matrix in the game and these sets are easy to get subtly wrong.
-const FEST_ARRIVED := ["prologue_saw_mom", "prologue_left_home"]
-const FEST_WANDER := ["prologue_saw_mom", "prologue_left_home",
-		"prologue_festival_done"]
-const FEST_HOMESICK := ["prologue_saw_mom", "prologue_left_home",
-		"prologue_festival_done", "prologue_ribbon",
+## static var, not const: built on FEVER_DONE with array `+`, which GDScript
+## cannot constant-fold (the BEATS rule).
+static var FEST_ARRIVED: Array = FEVER_DONE + ["prologue_saw_mom",
+		"prologue_left_home"]
+static var FEST_WANDER: Array = FEST_ARRIVED + ["prologue_festival_done"]
+static var FEST_HOMESICK: Array = FEST_WANDER + ["prologue_ribbon",
 		"prologue_ribbon_returned", "prologue_want_home"]
 
 ## What the real chain carries when the south gate opens the bluff. The bluff's
@@ -66,20 +77,75 @@ static var FEST_WHIRLIGIG: Array = BLUFF_MEET + ["prologue_met_kitty",
 ## GDScript can't constant-fold array `+`. Static initializers run at class load,
 ## so `Chapters.BEATS` reads the same either way.
 static var BEATS: Array[Dictionary] = [
-	{group = "PROLOGUE A - THE WHIRLIGIG"},
+	{group = "PROLOGUE A0 - THE FEVER"},
 	{
 		name = "TITLE CARDS", scene = "res://scene/prologue_open.tscn",
 		roster = KID, lead = &"kid_basil", state = {}, flags = [],
 	},
 	{
-		name = "A1 - FESTIVAL MORNING", scene = "res://scene/house_fest.tscn",
+		name = "A0-1 - THE QUIET HOUSE", scene = "res://scene/house_fever.tscn",
 		roster = KID, lead = &"kid_basil", state = {}, flags = [],
+	},
+	{
+		name = "A0-2 - THE DOCTOR LEAVING",
+		scene = "res://scene/downstairs_fever.tscn",
+		roster = KID, lead = &"kid_basil",
+		state = {interior_spawn = "stair_arrival"}, flags = ["prologue_fever"],
+	},
+	{
+		# doctor_gone but not doctor_heard: momroom plays the bedside
+		name = "A0-3 - HER ROOM", scene = "res://scene/momroom.tscn",
+		roster = KID, lead = &"kid_basil", state = {},
+		flags = ["prologue_fever", "prologue_doctor_gone"],
+	},
+	{
+		name = "A0-4 - THE GREY MORNING", scene = "res://scene/town_fever.tscn",
+		roster = KID, lead = &"kid_basil", state = {town_spawn = "home"},
+		flags = ["prologue_fever", "prologue_doctor_gone",
+				"prologue_doctor_heard"],
+	},
+	{
+		name = "A0-5 - THE READING ROOM",
+		scene = "res://scene/academy_library.tscn",
+		roster = KID, lead = &"kid_basil", state = {},
+		flags = ["prologue_fever", "prologue_doctor_gone",
+				"prologue_doctor_heard"],
+	},
+	{
+		# herbal_found and not remedy_made arms the simmer on entry
+		name = "A0-6 - THE SIMMER", scene = "res://scene/downstairs_fever.tscn",
+		roster = KID, lead = &"kid_basil",
+		state = {interior_spawn = "front_door"},
+		flags = ["prologue_fever", "prologue_doctor_gone",
+				"prologue_doctor_heard", "prologue_wrong_shelf",
+				"prologue_herbal_found"],
+	},
+	{
+		# remedy_made and not mom_better: momroom plays the drink; the room
+		# outside is BUILT from here on (downstairs_fever swaps its own map)
+		name = "A0-7 - SHE DRINKS", scene = "res://scene/momroom.tscn",
+		roster = KID, lead = &"kid_basil", state = {},
+		flags = ["prologue_fever", "prologue_doctor_gone",
+				"prologue_doctor_heard", "prologue_wrong_shelf",
+				"prologue_herbal_found", "prologue_remedy_made"],
+	},
+	{
+		name = "A0-8 - THE MIDDLE OF THE NIGHT",
+		scene = "res://scene/downstairs_fever.tscn",
+		roster = KID, lead = &"kid_basil",
+		state = {interior_spawn = "momdoor_out"}, flags = FEVER_DONE,
+	},
+
+	{group = "PROLOGUE A - THE WHIRLIGIG"},
+	{
+		name = "A1 - FESTIVAL MORNING", scene = "res://scene/house_fest.tscn",
+		roster = KID, lead = &"kid_basil", state = {}, flags = FEVER_DONE,
 	},
 	{
 		name = "A2 - MOM AT THE HEARTH",
 		scene = "res://scene/downstairs_fest.tscn",
 		roster = KID, lead = &"kid_basil",
-		state = {interior_spawn = "stair_arrival"}, flags = [],
+		state = {interior_spawn = "stair_arrival"}, flags = FEVER_DONE,
 	},
 	{
 		# town_spawn "home" also clears _home_armed, so the arrival doesn't
@@ -255,6 +321,16 @@ static var BEATS: Array[Dictionary] = [
 		roster = FUJI, lead = &"fuji",
 		state = {library_phase = "research"},
 		flags = ["ebb_done", "asked_around"],
+	},
+	{
+		# Act 1 beat 3 leg (a): the night she reads the paper, the lanes reach
+		# her own square — she can hurt nothing and runs for her own door. The
+		# beat that turns the library into the workbench (the arch routes "kit"
+		# while thesis_found holds and the kit is unmade).
+		name = "THE AMBUSH", scene = "res://scene/lanternwood.tscn",
+		roster = FUJI, lead = &"fuji",
+		state = {town_spawn = "library"},
+		flags = ["ebb_done", "asked_around", "ledger_read", "thesis_found"],
 	},
 	{
 		# Act 1 beat 3a: the room she has read in for six weeks becomes a supply

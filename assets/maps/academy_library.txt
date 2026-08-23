@@ -1,0 +1,58 @@
+; THE ACADEMY READING ROOM — Prologue A0 "The Fever" (24x14 tiles,
+; 384x224 px; the view clamps to 384x216, camera pinned dead still). The
+; Alembic Academy's library, BRIGHT ERA, on the Lanternwood library's own
+; recipe — deliberately: the same 18-tile hall shape, THE THREE
+; FREE-STANDING STACKS with walkable aisles, the reading desk under the
+; clock. Twenty years later and an ocean away, Fuji searches a room shaped
+; exactly like this one, and neither scene ever says so.
+;
+; NORTH WALL, west to east, every stretch occupied: a strict alternation
+; of tall oak wall BOOKSHELVES (K, 32x48) and high DAYLIGHT windows (W,
+; 32x32 — grey morning glass; the fever days are overcast), then the wall
+; CLOCK (o). Each K run must stay a SEPARATE connected component (the
+; place_each rule — two adjacent runs would share a bbox and misplace the
+; 32x48 sprite).
+;
+; FLOOR: THE THREE STACKS (S, 32x48 art on 2x2 solid footprints, y-sorted
+; entities — a body in the aisle north of one reads as a head above the
+; shelves): west ENCHANTMENT-THEORY, middle HISTORIES, east THE
+; STILL-ROOM, the unfancy shelf by the desk that nobody at this school
+; respects. The reading DESK (d, one-row footprint — stand behind it and
+; it hides your legs) is where the boy who cannot borrow a book COPIES
+; one out. A rug before the south DOOR. Anchors stack_a/b/c are each
+; stack's SOUTH aisle cell (the interact zone can never sit inside the
+; footprint); plaque is the brass MEMBERS-ONLY plate beside the door.
+; The door is the front_door/exit_door split (arrival row 9, exit row 11).
+legend V void solid
+legend # wall solid
+legend K bookshelf solid
+legend W window solid
+legend o clock solid
+legend S stack solid
+legend d desk solid
+legend . floor walk
+legend g rug walk
+legend - door walk
+anchor player_spawn 11 9
+anchor door 11 10
+anchor exit_door 11 11
+anchor stack_a 7 8
+anchor stack_b 11 8
+anchor stack_c 15 8
+anchor desk_spot 19 6
+anchor plaque 9 9
+map
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV
+VV#KKWWKKWWKKWWKK##KK#VV
+VV#KKWWKKWWKKWWKKo#KK#VV
+VV#KK##KK##KK##KK##KK#VV
+VV#..................#VV
+VV#....SS..SS..SS....#VV
+VV#....SS..SS..SS.ddd#VV
+VV#.......gggg.......#VV
+VV#.......gggg.......#VV
+VV#########--#########VV
+VVVVVVVVVVV--VVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV
+VVVVVVVVVVVVVVVVVVVVVVVV

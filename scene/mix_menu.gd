@@ -70,6 +70,7 @@ func _process(delta: float) -> void:
 		return
 
 	if Input.is_action_just_pressed("mix") or Input.is_action_just_pressed("ui_cancel"):
+		Sfx.ui_back()
 		if _first >= 0:
 			_first = -1          # back out of the pair before backing out of the menu
 			_sync()
@@ -94,6 +95,7 @@ func _open() -> void:
 	_cursor = 0
 	_build()
 	_swallow = Overlay.SWALLOW
+	Sfx.ui_open()
 	get_tree().paused = true
 
 
@@ -109,13 +111,16 @@ func _close() -> void:
 
 func _pick() -> void:
 	if Game.spares.size() < 2:
+		Sfx.ui_refuse()
 		return
 	if _first < 0:
+		Sfx.ui_accept()
 		_first = _cursor
-		_step(1)                 # move off the one just picked
+		_step(1, true)           # move off the one just picked (accept already rang)
 		_sync()
 		return
 	if _cursor == _first:
+		Sfx.ui_back()
 		_first = -1              # picking the same beaker twice cancels
 		_sync()
 		return
@@ -124,8 +129,10 @@ func _pick() -> void:
 	var b: Compound = Game.spares[_cursor]
 	var out := Alchemy.mix(a, b)
 	if out == null:
+		Sfx.ui_refuse()
 		_sync()                  # refusal already shown; nothing is consumed
 		return
+	Sfx.ui_chime()               # a new compound exists — the save chime's job
 
 	# Remove the higher index first so the lower one doesn't shift under us.
 	var hi := maxi(_first, _cursor)
@@ -175,11 +182,13 @@ func _rebuild_rows() -> void:
 	_cursor = clampi(_cursor, 0, maxi(Game.spares.size() - 1, 0))
 
 
-func _step(dir: int) -> void:
+func _step(dir: int, quiet := false) -> void:
 	var n := Game.spares.size()
 	if n == 0:
 		return
 	_cursor = wrapi(_cursor + dir, 0, n)
+	if not quiet:
+		Sfx.ui_move()
 	_sync()
 
 

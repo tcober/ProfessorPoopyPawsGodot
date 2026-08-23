@@ -186,6 +186,11 @@ anchor slime_a 30 39
 ; cell, whenever one moves.
 anchor slime_b 32 47
 anchor slime_c 32 26
+; The ambush pair (Act 1 beat 3 leg (a), scene/lanternwood.gd _start_ambush) —
+; the upper lane either side of the library door, 7 cells out: 112px, just past
+; the slime's 90px detect, so nothing reaches the locked body during the beat.
+anchor ambush_e 31 10
+anchor ambush_w 17 10
 anchor moot_hall 37 47
 anchor mayor_pos 41 45
 anchor dock 49 45

@@ -288,6 +288,7 @@ func _silhouette(body: Node2D, sprite: AnimatedSprite2D, spot: Dictionary) -> Di
 	var a := caps[0].get_data()
 	var b := caps[1].get_data()
 	var c2 := caps[2].get_data()
+	@warning_ignore("integer_division")
 	var bpp := a.size() / (w * h)
 	var n := 0
 	var x0 := 9999
@@ -300,6 +301,7 @@ func _silhouette(body: Node2D, sprite: AnimatedSprite2D, spot: Dictionary) -> Di
 			continue
 		n += 1
 		var px := i % w
+		@warning_ignore("integer_division")
 		var py := i / w
 		x0 = mini(x0, px)
 		y0 = mini(y0, py)
@@ -584,6 +586,7 @@ func _positions() -> Dictionary:
 			# The SIDE is in the label, because the assertion depends on it: south
 			# of a walk-behind prop is in FRONT of it and must not be occluded,
 			# north of it is behind and may be.
+			@warning_ignore("integer_division")
 			for c in [[Vector2i((lo.x + hi.x) / 2, lo.y - 1), Vector2.DOWN, "N"],
 					[Vector2i((lo.x + hi.x) / 2, hi.y + 1), Vector2.UP, "S"],
 					[Vector2i(lo.x - 1, (lo.y + hi.y) / 2), Vector2.RIGHT, "W"],
@@ -673,6 +676,7 @@ func _read_prop_boxes() -> void:
 		var tex: Texture2D = load("res://assets/tilesets/%s" % p[3])
 		if tex == null:
 			continue
+		@warning_ignore("integer_division")
 		var fw := tex.get_width() / hframes
 		var fh := tex.get_height()
 		var rects: Array = []
@@ -745,6 +749,7 @@ func _open_cell() -> Dictionary:
 ## A segment's middle and its two ends, de-duplicated for short segments.
 func _pick(x0: int, n: int) -> Array:
 	var out: Array = []
+	@warning_ignore("integer_division")
 	for tx in [x0, x0 + n / 2, x0 + n - 1]:
 		if not out.has(tx):
 			out.append(tx)
@@ -889,6 +894,7 @@ func _sheet(path: String, spots: Array) -> void:
 		# every one of those crops sideways and the body stops being where the
 		# sheet says it is — which is worse than a missing crop, because you read
 		# the wrong cell and trust it.
+		@warning_ignore("integer_division")
 		var dst := Vector2i(int((i % COLS) * CROP * scale),
 				int((i / COLS) * CROP * scale)) + (src.position - want.position)
 		sheet.blit_rect(frame, src, dst)
@@ -897,4 +903,5 @@ func _sheet(path: String, spots: Array) -> void:
 		print("  wrote ", path, ".png  (", spots.size(), " spots)")
 		var f := FileAccess.open(path + ".txt", FileAccess.WRITE)
 		for i in spots.size():
+			@warning_ignore("integer_division")
 			f.store_line("%d,%d  %s" % [i % COLS, i / COLS, spots[i]["label"]])

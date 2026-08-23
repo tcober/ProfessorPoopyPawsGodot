@@ -84,7 +84,7 @@ func _sunrise_cutscene() -> void:
 	# the sigh — the whole town will be at the festival. Everyone.
 	theater.face(player, Vector2.DOWN)
 	player.sprite.play("sigh")
-	await theater.say("Basil", "*siiigh*...The WHOLE town will be out there...")
+	await theater.say("Basil", "...the whole town will be out")
 	theater.close_dialog()
 	player.sprite.play("idle_down")
 	theater.unlock_party()
