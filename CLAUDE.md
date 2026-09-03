@@ -68,9 +68,9 @@ These hold everywhere, in every session:
    much time passed.
 6. **Nothing narrative is ever recovered from git** — the build-fresh doctrine. Rebuild
    from DESIGN.md instead.
-7. **Byte-locked twins move together:** `town.txt` ↔ `town_fest.txt`, `overworld.txt` ↔
-   `overworld_bright.txt`, `downstairs.txt` ↔ `downstairs_bare.txt`. Edit one, edit
-   the other in the same commit.
+7. **Byte-locked twins move together:** `town.txt` ↔ `town_fest.txt`, `canopy.txt` ↔
+   `canopy_fest.txt`, `overworld.txt` ↔ `overworld_bright.txt`, `downstairs.txt` ↔
+   `downstairs_bare.txt`. Edit one, edit the other in the same commit.
 8. **The game must never be completable with either system alone.** Magic and science
    are non-overlapping by construction — only a spell revives or lights a room, only the
    gun answers the drowse-immune machines. Hold this every time a new enemy or gate is
@@ -333,6 +333,35 @@ door whump on every travel, and **Star-Fox talk blips**: three synthesized voice
 timbres pitched per speaker (`sfx.gd VOICES`, unlisted names hash to a stable
 pitch), one blip per third letter, punctuation silent; the dialog box looks Sfx
 up by PATH (the kit rule). Full statement: DESIGN.md → "Music".
+
+**THE TWO-SCENE SPLIT + PERMANENT DUSK (2026-08-23).** Alembic Town is TWO
+SCENES now, per the owner's sketch: **THE FLOOR** (`alembic_town` + era twins,
+`town.txt`/`town_fest.txt` rebuilt — no rings, the four trunks are bare shafts
+baked from row 0 running off the frame top into leaf-gloom) and **THE BOUGHS**
+(`alembic_canopy` / `canopy_fest` / `canopy_fever` / `canopy_thesis`, NEW
+byte-locked pair `canopy.txt` ↔ `canopy_fest.txt`, 80×32: four ring decks at
+one height joined by ROPE BRIDGES through `E` gate cells, a `tree_platform`
+landing, and **THE DROP** — the void renders the town thirty feet down, roofs,
+lane ribbons and amber window pinpricks, leaf-fringed at every boundary). The
+four rope ladders are **CLIMB-THROUGH travel mouths** (floor `top1..top4` ↔
+canopy `head1..head4`; `Game.town_spawn` carries "topN"/"headN" and the body
+leaves climbing and arrives climbing — `TravelScene._wire_ladder_tops` /
+`CanopyScene`). The town is in **PERMANENT DUSK**, diegetically (the crown
+closed over the clearing a generation ago): dusk palettes both eras + `$Dusk`
+CanvasModulate in the present pair, lamps + hook lanterns lit at noon, and
+`components/fireflies.gd` — blinking chartreuse motes (the mint fx cells
+tinted), at deck level AND below it on the boughs. The strata tokens left the
+town grids (one storey per scene; AIBrain's never-stop rule keys on the
+`ropeladder` TERRAIN now), DESIGN.md's old "REJECTED: a two-scene split"
+bullet is formally repealed with each objection answered, and the beats were
+restaged: the goose is TREED in canopy_fest (the theft exits up tree 3's
+ladder line; the startle/ribbon play on the deck), the doorstep call +
+Schweinler's creep live in canopy_thesis (the camera never saw the creep's
+ground half anyway), the dash squelches on the deck and hands `dash` down the
+ladder mid-run, the fever/fest home doors moved up tree 1 with the interiors
+retargeted. Probes updated and green: ladder (cross-scene climb), town, fever
+(33), prologue (65), recital, academy, party (phase 3 = the leash across the
+boughs), save, zwalk lint ×2, `_check_art` incl. the new TWINS pair.
 
 **THE 2026-08-22 CLUNK SWEEP.** Four fixes reported from play, one of them story-sized.
 **THE AMBUSH (Act 1 beat 3 leg (a)) is BUILT** — it was the missing link: nothing in

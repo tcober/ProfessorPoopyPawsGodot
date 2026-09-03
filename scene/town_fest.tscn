@@ -38,15 +38,6 @@ tile_set = ExtResource("5_collision")
 
 [node name="Locations" type="Node2D" parent="."]
 
-[node name="Home" type="Area2D" parent="Locations"]
-script = ExtResource("2_loc")
-id = "home"
-display_name = "BASIL'S HOUSE"
-locked_text = "MOM SAYS: OUT FROM UNDERFOOT UNTIL SUNDOWN!"
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Home"]
-shape = SubResource("RectangleShape2D_door")
-
 [node name="CottageW" type="Area2D" parent="Locations"]
 script = ExtResource("2_loc")
 id = "cottage_w"

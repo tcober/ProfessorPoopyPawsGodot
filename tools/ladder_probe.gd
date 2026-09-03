@@ -220,30 +220,62 @@ func _run() -> void:
 	ok(not airborne and body.global_position.distance_to(held) < 1.0,
 			"the hop is refused on the rungs")
 
-	# ---- 5. THE CLIMB ENDS, BOTH WAYS ---------------------------------------------
-	# The pin's own failure mode: a body that can never leave the lane is a body
-	# stuck on a ladder, and from outside it looks identical to one still climbing.
-	# UP first — onto the ring deck's stratum, which is the only reason the ladder
-	# exists. Stop the moment the feet clear the rungs: Basil's front door is one
-	# cell north of the landing and it TRAVELS.
+	# ---- 5. THE CLIMB ENDS, BOTH WAYS — ACROSS THE SPLIT ---------------------------
+	# Since the 2026-08-23 two-scene split, a floor ladder's top two rungs are a
+	# TRAVEL MOUTH: the climb up leaves this scene entirely and continues on the
+	# canopy scene's own rungs (Game.town_spawn "headN" seats the body there still
+	# facing up). The pin's failure mode is unchanged — a body that can never
+	# leave the lane looks exactly like one still climbing — it just has a scene
+	# boundary in the middle of it now, so the probe rides the whole hand-off.
 	await _park(body, Vector2i(LADDER_COLS.x, MID_ROW))
-	var off_ladder := func() -> bool: return _terrain(map, body) != "ropeladder"
-	var frames := await _hold_until(["move_up"], off_ladder, 300)
-	ok(off_ladder.call() and frames < 300,
-			"the climb UP reaches the top in %d frames" % frames)
-	ok(_stratum(map, body) == "canopy",
-			"...and lands on the CANOPY stratum (%s)" % _stratum(map, body))
+	var in_canopy := func() -> bool: \
+			return current_scene != null and current_scene.name == "AlembicCanopy"
+	var frames := await _hold_until(["move_up"], in_canopy, 600)
+	ok(in_canopy.call() and frames < 600,
+			"the climb UP hands the body to the canopy scene in %d frames" % frames)
+	if not in_canopy.call():
+		print("ladder probe: %d FAILED" % _fail)
+		quit(1)
+		return
+	await _settle(80)                     # the canopy's entry fade + lock
+	var cmap: Dictionary = current_scene.map
+	body = _leader()
+	ok(_terrain(cmap, body) == "ropeladder",
+			"...arriving ON the canopy's own rungs (%s)" % _terrain(cmap, body))
+	# fresh closures over the REASSIGNED map/body — a lambda captures by value
+	var off_canopy_rungs := func() -> bool: \
+			return _terrain(cmap, body) != "ropeladder"
+	frames = await _hold_until(["move_up"], off_canopy_rungs, 300)
+	ok(off_canopy_rungs.call() and frames < 300,
+			"...and continues up onto the ring deck in %d frames" % frames)
 	ok(absf(body.global_position.x - LANE_X) < 8.0,
 			"...stepping off within the ladder's own columns (x=%.1f)"
 			% body.global_position.x)
 
-	# ...and DOWN, from the landing, back to the forest floor.
-	await _park(body, Vector2i(LADDER_COLS.x, MID_ROW))
-	frames = await _hold_until(["move_down"], off_ladder, 300)
-	ok(off_ladder.call() and frames < 300,
-			"the climb DOWN reaches the floor in %d frames" % frames)
-	ok(_stratum(map, body) == "ground",
-			"...and lands on the GROUND stratum (%s)" % _stratum(map, body))
+	# ...and DOWN: from the canopy's rungs, through the mouth, back to the floor.
+	await _park(body, Vector2i(LADDER_COLS.x, 18))     # canopy z runs rows 16-22
+	var in_town := func() -> bool: \
+			return current_scene != null and current_scene.name == "AlembicTown"
+	frames = await _hold_until(["move_down"], in_town, 600)
+	ok(in_town.call() and frames < 600,
+			"the climb DOWN hands the body back to the floor scene in %d frames"
+			% frames)
+	if not in_town.call():
+		print("ladder probe: %d FAILED" % _fail)
+		quit(1)
+		return
+	await _settle(80)
+	map = current_scene.map
+	body = _leader()
+	ok(_terrain(map, body) == "ropeladder",
+			"...arriving on the floor scene's rungs (%s)" % _terrain(map, body))
+	var fmap: Dictionary = map
+	var fbody := body
+	var off_floor_rungs := func() -> bool: \
+			return _terrain(fmap, fbody) != "ropeladder"
+	frames = await _hold_until(["move_down"], off_floor_rungs, 300)
+	ok(off_floor_rungs.call() and frames < 300,
+			"...and continues down to the forest floor in %d frames" % frames)
 
 	# ---- 6. OFF THE LADDER, NOTHING CHANGED ---------------------------------------
 	# The lane is scoped to `ropeladder` cells and to nothing else. If it leaked, it

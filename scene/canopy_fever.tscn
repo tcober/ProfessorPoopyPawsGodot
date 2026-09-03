@@ -1,0 +1,103 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scene/canopy_fever.gd" id="1_canopy"]
+[ext_resource type="Script" path="res://scene/overworld_location.gd" id="2_loc"]
+[ext_resource type="FontFile" path="res://assets/font/pixel_font.fnt" id="4_font"]
+[ext_resource type="TileSet" path="res://assets/collision_tileset.tres" id="5_collision"]
+[ext_resource type="TileSet" path="res://assets/tilesets/canopy_fest_tiles.tres" id="6_tiles"]
+[ext_resource type="Texture2D" path="res://assets/tilesets/canopy_fest_glow.png" id="7_glow"]
+[ext_resource type="PackedScene" path="res://scene/theater.tscn" id="8_theater"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_door"]
+size = Vector2(16, 12)
+
+[sub_resource type="CanvasItemMaterial" id="mat_add"]
+blend_mode = 1
+
+[node name="CanopyFever" type="Node2D"]
+script = ExtResource("1_canopy")
+
+[node name="Tint" type="CanvasModulate" parent="."]
+
+[node name="Tiles" type="TileMapLayer" parent="."]
+texture_filter = 1
+tile_set = ExtResource("6_tiles")
+
+[node name="Glow" type="Sprite2D" parent="."]
+material = SubResource("mat_add")
+texture = ExtResource("7_glow")
+centered = false
+texture_filter = 1
+
+[node name="Collision" type="TileMapLayer" parent="."]
+tile_set = ExtResource("5_collision")
+
+[node name="Locations" type="Node2D" parent="."]
+
+[node name="Door2" type="Area2D" parent="Locations"]
+position = Vector2(408, 232)
+script = ExtResource("2_loc")
+id = "door2"
+display_name = "THE PELLS'"
+locked_text = "NOBODY IN. THE WHOLE HOUSE SMELLS OF WARM BREAD."
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Door2"]
+position = Vector2(8, -8)
+shape = SubResource("RectangleShape2D_door")
+
+[node name="Door3" type="Area2D" parent="Locations"]
+position = Vector2(776, 232)
+script = ExtResource("2_loc")
+id = "door3"
+display_name = "OLD MARROW'S"
+locked_text = "THE OWL ON THE RAIL WATCHES YOU THE WHOLE WAY PAST."
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Door3"]
+position = Vector2(8, -8)
+shape = SubResource("RectangleShape2D_door")
+
+[node name="Door4" type="Area2D" parent="Locations"]
+position = Vector2(1064, 232)
+script = ExtResource("2_loc")
+id = "door4"
+display_name = "THE HOLLYS'"
+locked_text = "SHUTTERS IN AGAINST THE GREY."
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Locations/Door4"]
+position = Vector2(8, -8)
+shape = SubResource("RectangleShape2D_door")
+
+[node name="World" type="Node2D" parent="."]
+y_sort_enabled = true
+
+[node name="TilesUpper" type="TileMapLayer" parent="."]
+texture_filter = 1
+tile_set = ExtResource("6_tiles")
+
+[node name="Theater" parent="." instance=ExtResource("8_theater")]
+
+[node name="UI" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="Banner" type="Label" parent="UI"]
+modulate = Color(1, 1, 1, 0)
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 10.0
+offset_top = -27.0
+offset_right = -10.0
+offset_bottom = -8.0
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("4_font")
+theme_override_font_sizes/font_size = 8
+horizontal_alignment = 1
+
+[node name="Fade" type="ColorRect" parent="UI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)

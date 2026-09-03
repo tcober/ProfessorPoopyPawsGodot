@@ -1,0 +1,5 @@
+; y-sorted World props from assets/maps/canopy_fest.txt — see scene/prop_spawner.gd
+prop Crown G canopy_fest_crown.png anchor=top:-24 base_inset=-52 each
+prop RingRail yRE canopy_fest_ringrail.png anchor=top:0 each
+prop TrunkRing J canopy_fest_trunkring.png base_inset=19 each
+prop Hooklamp hH canopy_fest_hooklamp.png hframes=4 each

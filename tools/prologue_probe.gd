@@ -161,9 +161,17 @@ func _run() -> void:
 	ok = await _talk_to(mom, down)
 	_check("Mom's good-morning unlocks the door", game.flag("prologue_saw_mom"))
 	_player().global_position = MapData.anchor_px(down_map, "exit_door")
+	# the front door opens onto THE BOUGHS since the 2026-08-23 split — the
+	# festival is a rope ladder down
+	var in_boughs := func() -> bool: return _scene_is("res://scene/canopy_fest.tscn")
+	ok = await _mash_until(in_boughs, 900)
+	_check("front door opens onto the festival boughs", ok)
+	await _wait_frames(70)                # entry fade + lock
+	var canopy_map: Dictionary = MapData.load_map("res://assets/maps/canopy_fest.txt")
+	_player().global_position = MapData.anchor_px(canopy_map, "head1") + Vector2(8.0, 8.0)
 	var in_town := func() -> bool: return _scene_is("res://scene/town_fest.tscn")
-	ok = await _mash_until(in_town, 900)
-	_check("front door opens into the festival town", ok)
+	ok = await _mash_until(in_town, 1500)
+	_check("the ladder mouth descends into the festival town", ok)
 	await _wait_frames(40)                # entry fade
 
 	# ---- the fountain proximity trigger -> the teasing + the theft ----------
@@ -176,22 +184,42 @@ func _run() -> void:
 	_check("walking by the fountain fires the teasing", ok)
 	await _wait_frames(30)
 
-	# ---- the hidden goose, up the great tree ---------------------------------
-	var town := current_scene
-	var town_box_closed := func() -> bool: return not town.theater.dialog.visible
+	# ---- the hidden goose, up the great tree — literally, since the split ----
 	var npcs := {}
-	for child in town.get_node("World").get_children():
+	for child in current_scene.get_node("World").get_children():
 		if child is NPC:
 			npcs[child.display_name] = child
-	_check("festival cast spawned (5 villagers + the hidden goose)",
-			npcs.size() == 6 and game.flag("prologue_goose_hidden"))
+	_check("festival cast spawned (5 villagers; the goose is treed)",
+			npcs.size() == 5 and game.flag("prologue_goose_hidden"))
+	# up tree 3 after it — the startle plays on its ring deck in canopy_fest
+	_player().global_position = MapData.anchor_px(town_map, "top3") + Vector2(8.0, 8.0)
+	ok = await _mash_until(in_boughs, 1500)
+	_check("tree 3's mouth climbs to the boughs", ok)
+	await _wait_frames(70)
+	var boughs := current_scene
+	var treed_goose: NPC = null
+	for child in boughs.get_node("World").get_children():
+		if child is NPC and child.display_name == "Goose":
+			treed_goose = child
 	var ribbon := func() -> bool: return game.flag("prologue_ribbon")
-	ok = await _talk_to(npcs["Goose"], town)
+	ok = await _talk_to(treed_goose, boughs)
 	ok = await _mash_until(ribbon, 1200)
 	_check("the startled goose surrenders the ribbon", ok)
 	await _wait_frames(20)
+	# back down to the floor with the ribbon
+	_player().global_position = MapData.anchor_px(canopy_map, "head3") + Vector2(8.0, 8.0)
+	ok = await _mash_until(in_town, 1500)
+	_check("the ladder returns the ribbon-bearer to the floor", ok)
+	await _wait_frames(70)
 
 	# ---- three stings, then the blessing double-back (Mom is DOWNSTAIRS) ----
+	# (the town reloaded across the climb — rebind the scene and its cast)
+	var town := current_scene
+	var town_box_closed := func() -> bool: return not town.theater.dialog.visible
+	npcs.clear()
+	for child in town.get_node("World").get_children():
+		if child is NPC:
+			npcs[child.display_name] = child
 	ok = await _talk_to(npcs["Sage"], town)
 	_check("ribbon returned to Sage", game.flag("prologue_ribbon_returned"))
 	await _talk_to(npcs["Mrs. Flockhart"], town)
@@ -200,12 +228,16 @@ func _run() -> void:
 	_check("three stings -> wants home, gate still shut",
 			game.flag("prologue_want_home") and not game.flag("prologue_gate_open"))
 	await _wait_frames(30)
-	# the home door re-opens while he wants home: press INTO it -> downstairs.
+	# the home door re-opens while he wants home — up tree 1 and press INTO it.
 	# The zone hangs over the trunk face since 2026-08-22 (a press UP into the
 	# door, so crossing the deck can't yank a body inside) — teleport a few px
 	# into the face and let depenetration seat the body flush against it,
 	# overlapping the raised zone (the zwalk seating idiom).
-	_player().global_position = MapData.anchor_px(town_map, "home") + Vector2(8.0, -8.0)
+	_player().global_position = MapData.anchor_px(town_map, "top1") + Vector2(8.0, 8.0)
+	ok = await _mash_until(in_boughs, 1500)
+	_check("wanting home, tree 1's mouth climbs to the boughs", ok)
+	await _wait_frames(70)
+	_player().global_position = MapData.anchor_px(canopy_map, "home") + Vector2(8.0, -8.0)
 	var back_down := func() -> bool: return _scene_is("res://scene/downstairs_fest.tscn")
 	ok = await _mash_until(back_down, 900)
 	_check("the home door re-opens into the downstairs", ok)
@@ -219,8 +251,12 @@ func _run() -> void:
 	_check("Mom's blessing opens the south gate", game.flag("prologue_gate_open"))
 	await _wait_frames(20)
 	_player().global_position = MapData.anchor_px(down_map, "exit_door")
-	ok = await _mash_until(in_town, 900)
-	_check("the front door returns to town, gate open", ok)
+	ok = await _mash_until(in_boughs, 900)
+	_check("the front door returns to the boughs, gate open", ok)
+	await _wait_frames(70)
+	_player().global_position = MapData.anchor_px(canopy_map, "head1") + Vector2(8.0, 8.0)
+	ok = await _mash_until(in_town, 1500)
+	_check("...and the ladder puts him back on the floor", ok)
 	await _wait_frames(40)
 
 	# ---- south to the bluff meet (2026-07-18: the meadow was cut) -----------
@@ -273,10 +309,14 @@ func _run() -> void:
 	_check("the brew hands control back", ok)
 	await _wait_frames(20)
 
-	# ---- out the front door, across town, up to the Academy -----------------
+	# ---- out the front door, down the tree, across town, up to the Academy --
 	_player().global_position = MapData.anchor_px(down_map, "exit_door")
-	ok = await _mash_until(in_town, 1600)
+	ok = await _mash_until(in_boughs, 1600)
 	_check("the flask leaves by the front door", ok)
+	await _wait_frames(70)
+	_player().global_position = MapData.anchor_px(canopy_map, "head1") + Vector2(8.0, 8.0)
+	ok = await _mash_until(in_town, 1500)
+	_check("...and rides the ladder down with it", ok)
 	await _wait_frames(70)                # entry fade + the entry lock
 	# the south gate is SPENT now — it must refuse rather than replay the meet
 	_player().global_position = MapData.anchor_px(town_map, "exit_south")
@@ -354,16 +394,22 @@ func _run() -> void:
 	await _wait_frames(40)
 
 	# ==== PROLOGUE B ==========================================================
-	# plant: the night-before lines -> the playable walk home -> the doorstep
-	# call -> house_thesis
+	# plant: the night-before lines -> the playable walk home -> up the tree
+	# -> the doorstep call + the creep (both on the boughs since the split) ->
+	# house_thesis
 	ok = await _mash_until(_party_free, 3000)
 	_check("the night-before hands over the walk home", ok)
-	# the doorstep gate hangs over the ring deck's lip now — read BAG_OFF off
-	# the live scene rather than re-typing the number (gotcha 10)
-	_player().global_position = MapData.anchor_px(town_map, "home") + current_scene.BAG_OFF
+	var in_boughs_night := func() -> bool: \
+			return _scene_is("res://scene/canopy_thesis.tscn")
+	_player().global_position = MapData.anchor_px(town_map, "top1") + Vector2(8.0, 8.0)
+	ok = await _mash_until(in_boughs_night, 1500)
+	_check("the walk home ends up tree 1's ladder", ok)
+	await _wait_frames(70)
+	# press the front door: the call, the quiet, the creep, the card
+	_player().global_position = MapData.anchor_px(canopy_map, "home") + Vector2(8.0, -8.0)
 	var in_wake := func() -> bool: return _scene_is("res://scene/house_thesis.tscn")
-	ok = await _mash_until(in_wake, 6000)
-	_check("plant beat -> the 8:57 wake-up", ok)
+	ok = await _mash_until(in_wake, 9000)
+	_check("the doorstep call + the creep -> the 8:57 wake-up", ok)
 	await _wait_frames(30)
 
 	# wake-up: mash through, then walk to the stair exit -> dash
@@ -373,28 +419,35 @@ func _run() -> void:
 	ok = await _mash_until(wake_closed, 5000)     # the whole panic
 	await _wait_frames(20)
 	_player().global_position = MapData.anchor_px(house_map, "exit_door")
-	var in_dash := func() -> bool: return _scene_is("res://scene/town_thesis.tscn")
+	# the morning opens ON THE DECK: the bag, the squelch, then the run drops
+	# down the ladder and town_thesis's dash phase carries it to the Academy
+	var in_dash := func() -> bool: return _scene_is("res://scene/canopy_thesis.tscn")
 	ok = await _mash_until(in_dash, 1500)
-	_check("wake-up -> the dash", ok)
+	_check("wake-up -> the dash, on the deck", ok)
 	await _wait_frames(40)
 
-	# dash: mash the squelch beat, then run to the school -> hall
-	# (town_map was loaded earlier for the wander gate — reuse it).
-	# End-state is _dashing, never dialog-invisible: the box is also hidden
-	# through the opening entry-fade wait, which read as "done" before the
-	# beat began — the teleport then raced the 2026-07-18 walk-onto-the-bag
-	# tween, which dragged the body back off the late-spawned school goal.
-	var dash := current_scene
-	var dashing := func() -> bool: return dash._dashing
-	ok = await _mash_until(dashing, 4000)         # squelch beat
+	# dash: mash the squelch beat on the deck, ride the mouth down, then run to
+	# the school -> hall. End-state is _dashing, never dialog-invisible: the
+	# box is also hidden through the opening entry-fade wait, which read as
+	# "done" before the beat began.
+	var deck := current_scene
+	var deck_dashing := func() -> bool: return deck._dashing
+	ok = await _mash_until(deck_dashing, 4000)    # squelch beat
+	_check("the squelch hands over the run", ok)
 	await _wait_frames(20)
+	_player().global_position = MapData.anchor_px(canopy_map, "head1") + Vector2(8.0, 8.0)
+	var in_ground_dash := func() -> bool: return _scene_is("res://scene/town_thesis.tscn")
+	ok = await _mash_until(in_ground_dash, 1500)
+	_check("the run drops to the floor mid-dash", ok)
+	await _wait_frames(70)
 	# The finish line's offset is READ OFF THE LIVE SCENE, never re-typed: this
 	# was a hardcoded +40, the scene moved its goal to +24 in the Alembic rebuild
 	# (the Academy became its own scene and `school` now names the north lane's
 	# mouth), and a body parked 40px below the anchor has its collision box a
 	# clear 10px under the rect — body_entered never fires and the dash hangs
 	# with nothing in the log.
-	_player().global_position = MapData.anchor_px(town_map, "school") + dash.DASH_GOAL_OFF
+	var grun := current_scene
+	_player().global_position = MapData.anchor_px(town_map, "school") + grun.DASH_GOAL_OFF
 	ok = await _mash_until(in_hall, 5000)
 	_check("dash -> the lecture hall", ok)
 	await _wait_frames(40)

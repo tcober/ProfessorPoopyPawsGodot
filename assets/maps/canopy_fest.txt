@@ -1,0 +1,108 @@
+; THE BOUGHS, BRIGHT ERA — Alembic Town's canopy, 80x32 tiles (1280x512 px): the second half
+; of the 2026-08-23 two-scene split (the ground is assets/maps/town.txt). Four
+; RING DECKS at one deck height, joined pole-to-pole by ROPE BRIDGES with a
+; mid-span landing, in a sea of leaf — and below all of it, THE DROP: the void
+; between the platforms renders the town itself, thirty feet down and dusk-dim,
+; lit windows and lane lanterns and all. That view is the answer to the old
+; REJECTED-split objection about sense of place: climbing the ladder does not
+; take you somewhere else, it shows you where you already were.
+;
+; THE RING BLOCKS ARE THE PRE-SPLIT GRID'S, VERBATIM (12x9, walkable cells
+; rasterized from the very ellipse tree_ring draws — see town.txt's pre-split
+; header in git for the full derivation; the doctrine lives in DESIGN.md ->
+; "STACKED WALKABLE STOREYS"). Do not "tidy" the ring rows: they are derived,
+; and _alembic.assert_canopy checks this grid against ring_cells' mask.
+;
+; NEW SINCE THE SPLIT, in this grid only:
+;   `E`  the BRIDGE GATES — two rim cells per bridged pole, retyped walkable.
+;        Same terrain as `y`/`R` (ringedge -> leaf), the O/U/L twin idiom, so
+;        the ring's yRE border stays ONE component and the rail emits per tree.
+;        They are mask exceptions exactly like the ladder landing: named off
+;        the bridge, never typed as a row.
+;   `=`  the BRIDGE SPANS, 2 rows deep, walkable; tree_bridge art is blitted
+;        one cell wider each side so its bearer beams land on the gates.
+;   `n`  the LANDING between trees 2 and 3 (tree_platform), with the hook
+;        lantern's h/H twins standing on it (`decklamp` renders deck — a
+;        hooklamp cell here would punch a GRASS square through the boards).
+;   `_`  THE DROP. Solid. Interior drop cells are repainted by the recipe's
+;        drop-field pass (the town far below); boundary cells keep the leaf
+;        lattice, so every void pocket is fringed in foliage. A body can never
+;        stand here — the fascia crescents, the rails and the descending
+;        trunks are what say "down".
+;
+; The trunks continue BELOW each ring (rows 19-22) and the `z` runs ride them:
+; 7 rungs from the fascia cut down into the gloom. The travel zone sits on the
+; BOTTOM two rungs (anchors head1..head4) and hands the climb to the ground
+; scene mid-ladder; below row 22 the trunk art fades into the drop. A canopy
+; `z` run therefore ends against SOLID void — the old "ladder ends on walkable
+; ground" rule holds only on the ground map now.
+;
+; There is ONE stratum up here (everything walkable is the default ground
+; stratum): a second storey needs a second storey to be ambiguous with, and
+; that one lives in another file now. `z` carries no link token for the same
+; reason — see town.txt's header.
+;
+; Byte-locked twin of canopy.txt (same grid, festival palette). goose_hide sits
+; on tree 3's east arc; the cell south of it, (51,13), must stay walkable — it
+; is where anything talking to the goose stands. The theft itself plays on the
+; ground (town_fest.txt); this file owns the recovery beat: the climb, the
+; startle, the ribbon.
+
+legend # forest solid
+legend _ drop solid
+legend G crown solid
+legend Y deck walk
+legend y ringedge solid
+legend R ringedge walk
+legend E ringedge walk
+legend J greattrunk solid
+legend j greattrunk solid
+legend z ropeladder walk
+legend = span walk
+legend n plank walk
+legend h decklamp solid
+legend H decklamp walk
+
+anchor home 9 14
+anchor door2 25 14
+anchor door3 48 14
+anchor door4 66 14
+anchor head1 9 21
+anchor head2 25 21
+anchor head3 48 21
+anchor head4 66 21
+anchor goose_hide 51 12
+
+map
+################################################################################
+################################################################################
+################################################################################
+################################################################################
+###GGGGGGGGGGGGGG##GGGGGGGGGGGGGG#########GGGGGGGGGGGGGG####GGGGGGGGGGGGGG######
+###GGGGGGGGGGGGGG##GGGGGGGGGGGGGG#########GGGGGGGGGGGGGG####GGGGGGGGGGGGGG######
+###GGGGGGGGGGGGGG##GGGGGGGGGGGGGG#########GGGGGGGGGGGGGG####GGGGGGGGGGGGGG######
+###GGGGGGGGGGGGGG##GGGGGGGGGGGGGG#########GGGGGGGGGGGGGG####GGGGGGGGGGGGGG######
+###GGGGGGGGGGGGGG##GGGGGGGGGGGGGG#########GGGGGGGGGGGGGG####GGGGGGGGGGGGGG######
+###GGGGGGGGGGGGGG##GGGGGGGGGGGGGG#########GGGGGGGGGGGGGG####GGGGGGGGGGGGGG######
+____yyyyyyyyyyyy____yyyyyyyyyyyy___________yyyyyyyyyyyy______yyyyyyyyyyyy_______
+____yyYYYYYYYYyy____yyYYYYYYYYyy___________yyYYYYYYYYyy______yyYYYYYYYYyy_______
+____yYYYJJJJYYYE====EYYYJJJJYYYE===nnhn====EYYYJJJJYYYE======EYYYJJJJYYYy_______
+____yYYYJJJJYYYE====EYYYJJJJYYYE===nnHn====EYYYJJJJYYYE======EYYYJJJJYYYy_______
+____yyyYYYYYYyyy____yyyYYYYYYyyy___________yyyYYYYYYyyy______yyyYYYYYYyyy_______
+____yyyyyRRyyyyy____yyyyyRRyyyyy___________yyyyyRRyyyyy______yyyyyRRyyyyy_______
+____yyyyyzzyyyyy____yyyyyzzyyyyy___________yyyyyzzyyyyy______yyyyyzzyyyyy_______
+____yyyyjzzjyyyy____yyyyjzzjyyyy___________yyyyjzzjyyyy______yyyyjzzjyyyy_______
+____yyyyjzzjyyyy____yyyyjzzjyyyy___________yyyyjzzjyyyy______yyyyjzzjyyyy_______
+________jzzj____________jzzj___________________jzzj______________jzzj___________
+________jzzj____________jzzj___________________jzzj______________jzzj___________
+________jzzj____________jzzj___________________jzzj______________jzzj___________
+________jzzj____________jzzj___________________jzzj______________jzzj___________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________
+________________________________________________________________________________

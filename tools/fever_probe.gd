@@ -182,11 +182,20 @@ func _run() -> void:
 	await _wait_frames(40)
 
 	# ==== A0-4 OUT ===========================================================
+	# Since the 2026-08-23 split the front door opens onto THE BOUGHS; the grey
+	# town is a rope ladder down (the mouth zone on the bottom rungs travels).
 	_player().global_position = MapData.anchor_px(bare_map, "exit_door")
+	var in_boughs := func() -> bool: return _scene_is("res://scene/canopy_fever.tscn")
+	ok = await _mash_until(in_boughs, 1600)
+	_check("the front door now opens onto the boughs, grey", ok)
+	await _wait_frames(80)                 # the entry fade + lock
+	var canopy_map: Dictionary = MapData.load_map("res://assets/maps/canopy_fest.txt")
+	# down tree 1's ladder: seat the body in the travel mouth on the bottom rungs
+	_player().global_position = MapData.anchor_px(canopy_map, "head1") + Vector2(8.0, 8.0)
 	var in_town := func() -> bool: return _scene_is("res://scene/town_fever.tscn")
 	ok = await _mash_until(in_town, 1600)
-	_check("the front door now opens onto the grey morning", ok)
-	await _wait_frames(80)                 # the entry fade + lock
+	_check("the ladder mouth descends to the grey morning", ok)
+	await _wait_frames(80)
 	var town_map: Dictionary = MapData.load_map("res://assets/maps/town_fest.txt")
 	_player().global_position = MapData.anchor_px(town_map, "school")
 	var in_lib := func() -> bool: return _scene_is("res://scene/academy_library.tscn")
@@ -217,10 +226,15 @@ func _run() -> void:
 	await _wait_frames(80)
 
 	# ==== A0-6 THE SIMMER ====================================================
-	# the home zone hangs over the trunk face (2026-08-22) — seat the body a
-	# few px into the face and let depenetration press it flush, overlapping
-	# the raised zone (the zwalk seating idiom)
-	_player().global_position = MapData.anchor_px(town_map, "home") + Vector2(8.0, -8.0)
+	# home is up the tree: ride tree 1's mouth back to the boughs, then press
+	# the door. The home zone hangs over the trunk face (2026-08-22) — seat the
+	# body a few px into the face and let depenetration press it flush,
+	# overlapping the raised zone (the zwalk seating idiom).
+	_player().global_position = MapData.anchor_px(town_map, "top1") + Vector2(8.0, 8.0)
+	ok = await _mash_until(in_boughs, 1600)
+	_check("the ladder mouth climbs back to the boughs", ok)
+	await _wait_frames(80)
+	_player().global_position = MapData.anchor_px(canopy_map, "home") + Vector2(8.0, -8.0)
 	ok = await _mash_until(in_down, 2000)
 	_check("the home door leads back inside", ok)
 	await _wait_frames(40)

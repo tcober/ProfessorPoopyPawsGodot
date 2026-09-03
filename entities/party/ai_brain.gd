@@ -129,9 +129,13 @@ func _follow(to_leader: Vector2, intent: PartyMember.Intent) -> void:
 	intent.move = to_leader.normalized() * boost
 
 
-## Is the member standing on a cell that JOINS two storeys rather than being one?
+## Is the member standing on a cell that is a CORRIDOR rather than a place?
 ## Asked of the FEET, like every other question about which cell a body is in, and of
 ## the map rather than a marker — a scene with no map has no strata and answers false.
+## Since the 2026-08-23 two-scene town split the rope ladders carry no `link`
+## stratum any more (each half-ladder has only one storey to border), so the rule
+## also keys on the TERRAIN — the rungs are a corridor whichever bookkeeping
+## wraps them, and this is the same name PartyMember._climb already keys on.
 func _on_link() -> bool:
 	var scn := member.get_tree().current_scene
 	if scn == null:
@@ -139,8 +143,9 @@ func _on_link() -> bool:
 	var m: Variant = scn.get("map")
 	if not (m is Dictionary) or (m as Dictionary).is_empty():
 		return false
-	return MapData.stratum_at_px(m as Dictionary,
-			member.global_position + PartyMember.FOOT_OFFSET) == MapData.LINK_STRATUM
+	var pos := member.global_position + PartyMember.FOOT_OFFSET
+	return MapData.stratum_at_px(m as Dictionary, pos) == MapData.LINK_STRATUM \
+			or MapData.terrain_at_px(m as Dictionary, pos) == "ropeladder"
 
 
 ## Abandoned out of sight — reappear a step behind the leader. The member's

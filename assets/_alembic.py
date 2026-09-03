@@ -1,21 +1,33 @@
 #!/usr/bin/env python3
-"""THE ALEMBIC RECIPE — everything the drained town and the festival town do
-identically, which is everything except the palette, the glow and one open door.
+"""THE ALEMBIC RECIPES — everything the eras of one scene do identically, which
+is everything except the palette and the glow.
 
-WHY THIS MODULE EXISTS. `_check_art.py` byte-locks the two map GRIDS, so the eras
-cannot disagree about where a plank is. Nothing locked the two GENERATORS, and they
-were ~350 lines of "the same recipe as _gen_tileset_town.py" and "identical
-stamping" maintained by hand in parallel — which had already gone wrong once (the
-fest twin hand-inlined stamp_columns' loop and so had NO run-height assert at all,
-in the era where three chapters of cutscenes walk). The grid being byte-identical
-is worth little if one era stamps a band the other doesn't.
+WHY THIS MODULE EXISTS. `_check_art.py` byte-locks each scene's era map GRIDS,
+so the eras cannot disagree about where a plank is. Nothing locked the two
+GENERATORS once, and they were ~350 lines of "the same recipe" maintained by
+hand in parallel — which had already gone wrong (the fest twin hand-inlined
+stamp_columns' loop and so had NO run-height assert at all, in the era where
+three chapters of cutscenes walk). The grid being byte-identical is worth
+little if one era stamps a band the other doesn't.
 
-So the recipe lives here and each era is a thin config: a palette scene key, a glow
-painter, and whether the Academy's door is open. If a future era needs to differ in
-a fourth way, add a knob — do not fork the file.
+SINCE THE 2026-08-23 TWO-SCENE SPLIT there are TWO recipes here, one town:
 
-See assets/maps/town.txt's header for the geometry this paints, and
-docs/DESIGN.md for the strata doctrine and the trunk armature.
+  build(map_name, scene_key, glow)         — THE FLOOR (town.txt / town_fest.txt):
+      the forest-floor village in permanent green dusk. The four great trunks
+      are bare shafts baked from row 0 down to their buttress feet, running off
+      the top of the map; the rope ladders are real climbable `z` runs that end
+      at a TRAVEL MOUTH (the canopy is another scene now).
+
+  build_canopy(map_name, scene_key, glow)  — THE BOUGHS (canopy.txt / canopy_fest.txt):
+      four ring decks joined by rope bridges over THE DROP — the void between
+      the platforms, repainted as the town itself thirty feet down.
+
+Each era is a thin config: a palette scene key and a glow painter. If a future
+era needs to differ in a third way, add a knob — do not fork the file.
+
+See the map headers for the per-grid geometry and docs/DESIGN.md ->
+"STACKED WALKABLE STOREYS" for the doctrine (including why the old
+REJECTED-two-scene-split bullet was repealed, and what answers its objections).
 """
 import os, sys
 
@@ -28,101 +40,58 @@ from _town_props import (town_cottage, town_shop, town_well, town_lamp,
                          town_stall, town_fountain, town_shade_tree)
 from _culture_props import notice_board, owl_roost, hook_lantern, PAPER_STOCK
 from _tree_props import (tree_ring, ring_cells, ring_geom, trunk_face,
-                         rope_ladder, understory, great_trunk, great_crown, BARK)
+                         rope_ladder, understory, great_trunk, great_crown,
+                         tree_bridge, tree_platform, BARK)
 
-# ---- THE TRUNK ARMATURE'S GEOMETRY, in one place -----------------------------------
-# The trunk's own cell space, 0 = the top of its crown at map row 14. The five spans
-# are the SEGMENTS; the gaps between them are the ring decks, and those gaps are not
-# missing art but the boards themselves — which is exactly what a tree passing through
-# a platform looks like from above. Keep this table and the map txt's header in step.
-#
-#   char  map rows  local     what                        footprint
-#   g     14-16     0-2       the crown's leaf mass       5 cols, WALKABLE
-#   J     17-18     3-4       the shaft at canopy_hi      3 cols
-#   %     21-23     7-9       the high fascia it crosses  5 cols
-#   j     26-27     12-13     the shaft at canopy_lo      3 cols
-#   &     31-33     17-19     the low fascia it crosses   5 cols
-#   !     34-36     20-22     the foot + buttress roots   3 cols
+# ---- THE TREE GEOMETRY, in one place ------------------------------------------------
+# The ring block is 12 x 9 cells and its walkable cells are the rasterization of
+# the very ellipse tree_ring draws (`ring_cells`); the trunk is 4 columns with
+# the 2-column rope ladder inside them. The FLOOR map carries only the trunk
+# columns (`j`, feet `!`, rungs `z`); the CANOPY map carries the whole block.
 RING_W, RING_H = 192, 144          # the tree block: 12 x 9 cells
 RING_HOLE = (21, 11)               # the trunk's cross-section through the boards
-RING_FASCIA = 18                   # the crescent's depth at due south. One constant,
-                                   # because `tree_ring` DRAWS the fascia and
-                                   # `_shade_under` has to know where its hem falls to
-                                   # put the deck's shadow on the trunk below it.
-# Every char a ring block is made of. The block is found as ONE component of these,
-# so `R` — the walkable rim — has to be in here or the border breaks into three
-# islands at the ring's east and west poles and place_each stretches a sprite over
-# each of them. `R` and `y` are the same terrain (`ringedge`, which renders LEAF):
-# the rim cells are the ones the disc's curve crosses, so their art is part deck and
-# part transparent, and a deck underlay would fill the leftover corner with plank
-# fabric and square the circle straight back off. Walkability is the only difference,
-# which is the O/U/L twin idiom this town already runs on.
-RING_CHARS = "yR"
-RING_CROWN_ROWS = 1                # block rows the crown covers OPAQUELY (see the mask)
+RING_FASCIA = 18                   # the crescent's depth at due south
+# Every char a canopy ring block's BORDER is made of. `R` is the walkable rim
+# twin at the ladder landing; `E` is the walkable rim twin at a BRIDGE GATE
+# (2026-08-23) — same terrain (`ringedge` -> leaf), the O/U/L idiom, and it has
+# to be in the component set or a double-bridged ring's border breaks into two
+# arcs and place_each stretches a rail sprite over each.
+RING_CHARS = "yRE"
+RING_CROWN_ROWS = 1                # block rows the crown covers OPAQUELY
 TRUNK_W = 64                       # 4 cells
 TRUNK_C0, LADDER_C0 = 4, 5         # ...at block col 4, its ladder at block col 5
-CROWN_W, CROWN_H = 224, 128        # 14 cells wide over a 6-cell footprint, so it
-                                   # HANGS three rows south and swallows the shaft's
-                                   # top — a tree does not end, it disappears into
-                                   # its own leaves
+CROWN_W, CROWN_H = 224, 128        # see build_canopy's crown comment
+RUNG_OVER = 4                      # floor map: painted rungs continuing up the
+                                   # bark above the walkable run — the ladder
+                                   # visibly goes ON up past the travel mouth
 
-# every char that casts shade on the floor below it, for the understory pass.
-# `R` is in here for the same reason `y` is — it is the ring's outer band, a great
-# tree's mass seen from above; it being walkable changes nothing about the shade it
-# throws on the forest floor thirty feet down.
-SHADERS = "yJj!GR"
-# every char whose cell the night-glow must be WIPED off — see the clip pass
-FACES = "yJj!R"
-# stamp_columns picks its face variant with h2(tx, ty, salt) % len(sprites), and the
-# LAST variant is the one carrying a lantern. The glow pass repeats that arithmetic
-# rather than being handed a list, so the lights can never drift off the lanterns:
-# one source of truth, evaluated twice.
-LANTERN_OF = 6                     # variants per band
-BAND_SALT = {}                     # no face bands left: the canopy is islands now
+# glow clip sets (light does not spill down a vertical face) — per recipe,
+# because the two maps have different vertical-face inventories
+FACES_FLOOR = "j!"
+FACES_CANOPY = "yJjRE"
 
 
-def lantern_cells(m, chars, salt):
-    """The (tx, ty) of every fascia column that got the lantern variant."""
-    out = []
-    for x in range(m.cols):
-        y = 0
-        while y < m.rows_n:
-            if m.at(x, y) in chars:
-                top = y
-                while m.at(x, y) in chars:
-                    y += 1
-                if h2(x, top, salt) % LANTERN_OF == LANTERN_OF - 1:
-                    out.append((x, top))
-            else:
-                y += 1
-    return out
+def lantern_cells(m, chars, salt):  # kept for import compatibility; no callers
+    return []
 
 
 def shaded(ramp, t0=0.40, t1=0.12):
     """A ramp pulled toward the void — the SAME timber, seen edge-on.
 
-    THE ONE CHANGE THAT MADE THIS TOWN THREE-DIMENSIONAL. Every horizontal surface
-    up here (the deck, the porches, the spans) and every vertical one (the two
-    fascias, the span edges) were drawn from the identical DECK ramp, and the first
-    build of the four-storey grid came out as a LUMBER YARD: three tiers of
-    near-identical honey planks in horizontal stripes, with no cue anywhere that
-    one of those bands was a floor and the next was a wall you were standing on top
-    of. The structure was right and the value was flat.
-
     A vertical face is darker than the surface it hangs off. That is the whole
-    idea, and it costs one ramp. The pull is GRADED — hard at the light end, gentle
-    at the dark — because darkening every tone equally just lowers the exposure,
-    while dropping the highlights and leaving the shadows puts the contrast where a
-    turned edge actually shows it, and keeps the dark end from silting up into the
-    mud the palette doctrine bans."""
+    idea, and it costs one ramp. The pull is GRADED — hard at the light end,
+    gentle at the dark — because darkening every tone equally just lowers the
+    exposure, while dropping the highlights and leaving the shadows puts the
+    contrast where a turned edge actually shows it, and keeps the dark end
+    from silting up into the mud the palette doctrine bans."""
     return [lerp(c[:3], VOID[:3], t0 + (t1 - t0) * (i / 5.0)) + (255,)
             for i, c in enumerate(ramp)]
 
 
 def _blit_img(dst, img, ox, oy):
     """Copy an Img onto a canvas. `Img.blit_cell` takes a Sprite (it reads `.n`),
-    and `great_trunk` hands back Imgs — the shaft is baked rather than emitted, so
-    it never goes through emit_prop's own path."""
+    and `great_trunk` hands back Imgs — the shaft is baked rather than emitted,
+    so it never goes through emit_prop's own path."""
     for y in range(img.h):
         for x in range(img.w):
             p = img.get(x, y)
@@ -130,17 +99,31 @@ def _blit_img(dst, img, ox, oy):
                 dst.put(ox + x, oy + y, p)
 
 
+def _gloom_rect(cv, x0, y0, x1, y1, tone, k0, k1):
+    """Grade every opaque pixel in the rect toward `tone`: k0 at y0 -> k1 at
+    y1. This is how a trunk disappears — into the dark canopy overhead on the
+    floor map (k0 heavy at the top), into the drop below on the canopy map
+    (k1 heavy at the bottom). A hard cut at either end is a chopped tree; the
+    grade is what reads as gloom."""
+    span = max(1, y1 - y0 - 1)
+    for y in range(y0, y1):
+        t = k0 + (k1 - k0) * ((y - y0) / span)
+        if t <= 0.0:
+            continue
+        for x in range(x0, x1):
+            p = cv.get(x, y)
+            if p[3]:
+                cv.put(x, y, lerp(p[:3], tone[:3], t) + (255,))
+
+
 def _shade_under(img, bark, bx0, by0, w, hole, fascia=RING_FASCIA,
                  deep=9, soft=20):
     """Darken `img`'s bark where it lies just under a ring deck's fascia.
 
     `bx0`/`by0` are the image's top-left in the RING BLOCK's own pixel space, so
-    the hem is computed from the very ellipse `tree_ring` drew: for each column
-    the fascia's lower edge is at `cy + (ry + fascia) * k`, k the same
-    sqrt(1 - t^2) the crescent is scaled by. Two hard bands (see `_BARK_BANDS` —
-    bark is banded, never dithered), `deep` px at two ramp steps and the rest at
-    one, and anything not literally a BARK colour is left alone so the ladder's
-    hemp and the buttress arrises keep their own values."""
+    the hem is computed from the very ellipse `tree_ring` drew. Two hard bands
+    (bark is banded, never dithered), and anything not literally a BARK colour
+    is left alone so the ladder's hemp keeps its own values."""
     cx, cy, rx, ry, _hx, _hy = ring_geom(w, hole=hole)
     idx = {c: i for i, c in enumerate(bark)}
     for x in range(img.w):
@@ -159,9 +142,8 @@ def _shade_under(img, bark, bx0, by0, w, hole, fascia=RING_FASCIA,
 
 def _wild_dist(m, wild, limit):
     """{(x, y): chebyshev distance to the nearest cell whose char is in `wild`},
-    for every cell within `limit` of one. Multi-source BFS on the 8-neighbourhood,
-    so a cell diagonally off a trunk is distance 1 — which is what the eye reads,
-    and what a litter gradient wants: drift banks into a corner, it does not
+    for every cell within `limit` of one. Multi-source BFS on the
+    8-neighbourhood — a litter gradient drifts into corners and does not
     respect a 4-connected metric."""
     seen = {}
     front = [(x, y) for y in range(m.rows_n) for x in range(m.cols)
@@ -187,10 +169,10 @@ def _wild_dist(m, wild, limit):
 def _fountain_shadow(tn):
     """Bake the basin's elliptical contact shadow into the plaza paving.
 
-    `bake_shadow` is intentionally rectangular because desks, benches and building
-    feet are opaque across their footprint. The fountain is transparent in all four
-    corners, so that helper leaves a conspicuous dark bar visible under the basin.
-    """
+    `bake_shadow` is intentionally rectangular because desks, benches and
+    building feet are opaque across their footprint. The fountain is
+    transparent in all four corners, so that helper leaves a conspicuous dark
+    bar visible under the basin."""
     x0, y0, x1, y1 = tn.bbox("oO")
     assert (x1 - x0 + 1, y1 - y0 + 1) == (3, 3)
     cx, cy = x0 * T + 24, y0 * T + 34
@@ -204,39 +186,39 @@ def _fountain_shadow(tn):
             tn.bg.put(px, py, lerp(base[:3], VOID[:3], strength) + (255,))
 
 
-def build(map_name, scene_key, glow):
-    """Paint one era of Alembic Town and finish it. Returns the TileScene.
+def _z_runs(tn):
+    """The rope-ladder runs, west to east: [(zx0, ztop, zbot)] per 2-col run."""
+    out = []
+    for comp in tn.comps("z"):
+        xs = [x for x, _ in comp]
+        ys = [y for _, y in comp]
+        out.append((min(xs), min(ys), max(ys)))
+    return sorted(out)
 
-    (An `open_door` era knob lived here while the Academy was a building in
-    this grid; the college is its own scene now and the knob was dead code —
-    removed 2026-08-01. If a future era needs a third difference, add a knob.)"""
+
+# =====================================================================================
+# THE FLOOR — build(): the ground half of the split town
+# =====================================================================================
+
+def build(map_name, scene_key, glow):
+    """Paint one era of Alembic Town's FLOOR and finish it. Returns the TileScene."""
     tn = OverWorld(map_name, scene_key)
     ROOFB = tn.mat("roof_blue")
     ROOFG = tn.mat("roof_green")
     PLAST = tn.mat("plaster")
     STONE = tn.ROCK                    # town masonry = the scene's violet slate
-    DECK = tn.DECK                     # the ring decks' hand-pinned timber
-    FACE = shaded(DECK)                # ...the same timber, turned edge-on
-    FOL = tn.FOREST                    # the canopy's leaf
+    DECK = tn.DECK                     # the ladders' hand-pinned timber
+    FOL = tn.FOREST
 
     tn.paint_terrain()
 
-    # ---- THE GROUND TOWN — this is the town now --------------------------------------
-    # The public village is on the forest floor and keeps Alembic's own
-    # plaster-and-cement language: an old ground village that four great trees grew
-    # up through. The canopy is not a street any more, it is four balconies.
+    # ---- THE GROUND TOWN --------------------------------------------------------------
     tn.emit_prop("CottageW", "q1",
                  town_cottage(ROOFG, PLAST, salt=211, composite=True, frames=4),
                  hframes=4)
     tn.emit_prop("CottageE", "w2",
                  town_cottage(ROOFB, PLAST, salt=213, composite=True, frames=4),
                  hframes=4)
-    # THE THREE SHOPS ARE COTTAGES THAT SELL SOMETHING, and that is a correction.
-    # They were `tree_hut`s — cone of thatch over a barrel of withy staves — which
-    # is the right building for a BOUGH and a tiki hut on a forest floor: one tan
-    # value throughout, no wall material, and three cells wide beside a five-cell
-    # cottage. `town_shop` is the town's own envelope (leaf canopy, greeny cement,
-    # copper, vines) with an awning, a lit display window and a hanging device.
     for name, chars, salt, trade in (("Weapons", "xX", 483, "arms"),
                                      ("Items", "pP", 485, "tonics"),
                                      ("Inn", "iI", 489, "inn")):
@@ -251,177 +233,54 @@ def build(map_name, scene_key, glow):
     tn.emit_prop("Lamp", "lL", sprite_img(town_lamp(), 16, 32), each=True)
     tn.emit_prop("Stall", "m", sprite_img(town_stall(), 48, 32))
 
-    # ---- THE CULTURE KIT, re-wired (2026-08-01) --------------------------------------
-    # _culture_props shipped with the canopy town (414d59e) and was orphaned by the
-    # forest-floor rebuild — a whole authored furniture family that says the town
-    # CORRESPONDS, POSTS NOTICES and LIGHTS ITS OWN LAMPS, imported by nothing. The
-    # correspondence corner sits on the plaza's north rim (board west, roost east of
-    # the lane), and the hook lanterns hang beside every great tree's ladder landing
-    # and flank the south gate — a candle is honest fire, so they burn in BOTH eras.
+    # ---- THE CULTURE KIT --------------------------------------------------------------
+    # The correspondence corner on the plaza's north rim, and the hook lanterns
+    # beside every ladder foot and flanking the south gate. Candles are honest
+    # fire, so they burn in BOTH eras — and in the permanent dusk they are half
+    # the town's light.
     tn.emit_prop("Notice", "kK",
                  sprite_img(notice_board(DECK, PAPER_STOCK, IRON), 48, 32))
     tn.emit_prop("Roost", "cC", owl_roost(DECK, FOL, IRON, frames=4), hframes=4)
     tn.emit_prop("Hooklamp", "hH", hook_lantern(IRON, frames=4), hframes=4,
                  each=True)
 
-    # ---- THE FOUR GREAT TREES ---------------------------------------------------------
-    # Derived from the map, never from a table: every tree is one `y` component, and
-    # its bbox IS the ring block (12 x 9). Reading the geometry back out of the grid
-    # is what stops the art and the collision drifting apart the moment a tree moves.
-    ring_lo, ring_up = tree_ring(DECK, BARK, FOL, salt=491, w=RING_W, h=RING_H,
-                                 hole=RING_HOLE, fascia=RING_FASCIA)
+    # ---- THE FOUR GREAT TRUNKS (2026-08-23: bare shafts, no rings) --------------------
+    # Each trunk is baked Tier-1 from ROW 0 down to its buttress foot: nothing
+    # can ever stand behind these columns (they are solid to the map's top), so
+    # the depth question never arises and baking is simply correct. The shaft
+    # runs off the top of the map, where limit_top = 0 cuts it at the SCREEN
+    # edge — a tree whose top is never on screen reads as too tall for the
+    # screen, which is the point of a great tree.
+    #
+    # THE GLOOM IS THE CANOPY OVERHEAD. The crown itself lives in the other
+    # scene now, so what says "there are leaves up there" down here is the
+    # dark: the shaft's top ~7 rows grade toward the forest's deepest tone, so
+    # every trunk climbs up out of the streets and disappears into shadow.
+    # A hard edge there would be the chopped-off-tree defect; the grade is
+    # load-bearing.
+    GLOOM = FOL[5]
+    for zx0, ztop, zbot in _z_runs(tn):
+        tx0 = zx0 - 1
+        shaft = great_trunk(BARK, tn.GRASS, [(0, zbot)], salt=401, w=TRUNK_W)[0]
+        _blit_img(tn.bg, shaft, tx0 * T, 0)
+        # the ladder: the walkable run PLUS RUNG_OVER painted rungs above it —
+        # the rope visibly continues up the bark past the travel mouth, because
+        # the climb continues in the other scene. One sprite per tree at that
+        # tree's own height (place_each would stretch one across four drops).
+        lad = rope_ladder(DECK, BARK, salt=441,
+                          cells=(zbot - ztop + 1) + RUNG_OVER)
+        tn.bg.blit_cell(lad, zx0 * T, (ztop - RUNG_OVER) * T)
+        _gloom_rect(tn.bg, tx0 * T, 0, (tx0 + 4) * T, 7 * T, GLOOM, 0.88, 0.0)
 
-    # THE CROWN AND THE TRUNK'S TOP ARE ONE SPRITE, and that is the whole answer to
-    # the tree reading as CHOPPED OFF. A trunk drawn as its own piece starts at a cell
-    # boundary and ends in a hard horizontal cut against the leaves; a tree's top does
-    # not end, it disappears into its own foliage. So the crown hangs three rows BELOW
-    # its footprint (`top=0` + a 9-row sprite over a 6-row footprint) and covers the
-    # shaft's upper end, and `base_inset=-52` pushes its sort key south of the trunk
-    # segment's so the leaves are genuinely in front rather than merely adjacent.
-    #
-    # That inset also puts the crown in front of a body on the ring's NORTH ARC, which
-    # is the walk-behind this town is built around — so the mass stays PERFORATED. See
-    # great_crown: solid leaves there make that body 100% invisible, measured.
-    #
-    # THE CROWN IS BIGGER THAN ITS CHANNEL, so `great_crown` measures its own mass
-    # and hands back the margins it needed (2026-08-02). `CROWN_W` x `CROWN_H` is
-    # the channel the lobes are laid out against — the 14 x 6 footprint plus the
-    # two rows it hangs below — and the pads are the overhang that used to be
-    # silently CUT OFF at the canvas edge, which is what gave every tree in this
-    # town a flat top and flat sides. `cpx` is free (the spawner centres a prop on
-    # its footprint, so the tree just overhangs its bays a little further, which is
-    # what this crown is FOR), and `-cpt` puts the channel back on the footprint's
-    # own top row, so the leaves are where they always were and the growth all goes
-    # up into the dome.
-    #
-    # THE HEM IS NOT PADDED, AND THAT IS THE POINT. It is trimmed flat at the
-    # channel's last row so it meets `trunk_face`'s own dead-straight top edge,
-    # which sits exactly `CROWN_H` below this footprint on all four trees, with the
-    # arch of the door 4px under that. Pad it and the job falls to the lowest lobe,
-    # whose domed hem tops out at 125 and never reaches the trunk at all — which
-    # opened a visible gap of bare deck between the leaves and the bark on every
-    # tree in the town. See `great_crown`.
-    #
-    # The northernmost tree's new head runs off the top of the map, where
-    # `limit_top = 0` cuts it at the SCREEN edge — the same cut the Academy's
-    # crowns take, and the one that reads as scale rather than as damage.
-    # `shaft_w` is what turns the hem from an ABUTMENT into an OVERLAP: the crown
-    # carries the trunk's own continuation behind its leaves, at `trunk_face`'s
-    # exact half-width, so the trim cuts through bark over the trunk's columns and
-    # the two sprites are one shaft. Without it the trunk stops dead against a
-    # green line and reads as cropped, however well that line is placed.
-    crown, cpx, cpt = great_crown(FOL, BARK, salt=451, w=CROWN_W, h=CROWN_H,
-                                  window=DECK, shaft_w=TRUNK_W)
-    tn.emit_prop("Crown", "G",
-                 sprite_img(crown, CROWN_W + 2 * cpx, CROWN_H + cpt),
-                 each=True, top=-cpt, base_inset=-52)
-    # THE RAIL'S NEAR ARC — Tier-3, and it has to be a y-sorted PROP rather than
-    # upper-layer paint. Baked with the deck (where it lived until 2026-07-30) every
-    # body on the ring draws OVER the handline, so you stand on the rail like it is a
-    # kerb instead of behind it like it is a railing. The upper layer is the other
-    # obvious home and it is wrong for the opposite reason: that layer is for art a
-    # body may never poke out of — lintels, arches — so `_check_art`'s corridor cap
-    # requires the silhouette to continue north of every walkable cell it covers, and
-    # a rail is two pixels of hemp you are MEANT to be seen over. As a prop it just
-    # sorts: its key is the block's south edge, every walkable cell of the ring is
-    # north of that, and the far arc stays baked because it is behind you.
-    tn.emit_prop("RingRail", RING_CHARS,
-                 sprite_img(ring_up, RING_W, RING_H), each=True, top=0)
-    # the shaft segment crossing the ring — Tier-3, because this is the ONE piece of
-    # the tree a body passes behind. base_inset=19 lands its key in the 2px of daylight
-    # between a body on the trunk row and a body on the south deck.
-    tn.emit_prop("TrunkRing", "J",
-                 sprite_img(trunk_face(BARK, DECK, salt=401, w=TRUNK_W, h=32),
-                            TRUNK_W, 32),
-                 each=True, base_inset=19)
-
-    # The shaft below the ring and the foot are TIER-1 BAKED, not sprites, and the
-    # reason is the ladder: it runs down inside the trunk's own columns, so a Tier-3
-    # shaft would draw over the climber. Nothing can stand behind these rows either —
-    # they are enclosed by the ring above and the floor below — so the depth question
-    # never arises and baking is simply correct.
-    for comp in tn.comps(RING_CHARS):
-        cx0, cy0, cx1, cy1 = tn.comp_bbox(comp)
-        assert (cx1 - cx0 + 1, cy1 - cy0 + 1) == (RING_W // T, RING_H // T), (
-            f"{map_name}.txt: the ring at ({cx0},{cy0}) is not {RING_W // T}x"
-            f"{RING_H // T} — one sprite would be stretched over it")
-        tx0 = cx0 + TRUNK_C0                       # the trunk's own 4 columns
-        # how far down does this tree go? to the last row of its `!` foot.
-        fy = cy1
-        while fy + 1 < tn.m.rows_n and tn.m.at(tx0, fy + 1) in "j!":
-            fy += 1
-        # THE SHAFT GOES DOWN FIRST, AND THE RING GOES DOWN ON TOP OF IT. Order is
-        # the whole difference between a trunk that FEEDS THROUGH the platform and
-        # one that is CHOPPED OFF under it, and it took two wrong answers to see.
-        #
-        # The build before this one blitted the shaft after the ring and one row
-        # below the block, which left two rows of the trunk's own columns with no
-        # trunk art at all — raw `ringedge` underlay autotiling into the ladder's
-        # `ropeladder`, i.e. a pale hard-edged wedge either side of the rungs that
-        # reads exactly like a clipping bug. Moving the shaft up two rows filled
-        # those rows and fixed that, but it fixed it by drawing the bark ON TOP of
-        # the fascia: the shaft's own top edge — an `edge()` outline, dead straight,
-        # 64px wide — landed just under the crescent, so the trunk visibly BEGAN at
-        # a horizontal cut two px below a platform it was supposed to be growing
-        # through. A post nailed under a saucer.
-        #
-        # Drawn UNDERNEATH, the line that crosses the trunk is the fascia's own
-        # lower edge, which is an ARC, and an arc crossing a cylinder is an overlap.
-        # The shaft starts two rows above the block's foot so that straight top edge
-        # is buried under opaque decking, and everything from the crescent's hem
-        # down is the tree.
-        shaft = great_trunk(BARK, tn.GRASS, [(0, fy - cy1 + 2)], salt=401,
-                            w=TRUNK_W)[0]
-        # ...and the deck throws its SHADOW on the bark. Order alone is not enough:
-        # bark under a platform and bark in the open are the same six colours, so
-        # without this the fascia's hem reads as a change of material rather than as
-        # something in front. Two graded bands off the same ramp, their lower edge
-        # following the fascia's own arc, so what emerges is emerging out of shade.
-        _shade_under(shaft, BARK, tx0 * T - cx0 * T,
-                     (cy1 - 2 - cy0) * T, RING_W, RING_HOLE)
-        _blit_img(tn.bg, shaft, tx0 * T, (cy1 - 2) * T)
-        # the deck, the fascia and the rail's FAR arc: Tier-1, over the shaft and
-        # under the bodies (the place_each idiom, by hand — the near rail is emitted
-        # separately above and place_each only knows the lower canvas)
-        tn.bg.blit_cell(ring_lo, cx0 * T, cy0 * T)
-        # the ladder, from the ring's fascia to the floor, ONE sprite per tree at that
-        # tree's own height — place_each would stretch one across four different drops
-        lx0 = cx0 + LADDER_C0
-        top = cy0
-        while tn.m.at(lx0, top) != "z":
-            top += 1
-        bot = top
-        while bot + 1 < tn.m.rows_n and tn.m.at(lx0, bot + 1) == "z":
-            bot += 1
-        tn.bg.blit_cell(rope_ladder(DECK, BARK, salt=441, cells=bot - top + 1),
-                        lx0 * T, top * T)
-
-    # ---- walk-behind trees: TWO y-sorted World props per {T,t} component -------------
-    # 2x3 blocks: two WALKABLE crown rows over one solid trunk row. The art is
-    # 64x112 — twice the footprint's height and twice its width — so 64px of dense
-    # canopy hangs above the block and a full cell of leaf hangs into the grass
-    # either side. `top=-64` puts the crown half's canvas on exactly the row the
-    # bottom-anchored trunk half starts on, so the two compose as one tree; the
-    # sign is load-bearing (prop_spawner carries an explicit has_top flag for it).
-    # BARK, NOT `tn.TRUNK` — the same hand-pinned ramp the great trees use, and the
-    # reason is the `ramp()` violet law again (the Academy's five pinned ramps, the
-    # BRASSD precedent). The town's derived trunk material is (77,85,150) at its
-    # lit end and (17,37,55) at its dark one: a ramp with NO warm tone in it at all.
-    # On the old 32x48 tree that was ten pixels of shaft buried under the crown and
-    # nobody ever saw it; at this size it is a 12x60 BLUE PILLAR standing in the
-    # middle of the clearing. Sharing BARK also makes a small tree and a great tree
-    # the same species of wood, which is what a forest town wants.
+    # ---- walk-behind trees: TWO y-sorted World props per {T,t} component --------------
+    # 2x3 blocks: two WALKABLE crown rows over one solid trunk row. BARK, not
+    # tn.TRUNK — the derived trunk ramp is a blue pillar (the ramp() violet
+    # law), and sharing BARK makes a small tree and a great tree the same
+    # species of wood.
     lo, up = town_shade_tree(tn.FOREST, BARK, tn.GRASS)
     tn.emit_prop("TreeTrunk", "Tt", sprite_img(lo, 64, 112), each=True)
     tn.emit_prop("TreeCrown", "Tt", sprite_img(up, 64, 112), each=True,
                  top=-64, base_inset=-16)
-
-    # ---- tree authoring guard (the lanternwood spruce guard, same reasoning) ---------
-    # `assert_all`'s component table already pins every {T,t} block to 2x3. What it
-    # cannot see is WHICH rows are which: the whole point of the rebuild is that the
-    # top two rows are walkable crown and only the bottom row is solid trunk, and a
-    # tree typed the other way up renders perfectly while being a 3-row wall you can
-    # stand on the roof of.
     for _comp in tn.comps("Tt"):
         _x0, _y0, _x1, _y1 = tn.comp_bbox(_comp)
         for _cx, _cy in _comp:
@@ -430,56 +289,32 @@ def build(map_name, scene_key, glow):
                 f"{tn.name}.txt: tree cell ({_cx},{_cy}) should be "
                 f"{'solid trunk' if _want_solid else 'walkable crown'}")
 
-    # ---- THE UNDERSTORY: the forest floor this town stands on ------------------------
-    # THE TOWN IS THE FLOOR NOW, so the floor has to be a forest floor everywhere and
-    # not only in the tree shade. The first pass dressed a cell only if a trunk, a foot
-    # or a ring's fascia stood within three rows north of it, which is a band round each
-    # tree and nothing else — and the rest of an 80x56 clearing came out a flat green
-    # LAWN with four trees standing on it.
-    #
-    # DENSITY IS A GRADIENT, NOT A COIN-FLIP, and that is the whole idea. Leaf drift and
-    # undergrowth pile up against whatever stands still — the forest wall, a trunk, a
-    # town tree — and thin out across the middle, where the town walks. So every cell is
-    # scored by its distance to the nearest WILD thing and the odds fall off with it,
-    # which gives a floor that is thick at the edges, worn down the lane, and reads as a
-    # clearing somebody lives in rather than as texture applied uniformly.
-    #
-    # WHAT IT IS DRESSED WITH MATTERS MORE THAN HOW MUCH. Ferns, roots and saplings are
-    # all drawn from the leaf ramp, so a floor dressed only in those is still green
-    # dressing on green ground; "drift" — warm fallen leaves out of the timber ramp — is
-    # the only piece that changes the field's HUE, so it is the common case at every
-    # distance and everything else is a feature standing in it.
+    # ---- THE UNDERSTORY: the forest floor this town stands on -------------------------
+    # DENSITY IS A GRADIENT: every cell is scored by its distance to the
+    # nearest WILD thing and the odds fall off with it — thick at the edges,
+    # worn down the lane. `drift` (warm fallen leaves off the timber ramp) is
+    # the common case at every distance, because it is the only piece that
+    # changes the field's HUE.
     ROT = [DECK[2], DECK[3], DECK[3], DECK[4], DECK[4], DECK[5]]
-    # SEVERAL SALTED VARIANTS PER KIND, and the count is not decoration. A litter
-    # cell is fully opaque, so each variant costs exactly ONE atlas tile — and with
-    # one variant apiece the drift, which is half the pool by design, is the SAME
-    # sixteen pixels repeated three hundred times across the clearing. At this
-    # density that is not texture, it is wallpaper, and the eye finds the period
-    # immediately. Five drifts and three ferns cost eight tiles and the repeat
-    # stops being visible.
     VARIANTS = (("drift", 5), ("fern", 3), ("sapling", 2), ("roots", 2),
                 ("log", 2), ("shroom", 1))
     under = {k: [understory(FOL, ROT, tn.GRASS, kind=k, salt=461 + 31 * i + 7 * v)
                  for v in range(n)]
              for i, (k, n) in enumerate(VARIANTS)}
-    # chance out of 16, then the pool, by distance to the nearest wild cell
     NEAR = ("drift", "fern", "drift", "fern", "roots", "drift", "log", "shroom")
     MID = ("drift", "fern", "drift", "sapling", "drift", "roots", "drift", "fern")
     FAR = ("drift", "sapling", "drift", "drift", "fern", "drift")
     LITTER = {1: (8, NEAR), 2: (6, NEAR), 3: (5, MID), 4: (4, MID),
               5: (3, FAR), 6: (2, FAR)}
-    wild = "#Tt" + SHADERS              # forest wall, town trees, the great trees
+    wild = "#Ttj!"                     # forest wall, town trees, the great trunks
     dist = _wild_dist(tn.m, wild, max(LITTER))
     for y in range(tn.m.rows_n):
         for x in range(tn.m.cols):
             if tn.m.at(x, y) not in ".,":
                 continue
-            # NEVER over a struct's contact band. _ground_overlays has already darkened
-            # the top three pixel rows of the cell south of anything built, and an
-            # opaque litter cell blitted on top erases exactly those rows — which
-            # unsticks the cottage, the well or the stall from the ground it sits on.
-            # `greattrunk` is the deliberate exception: the trees WANT their feet in the
-            # litter, and that is what this pass was written for.
+            # never over a struct's contact band (it unsticks the building from
+            # its ground) — `greattrunk` is the deliberate exception: the trees
+            # WANT their feet in the litter
             n = tn.m.legend[tn.m.at(x, y - 1)]["terrain"] if y else ""
             if n in STRUCT_TERRAIN and n != "greattrunk":
                 continue
@@ -494,52 +329,25 @@ def build(map_name, scene_key, glow):
             bag = under[pool[h2(x, y, 463) % len(pool)]]
             tn.bg.blit_cell(bag[h2(x, y, 479) % len(bag)], x * T, y * T)
 
-    # NO foot_shade("!") — `greattrunk` is already in _overworld_tiles.STRUCT_TERRAIN,
-    # so _ground_overlays has painted a contact band on those same three pixel rows
-    # already. Calling it again stacks a second band on the first and roughly doubles
-    # the darkening, which is what put a hard black collar round every great tree's
-    # base and made the foot read as a rectangle sitting on the grass.
+    # NO foot_shade("!") — `greattrunk` is in STRUCT_TERRAIN, so _ground_overlays
+    # has already painted the contact band; doubling it collars every tree.
     tn.write_glow(lambda img: glow(tn, img))
 
-    # ---- NO DEPTH MASK, AND THAT IS THE POINT ------------------------------------
-    # The terrace kit's `mask_band` re-draws a face's top 12px over a body pressed
-    # south against it, and the ring used to ask for one on its fascia cells. It is
-    # WRONG HERE, and it shipped as a 16x12 SLAB OF DECK PLANKING drawn over anything
-    # standing on the row above — a body cropped to the head, one either side of the
-    # ladder, which is exactly where the eye goes.
-    #
-    # The reason is geometric, not a tuning error. A terrace's walkable row ENDS at
-    # its face: press south and your sunk feet are over the wall, so the wall's crest
-    # has to come back over them. The ring's walkable deck stops a WHOLE ROW north of
-    # where the fascia crescent begins (the arc is at y=92; the last standable row is
-    # centred at y=72), so a body pressed south there overhangs onto more DECK — the
-    # boards it is standing on — and there is nothing to swallow. Worse, the strip was
-    # copied from the run's top row, which at those columns is deck rather than face,
-    # so the paint it re-drew was floor.
-    #
-    # The ring has no face RUN at all: its fascia is a crescent painted inside one
-    # sprite, not a column of band cells. So the `v` chars are gone from the grid, and
-    # with them the band assert and the mask. Do not put them back without first
-    # showing that a body can press against the crescent.
-
-    assert_all(tn, map_name)
+    assert_floor(tn, map_name)
     tn.finish()
     return tn
 
 
-def assert_all(tn, map_name):
-    """THE ASSERT BLOCK — the "elevation system", and the reason both eras call one
-    function: every failure here is SILENT otherwise. It renders, it dedupes, every
-    lint in _check_art.py passes it, and it ships."""
+def assert_floor(tn, map_name):
+    """THE ASSERT BLOCK for the floor map — every failure here is SILENT
+    otherwise: it renders, it dedupes, every lint in _check_art.py passes it,
+    and it ships."""
     tn.assert_strata()
     tn.assert_door_approach(rows=2)
     tn.assert_npc_room()
-    # THE COMPONENT SHAPES. Two of these authored edge-to-edge FUSE into one
-    # component, one bbox and one badly stretched sprite, and nothing else complains
-    # (the 2026-07-29 spruce lesson). The COUNT is asserted as well as the shape,
-    # because a tree silently missing its crown would pass every other check here.
-    for chars, w, h, n in ((RING_CHARS, 12, 9, 4), ("G", 14, 6, 4), ("J", 4, 2, 4),
-                           ("q1", 5, 4, 1), ("w2", 5, 4, 1),
+    # component shapes AND counts (two blocks authored edge-to-edge fuse into
+    # one stretched sprite; a missing lantern passes every other check)
+    for chars, w, h, n in (("q1", 5, 4, 1), ("w2", 5, 4, 1),
                            ("xX", 5, 4, 1), ("pP", 5, 4, 1), ("iI", 5, 4, 1),
                            ("Tt", 2, 3, 6),
                            ("kK", 3, 2, 1), ("cC", 2, 2, 1), ("hH", 1, 2, 6)):
@@ -551,36 +359,298 @@ def assert_all(tn, map_name):
             assert (c2 - a + 1, d - b + 1) == (w, h), (
                 f"{map_name}.txt: the {chars!r} component at ({a},{b}) is "
                 f"{c2 - a + 1}x{d - b + 1}, want {w}x{h}")
-    # THE RING'S WALKABLE CELLS ARE THE ELLIPSE'S CELLS. The disc is drawn from
-    # ring_geom and the map used to be a hand-guessed blob INSIDE it: at the east and
-    # west poles two whole columns of drawn decking were solid, and the north and
-    # south tips were solid too, so a round platform was walked as a rectangle with an
-    # invisible wall following its rim the whole way round. Nothing complained,
-    # because a cell that looks like deck and stops you looks exactly like a cell you
-    # have not reached yet.
-    #
-    # So the mask is derived, never authored: `ring_cells` rasterizes the same ellipse
-    # tree_ring draws, and a cell is walkable iff its CENTRE is on decking. The trunk
-    # and its ladder are skipped — they own their cells and are asserted below.
+    # THE TRUNKS: four, each exactly 4 columns wide, typed from row 6 down —
+    # the shaft art is blitted from row 0 on that assumption
+    trunks = tn.comps("j!z")
+    assert len(trunks) == 4, (
+        f"{map_name}.txt: {len(trunks)} great trunks, want 4")
+    for c in trunks:
+        a, b, c2, d = tn.comp_bbox(c)
+        assert c2 - a + 1 == 4, (
+            f"{map_name}.txt: the trunk at ({a},{b}) is {c2 - a + 1} cols wide, "
+            f"want 4 (jzzj)")
+        assert b == 6, (
+            f"{map_name}.txt: the trunk at ({a},{b}) starts at row {b}, want 6")
+    # THE LADDERS: 2 cols, boxed by trunk timber on both sides for their whole
+    # length (or a body steps sideways off rung eight onto open ground), rungs
+    # continuing up into solid trunk above (the travel mouth is mid-ladder, not
+    # at the tree's top), and the floor below the last rung walkable.
+    runs = _z_runs(tn)
+    assert len(runs) == 4, f"{map_name}.txt: {len(runs)} ladders, want 4"
+    for i, (a, b, d) in enumerate(runs, 1):
+        c2 = a + 1
+        for y in range(b, d + 1):
+            for x in (a - 1, c2 + 1):
+                ch = tn.m.at(x, y)
+                assert ch in "j!", (
+                    f"{map_name}.txt: the ladder at ({a},{b}) has {ch!r} beside "
+                    f"it at ({x},{y}) — a ladder needs solid timber both sides")
+        assert tn.m.at(a, b - 1) == "j" and tn.m.at(c2, b - 1) == "j", (
+            f"{map_name}.txt: the ladder at ({a},{b}) must continue into solid "
+            f"trunk above — its travel mouth is mid-ladder")
+        assert not tn.m.legend[tn.m.at(a, d + 1)]["solid"], (
+            f"{map_name}.txt: the ladder at ({a},{b}) ends on solid ground at "
+            f"({a},{d + 1}) — it must emerge onto the floor")
+        # the travel anchors are pinned to the run itself, so a moved ladder
+        # takes its mouth and its foot with it
+        assert tn.m.anchors[f"top{i}"] == (a, b), (
+            f"{map_name}.txt: anchor top{i} is {tn.m.anchors.get(f'top{i}')}, "
+            f"want ({a},{b}) — the z run's own top rung")
+        assert tn.m.anchors[f"foot{i}"] == (a, d + 1), (
+            f"{map_name}.txt: anchor foot{i} is {tn.m.anchors.get(f'foot{i}')}, "
+            f"want ({a},{d + 1}) — the floor cell below the last rung")
+    # reachable from BOTH arrivals: the south gate and any ladder foot
+    tn.assert_reachable("exit_south", "foot1", "foot2", "foot3", "foot4")
+
+
+# =====================================================================================
+# THE BOUGHS — build_canopy(): the treetop half of the split town
+# =====================================================================================
+
+# The drop field's own tones are hand-pinned FRACTIONS of the scene's grass —
+# the town seen from above at dusk is a view, not a material, and it must stay
+# darker than everything a body can stand on or the void reads as floor.
+DROP_PULL = (0.66, 0.58, 0.52)     # lerp-to-VOID per fabric tone (dark -> darker)
+DROP_WINDOW = (255, 196, 110, 255)  # the amber pinpricks thirty feet down
+
+
+def _drop_field(tn):
+    """Repaint the INTERIOR drop/span cells as THE DROP — the clearing floor
+    far below — and return the window pixels for the glow overlay.
+
+    Boundary drop cells keep paint_terrain's leaf lattice, so every void
+    pocket arrives fringed in foliage; only cells fully surrounded by drop
+    (map edges count as drop) go down into the view. The fabric is TILE-LOCAL
+    dither, so the open field collapses to a couple of atlas tiles; the
+    houses are keyed on absolute position and each costs its cells' tiles,
+    which is the price of a view and is paid ~40 cells at a time.
+
+    The old chasm lesson ("a hole is an absence and authoring absence fails")
+    does not apply, and knowing why matters: the drop is BELOW the camera's
+    subject, not beside it, and it is full of named positive things — roofs,
+    windows, lanes. What failed in Lanternwood was two rows of dark painted on
+    flat ground; what works here is what makes Slitherbough and Endor read:
+    platforms as figure, a live world as ground."""
+    m = tn.m
+    dropch = {c for c, d in m.legend.items()
+              if d["terrain"] in ("drop", "span")}
+    # the descending trunks and their rungs HANG IN the void, so for the
+    # interior test they count as drop — otherwise every trunk lands in a
+    # bright leaf pocket instead of fading into the dark below it
+    near = dropch | set("jz")
+
+    def isd(x, y):
+        if not (0 <= x < m.cols and 0 <= y < m.rows_n):
+            return True                # off-map counts as drop: the view runs
+        return m.at(x, y) in near      # to the frame edge
+
+    interior = set()
+    for y in range(m.rows_n):
+        for x in range(m.cols):
+            if m.at(x, y) in dropch and all(isd(x + dx, y + dy)
+                                            for dx in (-1, 0, 1)
+                                            for dy in (-1, 0, 1)):
+                interior.add((x, y))
+
+    G = tn.GRASS
+    fab = [lerp(G[2 + i][:3], VOID[:3], DROP_PULL[i]) + (255,)
+           for i in range(3)]
+    for (x, y) in interior:
+        X, Y = x * T, y * T
+        for py in range(T):
+            for px in range(T):
+                r = h2(px, py, 977) % 16
+                c = fab[0] if r == 0 else fab[2] if r < 4 else fab[1]
+                tn.bg.put(X + px, Y + py, c)
+
+    def put(px, py, c):
+        if (px // T, py // T) in interior:
+            tn.bg.put(px, py, c)
+
+    # THE LANES BELOW: two soft ribbons wandering across the deep field, one
+    # value step up from the fabric — the town's road web read from thirty
+    # feet, before a single roof lands on it. Drawn first so the houses sit
+    # over them the way real houses sit over a lane's edge.
+    import math
+    lane = lerp(tn.ROAD[3][:3], VOID[:3], 0.60) + (255,)
+    H_PX = m.rows_n * T
+    for base_y, amp, period, ph in ((H_PX - 118, 13.0, 170.0, 0.0),
+                                    (H_PX - 52, 9.0, 210.0, 2.1)):
+        for px in range(m.cols * T):
+            cy = base_y + amp * math.sin(px / period + ph)
+            for dy in range(5):
+                put(px, int(cy) + dy, lane)
+
+    # THE HOUSES BELOW: tiny roofs on a jittered grid over the deep field.
+    # Value discipline: a roof is a couple of steps up from the fabric with a
+    # lit ridge, never a bright object — at this depth the WINDOWS carry the
+    # read, and they get their real light from the glow overlay (returned to
+    # the caller).
+    roofA = lerp(tn.mat("roof_green")[1][:3], VOID[:3], 0.30) + (255,)
+    roofB = lerp(tn.mat("roof_blue")[1][:3], VOID[:3], 0.30) + (255,)
+    ridge = lerp(tn.mat("plaster")[2][:3], VOID[:3], 0.28) + (255,)
+    shade = lerp(fab[2][:3], VOID[:3], 0.5) + (255,)
+    windows = []
+    for gx in range(m.cols // 4):
+        for gy in range(m.rows_n // 4):
+            if h2(gx, gy, 911) % 3 == 0:
+                continue
+            hx = gx * 4 * T + 6 + h2(gx, gy, 913) % (2 * T)
+            hy = gy * 4 * T + 8 + h2(gx, gy, 917) % (2 * T)
+            hw, hh = 14 + h2(gx, gy, 919) % 6, 9
+            # only where the WHOLE house lands in the deep field
+            cells = {(px // T, py // T)
+                     for px in (hx, hx + hw) for py in (hy, hy + hh + 1)}
+            if not cells <= interior:
+                continue
+            roof = roofA if h2(gx, gy, 923) % 2 else roofB
+            for py in range(hy, hy + hh):
+                for px in range(hx, hx + hw):
+                    put(px, py, roof)
+            for px in range(hx, hx + hw):
+                put(px, hy, ridge)                     # the lit ridge line
+                put(px, hy + hh, shade)                # contact shadow
+            wx, wy = hx + 3 + h2(gx, gy, 929) % (hw - 6), hy + hh - 3
+            for px in range(wx, wx + 3):
+                for py in range(wy, wy + 2):
+                    put(px, py, DROP_WINDOW)
+            windows.append((wx + 1, wy + 1))
+    return windows
+
+
+def build_canopy(map_name, scene_key, glow):
+    """Paint one era of THE BOUGHS and finish it. Returns the TileScene."""
+    tn = OverWorld(map_name, scene_key)
+    DECK = tn.DECK
+    FOL = tn.FOREST
+
+    tn.paint_terrain()
+    tn.drop_windows = _drop_field(tn)
+
+    ring_lo, ring_up = tree_ring(DECK, BARK, FOL, salt=491, w=RING_W, h=RING_H,
+                                 hole=RING_HOLE, fascia=RING_FASCIA)
+    # THE CROWN AND THE TRUNK'S TOP ARE ONE SPRITE — the crown hangs three rows
+    # below its footprint and carries the shaft's continuation behind its
+    # leaves (`shaft_w`), so the hem cuts through bark over the trunk's own
+    # columns and the two sprites are one shaft. `great_crown` measures its own
+    # mass and hands back the margins (`cpx`/`cpt`) — hardcoding the canvas
+    # re-introduces the flat-top tree. base_inset=-52 pushes the sort key south
+    # of the trunk segment's so the leaves are genuinely in front of a body on
+    # the ring's north arc — the walk-behind this scene is built around, which
+    # is why the mass stays PERFORATED.
+    crown, cpx, cpt = great_crown(FOL, BARK, salt=451, w=CROWN_W, h=CROWN_H,
+                                  window=DECK, shaft_w=TRUNK_W)
+    tn.emit_prop("Crown", "G",
+                 sprite_img(crown, CROWN_W + 2 * cpx, CROWN_H + cpt),
+                 each=True, top=-cpt, base_inset=-52)
+    # THE RAIL'S NEAR ARC — Tier-3: baked, every body draws OVER the handline;
+    # upper-layer, the corridor cap forbids art a body is MEANT to be seen
+    # over. As a prop it just sorts. The far arc stays baked with the deck.
+    tn.emit_prop("RingRail", RING_CHARS,
+                 sprite_img(ring_up, RING_W, RING_H), each=True, top=0)
+    # the shaft segment crossing the ring — the ONE piece of the tree a body
+    # passes behind; base_inset=19 lands its key in the 2px of daylight between
+    # a body on the trunk row and a body on the south deck
+    tn.emit_prop("TrunkRing", "J",
+                 sprite_img(trunk_face(BARK, DECK, salt=401, w=TRUNK_W, h=32),
+                            TRUNK_W, 32),
+                 each=True, base_inset=19)
+
+    GLOOM = lerp(tn.GRASS[5][:3], VOID[:3], 0.6) + (255,)
+    for comp in tn.comps(RING_CHARS):
+        cx0, cy0, cx1, cy1 = tn.comp_bbox(comp)
+        assert (cx1 - cx0 + 1, cy1 - cy0 + 1) == (RING_W // T, RING_H // T), (
+            f"{map_name}.txt: the ring at ({cx0},{cy0}) is not {RING_W // T}x"
+            f"{RING_H // T} — one sprite would be stretched over it")
+        tx0 = cx0 + TRUNK_C0
+        fy = cy1
+        while fy + 1 < tn.m.rows_n and tn.m.at(tx0, fy + 1) == "j":
+            fy += 1
+        # THE SHAFT GOES DOWN FIRST, AND THE RING GOES DOWN ON TOP OF IT.
+        # Blitted the other way round, the shaft's dead-straight edge() top
+        # lands two px under the crescent and the tree BEGINS at a horizontal
+        # cut — a post nailed to a saucer. Starting two rows above the block's
+        # foot buries that edge under opaque decking; the only line crossing
+        # the trunk is then the fascia's hem, which is an ARC, and an arc
+        # crossing a cylinder is an overlap.
+        shaft = great_trunk(BARK, tn.GRASS, [(0, fy - (cy1 - 2))], salt=401,
+                            w=TRUNK_W)[0]
+        # ...and the deck throws its SHADOW on the bark — bark under a platform
+        # and bark in the open are otherwise the same six colours.
+        _shade_under(shaft, BARK, (tx0 - cx0) * T,
+                     (cy1 - 2 - cy0) * T, RING_W, RING_HOLE)
+        _blit_img(tn.bg, shaft, tx0 * T, (cy1 - 2) * T)
+        tn.bg.blit_cell(ring_lo, cx0 * T, cy0 * T)
+        # the ladder, from the fascia cut down the descending trunk
+        lx0 = cx0 + LADDER_C0
+        top = cy0
+        while tn.m.at(lx0, top) != "z":
+            top += 1
+        bot = top
+        while bot + 1 < tn.m.rows_n and tn.m.at(lx0, bot + 1) == "z":
+            bot += 1
+        tn.bg.blit_cell(rope_ladder(DECK, BARK, salt=441, cells=bot - top + 1),
+                        lx0 * T, top * T)
+        # the trunk and its rungs FADE into the drop — the tree does not end at
+        # row `fy`, the view does
+        _gloom_rect(tn.bg, tx0 * T, fy * T - 6, (tx0 + 4) * T, (fy + 1) * T,
+                    GLOOM, 0.0, 0.92)
+
+    # THE LANDING between trees 2 and 3 — Tier-1 (100% opaque over its cells),
+    # rails on the open north/south sides only: the bridges land east and west,
+    # and a rail across a joint is a wall you can see through.
+    comps_n = tn.comps("nhH")
+    assert len(comps_n) == 1, f"{map_name}.txt: want exactly one landing"
+    la, lb, lc, ld = tn.comp_bbox(comps_n[0])
+    plat = tree_platform(DECK, FOL, salt=421, w=(lc - la + 1) * T,
+                         h=(ld - lb + 1) * T, rails="ns", fascia=6)
+    tn.bg.blit_cell(plat, la * T, lb * T)
+
+    # THE BRIDGES — blitted AFTER the rings and the landing, one cell wider
+    # each side than their walkable run, so the bearer beams land ON the bridge
+    # gates and the platform edge and overdraw the rim board there. Tier-1
+    # order is depth: the later blit wins, and here that is the design.
+    for comp in tn.comps("="):
+        a, b, c2, d = tn.comp_bbox(comp)
+        br = tree_bridge(DECK, salt=431 + a, horiz=True, cells=(c2 - a + 1) + 2)
+        tn.bg.blit_cell(br, (a - 1) * T, b * T)
+
+    # the landing's hook lantern — on the deck, so `decklamp`, not `hooklamp`
+    tn.emit_prop("Hooklamp", "hH", hook_lantern(IRON, frames=4), hframes=4,
+                 each=True)
+
+    tn.write_glow(lambda img: glow(tn, img))
+
+    assert_canopy(tn, map_name)
+    tn.finish()
+    return tn
+
+
+def assert_canopy(tn, map_name):
+    """THE ASSERT BLOCK for the boughs — the derived-ring law plus the split's
+    own rules (gates, spans, ladders that end at a travel mouth)."""
+    tn.assert_strata()
+    tn.assert_npc_room()
+    for chars, w, h, n in ((RING_CHARS, 12, 9, 4), ("G", 14, 6, 4),
+                           ("J", 4, 2, 4), ("nhH", 4, 2, 1), ("hH", 1, 2, 1)):
+        cs = tn.comps(chars)
+        assert len(cs) == n, (
+            f"{map_name}.txt: {chars!r} has {len(cs)} components, want {n}")
+        for c in cs:
+            a, b, c2, d = tn.comp_bbox(c)
+            assert (c2 - a + 1, d - b + 1) == (w, h), (
+                f"{map_name}.txt: the {chars!r} component at ({a},{b}) is "
+                f"{c2 - a + 1}x{d - b + 1}, want {w}x{h}")
+    # THE RING'S WALKABLE CELLS ARE THE ELLIPSE'S CELLS — derived, never
+    # authored (the walked-as-a-rectangle lesson). Named exceptions only: the
+    # crown-heart row (bodies 100% hidden), the ladder LANDING (standing on the
+    # lip IS stepping onto the rungs), and — new with the split — the BRIDGE
+    # GATES, skipped as `E` exactly as the trunk chars are skipped.
     base = ring_cells(RING_W, RING_H, hole=RING_HOLE)
-    # EXCEPTION 1, and it is not a fudge: the disc's north tip is drawn, but it lies
-    # under the HEART of the crown, where the leaf mass measures 96-100% opaque. A
-    # body standing there is a body you cannot see — _check_art's walk-behind lint
-    # says so in numbers, which is how this row was caught. The north ARC (block row
-    # 1) stays walkable because the crown is perforated exactly that far and no
-    # further; pushing the perforation deeper to buy four cells nobody looks at would
-    # thin the leaves over the walk-behind that this town is built around.
     for r in range(RING_CROWN_ROWS):
         base[r] = [False] * len(base[r])
     for comp in tn.comps(RING_CHARS):
         cx0, cy0, _, _ = tn.comp_bbox(comp)
-        # EXCEPTION 2, THE LANDING. The mask empties the south rim, correctly: the
-        # arc is at y=92, so a body centred anywhere on that row has its feet past
-        # it. But the ladder head is IN that rim — it is the one place you are meant
-        # to stand on the lip, because standing there IS stepping onto the rungs, and
-        # the ring draws its cleat and its head boards over exactly those two cells.
-        # Two cells, named off the ladder itself rather than typed as a row number,
-        # so a ladder that moves takes its landing with it.
         mask = [row[:] for row in base]
         lx = cx0 + LADDER_C0
         top = cy0
@@ -592,7 +662,7 @@ def assert_all(tn, map_name):
         for r, mrow in enumerate(mask):
             for c, want in enumerate(mrow):
                 ch = tn.m.at(cx0 + c, cy0 + r)
-                if ch in "Jj!z":                     # trunk, foot, ladder
+                if ch in "Jj!zE":                    # trunk, ladder, gates
                     continue
                 if tn.m.legend[ch]["solid"] == want:
                     bad.append(f"({cx0 + c},{cy0 + r}) is {ch!r}, want "
@@ -601,40 +671,59 @@ def assert_all(tn, map_name):
             f"{map_name}.txt: the ring at ({cx0},{cy0}) does not match the disc "
             f"tree_ring draws — " + "; ".join(bad[:6])
             + (f" (+{len(bad) - 6} more)" if len(bad) > 6 else ""))
-    # THE RING IS THE FEATURE, SO ASSERT IT. Round every trunk's ring segment the
-    # cells must be walkable and on ONE stratum — that is what "you can walk the full
-    # circle around the tree, passing behind it" means, and it is one mistyped cell
-    # away from a dead end nobody notices, because the deck still looks continuous
-    # from the south, which is where the player is standing.
+    # walk the full circle round every trunk
     for c in tn.comps("J"):
         a, b, c2, d = tn.comp_bbox(c)
         ring = [(a - 1, b), (c2 + 1, b), (a - 1, d), (c2 + 1, d),
                 ((a + c2) // 2, b - 1), ((a + c2) // 2, d + 1)]
-        strata = set()
         for rx, ry in ring:
-            s = tn.m.stratum(rx, ry)
-            assert s is not None, (
-                f"{map_name}.txt: the trunk at ({a},{b}) has no ring — ({rx},{ry}) "
-                f"is solid, so you cannot walk round this tree")
-            strata.add(s)
-        assert len(strata) == 1, (
-            f"{map_name}.txt: the ring round the trunk at ({a},{b}) spans strata "
-            f"{sorted(strata)} — a ring is one storey")
-    # EVERY LADDER MUST BE BOXED IN BY ITS OWN TRUNK. A link is exempt from the
-    # fusion rule, so a ladder with open floor beside it passes assert_strata and
-    # still lets you walk sideways off rung eight onto ground thirty feet below.
-    for c in tn.comps("z"):
-        a, b, c2, d = tn.comp_bbox(c)
-        for y in range(b, d):                       # every row but the last
+            assert not tn.m.legend[tn.m.at(rx, ry)]["solid"], (
+                f"{map_name}.txt: the trunk at ({a},{b}) has no ring — "
+                f"({rx},{ry}) is solid, so you cannot walk round this tree")
+    # EVERY GATE SERVES A SPAN: an E cell with no bridge beside it is a hole in
+    # the rim board with a thirty-foot drop behind it
+    for y in range(tn.m.rows_n):
+        for x in range(tn.m.cols):
+            if tn.m.at(x, y) == "E":
+                assert tn.m.at(x - 1, y) in "=nY" or tn.m.at(x + 1, y) in "=nY", (
+                    f"{map_name}.txt: the bridge gate at ({x},{y}) serves no "
+                    f"span")
+    # EVERY SPAN: 2 rows deep, and both ends land on a gate or the landing —
+    # a bridge into leaf is a corridor, a bridge into the drop is the chasm
+    for comp in tn.comps("="):
+        a, b, c2, d = tn.comp_bbox(comp)
+        assert d - b + 1 == 2, (
+            f"{map_name}.txt: the span at ({a},{b}) is {d - b + 1} rows deep, "
+            f"want 2 (the rails live in the cross dimension)")
+        assert c2 - a + 1 >= 2, (
+            f"{map_name}.txt: the span at ({a},{b}) has no mid-span to sag at")
+        for y in (b, d):
+            for x, side in ((a - 1, "west"), (c2 + 1, "east")):
+                ch = tn.m.at(x, y)
+                assert ch in "EnH", (
+                    f"{map_name}.txt: the span at ({a},{b})'s {side} end lands "
+                    f"on {ch!r} at ({x},{y}) — a bridge must abut a gate or "
+                    f"the landing")
+    # THE LADDERS: boxed in bark for their whole length, and ending AGAINST
+    # THE DROP — the travel mouth is the bottom two rungs; the old "ends on
+    # walkable ground" rule lives on the floor map now
+    runs = _z_runs(tn)
+    assert len(runs) == 4, f"{map_name}.txt: {len(runs)} ladders, want 4"
+    for i, (a, b, d) in enumerate(runs, 1):
+        c2 = a + 1
+        for y in range(b, d + 1):
             for x in (a - 1, c2 + 1):
                 ch = tn.m.at(x, y)
-                assert ch in "jJ!yv", (
-                    f"{map_name}.txt: the ladder at ({a},{b}) has {ch!r} beside it "
-                    f"at ({x},{y}) — a ladder needs solid timber both sides or it "
-                    f"is a walkable ramp into thin air")
-        assert not tn.m.legend[tn.m.at(a, d + 1)]["solid"], (
-            f"{map_name}.txt: the ladder at ({a},{b}) ends on solid ground at "
-            f"({a},{d + 1}) — it joins its ring to nothing")
-    # assert_reachable LAST, and with BOTH arrivals: the player can enter this town
-    # at the south gate or on Basil's own doorstep, up the tree.
-    tn.assert_reachable("exit_south", "home")
+                assert ch in "jJ!y", (
+                    f"{map_name}.txt: the ladder at ({a},{b}) has {ch!r} beside "
+                    f"it at ({x},{y}) — a ladder needs solid timber both sides")
+        assert tn.m.legend[tn.m.at(a, d + 1)]["solid"], (
+            f"{map_name}.txt: the canopy ladder at ({a},{b}) must end against "
+            f"the drop — its last rungs are the travel mouth")
+        assert tn.m.anchors[f"head{i}"] == (a, d - 1), (
+            f"{map_name}.txt: anchor head{i} is {tn.m.anchors.get(f'head{i}')}, "
+            f"want ({a},{d - 1}) — one rung above the run's last")
+    # reachable from the home deck, every ladder mouth and every door — with
+    # full=True this also proves no bridge or arc is stranded
+    tn.assert_reachable("home", "head1", "head2", "head3", "head4",
+                        "door2", "door3", "door4")

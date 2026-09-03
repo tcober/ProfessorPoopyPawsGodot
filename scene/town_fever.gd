@@ -24,9 +24,6 @@ const TINT_GREY := Color(0.68, 0.72, 0.84)
 const TINT_DUSK := Color(0.74, 0.56, 0.66)
 
 var _back := false
-## the home-door re-entry stays disarmed while the from-downstairs arrival
-## stands on it (the town_fest latch — else the arrival bounces straight back)
-var _home_armed := true
 
 @onready var theater: Theater = $Theater
 @onready var tint: CanvasModulate = $Tint
@@ -47,14 +44,14 @@ func _layout_path() -> String:
 func _place_player() -> void:
 	var spawn := Game.town_spawn
 	Game.town_spawn = ""
-	if spawn == "school":
-		# back out of the Academy's reading room, into the lane's mouth
-		Party.place(MapData.anchor_px(map, "school") + Vector2(0.0, 24.0))
-	else:
-		# out of his own front door, ON the door mouth (the arrival contract).
-		# The zone hangs over the trunk face (a press UP into the door), so
-		# the arrival spot is outside it and the door stays armed.
-		Party.place(MapData.anchor_px(map, "home"))
+	if not _place_on_rungs(spawn):
+		if spawn == "school":
+			# back out of the Academy's reading room, into the lane's mouth
+			Party.place(MapData.anchor_px(map, "school") + Vector2(0.0, 24.0))
+		else:
+			# a direct load (dev menu / probe): the foot of Basil's own tree —
+			# the front door and its "home" arrival live in canopy_fever now
+			Party.place(MapData.anchor_px(map, "foot1"))
 	_back = Game.flag("prologue_herbal_found")
 
 
@@ -62,7 +59,7 @@ func _extra_setup() -> void:
 	PropSpawner.build("res://assets/tilesets/town_fest_props.txt", map, $World)
 	_collect_animated()
 	_wall_mouths()
-	_spawn_home_door()
+	_wire_ladder_tops("res://scene/canopy_fever.tscn")
 	Party.clamp_cameras(MapData.size_px(map))
 	tint.color = TINT_DUSK if _back else TINT_GREY
 	# the fest glow is the town's living charm-light; at dusk it is every
@@ -115,30 +112,5 @@ func _wall_mouths() -> void:
 			Vector2(8.0, 64.0))
 
 
-## Basil's own front door — back into the fever downstairs. The zone sits ON
-## the door mouth (where the from-downstairs arrival lands), so it stays
-## disarmed until that body steps off it once (the town_fest latch).
-func _spawn_home_door() -> void:
-	var door := Area2D.new()
-	door.collision_layer = 0
-	door.collision_mask = 2
-	var shape := CollisionShape2D.new()
-	var rect := RectangleShape2D.new()
-	# hangs over the trunk face: only a press UP into the door fires it, so
-	# crossing the deck's through-row never yanks a body inside
-	rect.size = Vector2(24.0, 8.0)
-	shape.shape = rect
-	shape.position = Vector2(8.0, -8.0)
-	door.add_child(shape)
-	door.position = MapData.anchor_px(map, "home")
-	add_child(door)
-	door.body_exited.connect(func(body: Node2D) -> void:
-		if body.is_in_group("player"):
-			_home_armed = true)
-	door.body_entered.connect(func(body: Node2D) -> void:
-		if not body.is_in_group("player") or not _home_armed or _busy:
-			return
-		_busy = true
-		Game.interior_spawn = "front_door"
-		await fade_out()
-		get_tree().change_scene_to_file("res://scene/downstairs_fever.tscn"))
+## (Basil's front door moved up the tree with the 2026-08-23 split — it lives
+## in canopy_fever.gd now, same latch, same trunk-face zone.)

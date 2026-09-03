@@ -117,25 +117,17 @@ func _run() -> void:
 	quit(0 if ok else 1)
 
 
-## PHASE 3 — THE LEASH ACROSS TWO FASCIAS (2026-07-29; four storeys 2026-07-30).
-## The one genuinely new systems risk in a stacked map: the follower walks with
-## COLLISION, so it cannot cross a boardwalk's fascia the way its leader can (up a
-## ladder), and `_follow` will happily push it into the underside of a storey
-## forever. Basil's door is on `canopy_hi` now, so this drops the follower all the
-## way to the forest floor and it has TWO fascias and a whole storey to climb.
-##
-## What must hold is that the OFF-SCREEN CATCH-UP TELEPORT resolves it — and that
-## it resolves it by landing the follower on THE LEADER'S STOREY, because a warp
-## that split the party across two strata would leave a body on a canopy it has
-## no way down from. It does, and for a reason worth writing down rather than
-## re-deriving: `_teleport_home` lands a step behind the LEADER, so the follower
-## inherits whichever storey the leader is standing on by construction. The
-## stratum is checked, not the distance alone, because the distance passes even
-## when the follower is stuck directly BELOW the leader against the fascia — and
-## it is compared against the LEADER's stratum rather than a spelled name, or the
-## check stops meaning anything the next time a storey is added.
+## PHASE 3 — THE LEASH ACROSS THE BOUGHS (rewritten for the 2026-08-23 split).
+## The stacked-grid version parked the leader on a ring deck and the follower on
+## the forest floor and demanded the catch-up teleport land both on one stratum.
+## The split retired cross-strata leashes — each town scene is one storey now —
+## but the teleport's real obligation survives up here in a sharper form: the
+## canopy's walkable web is four discs and three bridges over THE DROP, so
+## however the follower gets home (walking the bridges, or the off-screen warp),
+## it must end beside the leader with its feet on DECK — never seated in the
+## void beside it, which renders as a body standing on thirty feet of air.
 func _phase3_across_a_fascia() -> bool:
-	change_scene_to_file("res://scene/alembic_town.tscn")
+	change_scene_to_file("res://scene/alembic_canopy.tscn")
 	for i in 20:
 		await process_frame
 	var party := root.get_node("Party")
@@ -145,33 +137,21 @@ func _phase3_across_a_fascia() -> bool:
 	for m in party.members:
 		if m != leader:
 			follower = m
-	# THE LEADER ON BASIL'S RING DECK, THE FOLLOWER ON THE FOREST FLOOR BELOW.
-	# No southward offset on the leader any more: the `home` anchor sits on the ring's
-	# south deck row, and the deck is only two rows deep below the door, so the old
-	# +26 pushed him 1.6 cells south onto the LADDER — a `link` cell, whose stratum is
-	# "link" and not "canopy", so the probe compared the follower's storey against the
-	# wrong answer and failed for a reason that had nothing to do with the leash.
-	# ONE ROW SOUTH OF THE ANCHOR, and both halves of that matter. `home` IS Basil's
-	# door marker, so parking a body on it fires the travel zone and change_scene
-	# frees every member mid-probe ("Invalid access ... on a base object of type
-	# 'previously freed'"). And it can only be ONE row: the ring's south deck is two
-	# rows deep, so +26 lands on the ladder, whose stratum is "link", not the canopy
-	# the follower is supposed to be compared against.
-	leader.global_position = MapData.anchor_px(map, "home") + Vector2(0.0, 16.0)
-	follower.global_position = MapData.anchor_px(map, "home") + Vector2(0.0, 400.0)
+	# THE LEADER ON TREE 4'S RING, THE FOLLOWER ALL THE WAY WEST ON TREE 1'S.
+	# One row south of the door anchors — a body parked ON `door4`/`home` fires
+	# their zones and change_scene frees every member mid-probe.
+	leader.global_position = MapData.anchor_px(map, "door4") + Vector2(0.0, 8.0)
+	follower.global_position = MapData.anchor_px(map, "home") + Vector2(0.0, 8.0)
 	for c in leader.get_children():
 		if c is Camera2D:
 			(c as Camera2D).reset_smoothing()
-	var want := MapData.stratum_at_px(map, leader.global_position)
-	var start := MapData.stratum_at_px(map, follower.global_position)
+	var start_d := follower.global_position.distance_to(leader.global_position)
 	for i in 600:
 		await physics_frame
-	var st := MapData.stratum_at_px(map, follower.global_position)
 	var dist := follower.global_position.distance_to(leader.global_position)
-	# ASKED OF THE MAP, not spelled: the point is that the follower ends up on THE
-	# LEADER'S storey, whatever it is called. Comparing against the literal "canopy"
-	# made this check unsatisfiable the moment the boardwalk split into canopy_hi and
-	# canopy_lo, and it failed for a reason that had nothing to do with the leash.
-	print("phase-3 follower %s -> %s (leader %s)  dist %.1f  (PASS same, < 60)"
-			% [start, st, want, dist])
-	return st == want and start != want and dist < 60.0
+	var feet := follower.global_position + Vector2(0.0, 6.0)
+	var seated := not MapData.is_solid(map,
+			Vector2i(int(feet.x / 16.0), int(feet.y / 16.0)))
+	print("phase-3 follower dist %.1f -> %.1f, on walkable deck: %s  (PASS < 60, true)"
+			% [start_d, dist, seated])
+	return start_d > 400.0 and dist < 60.0 and seated

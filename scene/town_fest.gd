@@ -1,18 +1,19 @@
 extends TravelScene
 
-## Alembic Town, FESTIVAL ERA — Prologue A "The Whirligig" (docs/DESIGN.md
-## Story). The same village grid as the drained present, decades younger: the
-## Founding Festival fills the square, magic is casually everywhere, and kid
-## Basil is the one cat who can't do magic. First entry arrives from the fest
-## downstairs at Basil's home door (the home-start opening) and the town is
+## Alembic Town's FLOOR, FESTIVAL ERA — Prologue A "The Whirligig"
+## (docs/DESIGN.md Story). The same village grid as the drained present,
+## decades younger: the Founding Festival fills the square, magic is casually
+## everywhere, and kid Basil is the one cat who can't do magic. Since the
+## 2026-08-23 split the front door and the ring decks live in canopy_fest —
+## first entry climbs DOWN a rope ladder from the boughs, and the town is
 ## FREE — the fountain-square teasing cutscene fires from a proximity zone
 ## when Basil first walks by the square. Then the chapter's wander rhythm
 ## (reworked 2026-07-15): three stinging villager talks → "I want to go
-## home." → back through the FRONT DOOR to Mom downstairs, whose blessing
-## by the hearth opens the south gate (the double-back — Mom stays home, no
-## duplicate festival Mom). The goose steals Sage's ribbon mid-cutscene and goes
-## UP — onto a great tree's ring deck, up the rope ladder and nowhere else;
-## climbing after it is a warmth beat that counts as a talk.
+## home." → up tree 1 and through the FRONT DOOR to Mom downstairs, whose
+## blessing by the hearth opens the south gate (the double-back — Mom stays
+## home, no duplicate festival Mom). The goose steals Sage's ribbon
+## mid-cutscene and goes UP — out the frame top on tree 3's own ladder line;
+## the treed thief and the ribbon recovery live in canopy_fest.
 
 const MAP_PATH := "res://assets/maps/town_fest.txt"
 const LAYOUT_PATH := "res://assets/tilesets/town_fest_layout.txt"
@@ -57,9 +58,6 @@ var _refusing := false
 var _npcs := {}
 ## the bobbing square ribbons — the theft snatches one, so keep the refs
 var _ribbons: Array[Sprite2D] = []
-## the home-door re-entry stays disarmed while the from-downstairs arrival
-## stands on it (it lands exactly on the door zone and must not bounce back)
-var _home_armed := true
 
 @onready var theater: Theater = $Theater
 
@@ -77,19 +75,14 @@ func _layout_path() -> String:
 
 
 func _place_player() -> void:
-	# First entry arrives from the fest downstairs at the home door; returns
-	# from the meadow land at the south gate. ("festival" stays the fallback
-	# for direct scene loads — old harness invocations.)
+	# Arrivals: down a rope ladder from the boughs ("top1".."top4" — the home
+	# door lives in canopy_fest now), back from the meadow at the south gate,
+	# or "festival" as the fallback for direct scene loads.
 	var spawn := Game.town_spawn
 	Game.town_spawn = ""
-	if spawn == "home":
-		# Land ON the door mouth — feet on the lane right under the arch (the
-		# old tile-and-a-half drop read as appearing nowhere near the door).
-		Party.place(MapData.anchor_px(map, "home"))
-		# the zone hangs over the trunk face (a press UP into the door), so
-		# the arrival spot is outside it and the door stays armed — disarming
-		# here would wait on a body_exited that can never fire
-	elif Game.flag("prologue_festival_done"):
+	if _place_on_rungs(spawn):
+		return
+	if Game.flag("prologue_festival_done"):
 		Party.place(MapData.anchor_px(map, "player_start"))
 	else:
 		Party.place(MapData.anchor_px(map, "festival"))
@@ -100,12 +93,9 @@ func _extra_setup() -> void:
 	_collect_animated()
 	$ExitSouth.position = MapData.anchor_px(map, "exit_south")
 	_wire_exit($ExitSouth, _on_exit_south)
+	_wire_ladder_tops("res://scene/canopy_fest.tscn")
 	_wall_gate_mouth()
-	_spawn_home_door()
-	# a reloaded town restores the location node — re-drop it if the beat
-	# already happened (the flag persists across the blessing round-trip)
-	if Game.flag("prologue_want_home"):
-		_free_home_location()
+	_fireflies()
 	Party.clamp_cameras(MapData.size_px(map))
 	_spawn_npcs()
 	_spawn_goose()
@@ -115,17 +105,27 @@ func _extra_setup() -> void:
 	_open_academy()
 
 
+## Fireflies under the festival too — the crown was closed in Basil's
+## childhood as well, so even the bright era is filtered light. Fewer and
+## fainter than the drained town's: this is golden hour, not night.
+func _fireflies() -> void:
+	var ff := Fireflies.new()
+	add_child(ff)
+	var size := MapData.size_px(map)
+	ff.seed($World, Rect2(48.0, 304.0, size.x - 96.0, size.y - 384.0), 9, 0.8)
+
+
 ## THE ACADEMY DOOR GOES LIVE (2026-07-25). With the flask brewed, the recital
 ## Schweinler barred him from is the objective, and the Academy stops being
 ## scenery: the SAME OverworldLocation flips from announce to travel, because
 ## travel_scene._on_location_entered branches on target_scene alone and reads
 ## it at step-on time.
 ##
-## The same node, never a second zone on the anchor — that is the whole lesson
-## of _free_home_location() below: two zones sharing an anchor can both fire in
-## one physics flush, and an awaited _announce then holds _busy through the
-## other's body_entered until the refused body is standing inside a zone that
-## never re-fires. One node cannot overlap itself.
+## The same node, never a second zone on the anchor — the home-door lesson
+## (canopy_fest._free_home_location carries it now): two zones sharing an
+## anchor can both fire in one physics flush, and an awaited _announce then
+## holds _busy through the other's body_entered until the refused body is
+## standing inside a zone that never re-fires. One node cannot overlap itself.
 func _open_academy() -> void:
 	if not Game.flag("prologue_potion_made") or Game.flag("prologue_recital"):
 		return
@@ -158,45 +158,6 @@ func _wall_gate_mouth() -> void:
 	_wall(Vector2(MapData.anchor_px(map, "exit_north").x, -4.0), Vector2(64.0, 8.0))
 	_wall(Vector2(size.x + 4.0, MapData.anchor_px(map, "exit_se").y),
 			Vector2(8.0, 64.0))
-
-
-## Basil's own front door (the blessing double-back, 2026-07-15): while he
-## wants to go home and the gate is still shut, stepping on the home door
-## re-enters the fest downstairs where Mom waits by the hearth. Any other
-## time it's a soft banner. The zone sits ON the door mouth (where the
-## from-downstairs arrival lands), so it stays DISARMED until that body
-## steps off it once (_home_armed — else the arrival bounces straight back).
-func _spawn_home_door() -> void:
-	var door := Area2D.new()
-	door.collision_layer = 0
-	door.collision_mask = 2
-	var shape := CollisionShape2D.new()
-	var rect := RectangleShape2D.new()
-	# hangs over the trunk face: only a press UP into the door fires it, so
-	# crossing the deck's through-row never yanks a body inside
-	rect.size = Vector2(24.0, 8.0)
-	shape.shape = rect
-	shape.position = Vector2(8.0, -8.0)
-	door.add_child(shape)
-	door.position = MapData.anchor_px(map, "home")
-	add_child(door)
-	door.body_exited.connect(func(body: Node2D) -> void:
-		if body.is_in_group("player"):
-			_home_armed = true)
-	door.body_entered.connect(_on_home_door)
-
-
-func _on_home_door(body: Node2D) -> void:
-	if not body.is_in_group("player") or not _home_armed or _busy:
-		return
-	# once he's wanted home, the door stays open — Mom is inside baking for
-	# the rest of the festival (post-blessing she has scoot-along lines)
-	if Game.flag("prologue_want_home"):
-		_busy = true
-		Game.interior_spawn = "front_door"
-		get_tree().change_scene_to_file.call_deferred("res://scene/downstairs_fest.tscn")
-	else:
-		_show_banner("HOME - MOM'S PIES NEED PEACE. THE FESTIVAL FIRST", BANNER_HOLD)
 
 
 ## The teasing beat fires from proximity, not scene entry (the home-start
@@ -279,14 +240,15 @@ func _sage_lines() -> PackedStringArray:
 	return PackedStringArray(["Watch THIS!"])
 
 
-## Three goose states (the theft rework, 2026-07-15; rehoused 2026-08-02):
+## Three goose states (the theft rework, 2026-07-15; split 2026-08-23):
 ## ribbon recovered — a dignified goose back on the square; hidden — the thief
-## round the back of a great tree's trunk on its RING DECK, thirty feet up, the
-## stolen ribbon still in its beak as the tell; else — the pre-theft goose
-## loitering on the square's west road a few cells off Sage, eyeing the ribbons,
-## and IN FRAME for the whole teasing cutscene, because the theft launches from
-## exactly there (see _goose_theft, and the anchor's own note in the map txt).
+## is UP THE TREE, on tree 3's ring deck in canopy_fest, and does not spawn
+## down here at all; else — the pre-theft goose loitering on the square's west
+## road a few cells off Sage, eyeing the ribbons, and IN FRAME for the whole
+## teasing cutscene, because the theft launches from exactly there.
 func _spawn_goose() -> void:
+	if Game.flag("prologue_goose_hidden") and not Game.flag("prologue_ribbon"):
+		return                        # treed — canopy_fest owns the startle
 	var npc: NPC = NPCScene.instantiate()
 	npc.display_name = "Goose"
 	npc.sheet = SHEET_GOOSE
@@ -298,20 +260,6 @@ func _spawn_goose() -> void:
 		])
 		npc.position = MapData.anchor_px(map, "npc_goose")
 		npc.talked.connect(_on_npc_talked)
-	elif Game.flag("prologue_goose_hidden"):
-		npc.lines = PackedStringArray([
-			"HONK?! (It nearly jumps out of its feathers.)",
-		])
-		# The anchor IS the deck cell it stands on now. The old +16px step east
-		# existed to tuck the body under a y-sorted orchard TreeCrown, and a ring
-		# deck has no crown over its east arc to tuck under — the trunk is the
-		# cover, and it is cover you have to climb a rope ladder to get behind.
-		npc.position = MapData.anchor_px(map, "goose_hide")
-		npc.talked.connect(_goose_startle)
-		var carried := WorldFx.sheet_sprite(FX_SHEET, 0)
-		carried.position = Vector2(7.0, -14.0)
-		npc.add_child(carried)
-		npc.set_meta("ribbon", carried)
 	else:
 		npc.lines = PackedStringArray([
 			"HONK. (It is watching Sage's ribbons very, very closely.)",
@@ -476,11 +424,12 @@ func _goose_theft() -> void:
 	var snatch: Vector2 = (rib.get_meta("rest") as Vector2) + BEAK_OFF
 	var view := _locked_view(player.global_position)
 	var from := goose.global_position
-	# Out the TOP of the frame on the hide-out's own column, so the line it leaves
-	# on is the line the player is about to walk. Off-camera by construction: the
-	# camera's window is thirteen tiles tall and the ring decks are at the map's
-	# north edge, so nothing aimed at one can end inside it.
-	var to := Vector2(MapData.anchor_px(map, "goose_hide").x,
+	# Out the TOP of the frame on tree 3's own ladder column — the hide-out is
+	# that tree's ring deck in canopy_fest now, so the line it leaves on is the
+	# line the player is about to climb. Off-camera by construction: the
+	# camera's window is thirteen tiles tall and the trunks run off the map's
+	# north edge, so nothing aimed up one can end inside it.
+	var to := Vector2(MapData.anchor_px(map, "top3").x,
 			view.position.y - FLY_CLEAR)
 	assert(not view.has_point(to), "the goose must leave the frame")
 	assert(view.has_point(from), "the goose must take off ON camera — see above")
@@ -511,11 +460,11 @@ func _goose_theft() -> void:
 	# bottom of the frame, and a beat that opens the dialog owes it a close —
 	# leaving Sage's last line up painted the banner out from under it
 	theater.close_dialog()
-	# respawn up the tree as the hidden goose (the talkable startle state)
+	# the thief is TREED now — canopy_fest spawns it on tree 3's ring deck off
+	# this flag, and the recovery (the startle, the ribbon) plays up there
 	Game.set_flag("prologue_goose_hidden")
 	goose.queue_free()
 	_npcs.erase("Goose")
-	_spawn_goose()
 
 
 ## The fly clip lives only in this scene: the sheet's cells 6-7, appended
@@ -572,53 +521,9 @@ func _want_home_line() -> void:
 	await theater.say("Basil", "Everyone's very... helpful. I want to go home.")
 	theater.close_dialog()
 	theater.unlock_party()
-	_show_banner("GO HOME - THE FRONT DOOR", BANNER_HOLD)
-	_free_home_location()
-
-
-## Once he wants home, his own door TRAVELS (the blessing double-back), so
-## the announce-only "BASIL'S HOUSE / MOM SAYS: OUT FROM UNDERFOOT" location
-## sharing the anchor must GO: the two zones overlap, a body can enter both
-## in one physics flush (teleports always do), and if the location's
-## callback wins the flush its awaited _announce holds _busy through the
-## door zone's body_entered — the refused body then stands inside the zone
-## and never re-fires (the 2026-07-18 probe softlock).
-func _free_home_location() -> void:
-	var loc := $Locations.get_node_or_null("Home")
-	if loc:
-		loc.queue_free()
-
-
-# ---- the startle, up the tree -----------------------------------------------------
-
-## Found round the back of the trunk, thirty feet up somebody else's tree, the
-## goose startles and then hands the ribbon over as if returning it was its own
-## idea all along. Basil counts the rungs, because Basil counts things — Sage
-## made him count the ribbons an hour ago and he will be counting for the rest
-## of his life.
-func _goose_startle(goose: NPC) -> void:
-	if Game.flag("prologue_ribbon"):
-		return
-	theater.lock_party()
-	await theater.hop(goose, 7.0)
-	goose.play_act()                       # the honk pair
-	await theater.say("Goose", "HONK!! ...honk. (...oh. It's you.)")
-	await theater.say("Basil", "You. Feathery crime. Do you have ANY idea how many rungs that was?")
-	await theater.say("Basil", "Forty-one. I counted. Hand it over.")
-	if goose.has_meta("ribbon"):
-		(goose.get_meta("ribbon") as Sprite2D).queue_free()
-		goose.remove_meta("ribbon")
-	await theater.say("Goose", "(It sets the ribbon down with tremendous dignity, as if returning it was its own idea.)")
-	await theater.say("Goose", "(It was just playing around.)")
-	theater.close_dialog()
-	goose.play_idle()
-	goose.lines = PackedStringArray([
-		"HONK.",
-		"(It seems to respect you now. Or it is planning something.)",
-	])
-	Game.set_flag("prologue_ribbon")
-	theater.unlock_party()
-	_show_banner("RETURN THE RIBBON TO SAGE", BANNER_HOLD)
+	# home is up tree 1 — canopy_fest owns the front door and frees its own
+	# announce location off the prologue_want_home flag
+	_show_banner("GO HOME - UP THE GREAT TREE", BANNER_HOLD)
 
 
 func _ribbon_return() -> void:

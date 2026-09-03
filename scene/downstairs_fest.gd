@@ -312,7 +312,7 @@ func _on_exit_door(body: Node) -> void:
 	_busy = true
 	Game.set_flag("prologue_left_home")
 	Game.town_spawn = "home"
-	get_tree().change_scene_to_file.call_deferred("res://scene/town_fest.tscn")
+	get_tree().change_scene_to_file.call_deferred("res://scene/canopy_fest.tscn")
 
 
 func _door_hint(line: String) -> void:

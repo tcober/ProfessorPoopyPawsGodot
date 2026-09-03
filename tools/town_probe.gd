@@ -2,7 +2,8 @@ extends SceneTree
 
 ## One-shot probe for the town's home-arrival placement: runs the REAL flow —
 ## boots the downstairs, walks out the front door, and prints party member
-## positions after the town loads.
+## positions after THE BOUGHS load (since the 2026-08-23 split the front door
+## opens onto the canopy scene, not the floor town).
 ##
 ##   /Applications/Godot.app/Contents/MacOS/Godot --headless --path . \
 ##       --script tools/town_probe.gd
@@ -30,17 +31,17 @@ func _run() -> void:
 		  party.members.map(func(m): return "%s %s" % [m.member_id, m.global_position]))
 	Input.action_press("move_down")
 	var frames := 0
-	while current_scene == null or current_scene.name != "AlembicTown":
+	while current_scene == null or current_scene.name != "AlembicCanopy":
 		await process_frame
 		frames += 1
 		if frames == 90:
 			Input.action_release("move_down")
 		if frames > 4000:
-			print("never reached town")
+			print("never reached the boughs")
 			quit(1)
 			return
 	Input.action_release("move_down")
-	print("town reached after ", frames, " frames")
+	print("the boughs reached after ", frames, " frames")
 	for i in 5:
 		await process_frame
 		print("f", i, " leader=", party.leader_id, " members=",

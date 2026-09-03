@@ -11,8 +11,5 @@ prop Stall m town_fest_stall.png
 prop Notice kK town_fest_notice.png
 prop Roost cC town_fest_roost.png hframes=4
 prop Hooklamp hH town_fest_hooklamp.png hframes=4 each
-prop Crown G town_fest_crown.png anchor=top:-24 base_inset=-52 each
-prop RingRail yR town_fest_ringrail.png anchor=top:0 each
-prop TrunkRing J town_fest_trunkring.png base_inset=19 each
 prop TreeTrunk Tt town_fest_treetrunk.png each
 prop TreeCrown Tt town_fest_treecrown.png anchor=top:-64 base_inset=-16 each

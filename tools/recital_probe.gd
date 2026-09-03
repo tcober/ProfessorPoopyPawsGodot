@@ -130,9 +130,17 @@ func _run() -> void:
 	_check("the brew hands control back", ok)
 	await _wait_frames(20)
 	_player().global_position = MapData.anchor_px(down_map, "exit_door")
+	# the front door opens onto THE BOUGHS since the 2026-08-23 split — ride
+	# tree 1's ladder mouth down to the town
+	var in_boughs := func() -> bool: return _scene_is("res://scene/canopy_fest.tscn")
+	ok = await _mash_until(in_boughs, 1600)
+	_check("the brewed flask leaves by the front door", ok)
+	await _wait_frames(70)
+	var canopy_map: Dictionary = MapData.load_map("res://assets/maps/canopy_fest.txt")
+	_player().global_position = MapData.anchor_px(canopy_map, "head1") + Vector2(8.0, 8.0)
 	var in_town := func() -> bool: return _scene_is("res://scene/town_fest.tscn")
 	ok = await _mash_until(in_town, 1600)
-	_check("the brewed flask leaves by the front door", ok)
+	_check("...and rides the ladder down with it", ok)
 	await _wait_frames(70)
 
 	# ==== A13 ACROSS TOWN =====================================================

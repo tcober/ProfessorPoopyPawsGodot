@@ -112,4 +112,6 @@ func _wake_cutscene() -> void:
 func _on_exit(body: Node) -> void:
 	if body.is_in_group("player"):
 		Game.town_thesis_phase = "dash"
-		get_tree().change_scene_to_file.call_deferred("res://scene/town_thesis.tscn")
+		# the squelch waits on the deck outside his own door (the 2026-08-23
+		# split: the morning opens on the boughs, the run continues below)
+		get_tree().change_scene_to_file.call_deferred("res://scene/canopy_thesis.tscn")

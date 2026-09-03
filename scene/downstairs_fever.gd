@@ -313,7 +313,7 @@ func _on_exit_door(body: Node) -> void:
 		return
 	_leaving = true
 	Game.town_spawn = "home"
-	get_tree().change_scene_to_file.call_deferred("res://scene/town_fever.tscn")
+	get_tree().change_scene_to_file.call_deferred("res://scene/canopy_fever.tscn")
 
 
 func _door_hint(line: String) -> void:

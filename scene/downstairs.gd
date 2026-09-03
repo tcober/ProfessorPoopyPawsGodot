@@ -98,7 +98,7 @@ func _on_exit_door(body: Node) -> void:
 	if body.is_in_group("player"):
 		Game.town_spawn = "home"
 		# Deferred: freeing the scene inside the Area2D callback is a physics error.
-		get_tree().change_scene_to_file.call_deferred("res://scene/alembic_town.tscn")
+		get_tree().change_scene_to_file.call_deferred("res://scene/alembic_canopy.tscn")
 
 
 ## Up the alcove stairs to the loft bedroom, arriving at the stair head.

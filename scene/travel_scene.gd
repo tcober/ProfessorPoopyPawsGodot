@@ -251,6 +251,57 @@ func _exit_to_overworld(marker: String) -> void:
 	get_tree().change_scene_to_file("res://scene/overworld.tscn")
 
 
+## THE LADDER MOUTHS UP (2026-08-23, the two-scene town split): one travel zone
+## over each rope ladder's TOP two rungs (anchors top1..top4 in the floor maps),
+## handing the climb to the era's canopy scene mid-ladder. The body arrives up
+## there seated ON the canopy's rungs still facing up, so the climb is
+## continuous across the door — see scene/canopy_scene.gd for the other half.
+## Wired through _wire_exit so the raw-exit contract (re-delivery, entry lock)
+## holds. `_on_ascend` is the era hook for re-arming a phase router first.
+func _wire_ladder_tops(canopy_scene: String) -> void:
+	for i in range(1, 5):
+		var a := "top%d" % i
+		if not map.anchors.has(a):
+			continue
+		var zone := Area2D.new()
+		zone.collision_layer = 0
+		zone.collision_mask = 2
+		var shape := CollisionShape2D.new()
+		var rect := RectangleShape2D.new()
+		rect.size = Vector2(28.0, 30.0)
+		shape.shape = rect
+		zone.add_child(shape)
+		zone.position = MapData.anchor_px(map, a) + Vector2(8.0, 8.0)
+		add_child(zone)
+		_wire_exit(zone, _on_ladder_top.bind(i, canopy_scene))
+
+
+func _on_ladder_top(body: Node, ladder: int, canopy_scene: String) -> void:
+	if not _exit_ok(body):
+		return
+	_busy = true
+	Game.town_spawn = "head%d" % ladder
+	_on_ascend(ladder)
+	await fade_out()
+	get_tree().change_scene_to_file(canopy_scene)
+
+
+## Era hook: fired just before a ladder ascent changes scene (re-arm a phase
+## router here — Game fields are the only state that survives the door).
+func _on_ascend(_ladder: int) -> void:
+	pass
+
+
+## The matching arrival: a body descending FROM the canopy is seated on the
+## rungs two rows below its ladder's travel mouth, still facing down.
+## Returns true if `spawn` named a ladder ("top1".."top4") and was handled.
+func _place_on_rungs(spawn: String) -> bool:
+	if not spawn.begins_with("top") or not map.anchors.has(spawn):
+		return false
+	Party.place(MapData.anchor_px(map, spawn) + Vector2(8.0, 40.0))
+	return true
+
+
 ## A backstop wall just off the map edge, at `at`, `size` px.
 ##
 ## THE SAME WALL EVERY GATE MOUTH IN THIS PROJECT GETS. A mouth road runs to the grid's

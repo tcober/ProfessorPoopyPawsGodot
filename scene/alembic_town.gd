@@ -1,26 +1,21 @@
 extends TravelScene
 
-## Alembic Town, walkable at zone scale — the Kakariko-style village the overworld's
-## town icon opens into (see TravelScene for the shared machinery), and since
-## 2026-07-30 a FOREST-FLOOR VILLAGE WITH FOUR GREAT TREES standing along its north
-## edge. Each tree carries a round RING DECK near its crown, a door in its trunk and
-## a rope ladder down to the floor; the ring is its own walkable stratum, joined to
-## the ground by that ladder and by nothing else.
+## Alembic Town, THE FLOOR — the village the overworld's town icon opens into
+## (see TravelScene for the shared machinery), in PERMANENT GREEN DUSK since the
+## 2026-08-23 two-scene split: the four great trees' crown closed over the
+## clearing a generation ago, the lamps burn at noon, and the fireflies never
+## really leave. The trunks are bare shafts running off the top of the frame;
+## the RING DECKS — and Basil's own door — live in the canopy scene
+## (alembic_canopy.tscn), reached by climbing any of the four rope ladders,
+## whose top rungs are travel mouths (see canopy_scene.gd for the contract).
 ##
-## THE CANOPY IS NOT A STREET. The previous build made it two continuous boardwalk
-## storeys and the town rendered as horizontal stripes of plank and fascia — a lumber
-## yard. What both references (FFXIV's Slitherbough, Endor) actually read from is the
-## VOID between platforms, so the canopy is four islands and the town is the floor.
-##
-## Basil's open door travels down to the lab (downstairs); the shops, the cottages
-## and the well announce in the banner; the south lane exits to the overworld. Two
-## THE NORTH LANE GOES TO THE ACADEMY, which is its own scene (scene/academy.tscn)
-## since 2026-07-30. The EAST mouth is authored in the grid and wired by nothing yet
-## — Act 1 beat 5b — so it stays walled, because a road that runs to the map edge
-## over cells collision never stamped is a walk into the void. The spawn is routed
-## through Game.town_spawn (read-and-clear): "home" = Basil's door up his tree,
-## "north" = back down the causeway from the Academy, "" = the south gate, where the
-## overworld drops you.
+## The shops, the cottages and the well announce in the banner; the south lane
+## exits to the overworld; THE NORTH LANE GOES TO THE ACADEMY (its own scene
+## since 2026-07-30). The EAST mouth is authored in the grid and wired by
+## nothing yet — Act 1 beat 5b — so it stays walled. The spawn is routed
+## through Game.town_spawn (read-and-clear): "top1".."top4" = down a ladder
+## from the boughs, "north" = back down the causeway from the Academy, "" =
+## the south gate, where the overworld drops you.
 
 const MAP_PATH := "res://assets/maps/town.txt"
 const LAYOUT_PATH := "res://assets/tilesets/town_layout.txt"
@@ -50,16 +45,11 @@ func _layout_path() -> String:
 func _place_player() -> void:
 	var spawn := Game.town_spawn
 	Game.town_spawn = ""
-	if spawn == "home":
-		# Land ON the door marker — feet on the ring deck right under the arch
-		# (the old tile-and-a-half drop read as appearing nowhere near the door).
-		# The zone itself hangs OVER the trunk face now (a press UP into the
-		# door, never a stroll across the deck's through-row), so the latch
-		# only matters while an exit-hold keeps the body pressed against it;
-		# TravelScene resyncs it from the real overlap when the entry lock lifts.
-		Party.place(MapData.anchor_px(map, "home"))
-		_standing["home"] = true
-	elif spawn == "north":
+	# "top1".."top4": down a rope ladder from the boughs — seated on the rungs,
+	# still climbing (Basil's door and its "home" spawn live up there now)
+	if _place_on_rungs(spawn):
+		return
+	if spawn == "north":
 		# back down the causeway from the Academy: land INSIDE the lane, a row
 		# south of the mouth, so the walk-out zone is behind you and not under you
 		Party.place(MapData.anchor_px(map, "exit_north") + Vector2(0.0, 32.0))
@@ -78,11 +68,22 @@ func _extra_setup() -> void:
 	_wire_exit($ExitSouth, _on_exit_south)
 	$ExitNorth.position = MapData.anchor_px(map, "exit_north")
 	_wire_exit($ExitNorth, _on_exit_north)
+	_wire_ladder_tops("res://scene/alembic_canopy.tscn")
 	_wall_mouths()
+	_fireflies()
 	Party.clamp_cameras(MapData.size_px(map))
 	# TravelScene gates its markers on `body != player` — re-aim it when the lead
 	# changes hands mid-town.
 	Party.leader_changed.connect(_on_leader_changed)
+
+
+## The permanent dusk's one moving part — see components/fireflies.gd. Dense
+## here: the drained present is the deepest evening this town has.
+func _fireflies() -> void:
+	var ff := Fireflies.new()
+	add_child(ff)
+	var size := MapData.size_px(map)
+	ff.seed($World, Rect2(48.0, 304.0, size.x - 96.0, size.y - 384.0), 16)
 
 
 ## THE TOWN AFTER THE EBB — five people standing outside five shut doors.
@@ -162,12 +163,6 @@ func _folk(nm: String, sheet: Texture2D, cols: int, anchor: String,
 	npc.bind_map(map)
 	$World.add_child(npc)
 	return npc
-
-
-## Through Basil's own door, up his tree, down to the lab.
-func _on_travel(loc: OverworldLocation) -> void:
-	if loc.id == "home":
-		Game.interior_spawn = "front_door"
 
 
 ## Out the south lane, back to the overworld at the town icon.

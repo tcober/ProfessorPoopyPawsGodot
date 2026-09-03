@@ -61,17 +61,27 @@ author it as one.)
 never sharing an anchor between travel and announce zones, flipping `target_scene` rather
 than adding a second zone — are in the `story-scenes` skill.**
 
-## Alembic Town (`scene/alembic_town.tscn`, 80×56)
+## Alembic Town — TWO SCENES since 2026-08-23
 
-The Kakariko-style hub, rebuilt from scratch 2026-07-11 and again 2026-07-30 as a
-**forest-floor village with four great trees**: the town — lane, market square,
-three shops, clinic, cottage, well, stall, fountain — is on the ground, and each
-tree carries a round RING DECK near its crown with a door and a lit window in its
-trunk, reached by a rope ladder. The canopy is four ISLANDS, not a floor: a town
-that is 100% deck renders as stripes of plank and fascia. You walk a full circle
-around each
-one. Load **map-authoring** before touching the grid; the doctrine is in DESIGN.md
-→ "STACKED WALKABLE STOREYS".
+**THE FLOOR** (`scene/alembic_town.tscn`, `maps/town.txt`, 80×56) and **THE
+BOUGHS** (`scene/alembic_canopy.tscn`, `maps/canopy.txt`, 80×32), joined by four
+CLIMB-THROUGH ladder mouths: the floor's `z` runs end at travel zones on their
+top two rungs (anchors `top1..top4` → `Game.town_spawn "headN"`), the canopy's
+at zones on their bottom two (`head1..head4` → `"topN"`), and the body leaves
+climbing and arrives climbing (`TravelScene._wire_ladder_tops` /
+`_place_on_rungs`; `scene/canopy_scene.gd` is the canopy base class — era
+subclasses `canopy_fest` / `canopy_fever` / `canopy_thesis` ride
+`canopy_fest.txt` the way the floor's era scenes ride `town_fest.txt`).
+
+The town is in **PERMANENT DUSK**, diegetically: the crown closed over the
+clearing a generation ago, the lamps burn at noon, and `components/fireflies.gd`
+drifts blinking motes over both storeys. The floor keeps the lane web, market
+square, three shops, cottages, well, stall and fountain under bare trunk shafts
+that run off the frame top; the boughs carry the four ring decks, rope bridges
+over THE DROP (the void renders the town thirty feet down, lit windows and
+all), the landing, Basil's home door (tree 1 → `downstairs.tscn`) and three
+neighbour announce doors. Load **map-authoring** before touching either grid;
+the doctrine is in DESIGN.md → "STACKED WALKABLE STOREYS".
 
 - **The Academy has LEFT this grid** (2026-07-30) — it is its own scene now, and what
   stays here is the way there: the **north lane** (`exit_north` → `academy.tscn`).

@@ -1626,40 +1626,58 @@ Markers in the live build:
   obelisk network survives as lore — one dark obelisk per landmass, the
   Act 2+ dungeon skeleton (see "Lore spine").
 
-**Alembic Town, walkable** (`scene/alembic_town.tscn`, 80×56 tiles — rebuilt
-from scratch 2026-07-11 as the Kakariko-style hub, again 2026-07-30 as a
-four-storey canopy village that read as a LUMBER YARD, and a third time the same
-day as what shipped: a FOREST-FLOOR VILLAGE WITH FOUR GREAT TREES, each carrying
-a round ring deck, a door in its trunk and a ladder down. The Academy has left
-this grid entirely — it is its own scene, reached by the north lane, and the
-`school` anchor now sits in that lane's mouth. LIVE in the flow) — the
-village at zone scale (48px player), riding the SAME OverWorld tile driver
-(tree borders = the forest class, lanes = the trail painter, fence class
-yards, sea+beach pond, a river stream with one bridge cell), composed
-DEPTH-FIRST: **four GREAT TREES along the clearing's north edge**, each a ring
-deck round its trunk with a door and a lit window cut into the bark and a rope
-ladder down to the floor (Basil's is the westmost, `home` → `downstairs.tscn`);
-the **north lane** running out of the clearing to **THE ALEMBIC ACADEMY**, which
-is its own scene now (`exit_north` → `academy.tscn`, and `Game.town_spawn =
-"north"` is what brings you back into this lane rather than to the south gate);
-the **fountain square** at the lane crossing (basin + brass alembic-bulb finial, trail ring
-forking around it, the flask-stall on its rim); the **weapons shop** "THE
-BRASS FANG" (`weapons`) and **item shop** "THE CRACKED FLASK" (`items`)
-facing the market cross-lane — one shared shopfront builder, same salt, only
-roof/sign/wares differ so their facade tiles dedupe; the two-story **inn**
-"THE COPPER KETTLE" (`inn`) fronting the square SE by the stream bridge, lit
-windows and a tankard sign (all three announce-only until shops earn
-systems); **Basil's cottage** NW in its fenced yard with the open candle-lit
-doorway (`home` → `downstairs.tscn` at the front door); the locked neighbor
-cottages staggered SW (`cottage_w`/`cottage_e`) around the well and fenced
-garden; the fenced NE orchard across the bridge; the SE pond; and six
-walk-behind trees (canopy rows walk on the upper layer, trunk row solid).
-Buildings are TWO map chars: solid facade rows + WALKABLE roof rows whose
-art rides the upper tile layer, so the player walks behind rooflines,
-CT-style. The south lane gap (`exit_south`) returns to the overworld at the
-town icon. Spawns route through `Game.town_spawn` (read-and-clear; "" = the
-south gate, `home` = below Basil's door — the downstairs front door now
-opens HERE, not onto the overworld).
+**Alembic Town, walkable — TWO SCENES since 2026-08-23** (rebuilt 2026-07-11 as
+the Kakariko-style hub, 2026-07-30 as the forest-floor village with four great
+trees, and split 2026-08-23 into a ground view and a treetop view per the
+owner's sketch — a permanent-dusk town, fireflies and all):
+
+**THE FLOOR** (`scene/alembic_town.tscn`, `maps/town.txt`, 80×56) — the village
+at zone scale in PERMANENT GREEN DUSK: the four great trees' shared crown closed
+over the clearing a generation ago, so the floor never sees full sun — the
+street lamps and hook lanterns burn at noon (honest fire, so they burn drained
+too), the palette carries the hour (`_palette.py "town"`, deep teal-greens with
+candle-amber accents), a gentle `$Dusk` CanvasModulate finishes it, and
+`components/fireflies.gd` drifts blinking chartreuse motes over the lanes — the
+one moving piece that makes the stillness read as evening. The trunks are bare
+4-column shafts baked from row 0, running off the top of the frame and fading
+into leaf-shadow gloom at their tops (`_gloom_rect` — the canopy overhead is
+told by the dark, since the crowns live in the other scene); each carries a
+climbable rope-ladder `z` run whose TOP two rungs are a travel mouth to the
+canopy scene (anchors `top1..top4`; `Game.town_spawn "head1".."head4"` seats
+the body on the far side's rungs still climbing — the split's transitions are
+CLIMB-THROUGHS, never doors). On the floor: the **north lane** to THE ALEMBIC
+ACADEMY (`exit_north` → `academy.tscn`, `town_spawn="north"` returns here); the
+**fountain square** at the lane crossing (basin + brass alembic-bulb finial,
+flask stall, notice board + owl roost on its north rim); **THE BRASS FANG** /
+**THE CRACKED FLASK** / **THE COPPER KETTLE** (one shared `town_shop` builder,
+announce-only); the neighbor cottages (`cottage_w`/`cottage_e`) with the well;
+six walk-behind trees; the graded understory litter; the south gate
+(`exit_south`) to the overworld; and the walled east mouth (`exit_se`) held for
+Act 1 beat 5b.
+
+**THE BOUGHS** (`scene/alembic_canopy.tscn`, `maps/canopy.txt`, 80×32) — the
+treetop district where the households actually live: FOUR RING DECKS at one
+deck height, each the derived 12×9 ring block (walkable cells rasterized from
+`tree_ring`'s own ellipse — the doctrine is unchanged), joined pole-to-pole by
+ROPE BRIDGES (`tree_bridge` over walkable `=` spans, entered through `E` BRIDGE
+GATES — walkable rim twins, the O/U/L idiom, mask-excepted exactly like the
+ladder landing) with a `tree_platform` LANDING mid-way carrying a hook lantern.
+Basil's door is tree 1's (`home` → `downstairs.tscn`; the hermit is the one cat
+in town who stopped coming down); trees 2-4 carry announce doors (THE PELLS' /
+OLD MARROW'S / THE HOLLYS'). Below every ring the trunk descends into the dark
+with its ladder on it (`head1..head4` travel mouths on the bottom rungs), and
+everything else is **THE DROP**: solid void cells whose interior renders the
+town itself thirty feet down — dark roofs, lane ribbons, amber window
+pinpricks on the glow overlay (`_alembic._drop_field`) — fringed in leaf at
+every boundary. Fireflies drift at deck level AND below it; the motes under
+your feet are what sell the height. Era scenes: `canopy_fest.tscn` (Prologue
+A: the home door + blessing double-back, the treed goose startle),
+`canopy_fever.tscn` (A0: the grey-morning front door), `canopy_thesis.tscn`
+(Prologue B: the doorstep watch call, Schweinler's creep up the ladder, the
+morning squelch — the phases share `Game.town_thesis_phase` with the floor
+scene, re-armed across every ladder). Both canopy grids are byte-locked twins
+(`canopy.txt ↔ canopy_fest.txt`, in `_check_art`'s TWINS table beside the
+floor pair).
 
 **THE ALEMBIC ACADEMY, walkable** (`scene/academy.tscn`, 64×48 tiles, NEW
 2026-07-30) — the college, which used to be one 14×9 landmark on a cliff terrace
@@ -2365,7 +2383,14 @@ the tell. Which makes the recovery a character beat rather than a fetch: the
 one cat in town who cannot do magic gets the ribbon back by CLIMBING, and
 Sage's "nobody catches the goose" is true because nobody else would bother.
 Finding and startling it is the warmth beat (`prologue_goose_hidden` → talk →
-`prologue_ribbon`). One minigame remains:
+`prologue_ribbon`).
+**AND SINCE THE 2026-08-23 SPLIT THE CLIMB IS REAL** — the fourth staging, and
+the smallest: the theft is unchanged (it exits up tree 3's own ladder column,
+`top3`, so the line it leaves on is the line the player climbs), but the deck
+it is treed on lives in `canopy_fest.tscn` now, so the recovery rides tree 3's
+ladder mouth up to the boughs, the startle plays there
+(`canopy_fest._goose_startle`), and the ribbon rides the ladder back down to
+Sage. The goose does not spawn on the floor at all while it is treed. One minigame remains:
 the **crank-up mash** at
 the whirligig flight (mash E to fill a meter, the rotor spins up with it).
 GOTCHA (2026-07-12): a coroutine polling input on `process_frame` must use
@@ -2707,11 +2732,14 @@ Basil's home door in town travels down into the downstairs.
   walkable town at its south gate), Whisker Meadow (enters the combat
   zone), and Lanternwood's gate (`lanternwood`, into the snow town —
   ocean-locked from the playable core on foot; the launch crosses).
-- **Alembic Town, walkable** (`alembic_town.tscn`) — the Kakariko-style hub
-  (see "World Structure" for the full composition): terrace Academy over the
-  cliff-and-stair band, fountain square, the two shops + inn (announce-only
-  facades), cottages, stream/bridge/pond, walk-behind trees; Basil's home
-  door travels down to the downstairs; the south gate exits to the overworld.
+- **Alembic Town, walkable — TWO SCENES since 2026-08-23** (`alembic_town.tscn`
+  the permanent-dusk FLOOR, `alembic_canopy.tscn` THE BOUGHS — see "World
+  Structure" for the full composition): the fountain square, the three shops
+  (announce-only), cottages and lanterns below; four ring decks joined by rope
+  bridges over THE DROP above, with Basil's home door on tree 1's deck
+  travelling down to the downstairs; four climb-through ladder mouths join the
+  scenes; fireflies in both; the south gate exits to the overworld and the
+  north lane to the Academy.
 - **Meadow — Whisker Meadow** (`scene/meadow.tscn`): 48×24-tile TILED zone on
   the shared overworld driver (forest treeline, sea pond + beach collar,
   road trail, boulder-prop outcrops + the trailhead cairn),
@@ -3173,11 +3201,17 @@ driven by its `assets/maps/*.txt` file.
   Generator-side, `place_upper` asserts a non-empty upper sprite (no dead
   splits).
 - **STACKED WALKABLE STOREYS — the strata doctrine (2026-07-29, assert-enforced;
-  rebuilt to RING ISLANDS 2026-07-30).**
-  Alembic Town is a **forest-floor village with four great trees** in ONE 80x56
-  grid. The town is on the ground; each tree carries a round **RING DECK** near
-  its crown — one walkable stratum island apiece, reached by a rope ladder, with
-  a door and a lit window cut into the trunk.
+  rebuilt to RING ISLANDS 2026-07-30; SPLIT INTO TWO SCENES 2026-08-23).**
+  Alembic Town is a **forest-floor village with four great trees**, and since
+  2026-08-23 its two storeys are TWO SCENES: the floor (`maps/town.txt`) and the
+  boughs (`maps/canopy.txt`), joined by climb-through ladder mouths — see the
+  repealed two-scene bullet below for the decision record. Each grid is now one
+  storey, so the `stratum:` tokens left the town maps with the split; the
+  doctrine in this section still governs the CANOPY GRID's authoring (the
+  derived ring mask, the gates, the spans, the void) and any future map that
+  stacks storeys in one grid. Each tree carries a round **RING DECK** near its
+  crown — reached by rope ladder, with a door and a lit window cut into the
+  trunk.
   **THE CULTURE KIT (2026-08-01, re-wired).** `assets/_culture_props.py` — the
   furniture family that argues the town's industry is WORDS — is live in both
   eras through the shared recipe: the layered **notice board** and the
@@ -3306,9 +3340,9 @@ driven by its `assets/maps/*.txt` file.
 	  floor beside it passes every assert and still lets you step sideways off rung
 	  eight onto ground thirty feet below. That raised circular path is the single
 	  most recognisable thing about Slitherbough and the Ewok village. It is also
-	  why the channel is 5 wide and not 3 — a 3-col channel is all trunk, and a
-	  trunk you cannot walk round is a pillar — and why there are five heavier
-	  trunks rather than six thin ones, which read as a colonnade. `assert_all`
+	  why the ring closes a full walkable cell deep on every side — a channel
+	  that is all trunk is a pillar — and why there are FOUR heavy trunks rather
+	  than five or six thin ones, which read as a colonnade. `assert_all`
 	  proves the ring: for every trunk, on every storey, the cells around the shaft
 	  must be walkable and on ONE stratum. A ring is one mistyped cell from a dead
 	  end nobody notices, because the deck still looks continuous from the south,
@@ -3370,12 +3404,35 @@ driven by its `assets/maps/*.txt` file.
 	thing a door is — a scripted crossing of a wall. `assert_lift` proves at BUILD
 	TIME that the top landing is reachable with the shaft treated as impassable, so
 	riding up and reloading cannot strand you.
-  - **REJECTED: a two-scene split** (ground town / canopy town linked like
-	interiors). It doubles the byte-lock invariant from 2 grids to 4, and several
-	shipped Prologue beats span both halves in one unbroken playable stretch — so a
-	scene boundary mid-beat means a fade to black, and **a fade to black to climb a
-	ladder inside one town destroys the sense of place**, which is the entire reason
-	to build a treehouse town.
+  - **REPEALED 2026-08-23: the two-scene split is BUILT** (the owner's sketch asked
+	for it: a treetop view and a ground view, permanent-dusk, fireflies). This
+	bullet REJECTED the split while the town was one grid, on three objections,
+	and each got a real answer rather than a shrug:
+	1. *"It doubles the byte-lock from 2 grids to 4."* Accepted and enforced:
+	   `town.txt ↔ town_fest.txt` and `canopy.txt ↔ canopy_fest.txt` are both in
+	   `_check_art.py`'s TWINS table. Four grids, two locks, zero honor-system.
+	2. *"Shipped Prologue beats span both halves in one unbroken stretch."* They
+	   were restaged, and the camera arithmetic says the cost was imaginary: the
+	   Schweinler creep's ground half was ALWAYS off-camera (the camera parks at
+	   the deck with the player inside), so moving the visible half — the climb,
+	   the bag, the sneer — into the canopy scene cut fifteen dead off-screen
+	   seconds. The goose recovery became a real ladder ride to a real second
+	   scene, which is MORE of a climb than the one-grid version, not less. The
+	   dash hands its phase router across the door and keeps its paw prints.
+	3. *"A fade to black to climb a ladder destroys the sense of place."* Two
+	   answers. The transition is a CLIMB-THROUGH, not a door: the mouth is
+	   mid-ladder, and the body leaves climbing and arrives climbing, seated on
+	   the other scene's own rungs still facing the same way. And the canopy
+	   scene's void is THE DROP — it renders the town itself thirty feet down,
+	   roofs, lanes and lit windows (`_alembic._drop_field` + glow pinpricks) —
+	   so climbing the ladder does not take you somewhere else, it shows you
+	   where you already were. Sense of place is what the split BOUGHT.
+	What the split retired: the `stratum:` tokens in the town grids (each scene is
+	one storey now; the canopy map's `z` runs end at travel mouths, not on floor),
+	the link-stratum clause of the follower rule (AIBrain keys on the `ropeladder`
+	TERRAIN now, same name `PartyMember._climb` uses), and the cross-strata leash
+	risk (party_probe phase 3 now proves the leash resolves ACROSS THE BOUGHS
+	onto walkable deck instead).
   - **REJECTED: a real per-body elevation system.** Per-cell level field, per-level
 	collision layers, per-body level state, a third static tile layer (so
 	`_tiles.py`, `write_layout`, `tiled_map.gd` and the layout format all change), a
@@ -3658,8 +3715,10 @@ to come.)
 | `overworld_bright` | the drained seeds lifted (pre-Ebb era; geology identical) | mint glow, alive | teal   |
 | `lanternwood`  | near-white snow field / deep blue-spruce woods | firelight amber in every window | violet |
 | `library`      | rosewood planks / plum weave (night)    | firelight amber vs snow-blue glass | violet  |
-| `town`         | mossy lanes / dusky lavender plaster (drained era) | candle amber       | teal        |
-| `town_fest`    | spring grass / cream plaster (festival era — Prologue A) | festival magenta + living mint glow | teal |
+| `town`         | PERMANENT DUSK (2026-08-23): deep teal-green field, dusky plaster, lamps lit at noon (drained era) | candle amber | teal |
+| `town_fest`    | golden hour under the leaves / cream plaster (festival era — Prologue A; the crown was closed in his childhood too) | festival magenta + living mint glow | teal |
+| `canopy`       | THE BOUGHS drained: the leaf sea a step lighter than the floor's forest (a deck darker than the ground below reads as a hole); the drop field hand-pinned in `_alembic` | candle amber | teal |
+| `canopy_fest`  | THE BOUGHS in the childhood's filtered gold | festival magenta   | teal        |
 | `meadow`       | minty teal greens (mossy 2026-07 register) | candy hot-pink flowers     | teal        |
 
 ## Music (2026-08-22)
@@ -3679,7 +3738,7 @@ is only written when missing, so Godot's uid fill-in survives regeneration).
 | --- | --- | --- |
 | `title_theme` | "Golden Hour" — a prelude-style two-octave harp arpeggio over the lament-bass descent (A G F E D C B E), Am 72bpm | the title screen |
 | `overworld_theme` | "Wide Is the World" — heroic dotted-rhythm travel theme, walking bass, brushed noise kit, F 108bpm | overworld (both eras), Whisker Meadow |
-| `town_theme` | "Kettle and Vine" — a gentle waltz, G 3/4 100bpm | Alembic Town, the Academy, the hall, every interior, the prologue towns, the bluff |
+| `town_theme` | "Kettle and Vine" — a gentle waltz, G 3/4 100bpm | Alembic Town (both storeys — the four canopy scenes have their own SCENE_TRACKS rows), the Academy, the hall, every interior, the prologue towns, the bluff |
 | `ebb_theme` | "The Quiet" — a music-box fragment lost in a one-beat echo over a bare-fifth drone, Em 58bpm | Lanternwood, the library |
 
 **Which track plays is a pure function of the current scene.** `scene/music.gd`

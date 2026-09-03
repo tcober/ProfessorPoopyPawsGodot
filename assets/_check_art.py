@@ -106,6 +106,8 @@ MAPS = [
     "maps/overworld_bright.txt",
     "maps/town.txt",
     "maps/town_fest.txt",
+    "maps/canopy.txt",
+    "maps/canopy_fest.txt",
     "maps/lanternwood.txt",
     "maps/academy.txt",
     "maps/house.txt",
@@ -150,6 +152,7 @@ for rel in MAPS:
 # exists before the Ebb.
 print("byte-lock (era twins):")
 TWINS = [("maps/town.txt", "maps/town_fest.txt"),
+         ("maps/canopy.txt", "maps/canopy_fest.txt"),
          ("maps/overworld.txt", "maps/overworld_bright.txt")]
 for a_rel, b_rel in TWINS:
     ga, gb = maps[a_rel].rows, maps[b_rel].rows
@@ -222,6 +225,12 @@ TILED = {
     "maps/town_fest.txt": ("tilesets/town_fest_layout.txt",
                            "tilesets/town_fest_tiles.png",
                            "tilesets/town_fest_tiles.tres"),
+    "maps/canopy.txt": ("tilesets/canopy_layout.txt",
+                        "tilesets/canopy_tiles.png",
+                        "tilesets/canopy_tiles.tres"),
+    "maps/canopy_fest.txt": ("tilesets/canopy_fest_layout.txt",
+                             "tilesets/canopy_fest_tiles.png",
+                             "tilesets/canopy_fest_tiles.tres"),
     "maps/hall.txt": ("tilesets/hall_layout.txt", "tilesets/hall_tiles.png",
                       "tilesets/hall_tiles.tres"),
     "maps/sickroom.txt": ("tilesets/sickroom_layout.txt",
@@ -355,6 +364,8 @@ PROPS = {
     "maps/academy_library.txt": "tilesets/academy_library_props.txt",
     "maps/town.txt": "tilesets/town_props.txt",
     "maps/town_fest.txt": "tilesets/town_fest_props.txt",
+    "maps/canopy.txt": "tilesets/canopy_props.txt",
+    "maps/canopy_fest.txt": "tilesets/canopy_fest_props.txt",
     "maps/lanternwood.txt": "tilesets/lanternwood_props.txt",
     # THE ACADEMY WAS NEVER IN EITHER TABLE (found 2026-07-30). The whole
     # precinct — a 64x48 map with six Tier-3 props on it — shipped without
@@ -690,9 +701,11 @@ for map_rel in PROPS:
 #                   columns (0.95) with the crown carrying the shaft, 0/61 (0.00)
 #                   without it. Both failure modes were re-introduced and confirmed to
 #                   fail this lint before it was called done.
+# (the Crown/TrunkRing pairs moved to the canopy maps with the 2026-08-23
+# two-scene split — the floor's trunks are bare baked shafts with no crown)
 JOINS = {
-    "maps/town.txt": [("Crown", "TrunkRing", 6)],
-    "maps/town_fest.txt": [("Crown", "TrunkRing", 6)],
+    "maps/canopy.txt": [("Crown", "TrunkRing", 6)],
+    "maps/canopy_fest.txt": [("Crown", "TrunkRing", 6)],
 }
 JOIN_SAME_MIN = 0.60
 
@@ -797,6 +810,10 @@ PLACEMENTS = {
     "scene/house.tscn": "maps/house.txt",
     "scene/downstairs.tscn": "maps/downstairs.txt",
     "scene/alembic_town.tscn": "maps/town.txt",
+    "scene/alembic_canopy.tscn": "maps/canopy.txt",
+    "scene/canopy_fest.tscn": "maps/canopy_fest.txt",
+    "scene/canopy_fever.tscn": "maps/canopy_fest.txt",
+    "scene/canopy_thesis.tscn": "maps/canopy_fest.txt",
     "scene/lanternwood.tscn": "maps/lanternwood.txt",
     "scene/academy.tscn": "maps/academy.txt",
     "scene/town_fest.tscn": "maps/town_fest.txt",

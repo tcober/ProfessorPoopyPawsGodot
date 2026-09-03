@@ -1,18 +1,18 @@
 extends TravelScene
 
-## Alembic Town on THESIS DAY — Prologue B (docs/DESIGN.md Story). One scene,
-## four flag-driven phases dressed by a CanvasModulate tint (the tint law: one
-## painting, never a repaint), routed by Game.town_thesis_phase:
-##   plant    (night)   SEMI-PLAYABLE: the Academy stair -> the player's own
-##                      walk home through the sleeping town -> the doorstep
-##                      bookend watch call -> Schweinler leaves the bag ->
-##                      house_thesis
-##   dash     (morning) the step ONTO the bag is SHOWN, then the SQUELCH and
-##                      the paw-print dash across town to the Academy ->
-##                      hall (the dusk calls now play on the BLUFF —
-##                      scene/bluff.gd "call1"/"call2" bracket the accident;
-##                      Kitty is absent: her wheel workshop is off-screen,
-##                      the busted-axle excuse lands in the bluff's call1)
+## Alembic Town's FLOOR on THESIS DAY — Prologue B (docs/DESIGN.md Story).
+## Since the 2026-08-23 split this scene owns the GROUND half of the day and
+## scene/canopy_thesis.gd owns the deck half; the two share the
+## Game.town_thesis_phase router and each re-arms it before handing the body
+## up or down a ladder:
+##   plant    (night)   the Academy stair -> the player's own walk home
+##                      through the sleeping town -> UP the ladder (the
+##                      doorstep call and Schweinler's creep play on the
+##                      boughs — the camera never saw the ground half of the
+##                      creep anyway, it was parked at the deck)
+##   dash     (morning) the ground run: the squelch already happened on the
+##                      deck; down here it is the paw-print dash across town
+##                      to the Academy -> hall
 ##   steps    (dusk)    out of the doctor's door onto the clinic steps —
 ##                      Ridley's blunt "perspective," the bowed head, then
 ##                      the night leaving (the bindle tableau, the look-back,
@@ -26,18 +26,9 @@ const LAYOUT_PATH := "res://assets/tilesets/town_fest_layout.txt"
 
 const NPCScene := preload("res://entities/npcs/npc.tscn")
 const FX_SHEET := preload("res://assets/prologue_fx.png")
-const SHEET_SCHW := preload("res://assets/npc_schweinler_adult_gen.png")
 const SHEET_BADGER := preload("res://assets/npc_badger_gen.png")
 
-const FX_BAG := 10
 const FX_PRINT := 11
-## Where Schweinler leaves the bag and where Basil steps on it — ONE spot,
-## relative to the "home" anchor: the morning bag must sit exactly where the
-## night phase left it. Since the canopy rebuild the doorstep is a RING DECK,
-## and this is its lip cell — the ladder head, the one cell Basil cannot
-## leave home without crossing. (The old +38 was the ground-cottage lane and
-## landed the bag ON the ladder rungs, two storeys of nonsense below his door.)
-const BAG_OFF := Vector2(8.0, 16.0)
 ## The pace of the leaving trudge, px/s. It used to be implied — a fixed 4.6s
 ## tween onto a hardcoded Vector2(440, 545) — which meant the SPEED was a
 ## function of where the map's south edge happened to be. Now the endpoint is
@@ -63,6 +54,7 @@ const TINT_DUSK := Color(0.74, 0.56, 0.66)
 var phase := "plant"
 var _last_print := Vector2.ZERO
 var _dashing := false
+var _from_ladder := false
 
 @onready var theater: Theater = $Theater
 @onready var tint: CanvasModulate = $Tint
@@ -85,11 +77,17 @@ func _place_player() -> void:
 	Game.town_thesis_phase = ""
 	if phase == "":
 		phase = "plant"
+	var spawn := Game.town_spawn
+	Game.town_spawn = ""
+	# down a ladder from the boughs, whatever the phase — the climb continues
+	_from_ladder = _place_on_rungs(spawn)
+	if _from_ladder:
+		return
 	match phase:
 		"dash":
-			# ON the door marker (the door-mouth convention) — the walk onto
-			# the bag below needs the step south to be visible
-			Party.place(MapData.anchor_px(map, "home"))
+			# a direct dash-ground load (dev menu / probe): the run starts at
+			# the foot of Basil's tree, where the descent lands it in play
+			Party.place(MapData.anchor_px(map, "top1") + Vector2(8.0, 40.0))
 		"steps":
 			Party.place(MapData.anchor_px(map, "cottage_e"))
 		_:
@@ -108,6 +106,14 @@ func _extra_setup() -> void:
 	_collect_animated()
 	$ExitSouth.position = MapData.anchor_px(map, "exit_south")
 	_wall_gate_mouth()
+	_wire_ladder_tops("res://scene/canopy_thesis.tscn")
+	if phase != "dash":
+		# the night and the dusk get their fireflies; fireflies at breakfast
+		# are the wrong kind of magic
+		var ff := Fireflies.new()
+		add_child(ff)
+		var size := MapData.size_px(map)
+		ff.seed($World, Rect2(48.0, 304.0, size.x - 96.0, size.y - 384.0), 11, 0.85)
 	Party.clamp_cameras(MapData.size_px(map))
 	match phase:
 		"plant": _phase_plant()
@@ -115,134 +121,44 @@ func _extra_setup() -> void:
 		"steps": _phase_steps()
 
 
+## Re-arm the shared router before the canopy scene loads — Game fields are
+## the only state that survives the door (standing rule 3).
+func _on_ascend(_ladder: int) -> void:
+	Game.town_thesis_phase = phase
+	_dashing = false
+
+
 # ---- plant (night) ----------------------------------------------------------------
 
+## The ground half of the night: the walk home is the player's own, and it
+## ends at a ladder foot — the doorstep call and the creep play on the boughs
+## (canopy_thesis._doorstep / _creep). Coming back DOWN mid-night just holds
+## the sleeping town; the intro lines never replay.
 func _phase_plant() -> void:
 	tint.color = TINT_NIGHT
+	if _from_ladder:
+		return
 	theater.lock_party()
 	# the night before, PLAYABLE (2026-07-16): Basil has been prepping the
 	# hall all evening; the walk home through the sleeping town is the
-	# player's own, down to the doorstep call
+	# player's own, up to the top of his own rope ladder
 	theater.face(player, Vector2.DOWN)
 	await theater.wait(ENTRY_FADE + 0.4)
 	await theater.say("Basil", "I can't believe I'm going to actually graduate from wizard school having never performed a single spell.")
 	await theater.say("Basil", "Home. Sleep.")
 	theater.close_dialog()
+	theater.unlock_party()
 	_show_banner("HOME - GET SOME SLEEP", BANNER_HOLD)
-	# the goal rect hangs over the ring deck's lip, so the player's own climb
-	# up the ladder fires it on arrival at the top
-	await theater.walk_gate(MapData.anchor_px(map, "home") + BAG_OFF,
-			Vector2(40.0, 24.0))
-	# a step up onto the deck proper — the call is taken on his own doorstep,
-	# not balanced on the top rung
-	await theater.walk(player, MapData.anchor_px(map, "home") + Vector2(8.0, 4.0), 40.0)
-	# the bookend call (2026-07-16 Kitty thread): on his own doorstep, the
-	# watch SHE MADE raised to his muzzle — the same look_watch gesture as
-	# the bluff's first blink and the dusk calls, opposite emotional poles
-	theater.face(player, Vector2.DOWN)
-	player.sprite.play("look_watch")
-	await theater.wait(0.5)
-	await theater.say("Kitty", "Hi")
-	await theater.say("Basil", "Tomorrow is the day...")
-	await theater.say("Kitty", "You've got this. I know it!")
-	await theater.say("Kitty", "It sucks only students and professors get to attend. I'll be there in spirit. Whooping you psychically.")
-	await theater.say("Basil", "Please don't whoop. ...The watch you made me says it's past midnight, you know.")
-	await theater.say("Kitty", "That watch keeps PERFECT time. It's the cat wearing it who runs late. Bed! You'll be brilliant tomorrow.")
-	await theater.say("Basil", "...Goodnight, Kitty.")
-	theater.close_dialog()
-	player.sprite.play("idle_down")
-	theater.face(player, Vector2.UP)
-	await theater.walk(player, MapData.anchor_px(map, "home"), 40.0)
-	player.visible = false            # inside; the deck goes quiet
-	await theater.wait(0.8)
-	var schw: NPC = _npc("Schweinler", SHEET_SCHW, 6, MapData.anchor_px(map, "exit_south"))
-	# no narrator over the creep (the 2026-07-18 purge): the sleeping town
-	# holds a quiet beat, then the shape slinks the lanes on its own
-	await theater.wait(1.0)
-	# theater walks are straight no-collision tweens — creep the LANES (up
-	# the gate road, west along the forest floor, then UP BASIL'S ROPE LADDER),
-	# never the diagonal through the shop blocks or the fascia. Those corners
-	# used to be absolute pixels: Vector2(440,384), (408,384), (408,312),
-	# (168,312). Read that route on a re-authored grid and it is nonsense —
-	# the same numbers, a different town, the creep cutting through whatever
-	# now stands there. So the corners are NAMED IN THE MAP (creep_gate /
-	# creep_cross / creep_lane / creep_head) and the last two hang off "home"
-	# like the doorstep gate already did. Whoever re-authors the lanes moves
-	# five anchors and the creep follows them.
-	#
-	# creep_head is the 2026-07-29 addition and it is the canopy's whole cost
-	# here: Basil lives UP A TREE now, so the bag has to be carried up a
-	# ladder to reach his doorstep. It also makes the beat better — the sneer
-	# had to climb.
-	await theater.walk_via(schw, [
-			MapData.anchor_px(map, "creep_gate"),
-			MapData.anchor_px(map, "creep_cross"),
-			MapData.anchor_px(map, "creep_lane"),
-			MapData.anchor_px(map, "creep_head"),
-			_ladder_foot()], 44.0)
-	# UP THE LADDER — pinned to the rungs' own centre line and dead vertical,
-	# slower than the slink (the old single leg was a straight floor-to-deck
-	# diagonal: a pig levitating over the fascia, exactly the float the
-	# strata forbid). walk_up carries the whole leg, which is the climb.
-	await theater.walk(schw, _ladder_top(), 30.0)
-	# one step onto the deck, clear of the lip the bag is about to own
-	await theater.walk(schw, MapData.anchor_px(map, "home") + Vector2(-16.0, 4.0), 36.0)
-	schw.face_dir(Vector2.RIGHT)
-	# the bag — dropped at BAG_OFF, the deck lip, right where the morning
-	# step will land: he cannot leave home without crossing it
-	var bag := _fx_at(FX_BAG, MapData.anchor_px(map, "home") + BAG_OFF)
-	await theater.say("Schweinler", "Heh heh heh. A little congratulations for the graduate.")
-	schw.play_emote()
-	await theater.say("Schweinler", "Enjoy your big lecture tomorrow, Basil. Oink - hahaha!")
-	# back out the way he crept in — the SAME corners, reversed, so the two
-	# routes can never drift apart into two different opinions of where the
-	# lanes are. The descent keeps the back-facing walk (turn=false): a
-	# front-facing glide down the rungs is the float all over again.
-	await theater.walk(schw, _ladder_top(), 36.0)
-	schw.face_dir(Vector2.UP, true)
-	await theater.walk(schw, _ladder_foot(), 34.0, false)
-	await theater.walk_via(schw, [
-			MapData.anchor_px(map, "creep_head"),
-			MapData.anchor_px(map, "creep_lane"),
-			MapData.anchor_px(map, "creep_cross"),
-			MapData.anchor_px(map, "creep_gate"),
-			MapData.anchor_px(map, "exit_south")], 60.0)
-	schw.queue_free()
-	bag.queue_free()
-	theater.close_dialog()
-	await theater.black(1.0)
-	await theater.card("THE NEXT MORNING.", 1.8)
-	get_tree().change_scene_to_file("res://scene/house_thesis.tscn")
 
 
-# ---- dash (morning): the squelch, paw-prints, reach the school ---------------------
+# ---- dash (morning): the ground run — paw-prints, reach the school -----------------
 
+## The squelch already happened on the deck (canopy_thesis); the moment the
+## descent seats the body on the rungs, the run is live.
 func _phase_dash() -> void:
 	tint.color = TINT_MORNING
-	theater.lock_party()
-	theater.face(player, Vector2.DOWN)
-	# the bag is already THERE — planted last night, waiting through the line
-	var bag := _fx_at(FX_BAG, MapData.anchor_px(map, "home") + BAG_OFF)
-	await theater.wait(ENTRY_FADE + 0.3)
-	await theater.say("Basil", "The lecture! I OVERSLEPT!!")
-	# the step is SHOWN: he bolts for the ladder, straight onto it (the box
-	# stays OPEN across the walk — the probe's dialog-closed predicate must
-	# not flip before the squelch)
-	await theater.walk(player, MapData.anchor_px(map, "home") + BAG_OFF, 72.0)
-	# the squelch is PLAYED, not narrated (2026-07-18): the landing hop is
-	# the flinch off the bag, and his own line names what his paw just learned
-	await theater.hop(player, 6.0)
-	await theater.say("Basil", "Ew. EW. Squishy. Why was that SQUISHY?!")
-	await theater.say("Basil", "...I don't have time.")
-	await theater.say("Basil", "Gotta go gotta go GOTTA GO!")
-	theater.close_dialog()
-	# the bag lingers a beat underfoot and fades, instead of blinking away
-	var btw := bag.create_tween()
-	btw.tween_interval(0.4)
-	btw.tween_property(bag, "modulate:a", 0.0, 0.9)
-	btw.tween_callback(bag.queue_free)
 	_dashing = true
-	theater.unlock_party()
+	_last_print = player.global_position
 	_show_banner("GET TO THE ACADEMY", BANNER_HOLD)
 	# the Academy stair is the finish
 	var goal := Area2D.new()
@@ -443,20 +359,3 @@ func _npc(nm: String, sheet: Texture2D, cols: int, pos: Vector2) -> NPC:
 	npc.position = pos
 	$World.add_child(npc)
 	return npc
-
-
-func _fx_at(cell: int, pos: Vector2) -> Sprite2D:
-	# ground clutter (the bag) — a World decal so bodies pass in front of it
-	return WorldFx.decal($World, FX_SHEET, cell, pos)
-
-
-## The two ends of Basil's rope ladder, derived off the map rather than
-## typed: the rung pair hangs with its centre line on the seam 8px east of
-## the "home" / "creep_foot" anchor columns. The top IS the deck lip — which
-## is also BAG_OFF: the prank and the ladder share that cell on purpose.
-func _ladder_top() -> Vector2:
-	return MapData.anchor_px(map, "home") + BAG_OFF
-
-
-func _ladder_foot() -> Vector2:
-	return MapData.anchor_px(map, "creep_foot") + Vector2(8.0, 0.0)

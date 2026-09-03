@@ -176,12 +176,24 @@ that is the proof it is shared rather than forked.
 - The bluff's north drop is the other answer: a 1-row authored cliff-LIP band (ragged
   sunlit brow + dark crevice line, three salted 16×16 variants).
 
-## STACKED WALKABLE STOREYS — the strata kit (2026-07-29, RING ISLANDS 2026-07-30)
+## STACKED WALKABLE STOREYS — the strata kit (2026-07-29, RING ISLANDS 2026-07-30, TWO SCENES 2026-08-23)
 
-Alembic Town is a **forest-floor village with four great trees** in one 80×56 grid.
-The town is on the ground; each tree carries a round **ring deck** near its crown —
-one walkable stratum island apiece, reached by a rope ladder, with a door and a lit
-window cut into the trunk.
+Alembic Town is a **forest-floor village with four great trees**, split 2026-08-23
+into TWO SCENES: the floor (`town.txt`, one storey — bare trunk shafts baked from
+row 0 to the frame top, ladder `z` runs ending at TRAVEL MOUTHS, anchors
+`top1..top4`) and THE BOUGHS (`canopy.txt`, 80×32 — the four ring decks at one
+deck height, joined by rope bridges over walkable `=` span cells entered through
+`E` BRIDGE GATES: walkable `ringedge` twins, mask-excepted exactly like the
+ladder landing; plus a `tree_platform` landing and `_` DROP cells whose INTERIOR
+renders the town far below via `_alembic._drop_field` while boundary cells keep
+the leaf fringe; canopy ladders end at mouths AGAINST the drop, anchors
+`head1..head4`). **The `stratum:` tokens left the town grids with the split** —
+one storey per scene needs no strata, `z` carries no `link` token any more, and
+AIBrain's never-stop rule keys on the `ropeladder` TERRAIN (the same name
+`PartyMember._climb` uses). The doctrine below still governs the canopy grid's
+authoring and any future map that stacks storeys in one grid. Each tree carries
+a round **ring deck** near its crown — reached by rope ladder, with a door and a
+lit window cut into the trunk.
 
 **THE CANOPY IS NOT A FLOOR, IT IS ISLANDS.** The build before this one made both
 canopy storeys continuous boardwalk edge to edge and rendered as horizontal stripes
@@ -443,8 +455,10 @@ ring-islands re-author; the lint is green everywhere as of 2026-08-01.)
 
 Some maps exist as era pairs that must stay in lockstep, cell for cell:
 
-- `town.txt` ↔ `town_fest.txt` (drained ↔ bright era; the fest copy only changes
-  palette and the Academy door's `open_door=True`).
+- `town.txt` ↔ `town_fest.txt` (drained ↔ bright era; grids identical, only the
+  anchor blocks differ — the fest twin carries the cast/cutscene anchors).
+- `canopy.txt` ↔ `canopy_fest.txt` (THE BOUGHS, the 2026-08-23 two-scene split's
+  new pair; the fest twin adds `goose_hide`).
 - `overworld.txt` ↔ `overworld_bright.txt`.
 - `downstairs.txt` ↔ `downstairs_bare.txt` (built lab ↔ the pre-lab room of
   Prologue A0; same grid + anchors, only the east corner's feature chars and

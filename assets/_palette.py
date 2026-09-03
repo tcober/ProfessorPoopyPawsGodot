@@ -255,17 +255,21 @@ SCENES = {
             "plaster": (236, 210, 182, 255),
         },
     },
-    "town": {           # Alembic Town at zone scale — the overworld palette
-        "shadow": "teal",                   # walked into: mossy lanes, dusky
-        "accent": (255, 190, 96, 255),      # plaster, candle amber
-        # Same hand ramps + mats as the overworld so the town IS its icon up
-        # close (waste/snow/bridge seeds ride along unused: the shared
-        # OverWorld driver constructs every ramp it knows).
+    "town": {           # Alembic Town at zone scale — PERMANENT DUSK since the
+        "shadow": "teal",                   # 2026-08-23 split: the four great
+        "accent": (255, 190, 96, 255),      # trees' crown closed over the
+        # clearing a generation ago, so the floor never sees full sun. The
+        # palette carries the hour — every field seed is the old drained town
+        # pulled down in L and toward blue-green, saturation KEPT (the
+        # darker-tone law: low-L saturated hue-shifted fields, never gray mud)
+        # — and the scene's $Dusk CanvasModulate + the glow overlay do the
+        # rest. Candle amber stays the accent because it IS the dusk accent:
+        # the lamps burn at noon here.
         "ramps": {
-            "sand": [(248, 224, 178, 255), (240, 200, 148, 255), (226, 176, 128, 255),
-                     (198, 138, 108, 255), (156, 92, 96, 255), (110, 58, 78, 255)],
-            "road": [(240, 206, 160, 255), (228, 184, 136, 255), (212, 158, 116, 255),
-                     (184, 124, 100, 255), (146, 84, 90, 255), (104, 54, 74, 255)],
+            "sand": [(212, 192, 160, 255), (200, 170, 134, 255), (184, 148, 116, 255),
+                     (158, 112, 98, 255), (122, 74, 86, 255), (86, 48, 70, 255)],
+            "road": [(206, 178, 148, 255), (190, 158, 126, 255), (172, 134, 108, 255),
+                     (146, 102, 92, 255), (112, 68, 82, 255), (78, 44, 68, 255)],
             # THE CANOPY TOWN'S TIMBER (2026-07-29), and it has to be hand-pinned
             # for TWO reasons, neither of them taste.
             #
@@ -290,12 +294,12 @@ SCENES = {
                        (150, 108, 76, 255), (104, 68, 66, 255), (62, 40, 56, 255)],
         },
         "mats": {
-            "sea": (34, 100, 140, 255),
-            "grass": (60, 140, 98, 255),
-            "grass2": (82, 146, 84, 255),
-            "forest": (36, 128, 104, 255),      # hedge borders + garden bushes
-            "rock": (100, 92, 144, 255),
-            "sand": (238, 198, 148, 255),
+            "sea": (28, 84, 128, 255),
+            "grass": (42, 110, 92, 255),
+            "grass2": (58, 118, 78, 255),
+            "forest": (26, 102, 94, 255),       # hedge borders + garden bushes
+            "rock": (86, 80, 134, 255),
+            "sand": (196, 158, 134, 255),
             "waste": (188, 112, 178, 255),
             "snow": (234, 242, 252, 255),
             "bridge": (150, 88, 112, 255),
@@ -304,21 +308,25 @@ SCENES = {
             "basalt": (74, 62, 92, 255),        # shared driver constructs
             "pines": (30, 90, 104, 255),        # every ramp it knows
             "lava": (244, 120, 52, 255),
-            "roof_blue": (70, 124, 178, 255),
-            "roof_green": (62, 138, 110, 255),
-            "plaster": (168, 158, 196, 255),
+            "roof_blue": (56, 104, 160, 255),
+            "roof_green": (48, 116, 98, 255),
+            "plaster": (150, 142, 186, 255),
         },
     },
     "town_fest": {      # Alembic Town, FESTIVAL ERA (Prologue A) — the same
-        "shadow": "teal",               # town ALIVE: spring grass, cream
-        "accent": (240, 96, 170, 255),  # plaster, festival-banner magenta
-        # Sunnier walk ramps than the drained town's (closer to morning_yard's
-        # warmth) — the era difference must read in the ground itself.
+        "shadow": "teal",               # town ALIVE. Since the 2026-08-23 dusk
+        "accent": (240, 96, 170, 255),  # pass this era is GOLDEN-HOUR UNDER
+        # THE LEAVES rather than open noon: the crown was closed in Basil's
+        # childhood too, so even the bright era lives in filtered light — warm
+        # gold-green, cream plaster, festival magenta. It must still read
+        # plainly as the ALIVE era against the drained town's blue dusk: the
+        # era difference stays in the ground itself, one register warmer and
+        # lighter across the board.
         "ramps": {
-            "sand": [(250, 228, 182, 255), (242, 206, 152, 255), (230, 182, 132, 255),
-                     (204, 146, 112, 255), (162, 98, 98, 255), (114, 62, 80, 255)],
-            "road": [(246, 214, 166, 255), (236, 192, 142, 255), (222, 168, 122, 255),
-                     (194, 134, 106, 255), (154, 92, 94, 255), (110, 58, 78, 255)],
+            "sand": [(238, 212, 166, 255), (228, 190, 138, 255), (214, 166, 120, 255),
+                     (188, 132, 102, 255), (148, 90, 92, 255), (104, 56, 76, 255)],
+            "road": [(232, 198, 152, 255), (222, 178, 130, 255), (206, 154, 112, 255),
+                     (180, 122, 98, 255), (142, 84, 88, 255), (100, 52, 72, 255)],
             # The canopy town's timber, festival era — see the drained town's
             # entry for why it is hand-pinned at all. Same warm brown, sunnier:
             # this boardwalk has had a spring morning on it and the drained one
@@ -331,11 +339,11 @@ SCENES = {
         # holds; this is spring, not sugar).
         "mats": {
             "sea": (48, 128, 164, 255),
-            "grass": (84, 172, 108, 255),
-            "grass2": (110, 178, 94, 255),
-            "forest": (52, 148, 112, 255),
+            "grass": (76, 150, 96, 255),
+            "grass2": (98, 152, 82, 255),
+            "forest": (44, 126, 100, 255),
             "rock": (122, 114, 168, 255),
-            "sand": (244, 210, 160, 255),
+            "sand": (232, 196, 150, 255),
             "waste": (188, 112, 178, 255),
             "snow": (234, 242, 252, 255),
             "bridge": (168, 102, 122, 255),
@@ -344,9 +352,78 @@ SCENES = {
             "basalt": (74, 62, 92, 255),
             "pines": (30, 90, 104, 255),
             "lava": (244, 120, 52, 255),
-            "roof_blue": (86, 146, 198, 255),
-            "roof_green": (78, 158, 124, 255),
-            "plaster": (236, 210, 182, 255),
+            "roof_blue": (80, 136, 188, 255),
+            "roof_green": (70, 148, 116, 255),
+            "plaster": (232, 206, 178, 255),
+        },
+    },
+    "canopy": {         # THE BOUGHS — Alembic's canopy scene (2026-08-23 split),
+        "shadow": "teal",                   # dusk up in the leaves. The leaf sea
+        "accent": (255, 190, 96, 255),      # is the field; it sits a step
+        # LIGHTER than the drained floor's forest, because the boughs are up in
+        # what light there is and the clearing is in their shadow — a deck
+        # darker than the ground below it reads as a hole. Timber is the same
+        # hand-pinned carpenter's brown as the floor town (one town, one wood),
+        # and the drop field's own tones are hand-pinned in _alembic (the town
+        # seen from above at dusk is not a material, it is a view).
+        "ramps": {
+            "sand": [(212, 192, 160, 255), (200, 170, 134, 255), (184, 148, 116, 255),
+                     (158, 112, 98, 255), (122, 74, 86, 255), (86, 48, 70, 255)],
+            "road": [(206, 178, 148, 255), (190, 158, 126, 255), (172, 134, 108, 255),
+                     (146, 102, 92, 255), (112, 68, 82, 255), (78, 44, 68, 255)],
+            "timber": [(240, 204, 144, 255), (214, 172, 120, 255), (192, 148, 98, 255),
+                       (150, 108, 76, 255), (104, 68, 66, 255), (62, 40, 56, 255)],
+        },
+        "mats": {
+            "sea": (28, 84, 128, 255),
+            "grass": (46, 116, 94, 255),
+            "grass2": (60, 122, 80, 255),
+            "forest": (34, 116, 100, 255),      # the leaf sea — the scene's field
+            "rock": (86, 80, 134, 255),
+            "sand": (196, 158, 134, 255),
+            "waste": (188, 112, 178, 255),
+            "snow": (234, 242, 252, 255),
+            "bridge": (150, 88, 112, 255),
+            "trunk": (52, 62, 118, 255),
+            "desert": (178, 150, 208, 255),     # ride-alongs, unused: the
+            "basalt": (74, 62, 92, 255),        # shared driver constructs
+            "pines": (30, 90, 104, 255),        # every ramp it knows
+            "lava": (244, 120, 52, 255),
+            "roof_blue": (56, 104, 160, 255),
+            "roof_green": (48, 116, 98, 255),
+            "plaster": (150, 142, 186, 255),
+        },
+    },
+    "canopy_fest": {    # THE BOUGHS, BRIGHT ERA — the same leaves in the
+        "shadow": "teal",                   # childhood's filtered gold. Lifted
+        "accent": (240, 96, 170, 255),      # from "canopy" the way town_fest is
+        # lifted from town: higher L, kept saturation, festival magenta accent.
+        "ramps": {
+            "sand": [(238, 212, 166, 255), (228, 190, 138, 255), (214, 166, 120, 255),
+                     (188, 132, 102, 255), (148, 90, 92, 255), (104, 56, 76, 255)],
+            "road": [(232, 198, 152, 255), (222, 178, 130, 255), (206, 154, 112, 255),
+                     (180, 122, 98, 255), (142, 84, 88, 255), (100, 52, 72, 255)],
+            "timber": [(252, 224, 168, 255), (232, 194, 136, 255), (210, 168, 110, 255),
+                       (168, 124, 86, 255), (118, 78, 74, 255), (74, 48, 62, 255)],
+        },
+        "mats": {
+            "sea": (48, 128, 164, 255),
+            "grass": (80, 154, 100, 255),
+            "grass2": (100, 156, 86, 255),
+            "forest": (56, 140, 104, 255),      # the leaf sea, festival-lit
+            "rock": (122, 114, 168, 255),
+            "sand": (232, 196, 150, 255),
+            "waste": (188, 112, 178, 255),
+            "snow": (234, 242, 252, 255),
+            "bridge": (168, 102, 122, 255),
+            "trunk": (66, 78, 138, 255),
+            "desert": (178, 150, 208, 255),     # ride-alongs, unused
+            "basalt": (74, 62, 92, 255),
+            "pines": (30, 90, 104, 255),
+            "lava": (244, 120, 52, 255),
+            "roof_blue": (80, 136, 188, 255),
+            "roof_green": (70, 148, 116, 255),
+            "plaster": (232, 206, 178, 255),
         },
     },
     "academy": {        # THE ALEMBIC ACADEMY, its own scene since 2026-07-30 —

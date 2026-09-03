@@ -27,7 +27,8 @@ The three rules that break things most often:
    both paint and collision, and that is the only reason they can't drift.
 
 Byte-locked twins must move together: `maps/town.txt` ↔ `maps/town_fest.txt`,
-`maps/overworld.txt` ↔ `maps/overworld_bright.txt`, and `maps/downstairs.txt` ↔
-`maps/downstairs_bare.txt` (same grid + anchors; only the east lab corner and
-the mom door's walk bit differ — scene/downstairs_fever.gd swaps between them
-on a story flag).
+`maps/canopy.txt` ↔ `maps/canopy_fest.txt` (THE BOUGHS — the 2026-08-23
+two-scene split's pair), `maps/overworld.txt` ↔ `maps/overworld_bright.txt`,
+and `maps/downstairs.txt` ↔ `maps/downstairs_bare.txt` (same grid + anchors;
+only the east lab corner and the mom door's walk bit differ —
+scene/downstairs_fever.gd swaps between them on a story flag).

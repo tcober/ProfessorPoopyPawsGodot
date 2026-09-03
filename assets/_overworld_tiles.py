@@ -266,6 +266,19 @@ TERRAIN_CLS = {
     #    the struct band grounds the machine on the plaza south of it.
     "deck": "deck", "plank": "deck", "trunkstair": "deck",
     "boughtop": "deck", "ropeladder": "deck",
+    # THE CANOPY SCENE (2026-08-23 two-scene split, assets/maps/canopy.txt):
+    #  - `drop` is the VOID between the ring decks — solid, and it renders
+    #    `forest` so the lobe lattice fringes every void pocket in leaf; the
+    #    canopy recipe then repaints the INTERIOR drop cells with the town
+    #    thirty feet below (_alembic._drop_field). The chasm lesson does not
+    #    apply: this absence is full of a named positive thing — the town.
+    #  - `span` is a rope bridge's walkable run. It renders `forest` too, NOT
+    #    `deck`: the bridge art is transparent outside its rails, and what
+    #    shows through a bridge over the drop must be the drop.
+    #  - `decklamp` is the hook lantern standing ON the landing's boards — the
+    #    ground towns' `hooklamp` renders grass, which would punch a grass
+    #    square through the deck (the fountain's lesson, again).
+    "drop": "forest", "span": "forest", "decklamp": "deck",
     # the great trees' crowns and the leaf bed a ring deck hangs in are
     # LEAF, not boards — `crown` rendered "deck" back when it was the
     # walkable canopy over a boardwalk

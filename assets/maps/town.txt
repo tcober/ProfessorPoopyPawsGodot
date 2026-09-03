@@ -1,126 +1,36 @@
-; Alembic Town — 80x56 tiles (1280x896 px), Basil's origin village: a forest-floor
-; clearing with FOUR GREAT TREES standing along its north edge, each carrying a
-; round RING DECK near its crown, a door in its trunk, and a rope ladder down.
-; Tiled by assets/_gen_tileset_town.py on the shared OverWorld driver;
-; collision/markers by scene/alembic_town.gd.
+; Alembic Town, THE FLOOR — 80x56 tiles (1280x896 px), Basil's origin village seen
+; from the ground: a forest-floor clearing in PERMANENT GREEN DUSK under the four
+; great trees' closed crown. The lanes, the fountain square, the three shops, the
+; cottages, the well and the stall are all down here; the RING DECKS are not — the
+; canopy is its own scene now (assets/maps/canopy.txt, the 2026-08-23 split), and
+; the four rope ladders are TRAVEL MOUTHS between the two.
 ;
-; THERE IS NO ELEVATION SYSTEM AND THERE DOES NOT NEED TO BE ONE. A cell is exactly
-; one (x, y) with one legend char and one walk/solid bit, so storeys are unambiguous
-; IFF THEY ARE DISJOINT IN THE GRID. `stratum:` names the storey; TileScene's
-; assert_strata is the whole system, and every failure in it is SILENT.
+; THE SPLIT (2026-08-23, repealing DESIGN.md's old REJECTED bullet — see DESIGN.md
+; -> "STACKED WALKABLE STOREYS"): the ground map carries NO canopy stratum at all.
+; Each great trunk is 4 solid `j` columns typed from row 6 down to its `!` foot,
+; with the rope ladder's `z` lane inside them. The shaft ART is baked from row 0,
+; over the border's leaf mass, and runs off the top of the map — a tree with no
+; visible top reads as too tall for the screen, which is the point. The `z` runs
+; are the old grid's, verbatim; a body climbs them for real, and a travel zone at
+; each run's TOP two rungs (anchors top1..top4) hands the climb to the canopy
+; scene mid-ladder, so you leave climbing and arrive climbing.
 ;
-; THE CANOPY IS NOT A FLOOR. It is four ISLANDS. The previous build made both canopy
-; storeys continuous deck from edge to edge, and a town that is 100% floor renders as
-; horizontal stripes of plank and fascia — a lumber yard, or a fence. What makes both
-; references (FFXIV's Slitherbough, Endor) read is the VOID between the platforms.
-; So: each ring is a disc of decking with solid leaf all round it, and the town —
-; the lane, the shops, the well, the stall, the cottages — is on the FOREST FLOOR,
-; which is the part that already read as somewhere.
+; `z` carries NO stratum token any more: a link must border two strata and the
+; second storey lives in another file now. The climb mechanics never cared — 
+; PartyMember._climb keys on the TERRAIN name `ropeladder`, and AIBrain's
+; never-stop rule now keys on the terrain too.
 ;
-; THE TREE BLOCK is 12 cols x 9 rows, and ITS WALKABLE CELLS ARE NOT AUTHORED BY HAND.
-; They are the rasterization of the very ellipse tree_ring draws — `_tree_props.ring_cells`
-; makes the mask, `_alembic.assert_all` checks this grid against it, and a cell is
-; walkable iff its CENTRE is on decking. Do not "tidy" these rows: they are derived.
+; PERMANENT DUSK IS DIEGETIC: the crown closed over the clearing a generation
+; ago, so the floor never sees full sun — the lamps burn at noon (honest fire,
+; so they burn drained too) and the fireflies never really leave. The palette
+; carries the hour; scene code adds the fireflies (components/fireflies.gd).
 ;
-; The build before this one guessed them, and guessed a tight blob INSIDE the disc. At
-; the east and west poles two whole columns of drawn decking were solid and the south
-; rim was two cells too generous, so a round platform was walked as a RECTANGLE with an
-; invisible wall following its rim the whole way round — and the widest rows of the disc
-; were the NARROWEST rows you could walk, which is the inverse of a circle. Nothing
-; complained: a cell that looks like deck and stops you looks exactly like a cell you
-; have not reached yet.
-; THE MASK IS THE BODY'S BOX, NOT A POINT, because the overhang is DIRECTIONAL and no
-; single radius can express it. (row 4, col 2) sits at o = 0.65 — comfortably inside
-; anything you would call the rim — and a body standing there has its west foot off the
-; platform, because its feet are ten pixels south of its centre and the arc has already
-; curved away. (row 1, col 1) sits at o = 0.88, far worse by radius, and is fine, because
-; on the top half of an ellipse those same ten pixels point further IN. So the 12x8
-; collision box is placed at each cell centre and all four corners must clear the RIM
-; BOARD (o <= 0.90) — not the outer edge: the rim is the deck's finished lip, the
-; handrail stands just outside it, and walking to the edge put a body at the poles
-; standing ON the rim with the rail between its ankles.
-;   row 0      leaf bed               solid         — the disc IS drawn here, and it is
-;                                                     under the crown's 96-100% opaque
-;                                                     heart. A body there is invisible;
-;                                                     _check_art's walk-behind lint says
-;                                                     so in numbers. Exception 1.
-;   row 1      the north arc          WALK canopy   — you pass BEHIND the tree here
-;   row 2-3    the shaft (cols 4-7)   solid         — the DOOR is drawn on row 3; these
-;                                                     are the widest walkable rows,
-;                                                     which is the widest part of the
-;                                                     ellipse: a circle, not a rectangle
-;   row 4      the south deck         WALK canopy   — 6 cells, the row under the door
-;   row 5      the south rim          solid, EXCEPT the ladder's two columns. The arc is
-;                                                     at y=92, so a body centred on this
-;                                                     row has its feet past it wherever
-;                                                     you put it. The LANDING is
-;                                                     exception 2 and it is named off the
-;                                                     ladder, not typed as a row: it is
-;                                                     the one place you are meant to
-;                                                     stand on the lip, because standing
-;                                                     there IS stepping onto the rungs
-;   row 6      the fascia crescent    solid         — the ladder head cuts through it.
-;                                                     THERE ARE NO BAND CELLS HERE. The
-;                                                     ring's fascia is a crescent painted
-;                                                     inside one sprite, not a run of
-;                                                     face cells, so it gets no `v` and
-;                                                     no mask_band. It had both, and the
-;                                                     mask shipped as a 16x12 SLAB OF
-;                                                     DECK PLANKING drawn over anything
-;                                                     standing on the row above — a body
-;                                                     cropped to the head, one either
-;                                                     side of the ladder. A terrace's
-;                                                     walkable row ENDS at its face, so
-;                                                     its crest must come back over your
-;                                                     sunk feet; the ring's deck stops a
-;                                                     WHOLE ROW north of the arc, so a
-;                                                     body pressed south there overhangs
-;                                                     onto more deck and there is nothing
-;                                                     to swallow
-;   row 7-8    the trunk's flanks     `j`           — greattrunk, NOT `y`. Typed `y` the
-;                                                     flanks render leaf against the
-;                                                     ladder's plank class and the
-;                                                     autotile draws a pale transition
-;                                                     wedge either side of the rungs,
-;                                                     which reads as a clipping bug
-;                                                     because it is one
+; Everything else — the lane web, the square, the buildings, every cast anchor —
+; is the pre-split grid, kept on purpose: ten shipped beats choreograph across
+; these lanes and their anchors are load-bearing by NAME (see the fest twin).
 ;
-; THE SHAFT GOES DOWN FIRST AND THE RING GOES DOWN ON TOP OF IT. Order is the whole
-; difference between a trunk that FEEDS THROUGH the platform and one CHOPPED OFF under
-; it. Blitted last, the shaft's own `edge()` top — dead straight, 64px wide — lands two
-; px under the crescent and the tree visibly BEGINS at a horizontal cut: a post nailed
-; to a saucer. Blitted first from block row 6, that straight edge is buried under opaque
-; decking and the only line crossing the trunk is the fascia's hem, which is an ARC — and
-; an arc crossing a cylinder is an overlap. `_alembic._shade_under` then lays the deck's
-; own shadow on the bark for the 20px below that hem, because bark under a platform and
-; bark in the open are otherwise the same six colours.
-; THE RAIL IS NOT DECKING AND YOU DO NOT WALK ON IT. Its near arc is a Tier-3 prop
-; (`RingRail`) keyed at the block's south edge, so every body on the ring draws BEHIND
-; the handline; the far arc stays baked with the deck, because it is behind you.
-; `R` is the walkable RIM twin — same terrain as `y` (ringedge, which renders LEAF), so
-; the part of a rim cell the disc's curve does not cover shows canopy rather than plank
-; fabric. Give those cells a deck underlay and the leftover corners square the circle
-; straight back off.
-; The ladder (cols 5-6) runs down INSIDE the trunk's 4 columns, so it has solid timber
-; on both sides for its whole length — otherwise you could step sideways off it onto
-; ground that is meant to be thirty feet below. It runs THROUGH the foot to the floor,
-; because a link whose last cell butts into solid timber joins the ring to nothing.
-;
-; THE FEET SIT AT THE CLEARING'S NORTH EDGE. A trunk is 4 solid columns; a tree with
-; its foot halfway down the map cuts the floor into strips you must walk around. The
-; first draft did that with four of them and the clearing came out as five corridors.
-;
-; THE SCHOOL IS ITS OWN SCENE. What stays here is the way there — the north lane at
-; cols 35-36 — and the `school` anchor sits in its mouth, so town_thesis's dash ends
-; at a place you walk into rather than at a building that is no longer in this grid.
-;
-; THE THREE SHOPS ARE 5x4, THE SAME ENVELOPE AS A COTTAGE, and that is deliberate. They
-; were `tree_hut`s at 3x4 — a cone of thatch over a barrel of withy staves, which is the
-; right building for a BOUGH and a tiki hut on a forest floor: one tan value throughout,
-; no wall material, and three cells wide next to a five-cell cottage. `_town_props.town_shop`
-; is the town's own envelope (leaf canopy, greeny cement, copper, vines) plus an awning, a
-; lit display window and a hanging device. Roof rows are `x`/`p`/`i`, body rows `X`/`P`/`I`,
-; the `D` centred on the bottom row; the anchors sit one row SOUTH of it.
+; Byte-locked twin: town_fest.txt (same grid, festival palette). Edit both in
+; the same commit — _check_art.py enforces it.
 
 legend # forest solid
 legend . grass walk
@@ -129,14 +39,9 @@ legend - road walk
 legend D door walk
 legend T treecanopy walk
 legend t treetrunk solid
-legend G crown solid
-legend Y deck walk stratum:canopy
-legend y ringedge solid
-legend R ringedge walk stratum:canopy
-legend J greattrunk solid
 legend j greattrunk solid
 legend ! greattrunk solid
-legend z ropeladder walk stratum:link
+legend z ropeladder walk
 legend o fountain solid
 legend O fountain walk
 legend u well solid
@@ -162,7 +67,6 @@ legend h hooklamp solid
 legend H hooklamp walk
 
 anchor player_start 35 52
-anchor home 9 10
 anchor cottage_w 13 32
 anchor cottage_e 64 42
 anchor exit_north 35 0
@@ -172,6 +76,14 @@ anchor items 46 31
 anchor inn 52 51
 anchor exit_south 35 54
 anchor exit_se 78 44
+anchor foot1 9 23
+anchor foot2 25 26
+anchor foot3 48 24
+anchor foot4 66 28
+anchor top1 9 12
+anchor top2 25 14
+anchor top3 48 13
+anchor top4 66 15
 anchor folk_smith 16 33
 anchor folk_flask 45 33
 anchor folk_inn 49 52
@@ -179,24 +91,24 @@ anchor folk_doctor 64 44
 anchor folk_kid 10 44
 
 map
-###GGGGGGGGGGGGGG##################--###########################################
-###GGGGGGGGGGGGGG##################--#####GGGGGGGGGGGGGG########################
-###GGGGGGGGGGGGGG##GGGGGGGGGGGGGG##--#####GGGGGGGGGGGGGG########################
-###GGGGGGGGGGGGGG##GGGGGGGGGGGGGG##--#####GGGGGGGGGGGGGG####GGGGGGGGGGGGGG######
-###GGGGGGGGGGGGGG##GGGGGGGGGGGGGG##--#####GGGGGGGGGGGGGG####GGGGGGGGGGGGGG######
-###GGGGGGGGGGGGGG##GGGGGGGGGGGGGG##--#####GGGGGGGGGGGGGG####GGGGGGGGGGGGGG######
-####yyyyyyyyyyyy###GGGGGGGGGGGGGG##--#####GGGGGGGGGGGGGG####GGGGGGGGGGGGGG######
-####yyYYYYYYYYyy###GGGGGGGGGGGGGG##--######yyyyyyyyyyyy#####GGGGGGGGGGGGGG######
-####yYYYJJJJYYYy####yyyyyyyyyyyy###--######yyYYYYYYYYyy#####GGGGGGGGGGGGGG######
-####yYYYJJJJYYYy####yyYYYYYYYYyy###--######yYYYJJJJYYYy######yyyyyyyyyyyy#######
-####yyyYYYYYYyyy####yYYYJJJJYYYy###--######yYYYJJJJYYYy######yyYYYYYYYYyy#######
-####yyyyyRRyyyyy####yYYYJJJJYYYy###--######yyyYYYYYYyyy######yYYYJJJJYYYy#######
-####yyyyyzzyyyyy####yyyYYYYYYyyy###--######yyyyyRRyyyyy######yYYYJJJJYYYy#######
-####yyyyjzzjyyyy####yyyyyRRyyyyy###--######yyyyyzzyyyyy######yyyYYYYYYyyy#######
-####yyyyjzzjyyyy####yyyyyzzyyyyy###--######yyyyjzzjyyyy######yyyyyRRyyyyy#######
-########jzzj########yyyyjzzjyyyy###--######yyyyjzzjyyyy######yyyyyzzyyyyy#######
-########jzzj########yyyyjzzjyyyy###--##########jzzj##########yyyyjzzjyyyy#######
-########jzzj############jzzj#######--##########jzzj##########yyyyjzzjyyyy#######
+###################################--###########################################
+###################################--###########################################
+###################################--###########################################
+###################################--###########################################
+###################################--###########################################
+###################################--###########################################
+########jjjj############jjjj#######--##########jjjj##############jjjj###########
+########jjjj############jjjj#######--##########jjjj##############jjjj###########
+########jjjj############jjjj#######--##########jjjj##############jjjj###########
+########jjjj############jjjj#######--##########jjjj##############jjjj###########
+########jjjj############jjjj#######--##########jjjj##############jjjj###########
+########jjjj############jjjj#######--##########jjjj##############jjjj###########
+########jzzj############jjjj#######--##########jjjj##############jjjj###########
+########jzzj############jjjj#######--##########jzzj##############jjjj###########
+########jzzj############jzzj#######--##########jzzj##############jjjj###########
+########jzzj############jzzj#######--##########jzzj##############jzzj###########
+########jzzj############jzzj#######--##########jzzj##############jzzj###########
+########jzzj############jzzj#######--##########jzzj##############jzzj###########
 ##......jzzj............jzzj.......--..........jzzj..............jzzj.........##
 ##......jzzj............jzzj.......--..........jzzj..............jzzj.........##
 ##......!zz!............jzzj.......--..........jzzj..............jzzj.........##

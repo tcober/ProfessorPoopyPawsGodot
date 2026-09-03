@@ -99,8 +99,8 @@ static var BEATS: Array[Dictionary] = [
 		flags = ["prologue_fever", "prologue_doctor_gone"],
 	},
 	{
-		name = "A0-4 - THE GREY MORNING", scene = "res://scene/town_fever.tscn",
-		roster = KID, lead = &"kid_basil", state = {town_spawn = "home"},
+		name = "A0-4 - THE GREY MORNING", scene = "res://scene/canopy_fever.tscn",
+		roster = KID, lead = &"kid_basil", state = {},
 		flags = ["prologue_fever", "prologue_doctor_gone",
 				"prologue_doctor_heard"],
 	},
@@ -148,11 +148,11 @@ static var BEATS: Array[Dictionary] = [
 		state = {interior_spawn = "stair_arrival"}, flags = FEVER_DONE,
 	},
 	{
-		# town_spawn "home" also clears _home_armed, so the arrival doesn't
-		# bounce straight back through the door it landed on.
-		name = "A3 - INTO THE FESTIVAL", scene = "res://scene/town_fest.tscn",
+		# out of his own front door onto the ring deck — the town below is
+		# reached down the rope ladder (the 2026-08-23 split)
+		name = "A3 - INTO THE FESTIVAL", scene = "res://scene/canopy_fest.tscn",
 		roster = KID, lead = &"kid_basil",
-		state = {town_spawn = "home"}, flags = FEST_ARRIVED,
+		state = {}, flags = FEST_ARRIVED,
 	},
 	{
 		# goose_hidden as well as festival_done: festival_done alone re-spawns
@@ -212,8 +212,8 @@ static var BEATS: Array[Dictionary] = [
 	},
 	{
 		# the leg where the Academy door is LIVE and the south gate refuses
-		name = "A13 - ACROSS TOWN", scene = "res://scene/town_fest.tscn",
-		roster = KID, lead = &"kid_basil", state = {town_spawn = "home"},
+		name = "A13 - ACROSS TOWN", scene = "res://scene/canopy_fest.tscn",
+		roster = KID, lead = &"kid_basil", state = {},
 		flags = FEST_WHIRLIGIG + ["prologue_potion_made"],
 	},
 	{
@@ -251,7 +251,7 @@ static var BEATS: Array[Dictionary] = [
 		roster = STUDENT, lead = &"basil_student", state = {}, flags = [],
 	},
 	{
-		name = "B5 - THE SQUELCH", scene = "res://scene/town_thesis.tscn",
+		name = "B5 - THE SQUELCH", scene = "res://scene/canopy_thesis.tscn",
 		roster = STUDENT, lead = &"basil_student",
 		state = {town_thesis_phase = "dash"}, flags = [],
 	},
@@ -396,6 +396,11 @@ static var BEATS: Array[Dictionary] = [
 	},
 	{
 		name = "ALEMBIC TOWN", scene = "res://scene/alembic_town.tscn",
+		roster = ADULTS, lead = &"basil", state = {},
+		flags = ["prologue_done", "ebb_done"] + KIT_ARMED,
+	},
+	{
+		name = "THE BOUGHS", scene = "res://scene/alembic_canopy.tscn",
 		roster = ADULTS, lead = &"basil", state = {},
 		flags = ["prologue_done", "ebb_done"] + KIT_ARMED,
 	},
